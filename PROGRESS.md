@@ -2,9 +2,9 @@
 # Update this file at the END of EVERY Claude Code session.
 
 ## 📍 CURRENT STATUS
-- Week: 1 | Day: 1
+- Week: 1 | Day: 2
 - HF Spaces URL: [TO BE ADDED DAY 5]
-- GitHub Repo: [TO BE ADDED DAY 1]
+- GitHub Repo: https://github.com/rafilovestosuffer/Hackathon_2.0_sci
 - Demo Video: [TO BE ADDED WEEK 4]
 
 ---
@@ -40,18 +40,27 @@
 ## 📝 SESSION LOG
 <!-- Append to this after every session. Newest at top. -->
 
-### Session: May 18, 2026 — Day 1
+### Session: May 19, 2026 — Day 1
 **Done:**
-- [List what was completed]
+- Created GitHub repo and pushed to https://github.com/rafilovestosuffer/Hackathon_2.0_sci
+- Created full folder structure: model/, severity/, voice/, rag/knowledge/, pdf_gen/, map/, ui/, tests/, scripts/
+- Added __init__.py in every module folder
+- Copied all planning files: CLAUDE.md, PLAN.md, PROGRESS.md, DECISIONS.md, TASK.md, SESSION_PROTOCOL.md
+- Created .gitignore (excludes checkpoints, .env, __pycache__, *.bin, *.pt)
+- Created requirements.txt with all key dependencies
+- Created placeholder README.md (title + team + under construction)
+- Created placeholder app.py (st.title only)
+- Committed and pushed: [w1/d1] initial project structure
 
 **Blockers:**
-- [List any blockers or issues]
+- None
 
 **Next session start point:**
-- [First thing to do next session — be specific]
+- Write model/bd_skinnet.py — Swin+CBAM class (timm-based), per PLAN.md Day 2
 
 **Git commits this session:**
-- [Paste commit hashes or messages]
+- a95adf4 [w1/d1] initial project structure — all planning files + module skeleton
+- 3019176 [w1/d1] resolve merge conflict — keep project files
 
 ---
 
