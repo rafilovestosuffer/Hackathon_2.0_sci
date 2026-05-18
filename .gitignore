@@ -1,0 +1,33 @@
+# Model checkpoints (use HF Hub if >100MB)
+model/checkpoints/*.pt
+model/checkpoints/*.bin
+model/checkpoints/*.onnx
+
+# Environment
+.env
+*.env
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.Python
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# FAISS index (rebuilt at startup)
+rag/faiss_index.bin
+rag/chunks_metadata.json
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Logs
+*.log
