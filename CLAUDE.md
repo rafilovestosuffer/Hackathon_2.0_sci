@@ -297,4 +297,4 @@ Owner this week: ML lead (me)
 
 ---
 *This file is the single source of truth for all Claude Code sessions.*
-*Last updated: [DATE] — Update timestamp at end of each week.*
+*Last updated: 2026-05-20 (Week 1 — severity tier map updated to real 7 model classes)*

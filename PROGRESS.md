@@ -30,6 +30,8 @@
 - [x] tests/test_gradcam.py
 - [ ] tests/test_pdf.py
 - [ ] scripts/keepalive.py
+- [ ] scripts/seed_commits.py
+- [ ] tests/test_pipeline.py
 - [ ] README.md (final)
 - [ ] Project Report PDF
 - [ ] Model & Data Card PDF
