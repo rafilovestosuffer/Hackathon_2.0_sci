@@ -48,6 +48,13 @@
 
 ---
 
+### [2026-05-19] Severity tier mapping updated to match actual model output classes
+**Decision:** Replace placeholder disease names (melanoma, psoriasis, tinea_corporis…) with the 7 actual BD-SkinNet output classes
+**Reason:** The original CLAUDE.md severity spec was written before training. The real model outputs: Atopic_Dermatitis, Contact_Dermatitis, Eczema, Scabies, Seborrheic_Dermatitis, Tinea, Vitiligo. No Tier 3 base class exists in these 7 — Tier 3 is reached only via Signal 2 (low confidence), Signal 3 (high GradCAM coverage), or Signal 4 (urgent voice keywords). This is medically safe: the multi-signal escalation still catches urgent presentations.
+**Trade-off:** No disease class directly maps to Tier 3 base. Judges may ask why. Answer: none of our 7 trained classes is inherently life-threatening in isolation — severity is contextual (spreading, low confidence, widespread lesion).
+
+---
+
 ## PENDING DECISIONS (evaluate during build)
 - [ ] Should we support Bangla-English code-switching in voice?
 - [ ] Should we add a demo mode with pre-loaded sample case (for slow HF Spaces)?

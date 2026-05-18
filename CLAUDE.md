@@ -160,17 +160,20 @@ RAG CHATBOT:
 
 ```python
 # Signal 1: Disease class base tier (hardcoded lookup)
+# Classes = actual BD-SkinNet output classes (7 classes from training)
 DISEASE_TIER = {
-    # Tier 3 — URGENT
-    "melanoma": 3, "suspicious_pigmented_lesion": 3,
-    "cellulitis": 3, "spreading_redness": 3,
-    # Tier 2 — ROUTINE DOCTOR
-    "psoriasis": 2, "bacterial_infection": 2,
-    "widespread_eczema": 2, "ambiguous": 2,
-    # Tier 1 — PHARMACIST
-    "tinea_corporis": 1, "tinea_pedis": 1, "ringworm": 1,
-    "mild_eczema": 1, "mild_dermatitis": 1, "contact_dermatitis": 1,
+    # Tier 2 — ROUTINE DOCTOR (Upazila Health Complex within 48h)
+    "Atopic_Dermatitis":     2,  # chronic, needs prescription management
+    "Eczema":                2,  # widespread presentation, needs doctor
+    "Scabies":               2,  # infectious, needs prescription
+    "Vitiligo":              2,  # chronic autoimmune, needs specialist
+    # Tier 1 — PHARMACIST (within 3-5 days)
+    "Contact_Dermatitis":    1,  # OTC antihistamines + avoid trigger
+    "Seborrheic_Dermatitis": 1,  # OTC antifungal shampoo/cream
+    "Tinea":                 1,  # OTC antifungal (clotrimazole)
 }
+# Note: No Tier 3 base class — Tier 3 is reached only via Signal 2/3/4 escalation
+# (low confidence, high GradCAM coverage, or urgent voice keywords)
 
 # Signal 2: Confidence modifier
 if confidence < 0.40: tier = 3
