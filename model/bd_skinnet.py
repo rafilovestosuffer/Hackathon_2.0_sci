@@ -116,10 +116,16 @@ class BDSkinNet(nn.Module):
 
 
 def load_model(checkpoint_path: str, device: str = "cpu") -> BDSkinNet:
+    """Loads FP32 or INT8 quantized checkpoint."""
+    ckpt = torch.load(checkpoint_path, map_location=device)
+    is_quantized = ckpt.get("quantized", False)
+
     model = BDSkinNet()
-    ckpt  = torch.load(checkpoint_path, map_location=device)
-    state = ckpt.get("model_state", ckpt)
-    model.load_state_dict(state)
+    if is_quantized:
+        model = torch.quantization.quantize_dynamic(
+            model, qconfig_spec={torch.nn.Linear}, dtype=torch.qint8
+        )
+    model.load_state_dict(ckpt.get("model_state", ckpt))
     model.eval()
     return model
 

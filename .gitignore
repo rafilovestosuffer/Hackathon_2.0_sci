@@ -1,5 +1,6 @@
 # Model checkpoints (use HF Hub if >100MB)
 model/checkpoints/*.pt
+model/checkpoints/*.pth
 model/checkpoints/*.bin
 model/checkpoints/*.onnx
 
