@@ -2,7 +2,7 @@
 # Update this file at the END of EVERY Claude Code session.
 
 ## 📍 CURRENT STATUS
-- Week: 1 | Day: 2
+- Week: 1 | Day: 3
 - HF Spaces URL: [TO BE ADDED DAY 5]
 - GitHub Repo: https://github.com/rafilovestosuffer/Hackathon_2.0_sci
 - Demo Video: [TO BE ADDED WEEK 4]
@@ -11,10 +11,10 @@
 
 ## ✅ COMPLETED MODULES
 <!-- Check these off as they are done -->
-- [ ] model/bd_skinnet.py
+- [x] model/bd_skinnet.py
 - [ ] model/gradcam.py
-- [ ] model/disease_labels.py
-- [ ] model/export_int8.py
+- [x] model/disease_labels.py
+- [x] model/export_int8.py
 - [ ] severity/engine.py
 - [ ] voice/pipeline.py (transcription)
 - [ ] voice/pipeline.py (Gemini extraction)
@@ -39,6 +39,32 @@
 
 ## 📝 SESSION LOG
 <!-- Append to this after every session. Newest at top. -->
+
+### Session: May 19, 2026 — Day 2
+**Done:**
+- Extracted model architecture from BD_SkinNet_Model_Main.ipynb
+- Wrote model/bd_skinnet.py — BDSkinNet (Swin-B + CBAM x4 stages, 7 classes, 1920-d fusion head)
+- Wrote model/disease_labels.py — 7 classes with Bengali names + severity tiers
+- Wrote model/export_int8.py — torch.quantization.quantize_dynamic export script
+- Forward pass test embedded in bd_skinnet.py __main__ block
+
+**Key facts locked in:**
+- 7 classes: Atopic_Dermatitis, Contact_Dermatitis, Eczema, Scabies, Seborrheic_Dermatitis, Tinea, Vitiligo
+- Test F1=0.9246, Accuracy=92.37%, AUC-ROC=0.9937
+- GradCAM++ target layer: model.cbam_modules[-1].spatial_attn.conv
+- Swin stage dims: [128, 256, 512, 1024]
+
+**Blockers:**
+- Checkpoint (bd_skinnet_best.pth) is on Kaggle — need to download and add to model/checkpoints/ before inference works
+
+**Next session start point:**
+- Write model/gradcam.py — GradCAM++ wrapper using target layer model.cbam_modules[-1].spatial_attn.conv
+- Write tests/test_gradcam.py
+
+**Git commits this session:**
+- 478dbcf [w1/d2] BD-SkinNet architecture + CBAM + disease labels (7 classes) + INT8 export
+
+---
 
 ### Session: May 19, 2026 — Day 1
 **Done:**
