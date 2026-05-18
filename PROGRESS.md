@@ -2,7 +2,7 @@
 # Update this file at the END of EVERY Claude Code session.
 
 ## 📍 CURRENT STATUS
-- Week: 1 | Day: 3
+- Week: 1 | Day: 4
 - HF Spaces URL: [TO BE ADDED DAY 5]
 - GitHub Repo: https://github.com/rafilovestosuffer/Hackathon_2.0_sci
 - Demo Video: [TO BE ADDED WEEK 4]
@@ -12,7 +12,7 @@
 ## ✅ COMPLETED MODULES
 <!-- Check these off as they are done -->
 - [x] model/bd_skinnet.py
-- [ ] model/gradcam.py
+- [x] model/gradcam.py
 - [x] model/disease_labels.py
 - [x] model/export_int8.py
 - [ ] severity/engine.py
@@ -27,7 +27,7 @@
 - [ ] ui/styles.py
 - [ ] app.py (full integration)
 - [ ] tests/test_severity.py
-- [ ] tests/test_gradcam.py
+- [x] tests/test_gradcam.py
 - [ ] tests/test_pdf.py
 - [ ] scripts/keepalive.py
 - [ ] README.md (final)
@@ -39,6 +39,27 @@
 
 ## 📝 SESSION LOG
 <!-- Append to this after every session. Newest at top. -->
+
+### Session: May 20, 2026 — Day 3
+**Done:**
+- Wrote model/gradcam.py — GradCAM++ wrapper using target layer model.cbam_modules[-1].spatial_attn.conv
+- Implemented compute_gradcam(model, image_tensor) → {heatmap, coverage_pct, overlay, target_class}
+- Implemented compute_coverage_pct(heatmap, threshold=0.5) → float
+- Wrote tests/test_gradcam.py — 13 assertions across 2 test classes:
+  - TestComputeGradcam: shape, value range, coverage range, overlay shape, target class, unbatched input, required keys
+  - TestComputeCoveragePct: zero map, full map, half map, custom threshold, return type, Signal 3 boundary
+
+**Blockers:**
+- None — all tests designed to pass with random weights (no checkpoint required)
+
+**Next session start point:**
+- Write severity/engine.py — 4-signal triage engine using DISEASE_TIER from disease_labels.py
+- Write tests/test_severity.py covering all signals and edge cases per PLAN.md Day 4
+
+**Git commits this session:**
+- 21770bb [w1/d3] GradCAM++ wrapper + coverage computation + full test suite
+
+---
 
 ### Session: May 19, 2026 — Day 2
 **Done:**
