@@ -1,28 +1,24 @@
-# TASK — May 18, 2026 | Week 1 / Day 1
+# TASK — May 19, 2026 | Week 1 / Day 2
 
 ## TODAY'S GOAL
-Set up the full GitHub repository with correct structure and all planning files.
+Write the BD-SkinNet model architecture (Swin+CBAM), disease label map, and INT8 export script.
 
 ## TASKS (in order)
-1. [ ] Create GitHub repo `skinai-bangladesh` (public) and clone locally
-2. [ ] Create full folder structure with mkdir -p for all module dirs
-3. [ ] Copy CLAUDE.md, PLAN.md, PROGRESS.md, DECISIONS.md, TASK.md into repo
-4. [ ] Create .gitignore (checkpoints/, .env, __pycache__, *.bin, *.pt if >100MB)
-5. [ ] Create requirements.txt skeleton with all key dependencies
-6. [ ] Create placeholder README.md (title + team + "Under construction")
-7. [ ] Create placeholder app.py (just st.title("SkinAI Bangladesh"))
-8. [ ] Create empty __init__.py in each module folder
-9. [ ] git add -A && git commit -m "[w1/d1] initial project structure"
-10. [ ] git push origin main
+1. [ ] Write model/bd_skinnet.py — Swin Transformer Base + CBAM (Channel+Spatial Attention) using timm
+2. [ ] Write model/disease_labels.py — English → Bengali disease name map for all classes
+3. [ ] Write model/export_int8.py — INT8 quantization script using torch.quantization.quantize_dynamic
+4. [ ] Add dummy forward pass test inside bd_skinnet.py (random 224x224 tensor, assert output shape is correct)
+5. [ ] git commit -m "[w1/d2] BD-SkinNet architecture + INT8 export"
+6. [ ] git push origin main
 
 ## CONTEXT
-- First day — no prior work
-- After this is done, every future session starts with CLAUDE.md read
-- Do NOT write any model code today — structure only
+- Last session left off at: Day 1 complete — repo live at https://github.com/rafilovestosuffer/Hackathon_2.0_sci
+- Known issue to fix first: None
+- Do NOT touch today: severity/, voice/, rag/, app.py
 
 ## DEFINITION OF DONE
-- [ ] All folders exist with __init__.py
-- [ ] All planning files committed
-- [ ] requirements.txt has all deps listed
-- [ ] GitHub repo is PUBLIC and shows commits from today
-- [ ] PROGRESS.md updated with today's session
+- [ ] model/bd_skinnet.py loads without error and forward pass returns correct output shape
+- [ ] model/disease_labels.py has English + Bengali name for every disease class
+- [ ] model/export_int8.py runs and produces a quantized model
+- [ ] Git committed and pushed
+- [ ] PROGRESS.md updated
