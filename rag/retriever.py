@@ -1,17 +1,19 @@
 """
-RAG retriever: FAISS query + Gemini answer.
-Provides: load_index(), retrieve(), answer_question()
+RAG retriever: keyword search + Gemini answer.
 
-Index is built at HF Space startup via build_index.py.
-rag/faiss_index.bin + rag/chunks_metadata.json must exist before calling load_index().
+Primary path: BM25-lite keyword retrieval directly from .txt files (no downloads needed).
+Optional upgrade: FAISS semantic search if faiss_index.bin exists.
+
+Provides: load_index(), retrieve(), answer_question()
 """
 
 import json
 import logging
+import math
 import os
+import re
+from collections import Counter
 
-import faiss
-import numpy as np
 from dotenv import load_dotenv
 from google import genai
 
@@ -19,6 +21,7 @@ load_dotenv()
 
 logger = logging.getLogger(__name__)
 
+KNOWLEDGE_DIR = os.path.join(os.path.dirname(__file__), "knowledge")
 INDEX_PATH = os.path.join(os.path.dirname(__file__), "faiss_index.bin")
 METADATA_PATH = os.path.join(os.path.dirname(__file__), "chunks_metadata.json")
 EMBED_MODEL = "sentence-transformers/paraphrase-multilingual-MiniLM-L6-v2"
@@ -43,13 +46,111 @@ Answer:\
 """
 
 # ── Singletons ────────────────────────────────────────────────────────────────
-_index: faiss.Index | None = None
+_chunks: list[dict] = []          # raw chunks from .txt files — always populated
+_index = None                     # faiss.Index — optional
 _metadata: list[dict] | None = None
-_embed_model = None          # SentenceTransformer or AutoModel wrapper
+_embed_model = None
 _gemini_client: genai.Client | None = None
+_idf: dict[str, float] = {}       # precomputed IDF for BM25
 
 
-# ── Internal helpers ──────────────────────────────────────────────────────────
+# ── Keyword helpers ───────────────────────────────────────────────────────────
+
+def _tokenize(text: str) -> list[str]:
+    return re.findall(r"[a-zঀ-৿]+", text.lower())
+
+
+def _build_idf(chunks: list[dict]) -> dict[str, float]:
+    N = len(chunks)
+    df: Counter = Counter()
+    for c in chunks:
+        for tok in set(_tokenize(c.get("text", ""))):
+            df[tok] += 1
+    return {tok: math.log((N - f + 0.5) / (f + 0.5) + 1) for tok, f in df.items()}
+
+
+def _bm25_score(query_tokens: list[str], chunk_text: str, k1: float = 1.5, b: float = 0.75) -> float:
+    avg_dl = sum(len(_tokenize(c.get("text", ""))) for c in _chunks) / max(len(_chunks), 1)
+    tokens = _tokenize(chunk_text)
+    dl = len(tokens)
+    tf_map = Counter(tokens)
+    score = 0.0
+    for tok in query_tokens:
+        if tok not in _idf:
+            continue
+        tf = tf_map.get(tok, 0)
+        score += _idf[tok] * (tf * (k1 + 1)) / (tf + k1 * (1 - b + b * dl / max(avg_dl, 1)))
+    return score
+
+
+# ── Load chunks from .txt files ───────────────────────────────────────────────
+
+def _load_chunks_from_files() -> list[dict]:
+    chunks = []
+    if not os.path.isdir(KNOWLEDGE_DIR):
+        return chunks
+    for fname in sorted(os.listdir(KNOWLEDGE_DIR)):
+        if not fname.endswith(".txt"):
+            continue
+        path = os.path.join(KNOWLEDGE_DIR, fname)
+        try:
+            with open(path, encoding="utf-8") as f:
+                raw = f.read().strip()
+        except Exception:
+            continue
+        source, topic, body = "", "", raw
+        if "---" in raw:
+            header, _, body = raw.partition("---")
+            for line in header.splitlines():
+                if line.startswith("SOURCE:"):
+                    source = line.split(":", 1)[1].strip()
+                elif line.startswith("TOPIC:"):
+                    topic = line.split(":", 1)[1].strip()
+        chunks.append({
+            "filename": fname,
+            "source": source,
+            "topic": topic,
+            "text": raw,
+        })
+    return chunks
+
+
+# ── Optional FAISS upgrade ────────────────────────────────────────────────────
+
+def _try_load_faiss() -> bool:
+    global _index, _metadata, _embed_model
+    if not os.path.exists(INDEX_PATH) or not os.path.exists(METADATA_PATH):
+        return False
+    try:
+        import faiss as _faiss
+        import numpy as np
+        from sentence_transformers import SentenceTransformer
+
+        _index = _faiss.read_index(INDEX_PATH)
+        with open(METADATA_PATH, encoding="utf-8") as f:
+            _metadata = json.load(f)
+
+        class _STWrapper:
+            def __init__(self):
+                self._model = SentenceTransformer(EMBED_MODEL)
+            def encode(self, texts):
+                emb = self._model.encode(texts, show_progress_bar=False, convert_to_numpy=True)
+                norms = np.linalg.norm(emb, axis=1, keepdims=True)
+                norms = np.where(norms == 0, 1, norms)
+                return (emb / norms).astype("float32")
+
+        _embed_model = _STWrapper()
+        logger.info("FAISS semantic search loaded: %d vectors.", _index.ntotal)
+        return True
+    except Exception as exc:
+        logger.warning("FAISS/ST load failed (%s) — using BM25 keyword search.", exc)
+        _index = None
+        _metadata = None
+        _embed_model = None
+        return False
+
+
+# ── Gemini ────────────────────────────────────────────────────────────────────
 
 def _get_gemini_client() -> genai.Client:
     global _gemini_client
@@ -58,114 +159,66 @@ def _get_gemini_client() -> genai.Client:
     return _gemini_client
 
 
-def _load_embed_model():
-    """Load embedding model; try SentenceTransformer first, fall back to AutoModel."""
-    global _embed_model
-
-    # SentenceTransformer path (preferred — works on HF Space)
-    try:
-        from sentence_transformers import SentenceTransformer
-
-        class _STWrapper:
-            def __init__(self):
-                self._model = SentenceTransformer(EMBED_MODEL)
-
-            def encode(self, texts: list[str]) -> np.ndarray:
-                emb = self._model.encode(texts, show_progress_bar=False, convert_to_numpy=True)
-                norms = np.linalg.norm(emb, axis=1, keepdims=True)
-                norms = np.where(norms == 0, 1, norms)
-                return (emb / norms).astype("float32")
-
-        _embed_model = _STWrapper()
-        logger.info("Embedding model loaded via SentenceTransformer.")
-        return
-    except Exception as e:
-        logger.warning("SentenceTransformer failed (%s); trying AutoModel.", e)
-
-    # AutoModel fallback (works when sentence-transformers has version issues)
-    import torch
-    import torch.nn.functional as F
-    from transformers import AutoModel, AutoTokenizer
-
-    tokenizer = AutoTokenizer.from_pretrained(EMBED_MODEL)
-    hf_model = AutoModel.from_pretrained(EMBED_MODEL)
-    hf_model.eval()
-
-    class _AutoModelWrapper:
-        def __init__(self, tok, mod):
-            self._tok = tok
-            self._mod = mod
-
-        def encode(self, texts: list[str]) -> np.ndarray:
-            with torch.no_grad():
-                enc = self._tok(texts, padding=True, truncation=True,
-                                max_length=512, return_tensors="pt")
-                out = self._mod(**enc)
-                mask = enc["attention_mask"].unsqueeze(-1).expand(
-                    out.last_hidden_state.size()).float()
-                pooled = torch.sum(out.last_hidden_state * mask, 1) / \
-                         torch.clamp(mask.sum(1), min=1e-9)
-                normed = F.normalize(pooled, p=2, dim=1)
-                return normed.cpu().numpy().astype("float32")
-
-    _embed_model = _AutoModelWrapper(tokenizer, hf_model)
-    logger.info("Embedding model loaded via AutoModel fallback.")
-
-
-def _detect_lang(text: str) -> str:
-    """Return 'bn' if text contains Bengali Unicode characters, else 'en'."""
-    return "bn" if any("ঀ" <= ch <= "৿" for ch in text) else "en"
-
-
 # ── Public API ────────────────────────────────────────────────────────────────
 
 def load_index() -> bool:
     """
-    Load FAISS index + chunk metadata into module singletons.
-    Returns True on success, False if files don't exist yet.
+    Load knowledge base. Always returns True if any .txt files exist.
+    Optionally upgrades to FAISS semantic search if index files are present.
     Never raises.
     """
-    global _index, _metadata
-
-    if not os.path.exists(INDEX_PATH) or not os.path.exists(METADATA_PATH):
-        logger.warning("FAISS index or metadata not found — run build_index.py first.")
-        return False
+    global _chunks, _idf
 
     try:
-        _index = faiss.read_index(INDEX_PATH)
-        with open(METADATA_PATH, encoding="utf-8") as f:
-            _metadata = json.load(f)
-        _load_embed_model()
-        logger.info("RAG index loaded: %d chunks.", len(_metadata))
-        return True
+        _chunks = _load_chunks_from_files()
+        if not _chunks:
+            logger.warning("No knowledge .txt files found in %s", KNOWLEDGE_DIR)
+            return False
+        _idf = _build_idf(_chunks)
+        logger.info("BM25 index ready: %d chunks from knowledge files.", len(_chunks))
     except Exception as exc:
-        logger.error("load_index failed: %s", exc)
-        _index = None
-        _metadata = None
+        logger.error("Failed to load knowledge files: %s", exc)
         return False
 
+    # Try to upgrade to FAISS (best-effort, non-blocking)
+    _try_load_faiss()
+    return True
 
-def _embed_query(text: str) -> np.ndarray:
-    """Embed a single query → float32 array shape (1, dim)."""
-    emb = _embed_model.encode([text])
-    return emb.reshape(1, -1)
+
+def _detect_lang(text: str) -> str:
+    return "bn" if any("ঀ" <= ch <= "৿" for ch in text) else "en"
 
 
 def retrieve(question: str, top_k: int = TOP_K) -> list[dict]:
     """
-    Return up to top_k chunks most semantically relevant to question.
-    Returns empty list if index not loaded or on any error.
+    Return top_k most relevant chunks for question.
+    Uses FAISS if available, otherwise BM25 keyword search.
     """
-    if _index is None or _metadata is None or _embed_model is None:
+    if not question.strip():
         return []
-    try:
-        query_vec = _embed_query(question)
-        k = min(top_k, len(_metadata))
-        _scores, indices = _index.search(query_vec, k)
-        return [_metadata[i] for i in indices[0] if 0 <= i < len(_metadata)]
-    except Exception as exc:
-        logger.error("retrieve failed: %s", exc)
+
+    # FAISS path
+    if _index is not None and _metadata is not None and _embed_model is not None:
+        try:
+            import numpy as np
+            qvec = _embed_model.encode([question]).reshape(1, -1)
+            k = min(top_k, len(_metadata))
+            _scores, indices = _index.search(qvec, k)
+            return [_metadata[i] for i in indices[0] if 0 <= i < len(_metadata)]
+        except Exception as exc:
+            logger.warning("FAISS search failed, falling back to BM25: %s", exc)
+
+    # BM25 keyword path — always works
+    if not _chunks:
         return []
+    query_tokens = _tokenize(question)
+    scored = [(
+        _bm25_score(query_tokens, c.get("text", "")),
+        i,
+        c,
+    ) for i, c in enumerate(_chunks)]
+    scored.sort(key=lambda x: -x[0])
+    return [c for _, _, c in scored[:top_k] if _ > 0] or [c for _, _, c in scored[:top_k]]
 
 
 def answer_question(
@@ -174,11 +227,8 @@ def answer_question(
     disease_context: str | None = None,
 ) -> str:
     """
-    Full RAG pipeline: embed → retrieve top-k → Gemini answer.
-    - lang: 'en' or 'bn'; if None, auto-detected from question.
-    - disease_context: optional current diagnosis string injected into system prompt
-      (e.g. "Scabies (38% confidence)") so Gemini can contextualise the answer.
-    - Always returns a str. Never raises.
+    Full RAG pipeline: retrieve top-k chunks → Gemini answer.
+    Always returns a str. Never raises.
     """
     if not question or not question.strip():
         return _ENGLISH_FALLBACK
@@ -189,7 +239,7 @@ def answer_question(
     fallback = _BENGALI_FALLBACK if lang == "bn" else _ENGLISH_FALLBACK
     lang_label = "Bengali (বাংলা)" if lang == "bn" else "English"
 
-    if _index is None:
+    if not _chunks:
         logger.warning("answer_question called before load_index().")
         return fallback
 

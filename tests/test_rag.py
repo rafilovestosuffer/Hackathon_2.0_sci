@@ -36,7 +36,10 @@ def _make_fake_index(n=3, dim=384):
 
 
 def _install_fake_state():
-    """Inject fake singletons so tests don't need a real index on disk."""
+    """Inject fake BM25 state so tests don't need real .txt files or a model download."""
+    retriever._chunks = FAKE_METADATA.copy()
+    retriever._idf = retriever._build_idf(FAKE_METADATA)
+    # Also wire up FAISS state for tests that explicitly test the FAISS path
     retriever._index = _make_fake_index(len(FAKE_METADATA))
     retriever._metadata = FAKE_METADATA.copy()
 
@@ -55,6 +58,8 @@ def _clear_state():
     retriever._metadata = None
     retriever._embed_model = None
     retriever._gemini_client = None
+    retriever._chunks = []
+    retriever._idf = {}
 
 
 # ── TestLoadIndex ─────────────────────────────────────────────────────────────
@@ -63,51 +68,45 @@ class TestLoadIndex:
     def setup_method(self):
         _clear_state()
 
+    def _make_knowledge_dir(self, tmp_path) -> str:
+        """Create a temp knowledge dir with fake .txt files."""
+        kdir = tmp_path / "knowledge"
+        kdir.mkdir()
+        for i, chunk in enumerate(FAKE_METADATA):
+            f = kdir / chunk["filename"]
+            f.write_text(
+                f"SOURCE: {chunk['source']}\nTOPIC: {chunk['topic']}\n---\n{chunk['text']}",
+                encoding="utf-8",
+            )
+        return str(kdir)
+
     def test_load_index_missing_files_returns_false(self, tmp_path):
-        with patch.object(retriever, "INDEX_PATH", str(tmp_path / "nope.bin")), \
-             patch.object(retriever, "METADATA_PATH", str(tmp_path / "nope.json")):
+        empty_dir = tmp_path / "empty_knowledge"
+        empty_dir.mkdir()
+        with patch.object(retriever, "KNOWLEDGE_DIR", str(empty_dir)):
             assert retriever.load_index() is False
 
     def test_load_index_missing_index_only_returns_false(self, tmp_path):
-        meta = tmp_path / "chunks_metadata.json"
-        meta.write_text(json.dumps(FAKE_METADATA))
-        with patch.object(retriever, "INDEX_PATH", str(tmp_path / "nope.bin")), \
-             patch.object(retriever, "METADATA_PATH", str(meta)):
-            assert retriever.load_index() is False
+        # Without FAISS index, load_index still returns True (BM25 works from .txt files)
+        kdir = self._make_knowledge_dir(tmp_path)
+        with patch.object(retriever, "KNOWLEDGE_DIR", kdir), \
+             patch.object(retriever, "INDEX_PATH", str(tmp_path / "nope.bin")), \
+             patch.object(retriever, "METADATA_PATH", str(tmp_path / "nope.json")):
+            result = retriever.load_index()
+        assert result is True  # BM25 path works without FAISS
 
     def test_load_index_success_returns_true(self, tmp_path):
-        import faiss
-        idx = _make_fake_index(len(FAKE_METADATA))
-        idx_path = str(tmp_path / "faiss_index.bin")
-        meta_path = str(tmp_path / "chunks_metadata.json")
-        faiss.write_index(idx, idx_path)
-        with open(meta_path, "w") as f:
-            json.dump(FAKE_METADATA, f)
-
-        with patch.object(retriever, "INDEX_PATH", idx_path), \
-             patch.object(retriever, "METADATA_PATH", meta_path), \
-             patch.object(retriever, "_load_embed_model"):
+        kdir = self._make_knowledge_dir(tmp_path)
+        with patch.object(retriever, "KNOWLEDGE_DIR", kdir):
             result = retriever.load_index()
-
         assert result is True
-        assert retriever._index is not None
-        assert retriever._metadata == FAKE_METADATA
+        assert len(retriever._chunks) == len(FAKE_METADATA)
 
     def test_load_index_sets_metadata(self, tmp_path):
-        import faiss
-        idx = _make_fake_index(len(FAKE_METADATA))
-        idx_path = str(tmp_path / "faiss_index.bin")
-        meta_path = str(tmp_path / "chunks_metadata.json")
-        faiss.write_index(idx, idx_path)
-        with open(meta_path, "w") as f:
-            json.dump(FAKE_METADATA, f)
-
-        with patch.object(retriever, "INDEX_PATH", idx_path), \
-             patch.object(retriever, "METADATA_PATH", meta_path), \
-             patch.object(retriever, "_load_embed_model"):
+        kdir = self._make_knowledge_dir(tmp_path)
+        with patch.object(retriever, "KNOWLEDGE_DIR", kdir):
             retriever.load_index()
-
-        assert len(retriever._metadata) == len(FAKE_METADATA)
+        assert len(retriever._chunks) == len(FAKE_METADATA)
 
 
 # ── TestRetrieve ──────────────────────────────────────────────────────────────
@@ -141,8 +140,8 @@ class TestRetrieve:
             assert "topic" in chunk
             assert "text" in chunk
 
-    def test_retrieve_returns_empty_when_no_index(self):
-        _clear_state()
+    def test_retrieve_returns_empty_when_no_chunks(self):
+        _clear_state()  # clears _chunks too
         results = retriever.retrieve("any question")
         assert results == []
 
@@ -186,8 +185,8 @@ class TestAnswerQuestion:
         result = retriever.answer_question("   ")
         assert isinstance(result, str)
 
-    def test_answer_fallback_when_index_missing(self):
-        _clear_state()
+    def test_answer_fallback_when_no_chunks(self):
+        _clear_state()  # clears _chunks — no knowledge loaded
         result = retriever.answer_question("What is scabies?")
         assert isinstance(result, str)
         assert result in (retriever._ENGLISH_FALLBACK, retriever._BENGALI_FALLBACK)

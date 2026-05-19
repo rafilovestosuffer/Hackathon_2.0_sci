@@ -42,17 +42,7 @@ inject_css()
 
 @st.cache_resource(show_spinner="Loading RAG knowledge base…")
 def _load_rag_index():
-    ok = load_index()
-    if not ok:
-        # Index not built yet (Docker build may have failed silently) — build now
-        try:
-            from rag.build_index import build as _build_index
-            logger.info("FAISS index missing — building at startup…")
-            _build_index()
-            ok = load_index()
-        except Exception as exc:
-            logger.error("RAG index build failed at startup: %s", exc)
-    return ok
+    return load_index()
 
 
 @st.cache_resource(show_spinner="Loading voice model…")
