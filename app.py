@@ -448,7 +448,8 @@ with tab1:
                         # Folium map
                         try:
                             from streamlit_folium import st_folium
-                            fmap = render_hospital_map(hospitals, user_lat, user_lon)
+                            with st.spinner("🗺️ Rendering hospital map…"):
+                                fmap = render_hospital_map(hospitals, user_lat, user_lon)
                             if fmap:
                                 st_folium(fmap, use_container_width=True, height=380)
                         except Exception:
@@ -622,7 +623,7 @@ with tab3:
         st.markdown("")
 
         if st.button("📄 Generate Referral Letter", use_container_width=True, type="primary"):
-            with st.spinner("Generating PDF referral letter…"):
+            with st.spinner("📄 Generating PDF referral letter…"):
                 from model.disease_labels import get_bengali
                 session_data = {
                     # Patient history (Section 1)

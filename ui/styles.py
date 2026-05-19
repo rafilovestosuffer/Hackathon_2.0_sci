@@ -373,6 +373,48 @@ def inject_css() -> None:
             border-radius: 10px;
             font-family: 'Noto Sans Bengali', 'Inter', sans-serif !important;
         }}
+
+        /* ── Mobile / narrow layout (≤ 480 px) ───────────────────────── */
+        @media (max-width: 480px) {{
+            .main .block-container {{
+                padding-left: 0.75rem;
+                padding-right: 0.75rem;
+            }}
+            .sk-card {{
+                padding: 0.75rem 1rem;
+            }}
+            .sk-card-value {{
+                font-size: 1.25rem;
+            }}
+            .disease-name-en {{
+                font-size: 1.1rem;
+            }}
+            .disease-name-bn {{
+                font-size: 0.95rem;
+            }}
+            .badge-urgency {{
+                font-size: 1.1rem;
+            }}
+            .badge-action,
+            .badge-action-bn {{
+                font-size: 0.82rem;
+            }}
+            .stTabs [data-baseweb="tab"] {{
+                font-size: 0.82rem;
+                padding: 0.4rem 0.6rem;
+            }}
+            .history-table td {{
+                font-size: 0.80rem;
+                padding: 0.35rem 0.5rem;
+            }}
+            .history-table td:first-child {{
+                width: 44%;
+            }}
+            .rag-answer-box {{
+                font-size: 0.88rem;
+                padding: 0.75rem 1rem;
+            }}
+        }}
         </style>
         """,
         unsafe_allow_html=True,

@@ -2,7 +2,7 @@
 # Update this file at the END of EVERY Claude Code session.
 
 ## 📍 CURRENT STATUS
-- Week: 4 | Day: 20 (starting)
+- Week: 4 | Day: 21 (starting)
 - HF Spaces URL: https://huggingface.co/spaces/rafilovestosuffer/skinai-bangladesh
 - GitHub Repo: https://github.com/rafilovestosuffer/Hackathon_2.0_sci
 - Demo Video: [TO BE ADDED WEEK 4]
@@ -48,6 +48,35 @@
 
 ## 📝 SESSION LOG
 <!-- Append to this after every session. Newest at top. -->
+
+### Session: Jun 6, 2026 — Day 20 — Spinners + Mobile CSS + Demo Script ✅
+**Done:**
+- app.py: confirmed all 6 slow operations are wrapped in `st.spinner()`:
+  - Transcription, history extraction, model inference, hospital query, Folium map render, PDF generation
+  - Added missing 📄 emoji to PDF spinner; added Folium map rendering spinner
+- ui/styles.py: added `@media (max-width: 480px)` mobile CSS breakpoints
+  - Reduced card padding, font sizes, badge text, tab label size, history table cell padding
+  - RAG answer box padding reduced on narrow screens
+- docs/demo_script.md: full 8-segment, 4-minute Rahim story demo script written
+  - All narration written word-for-word (English)
+  - Exact Bengali sentence for voice demo segment included
+  - Bengali chat question included for RAG segment
+  - Pre-recording checklist + post-recording checklist
+  - Recording tips and timing notes
+- Full test suite: 164/164 passing (no regressions)
+- Committed and pushed to GitHub + HF Space
+
+**Blockers:**
+- BD-SkinNet checkpoint still pending — _run_model() placeholder active
+- Demo video not yet recorded (Day 21 task)
+
+**Next session start point:**
+- Day 21: record the 3–5 min demo video using docs/demo_script.md
+
+**Git commits this session:**
+- [w4/d20] loading spinners + mobile CSS + demo video script
+
+---
 
 ### Session: Jun 5, 2026 — Day 19 — W3 Sign-Off ✅
 **Done:**

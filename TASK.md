@@ -1,12 +1,12 @@
-# TASK — Week 4 / Day 20
-# Target date: Jun 5–6, 2026
+# TASK — Week 4 / Day 21
+# Target date: Jun 7–8, 2026
 
 ## STARTING STATE
 - Tests: 164/164 passing
-- Week 3: fully complete and signed off (all 7 W3 features + sign-off checklist)
-- Week 4 theme: Polish + Demo Video
-- BD-SkinNet checkpoint: still pending (bd_skinnet_best.pth not yet received)
-- Demo video: NOT yet recorded (record only after full feature completion)
+- Week 4, Day 20 complete: spinners audited, mobile CSS added, demo script written
+- Demo script: `docs/demo_script.md` (8 segments, 4 minutes, full narration)
+- BD-SkinNet checkpoint: still pending (bd_skinnet_best.pth)
+- Demo video: NOT yet recorded — this is today's primary task
 - HF Space: live at https://huggingface.co/spaces/rafilovestosuffer/skinai-bangladesh
 
 ---
@@ -57,167 +57,114 @@ def _run_model(pil_img: Image.Image) -> dict:
 
 **Step 3:** `pytest tests/ -q` — all 164 must still pass.
 
-**Step 4:** Run `streamlit run app.py`, upload a test skin image, verify:
-- Disease card shows real class (not "Tinea")
-- GradCAM heatmap renders (not "No heatmap available")
-- Coverage % flows into triage (Tier may change vs placeholder)
-- Confidence caption correct for real confidence value
+**Step 4:** Run `streamlit run app.py`, upload test image, verify real class + GradCAM.
 
 **Step 5:** Commit: `[w3/d13b] real BD-SkinNet inference connected`
 
 ---
 
-## TASK 1 — Loading Spinners Audit
+## TASK 1 — Pre-Recording Setup
 
-All slow operations must be wrapped in `st.spinner()`. Audit app.py for any gaps.
+Read `docs/demo_script.md` fully before starting.
 
-### Known slow operations — verify each is wrapped:
+### Software setup:
+- **OBS Studio** (recommended): Scene → Desktop capture, crop to browser window only. Audio: Mic input.
+  - Output: MP4, 1920×1080, 30fps, CBR 8000 kbps
+- **Loom** (alternative): Record screen + mic, crop to browser window
+- Browser: Chrome, open HF Space, zoom to 100%, sidebar pinned open
 
-| Operation | Expected spinner text | Location in app.py |
+### Files to prepare:
+- A test skin image (any clear photo of a rash, blister, or discoloured skin patch — JPG, min 300×300px)
+- Pre-record the Bengali sentence from Segment 2 as a separate WAV file first, listen back, confirm clarity:
+  > **"আমার সারা শরীরে চুলকানি হচ্ছে। দশ দিন ধরে ছড়িয়ে পড়ছে। জ্বরও আছে এবং ব্যথা হচ্ছে।"**
+- Name it `docs/demo_voice.wav` (gitignored — do not commit audio files)
+
+### Warm-up run (before recording):
+1. Load HF Space, click "Load Demo" button once — confirms all tabs work
+2. Upload a test image — confirms Tab 1 pipeline works
+3. Clear session state (refresh page)
+4. Now record
+
+---
+
+## TASK 2 — Record the Demo Video
+
+Follow `docs/demo_script.md` exactly. Key timings:
+
+| Segment | Time | Action |
 |---|---|---|
-| faster-whisper transcription | "🎙️ Transcribing audio..." | Tab 1, audio processing |
-| BD-SkinNet inference + GradCAM | "🔍 Analysing image..." | Tab 1, image processing |
-| Gemini patient history extraction | "📋 Extracting patient history..." | Tab 1, voice post-processing |
-| Overpass API hospital query | "🗺️ Finding nearest hospitals..." | Tab 1, Tier 3 map section |
-| FAISS + Gemini RAG answer | "💬 Searching knowledge base..." | Tab 2, chat input handler |
-| PDF generation (reportlab) | "📄 Generating referral letter..." | Tab 3, generate button |
+| 0 — Title | 0:00–0:15 | Static slide or black screen |
+| 1 — Rahim's story | 0:15–0:45 | HF Space homepage, narrate only |
+| 2 — Bengali voice | 0:45–1:20 | Record mic, transcription populates |
+| 3 — Image → GradCAM | 1:20–2:10 | Upload image, disease card + heatmap |
+| 4 — Triage badge | 2:10–2:35 | Tier badge + Bengali action text |
+| 5 — Hospital map | 2:35–3:00 | Demo mode button → type "Rangpur" |
+| 6 — PDF letter | 3:00–3:25 | Tab 3 → Generate → Download |
+| 7 — RAG chatbot | 3:25–3:50 | Tab 2 → Bengali question → answer |
+| 8 — Impact close | 3:50–4:00 | Title card + stats overlay |
 
-### Implementation pattern:
-```python
-with st.spinner("🔍 Analysing image..."):
-    result = _run_model(pil_img)
-```
-
-### After fixing gaps:
-- `pytest tests/ -q` — still 164/164 (spinners don't affect logic, but verify)
-- Run `streamlit run app.py` locally, go through each tab, confirm no slow op runs naked (without a spinner visible)
-
----
-
-## TASK 2 — Mobile / Narrow Layout Check
-
-Open the running app at `http://localhost:8501` and resize the browser window to ~375px wide (phone width). Note any broken layout. Fix the worst offenders only — do not over-engineer.
-
-### Common issues to check:
-- [ ] Sidebar: does it collapse cleanly or overlap main content?
-- [ ] Tab bar: do tab labels fit at narrow width, or overflow?
-- [ ] Disease card: do the two columns (image + text) stack or overlap?
-- [ ] GradCAM overlay: does the image scale down correctly?
-- [ ] Triage badge: does the text wrap cleanly?
-- [ ] Hospital table: does it scroll horizontally or overflow?
-- [ ] PDF download button: full width or cut off?
-
-### Fix strategy (CSS in ui/styles.py):
-Add responsive breakpoints only where needed. Example pattern:
-```css
-@media (max-width: 480px) {
-    .sk-card { padding: 0.75rem 1rem; }
-    .badge-urgency { font-size: 1.1rem; }
-    .disease-name-en { font-size: 1.1rem; }
-}
-```
-
-Keep changes surgical — do not refactor the layout. Note any issues that cannot be fixed via CSS (Streamlit limitations) in DECISIONS.md.
+### Tips:
+- Move cursor slowly — judges are watching
+- Pause 0.5–1 second after each UI element appears before narrating it
+- If the real model is not connected yet, use Demo Mode for segments 3–8 as well
+- Do not stop recording mid-take for minor mistakes — cut in post if needed
+- If Whisper transcription takes > 15 seconds, it is still correct; narrate "This runs fully offline…"
 
 ---
 
-## TASK 3 — Demo Video Script (Writing only — NOT recording yet)
+## TASK 3 — Upload and Link
 
-Write the final demo video script as a markdown file at `docs/demo_script.md`.
+After recording:
 
-Structure (target: 4 minutes):
+1. **YouTube (recommended):** Upload → Visibility: Unlisted → Copy link
+   OR
+   **Google Drive:** Upload → Share → Anyone with link → Copy link
 
+2. Test the link in an incognito browser window.
+
+3. Add the link to `README.md`:
+```markdown
+🎬 **Demo Video:** [Watch on YouTube](YOUR_LINK_HERE)
 ```
-## 0:00–0:30 — Rahim's Story (voice-over, no screen action)
-"Rahim is a farmer in Rangpur..."
-[Full narrative — write it out word for word]
+   Replace the placeholder line: `🎬 **Demo Video:** _[To be added — Week 4]_`
 
-## 0:30–1:00 — Bengali Voice Input
-Screen: Tab 1, sidebar visible
-Action: Click mic input → speak Bengali sentence (write the sentence to say)
-Expected: Transcription appears, patient history table populates
-
-## 1:00–2:00 — Image Upload → Classification → GradCAM
-Screen: Tab 1 (continuing)
-Action: Upload scabies test image
-Expected: Disease card, confidence caption, GradCAM heatmap, triage badge
-
-## 2:00–2:30 — Severity Tier + Bengali Triage Badge
-Screen: Tab 1, triage section
-Action: None (auto-populates from above)
-Expected: Tier 2 or Tier 3 badge with Bengali action text
-
-## 2:30–3:00 — Hospital Map (Tier 3 via Demo Mode)
-Screen: Sidebar → click Demo button
-Action: "Load Demo (Scabies — Tier 3)" → Tab 1 → type "Rangpur" in district input
-Expected: Folium map with 5 hospital pins, table with distances
-
-## 3:00–3:30 — PDF Referral Letter
-Screen: Tab 3
-Action: Click "Generate Referral Letter"
-Expected: PDF downloads, show 4-section contents briefly
-
-## 3:30–4:00 — RAG Chatbot Q&A
-Screen: Tab 2
-Action: Type "স্ক্যাবিসের চিকিৎসা কী?" (What is the treatment for scabies?)
-Expected: Grounded Bengali answer with source tags
-
-## 4:00 — Impact Slide + Close (voice-over)
-"1 dermatologist per 250,000 people..."
-"Right patient → Right doctor → Right time"
+4. Commit:
 ```
-
-Write every word of narration fully. Include the exact Bengali sentence to speak during the voice demo.
+git add README.md
+git commit -m "[w4/d21] add demo video link to README"
+git push origin main
+```
 
 ---
 
 ## TASK 4 — PROGRESS.md + TASK.md update
 
 Update PROGRESS.md:
-- Change current status to Week 4 / Day 20 (starting)
-- Add Day 20 session log entry at the top of the session log
+- Change current status to Week 4 / Day 22 (starting)
+- Add Day 21 session log entry
 
-Rewrite TASK.md for Day 21:
-- Theme: demo video recording (Rahim story, 3–5 min, OBS or Loom)
-- Include the `docs/demo_script.md` path as the script source
-- Include recording checklist (resolution, audio, screen layout, one-take vs edit)
-
----
-
-## TASK 5 — Commit and push
-
-```
-git add app.py ui/styles.py docs/demo_script.md PROGRESS.md TASK.md
-git commit -m "[w4/d20] loading spinners audit + mobile CSS + demo video script"
-git push origin main
-```
-
-HF Space push: yes — spinner changes are visible to judges.
-Use clean-branch strategy (binary font file is in git history on GitHub, not on HF):
-```
-git checkout -b hf-push hf/main
-git checkout main -- app.py ui/styles.py ui/components.py
-git commit -m "[w4/d20] loading spinners + mobile CSS"
-git push hf hf-push:main
-git checkout main && git branch -d hf-push
-```
+Rewrite TASK.md for Day 22:
+- Theme: project report skeleton
+- Target: 8-page LaTeX or Google Docs report
+- Sections: Abstract, Problem, Dataset, Architecture, Results, System Demo, Limitations, Conclusion
+- Include BD-SkinNet numbers (F1=92.46%, AUC=0.9937) in the results section outline
 
 ---
 
 ## DEFINITION OF DONE
-- [ ] All slow operations confirmed wrapped in `st.spinner()`
-- [ ] `pytest tests/ -q` — 164/164 still pass (no regressions)
-- [ ] Mobile layout tested at ~375px width — worst issues fixed
-- [ ] `docs/demo_script.md` written (all 8 segments, full narration)
+- [ ] Demo video recorded (3–5 minutes, Rahim story structure)
+- [ ] Video uploaded (YouTube unlisted or Google Drive)
+- [ ] Link tested from incognito browser
+- [ ] README.md updated with video link
+- [ ] Committed and pushed to GitHub
 - [ ] PROGRESS.md updated
-- [ ] TASK.md written for Day 21
-- [ ] Committed and pushed to GitHub + HF Space
+- [ ] TASK.md written for Day 22
 
 ---
 
-## NEXT SESSION — Day 21 / Demo Video Recording
-- Theme: record the 3–5 min Rahim story demo video using `docs/demo_script.md`
-- Tools: OBS Studio (screen capture) or Loom — user's choice
-- Resolution: 1920×1080 recommended; HF Space loaded in Chrome at full width
-- After recording: upload to YouTube (unlisted) or Google Drive; add link to README.md
-- Day 22: project report skeleton (LaTeX or Google Docs, 8-page target)
+## NEXT SESSION — Day 22 / Project Report
+- Theme: project report skeleton (LaTeX or Google Docs, 8-page target)
+- Sections: Abstract, Problem Statement, System Architecture, BD-SkinNet Model, Evaluation, Demo, Limitations, Conclusion
+- Include all quantitative results: F1=92.46%, AUC=0.9937, 164 tests, 7 classes
+- Day 23: flesh out Architecture and Results sections with diagrams
+- Day 24: final submission package (report PDF, model card, README final review)
