@@ -1,118 +1,103 @@
-# TASK — May 29, 2026 | Week 2 / Day 12
+# TASK — May 30, 2026 | Week 2 / Day 13
 
 ## TODAY'S GOAL
-Write ui/components.py — reusable Streamlit widgets.
-Write ui/styles.py — Bengali Noto Sans font + CSS injection.
-Do NOT touch app.py integration today (that is Day 13).
+Wire up full app.py — all 3 tabs fully functional end-to-end.
+Do NOT write new modules today; only integrate what is already built.
 
 ## CONTEXT
-- Day 11 complete: rag/retriever.py done, 104/104 tests passing
-- Full pipeline: voice → triage → PDF → RAG all implemented
-- Do NOT touch today: model/, severity/, pdf_gen/, voice/, rag/, app.py
+- Day 12 complete: ui/styles.py + ui/components.py + 29/29 tests passing
+- Full suite: 133/133 passing
+- All backend modules done: voice/, rag/, severity/, pdf_gen/, model/, ui/
+- Do NOT touch today: any module in model/, severity/, voice/, rag/, pdf_gen/, ui/
 
 ---
 
-## MODULE SPEC: ui/styles.py
+## app.py INTEGRATION SPEC
 
+### Imports
 ```python
-# ui/styles.py
-# Provides: inject_css()
-# Injects Bengali Noto Sans font and custom CSS into Streamlit via st.markdown
-
-NOTO_SANS_BENGALI_URL = "https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;600;700&display=swap"
-
-def inject_css():
-    """Inject Bengali font + app CSS into Streamlit. Call once at app startup."""
-    st.markdown(f"""<style>...</style>""", unsafe_allow_html=True)
+import streamlit as st
+from ui.styles import inject_css
+from ui.components import (
+    render_triage_badge, render_gradcam_overlay,
+    render_patient_history_table, render_disease_card,
+    render_rag_answer, render_referral_download_button,
+)
+from voice.pipeline import transcribe_audio, extract_patient_history
+from rag.retriever import load_index, answer_question
+from severity.engine import compute_tier
+from pdf_gen.referral import generate_referral_pdf
 ```
 
-CSS requirements:
-- Import Noto Sans Bengali from Google Fonts
-- Apply font to all text elements (body, .stMarkdown, .stButton, etc.)
-- Tier badge colours: tier-1 green (#28a745), tier-2 orange (#fd7e14), tier-3 red (#dc3545)
-- Bengali disclaimer footer style (small, grey, italic)
-- Sidebar style (light background)
-- Card/metric style for GradCAM coverage and confidence display
-
----
-
-## MODULE SPEC: ui/components.py
-
+### Sidebar
 ```python
-# ui/components.py
-# Reusable Streamlit widget functions
-
-def render_triage_badge(tier_result: dict) -> None:
-    """Render coloured tier badge + action text. tier_result = compute_tier() output."""
-
-def render_gradcam_overlay(heatmap_img: np.ndarray | None, coverage_pct: float) -> None:
-    """Render GradCAM heatmap image + coverage bar. heatmap_img may be None."""
-
-def render_patient_history_table(history: dict) -> None:
-    """Render voice-extracted patient history as a clean table."""
-
-def render_disease_card(disease: str, confidence: float, top2: list) -> None:
-    """Render disease name (English + Bengali), confidence bar, differential if top2[1] > 0.15."""
-
-def render_rag_answer(answer: str, lang: str) -> None:
-    """Render RAG chatbot answer with source citation style."""
-
-def render_referral_download_button(pdf_bytes: bytes | None) -> None:
-    """Render PDF download button. Disabled if pdf_bytes is None."""
+# Logo: "🩺 SkinAI Bangladesh"
+# Tagline: "ত্বকের রোগ নির্ণয় · AI-চালিত"
+# Stats: 7 diseases · Bengali voice · CDC/NIH/WHO/DGHS
+# Disclaimer: "Not a substitute for medical advice"
 ```
+
+### Session state keys
+```python
+st.session_state.setdefault("transcript", "")
+st.session_state.setdefault("history", {})
+st.session_state.setdefault("prediction", None)   # {disease, confidence, top2}
+st.session_state.setdefault("gradcam", None)       # {heatmap, coverage_pct}
+st.session_state.setdefault("tier_result", None)
+st.session_state.setdefault("pdf_bytes", None)
+st.session_state.setdefault("rag_answer", "")
+st.session_state.setdefault("rag_lang", "en")
+```
+
+### Tab 1 — রোগ নির্ণয় (Diagnosis)
+Layout: two columns (left: voice + history table | right: image + disease card + triage)
+
+LEFT COLUMN:
+- st.audio_input() or st.file_uploader() for Bengali audio
+- On audio upload: transcribe_audio(audio_bytes) → transcript
+- extract_patient_history(transcript) → history dict
+- render_patient_history_table(history)
+
+RIGHT COLUMN:
+- st.file_uploader() for skin image (jpg/png)
+- On image upload: run BD-SkinNet inference (try/except — checkpoint may be missing)
+  - If checkpoint missing: show placeholder prediction for demo
+- render_disease_card(disease, confidence, top2)
+- compute_tier(disease, confidence, coverage_pct, transcript) → tier_result
+- render_triage_badge(tier_result)
+- render_gradcam_overlay(heatmap_img, coverage_pct)
+
+### Tab 2 — প্রশ্ন করুন (RAG Chatbot)
+- Text input for question (Bengali or English)
+- On submit: answer_question(question) → answer
+- render_rag_answer(answer, lang)
+- Show st.info("ℹ️ Answers from CDC · NIH · WHO · DGHS Bangladesh only")
+
+### Tab 3 — রেফারেল পত্র (PDF)
+- Show summary of diagnosis + triage
+- Button: generate_referral_pdf(session_data) → pdf_bytes
+- render_referral_download_button(pdf_bytes)
 
 ---
 
 ## TASKS (in order)
 
-### TASK 1 — Write ui/styles.py
-- inject_css() using st.markdown with unsafe_allow_html=True
-- Bengali font via Google Fonts CDN (no local file needed)
-- Tier badge CSS classes: .badge-tier1, .badge-tier2, .badge-tier3
-- Metric card CSS for confidence/coverage display
+### TASK 1 — Wire app.py
+- Call inject_css() at top (before any st.* call)
+- Call load_index() at startup (cached via @st.cache_resource)
+- Build sidebar with logo + stats + disclaimer
+- Build all 3 tabs per spec above
+- Handle checkpoint-missing gracefully (placeholder mode for demo)
 
-### TASK 2 — Write ui/components.py
-- 6 component functions (spec above)
-- Each function is standalone — no cross-dependencies
-- render_disease_card: show Bengali name from disease_labels.py
-- render_triage_badge: colour-code by tier (1=green, 2=orange, 3=red)
-- render_patient_history_table: skip empty fields gracefully
-- render_referral_download_button: st.download_button if bytes else disabled button
+### TASK 2 — Smoke test manually
+- Run: `streamlit run app.py`
+- Verify: sidebar loads, all 3 tabs render, no ImportError
+- Verify: RAG chatbot returns answer (needs GEMINI_API_KEY in .env)
 
-### TASK 3 — Write tests/test_ui.py
-Tests (all mock Streamlit calls — patch st.markdown, st.image, etc.):
-1. TestInjectCSS:
-   - test_inject_css_calls_st_markdown
-   - test_inject_css_contains_noto_sans
-   - test_inject_css_contains_badge_classes
-2. TestRenderTriageBadge:
-   - test_badge_tier1_rendered
-   - test_badge_tier2_rendered
-   - test_badge_tier3_rendered
-3. TestRenderPatientHistory:
-   - test_empty_fields_skipped
-   - test_nonempty_fields_rendered
-4. TestRenderDiseaseCard:
-   - test_disease_card_shows_english_name
-   - test_disease_card_shows_bengali_name
-   - test_differential_shown_when_above_threshold
-   - test_differential_hidden_when_below_threshold
-5. TestRenderReferralButton:
-   - test_download_button_enabled_with_bytes
-   - test_download_button_disabled_when_none
-
-Target: 14+ tests, all passing.
-
-### TASK 4 — Run tests
+### TASK 3 — Commit and push
 ```
-pytest tests/test_ui.py -v
-```
-All tests must pass.
-
-### TASK 5 — Commit and push
-```
-git add ui/styles.py ui/components.py tests/test_ui.py
-git commit -m "[w2/d12] UI components + Bengali styles"
+git add app.py
+git commit -m "[w2/d13] full app.py integration — 3-tab pipeline"
 git push origin main
 ```
 Push to HF Space via clean branch strategy.
@@ -120,14 +105,19 @@ Push to HF Space via clean branch strategy.
 ---
 
 ## DEFINITION OF DONE
-- [ ] ui/styles.py: inject_css() with Bengali font + tier badge CSS
-- [ ] ui/components.py: 6 component functions
-- [ ] 14+ tests in tests/test_ui.py, all passing
+- [ ] app.py: 3 tabs fully wired — no placeholder st.write() remaining
+- [ ] inject_css() called once at startup
+- [ ] load_index() cached via @st.cache_resource
+- [ ] Sidebar: logo + Bengali tagline + stats + disclaimer
+- [ ] Tab 1: voice → history + image → disease card + triage badge
+- [ ] Tab 2: RAG chatbot with styled answer box
+- [ ] Tab 3: PDF download button
+- [ ] No ImportError on `streamlit run app.py`
 - [ ] Committed and pushed to GitHub and HF Space
 
 ---
 
-## NEXT SESSION (Day 13 — May 30)
-- Wire up full app.py: Tab 1 (voice + image → triage), Tab 2 (RAG chatbot), Tab 3 (PDF)
-- Call all real modules: voice/pipeline.py, rag/retriever.py, severity/engine.py, pdf_gen/referral.py
-- Commit: [w2/d13] full app.py integration
+## NEXT SESSION (Day 14 — May 31)
+- W2 integration test: full end-to-end with real audio + real image (placeholder checkpoint)
+- Fix any bugs found during manual smoke test
+- Commit: [w2/d14] W2 integration test + bug fixes

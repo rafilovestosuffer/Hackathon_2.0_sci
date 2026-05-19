@@ -2,7 +2,7 @@
 # Update this file at the END of EVERY Claude Code session.
 
 ## 📍 CURRENT STATUS
-- Week: 2 | Day: 12 (starting)
+- Week: 2 | Day: 13 (starting)
 - HF Spaces URL: https://huggingface.co/spaces/rafilovestosuffer/skinai-bangladesh
 - GitHub Repo: https://github.com/rafilovestosuffer/Hackathon_2.0_sci
 - Demo Video: [TO BE ADDED WEEK 4]
@@ -23,8 +23,8 @@
 - [x] rag/knowledge/ (chunks)
 - [x] pdf_gen/referral.py
 - [ ] map/hospital_finder.py
-- [ ] ui/components.py
-- [ ] ui/styles.py
+- [x] ui/components.py
+- [x] ui/styles.py
 - [ ] app.py (full integration)
 - [x] tests/test_severity.py
 - [x] tests/test_gradcam.py
@@ -42,6 +42,47 @@
 
 ## 📝 SESSION LOG
 <!-- Append to this after every session. Newest at top. -->
+
+### Session: May 29, 2026 — Day 12
+**Done:**
+- Written ui/styles.py — inject_css() with full professional CSS
+  - Bengali Noto Sans font via Google Fonts CDN (Inter fallback)
+  - Dark sidebar (#0f172a) — .sidebar-logo, .sidebar-tagline, .sidebar-stat
+  - Medical blue (#1a56db) primary + tab active styling
+  - .badge-tier1 (green), .badge-tier2 (amber), .badge-tier3 (red + pulse animation)
+  - .sk-card, .conf-bar-wrap/fill, .differential-pill, .history-table
+  - .rag-answer-box (teal left border), .rag-source-tag
+  - .coverage-wrap/fill (purple gradient), .sk-disclaimer, metric/upload styling
+- Written ui/components.py — 6 standalone component functions
+  - render_triage_badge(tier_result) — colour badge + bilingual action text
+  - render_gradcam_overlay(heatmap_img, coverage_pct) — image + purple coverage bar
+  - render_patient_history_table(history) — skips empty/none fields, bilingual labels
+  - render_disease_card(disease, confidence, top2) — EN+BN name, conf bar, differential pill if >15%
+  - render_rag_answer(answer, lang) — teal box + CDC/NIH/WHO/DGHS source tags
+  - render_referral_download_button(pdf_bytes) — enabled or styled disabled placeholder
+- Written tests/test_ui.py — 29 tests, all passing
+  - TestInjectCSS: 5 tests
+  - TestRenderTriageBadge: 5 tests
+  - TestRenderPatientHistory: 4 tests
+  - TestRenderDiseaseCard: 6 tests
+  - TestRenderReferralButton: 3 tests
+  - TestRenderGradcamOverlay: 3 tests
+  - TestRenderRAGAnswer: 3 tests
+- Full suite: 133/133 passing (104 prior + 29 new)
+- Committed and pushed to GitHub and HF Space
+
+**Blockers:**
+- None
+
+**Next session start point:**
+- Day 13: Wire up full app.py — Tab 1 (voice+image→triage), Tab 2 (RAG chatbot), Tab 3 (PDF download)
+- Call all real modules: voice/pipeline.py, rag/retriever.py, severity/engine.py, pdf_gen/referral.py, ui/components.py
+- Commit: [w2/d13] full app.py integration
+
+**Git commits this session:**
+- [w2/d12] UI components + Bengali styles + 29 tests
+
+---
 
 ### Session: May 28, 2026 — Day 11
 **Done:**
