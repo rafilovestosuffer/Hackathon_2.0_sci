@@ -1,164 +1,93 @@
-# TASK — May 23, 2026 | Week 1 / Day 6
+# TASK — May 24, 2026 | Week 1 / Day 7
 
 ## TODAY'S GOAL
-Write the 4-section PDF referral letter generator and a smoke test that confirms
-the PDF builds correctly — Bengali font included, zero manual input required.
+Week 1 review day — run the full test suite, verify the HF Space is live and
+rebuilding correctly with the Dockerfile, and write the Week 2 TASK.md so the
+next session can start coding immediately.
 
 ## CONTEXT
-- Day 5 complete: HF Space live at https://huggingface.co/spaces/rafilovestosuffer/skinai-bangladesh
-- pdf_gen/__init__.py exists — pdf_gen/referral.py does NOT exist yet
-- reportlab is already in requirements.txt ✓
-- The PDF must work from session_state data only — single button, zero manual input
-- Bengali font: Noto Sans Bengali — must be registered with reportlab
-- Do NOT touch today: model/, severity/, voice/, rag/, app.py
-
----
-
-## REFERRAL LETTER SPEC (from CLAUDE.md — implement EXACTLY)
-
-4 sections, each sourced from a different pipeline stage:
-
-| Section | Data Source | Key Fields |
-|---------|-------------|------------|
-| 1. Patient History | Gemini JSON (voice pipeline) | chief_complaint, symptoms, affected_area, duration, progression, previous_treatment |
-| 2. Clinical Observation | GradCAM++ output | heatmap image (embedded), coverage_pct, assessment datetime |
-| 3. AI Diagnostic Assessment | BD-SkinNet output | disease (English+Bengali), confidence %, differential if top2 > 15%, model name, disclaimer |
-| 4. Triage Recommendation | Severity engine | tier, urgency_label, action, facility, Bengali instruction text |
-
-**Differential diagnosis rule:** If top2[1].confidence > 0.15 → show differential in Section 3.
-**Tier 3 only:** inject nearest hospital name+address into Section 4.
+- Day 6 complete: pdf_gen/referral.py + tests/test_pdf.py (11/11 passing)
+- Total tests so far: test_gradcam (13) + test_severity (29) + test_pdf (11) = 53
+- HF Space: font now downloaded via Dockerfile wget — Space is rebuilding
+- Do NOT start any new feature code today — this is review + prep only
 
 ---
 
 ## TASKS (in order)
 
-### TASK 1 — Write pdf_gen/referral.py
-
-#### Function signature:
-```python
-def generate_referral_pdf(session_data: dict) -> bytes:
+### TASK 1 — Run full test suite
 ```
-Returns raw PDF bytes (use `io.BytesIO` — no file written to disk).
-
-#### session_data keys it must accept:
-```python
-{
-    # Section 1 — Patient History
-    "patient_name": str,
-    "patient_age": str,
-    "chief_complaint": str,
-    "symptoms": list[str],
-    "affected_area": str,
-    "duration": str,
-    "progression": str,
-    "previous_treatment": str,
-
-    # Section 2 — Clinical Observation
-    "heatmap": np.ndarray | None,   # H×W×3 uint8 overlay image (or None)
-    "coverage_pct": float,
-
-    # Section 3 — AI Diagnostic Assessment
-    "disease_class": str,           # e.g. "Tinea"
-    "disease_bengali": str,         # e.g. "দাদ (টিনিয়া)"
-    "confidence": float,            # 0.0–1.0
-    "top2": list[dict],             # [{"class": str, "confidence": float}, ...]
-
-    # Section 4 — Triage Recommendation
-    "tier": int,                    # 1 | 2 | 3
-    "urgency_label": str,
-    "action": str,
-    "facility": str,
-    "bengali_text": str,
-    "hospital_name": str | None,    # Tier 3 only
-    "hospital_address": str | None, # Tier 3 only
-}
+pytest tests/ -v
 ```
+- [ ] All 53 tests must pass (test_gradcam + test_severity + test_pdf)
+- [ ] If any test fails — fix it before moving on
+- [ ] Screenshot or copy the final pytest summary line
 
-#### PDF structure requirements:
-- **Header:** "SkinAI Bangladesh — AI Referral Letter" + generation datetime
-- **Section 1 — Patient History**
-  - Table: field label (Bengali + English) | value
-  - Fields: Name, Age, Chief Complaint, Symptoms (comma-joined), Affected Area,
-    Duration, Progression, Previous Treatment
-- **Section 2 — Clinical Observation**
-  - GradCAM heatmap image embedded (if heatmap is not None, resize to ~300px wide)
-  - If heatmap is None: placeholder text "Image not provided"
-  - Bengali caption: "লাল এলাকা মডেলের মনোযোগের কেন্দ্র"
-  - Coverage: "Lesion coverage: {coverage_pct:.1f}%"
-  - Assessment datetime
-- **Section 3 — AI Diagnostic Assessment**
-  - Primary: "{disease_class} ({disease_bengali}) — {confidence:.1%} confidence"
-  - Differential: if top2[1]["confidence"] > 0.15 → show "Differential: {class} ({conf:.1%})"
-  - Model: "Model: BD-SkinNet (Swin-B + CBAM, INT8) | F1 = 92.46%"
-  - Disclaimer: "This is an AI-assisted screening tool, not a medical diagnosis."
-- **Section 4 — Triage Recommendation**
-  - Tier badge: NON-URGENT (green) | ROUTINE (orange) | URGENT (red)
-  - English action text
-  - Bengali instruction text
-  - Facility type
-  - If tier == 3 and hospital_name: "Nearest Hospital: {name} — {address}"
-- **Footer:** "Not a medical device. Always consult a licensed physician."
+### TASK 2 — Verify HF Space
+- [ ] Open https://huggingface.co/spaces/rafilovestosuffer/skinai-bangladesh in incognito
+- [ ] Confirm green "Running" badge
+- [ ] Confirm Bengali tabs visible: রোগ নির্ণয় | প্রশ্ন করুন | রেফারেল পত্র
+- [ ] Confirm no login prompt
+- [ ] Check build logs — confirm font wget line ran without error
 
-#### Technical requirements:
-- Use `reportlab.platypus` (SimpleDocTemplate, Table, Paragraph, Image, Spacer)
-- Register Noto Sans Bengali font for Bengali text rendering
-  - Font file: download at runtime if not present, or use a fallback
-  - Simplest approach: use `reportlab`'s built-in fonts for English sections,
-    register `NotoSansBengali-Regular.ttf` for Bengali strings only
-  - Font download: https://fonts.google.com/download?family=Noto+Sans+Bengali
-    → save to pdf_gen/fonts/NotoSansBengali-Regular.ttf
-- Return `io.BytesIO.getvalue()` as bytes
+### TASK 3 — W1 completion checklist
+Tick off every item below — if anything is missing, fix it now:
+- [ ] model/bd_skinnet.py — Swin+CBAM architecture ✓
+- [ ] model/gradcam.py — GradCAM++ wrapper ✓
+- [ ] model/disease_labels.py — 7 classes + Bengali names + tiers ✓
+- [ ] model/export_int8.py — INT8 quantization script ✓
+- [ ] severity/engine.py — 4-signal triage engine ✓
+- [ ] pdf_gen/referral.py — 4-section referral letter ✓
+- [ ] app.py — Bengali 3-tab skeleton ✓
+- [ ] Dockerfile — Docker build for HF Space ✓
+- [ ] tests/test_gradcam.py — 13 tests ✓
+- [ ] tests/test_severity.py — 29 tests ✓
+- [ ] tests/test_pdf.py — 11 tests ✓
+- [ ] HF Space live at public URL ✓
+- [ ] GitHub commits from May 18–24 ✓
 
-### TASK 2 — Download Noto Sans Bengali font
-- [ ] Create pdf_gen/fonts/ directory
-- [ ] Download NotoSansBengali-Regular.ttf into pdf_gen/fonts/
-- [ ] Add pdf_gen/fonts/*.ttf to .gitignore? NO — keep it tracked so HF Space has it
+### TASK 4 — Write TASK.md for Week 2 Day 8
+Week 2 starts with voice transcription (Day 8 — May 25).
+Rewrite TASK.md for Day 8 based on PLAN.md:
+- faster-whisper Bengali transcription
+- transcribe_audio(audio_bytes) → str
+- Handle mp3/wav/webm formats
 
-### TASK 3 — Write tests/test_pdf.py
-Test cases (smoke tests — no real model output needed, use dummy session_data):
-
-```python
-# Test 1: PDF generates without error, returns bytes, size > 0
-# Test 2: Returns bytes type (not str, not None)
-# Test 3: Tier 1 case — NON-URGENT PDF generates
-# Test 4: Tier 3 case with hospital — hospital name appears in output
-# Test 5: heatmap=None case — PDF still generates (no crash)
-# Test 6: top2 differential > 0.15 — no crash
-# Test 7: top2 differential <= 0.15 — no crash
+### TASK 5 — Final commit
 ```
-
-Use dummy data — no model, no checkpoint, no real image required.
-
-### TASK 4 — Run tests
-```
-pytest tests/test_pdf.py -v
-```
-All tests must pass.
-
-### TASK 5 — Commit and push
-```
-git add pdf_gen/referral.py pdf_gen/fonts/ tests/test_pdf.py
-git commit -m "[w1/d6] referral letter PDF generator"
+git add TASK.md PROGRESS.md
+git commit -m "[w1/d7] W1 review complete — all tests green, Week 2 ready"
 git push origin main
-git push hf main
 ```
 
 ---
 
 ## DEFINITION OF DONE
-- [ ] pdf_gen/referral.py exists with generate_referral_pdf(session_data) → bytes
-- [ ] All 4 sections present in output
-- [ ] Bengali text renders (Noto Sans Bengali font registered)
-- [ ] Differential shown only when top2[1].confidence > 0.15
-- [ ] Tier 3 hospital injection works
-- [ ] heatmap=None does not crash
-- [ ] tests/test_pdf.py — all tests pass with pytest -v
-- [ ] Committed and pushed to GitHub + HF Space
+- [ ] pytest tests/ -v → 53/53 passed
+- [ ] HF Space green and Bengali UI visible in incognito
+- [ ] PROGRESS.md updated with Day 7 session log
+- [ ] TASK.md rewritten for Day 8
+- [ ] Committed and pushed
 
 ---
 
-## NEXT SESSION (Day 7 — May 24)
-- Run full test suite: pytest tests/ -v — all green across all modules
-- Verify HF Space still live and showing Bengali UI
-- Write TASK.md for Week 2
-- W1 DONE: Model ✓ | GradCAM ✓ | Severity ✓ | HF Space ✓ | PDF ✓
+## W1 MILESTONE SUMMARY (for PROGRESS.md)
+```
+Week 1 complete:
+  Model      ✓  Swin-B + CBAM, 7 classes, INT8 export
+  GradCAM    ✓  GradCAM++ wrapper, coverage_pct computation
+  Severity   ✓  4-signal triage engine, all edge cases tested
+  HF Space   ✓  Live public URL, Bengali skeleton UI, Dockerfile
+  PDF        ✓  4-section referral letter, Bengali font, all tiers
+  Tests      ✓  53 total — 13 + 29 + 11 — all passing
+```
+
+---
+
+## NEXT SESSION (Day 8 — May 25) PREVIEW
+Week 2 begins — voice pipeline:
+- Write voice/pipeline.py — faster-whisper (base model, Bengali language)
+- Implement transcribe_audio(audio_bytes) → str
+- Handle mp3/wav/webm (Streamlit mic recorder output formats)
+- Test with a sample Bengali audio clip
+- Commit: [w2/d8] faster-whisper Bengali transcription
