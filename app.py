@@ -21,6 +21,7 @@ from ui.components import (
 from severity.engine import compute_tier
 from pdf_gen.referral import generate_referral_pdf
 from rag.retriever import load_index, answer_question
+from map.hospital_finder import find_nearest_hospitals, render_hospital_map, get_district_coords, _DEFAULT_LAT, _DEFAULT_LON
 
 logger = logging.getLogger(__name__)
 
@@ -97,13 +98,14 @@ def _extract_history(transcript: str) -> dict:
 
 # ── Session state defaults ────────────────────────────────────────────────────
 _DEFAULTS = {
-    "transcript":   "",
-    "history":      {},
-    "prediction":   None,   # dict from _run_model()
-    "tier_result":  None,   # dict from compute_tier()
-    "pdf_bytes":    None,
-    "rag_answer":   "",
-    "rag_lang":     "en",
+    "transcript":        "",
+    "history":           {},
+    "prediction":        None,   # dict from _run_model()
+    "tier_result":       None,   # dict from compute_tier()
+    "nearest_hospital":  None,   # dict from find_nearest_hospitals()[0], Tier 3 only
+    "pdf_bytes":         None,
+    "rag_answer":        "",
+    "rag_lang":          "en",
 }
 for _k, _v in _DEFAULTS.items():
     st.session_state.setdefault(_k, _v)
@@ -289,6 +291,51 @@ with tab1:
 
             render_triage_badge(tier_result)
 
+            # ── Tier 3 only: Emergency hospital map ───────────────────────
+            if tier_result["tier"] == 3:
+                st.markdown(
+                    '<div class="sk-section-head" style="color:#dc2626;">'
+                    '🏥 Nearest Emergency Hospitals — নিকটতম হাসপাতাল</div>',
+                    unsafe_allow_html=True,
+                )
+                district = st.text_input(
+                    "Enter your district (e.g. Rangpur, Dhaka, Chittagong):",
+                    key="district_input",
+                    placeholder="Type district name…",
+                )
+                if district:
+                    coords = get_district_coords(district)
+                    user_lat = coords[0] if coords else _DEFAULT_LAT
+                    user_lon = coords[1] if coords else _DEFAULT_LON
+                    with st.spinner("🔍 Finding nearest hospitals…"):
+                        hospitals = find_nearest_hospitals(user_lat, user_lon, n=5)
+                    if hospitals:
+                        # Store top hospital for PDF Section 4
+                        st.session_state.nearest_hospital = hospitals[0]
+                        # Table
+                        st.markdown("**Top 5 nearest hospitals:**")
+                        for i, h in enumerate(hospitals):
+                            st.markdown(
+                                f'<div class="sk-card" style="margin-bottom:0.5rem;">'
+                                f'<span style="font-weight:700;color:#dc2626;">#{i+1}</span> '
+                                f'<strong>{h["name"]}</strong><br>'
+                                f'<span style="font-size:0.82rem;color:#475569;">'
+                                f'📍 {h["address"]} &nbsp;|&nbsp; 🚗 {h["dist_km"]} km'
+                                + (f' &nbsp;|&nbsp; 📞 {h["phone"]}' if h.get("phone") else "")
+                                + '</span></div>',
+                                unsafe_allow_html=True,
+                            )
+                        # Folium map
+                        try:
+                            from streamlit_folium import st_folium
+                            fmap = render_hospital_map(hospitals, user_lat, user_lon)
+                            if fmap:
+                                st_folium(fmap, use_container_width=True, height=380)
+                        except Exception:
+                            pass
+                    else:
+                        st.warning("No hospitals found nearby. Please try a different district.")
+
             # GradCAM
             render_gradcam_overlay(pred["heatmap"], pred["coverage_pct"])
 
@@ -428,6 +475,9 @@ with tab3:
                     "facility":        tier["facility"],
                     "bengali_text":    tier["bengali_text"],
                     "transcript":      st.session_state.transcript,
+                    # Hospital (Tier 3 only — injected into Section 4)
+                    "hospital_name":    (st.session_state.nearest_hospital or {}).get("name", ""),
+                    "hospital_address": (st.session_state.nearest_hospital or {}).get("address", ""),
                 }
                 try:
                     pdf_bytes = generate_referral_pdf(session_data)

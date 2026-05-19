@@ -55,6 +55,23 @@
 
 ---
 
+### [2026-05-26] Migrate from google-generativeai to google-genai SDK
+**Decision:** Use `from google import genai` (new SDK) instead of deprecated `google-generativeai`
+**Reason:** google-generativeai is deprecated. New google-genai SDK supports Gemini 2.5 Flash which is on the free tier. Gemini 2.5 Flash is faster and has better multilingual (Bengali) performance.
+**Trade-off:** Breaking API change — `genai.Client()` instead of `genai.configure()`. All callers updated.
+
+### [2026-05-29] Use st.audio_input() over file uploader for voice recording
+**Decision:** `st.audio_input()` (Streamlit ≥ 1.37) for in-browser mic recording
+**Reason:** Judges and rural users should not need to pre-record audio files. One-click recording in browser is dramatically better UX. Required bumping streamlit to ≥1.37.0.
+**Trade-off:** Requires browser microphone permission. Slightly larger Streamlit version requirement.
+
+### [2026-05-29] _run_model() placeholder stub until checkpoint arrives
+**Decision:** Clean placeholder in app.py returning Tinea/82% until bd_skinnet_best.pth is provided (~Jun 2)
+**Reason:** Full pipeline (voice, triage, PDF, RAG, UI) can be built, tested, and demonstrated without the checkpoint. Placeholder has identical return shape — swap is one function body change.
+**Trade-off:** Demo shows fixed disease until checkpoint. Documented clearly in app.py and PLAN.md Day 13b.
+
+---
+
 ## PENDING DECISIONS (evaluate during build)
 - [ ] Should we support Bangla-English code-switching in voice?
 - [ ] Should we add a demo mode with pre-loaded sample case (for slow HF Spaces)?

@@ -1,68 +1,111 @@
-# TASK — May 31, 2026 | Week 2 / Day 14
+# TASK — Jun 1, 2026 | Week 3 / Day 16
 
 ## TODAY'S GOAL
-W2 integration test — full E2E smoke test on HF Space.
-Fix any bugs found. Day 14 is validation + polish, not new features.
+1. RAG chatbot — context-aware (pass current diagnosis into system prompt)
+2. scripts/keepalive.py — ping HF Space every 20 min (CONSTRAINT 7)
+3. Demo mode — pre-loaded Scabies Tier 3 sample for judges
 
 ## CONTEXT
-- Day 13 complete: app.py fully wired — 3 tabs, all components, RAG, PDF
-- 133/133 tests passing
-- BD-SkinNet checkpoint NOT yet received (ETA ~Jun 2)
-  _run_model() in app.py is a clean placeholder — real inference drops in when checkpoint arrives
-- Do NOT touch today: any module except app.py bug fixes
+- Day 15 complete: map/hospital_finder.py + 17 tests, wired into app.py Tier 3
+- Full suite: 150/150 passing
+- BD-SkinNet checkpoint still pending (~Jun 2) — _run_model() placeholder active
+- Do NOT touch today: model/, severity/, voice/, rag/retriever.py, pdf_gen/, ui/
 
 ---
 
-## CHECKPOINT INTEGRATION NOTE (when bd_skinnet_best.pth arrives)
-File to edit: app.py — function _run_model(pil_img)
-Replace the body with real BD-SkinNet + GradCAM forward pass:
-- Load model via BDSkinNet(num_classes=7) + torch.load(CKPT, map_location="cpu")
-- Apply INT8 quantization: torch.quantization.quantize_dynamic(model, {torch.nn.Linear})
-- Run compute_gradcam(model, tensor) for heatmap + coverage_pct
-- Return same dict: {disease, confidence, top2, heatmap, coverage_pct}
+## CHECKPOINT INTEGRATION (when bd_skinnet_best.pth arrives ~Jun 2)
+File: app.py — replace body of _run_model(pil_img)
+```python
+# 1. Load model (cached)
+from model.bd_skinnet import BDSkinNet
+from model.gradcam import compute_gradcam
+import torch, torchvision.transforms as T
+
+CKPT = "model/checkpoints/bd_skinnet_best.pth"
+
+@st.cache_resource
+def _load_bd_skinnet():
+    model = BDSkinNet(num_classes=7)
+    model.load_state_dict(torch.load(CKPT, map_location="cpu"))
+    model.eval()
+    return torch.quantization.quantize_dynamic(model, {torch.nn.Linear}, dtype=torch.qint8)
+
+# 2. In _run_model():
+model = _load_bd_skinnet()
+tfm = T.Compose([T.Resize((224,224)), T.ToTensor(),
+                 T.Normalize([0.485,0.456,0.406],[0.229,0.224,0.225])])
+tensor = tfm(pil_img).unsqueeze(0)
+with torch.no_grad():
+    probs = torch.softmax(model(tensor), dim=1)[0].tolist()
+from model.disease_labels import CLASS_NAMES
+indexed = sorted(enumerate(probs), key=lambda x: -x[1])
+top2 = [{"disease": CLASS_NAMES[i], "confidence": p} for i, p in indexed[:2]]
+gc = compute_gradcam(model, tensor)
+return {"disease": top2[0]["disease"], "confidence": top2[0]["confidence"],
+        "top2": top2, "heatmap": gc["overlay"], "coverage_pct": gc["coverage_pct"]}
+```
 
 ---
 
 ## TASKS (in order)
 
-### TASK 1 — Deploy to HF Space and smoke test
-- Push Day 13 code to HF Space (clean branch strategy)
-- Open HF Space public URL: https://huggingface.co/spaces/rafilovestosuffer/skinai-bangladesh
-- Check: sidebar loads with dark theme and Bengali text
-- Check: all 3 tabs render without error
-- Check: Tab 2 RAG question returns an answer (needs GEMINI_API_KEY in HF secrets)
-- Check: Tab 3 shows "complete Tab 1 first" message correctly
+### TASK 1 — RAG context awareness
+In app.py Tab 2, pass the current diagnosis as context to the RAG answer:
+- If st.session_state.prediction exists, prepend disease context to the question
+- Show banner: "💊 Current diagnosis: Tinea — asking in this context"
+- Update answer_question() call: include disease in the question string if known
 
-### TASK 2 — Fix any bugs found
-- List bugs, fix them, re-test
+### TASK 2 — scripts/keepalive.py
+Write scripts/keepalive.py:
+```python
+# Ping HF Space every 20 min to prevent sleeping (CONSTRAINT 7 — app live until Jul 12)
+# Usage: python scripts/keepalive.py
+# Or via GitHub Actions cron (add .github/workflows/keepalive.yml)
+import time, requests, os
+HF_SPACE_URL = "https://rafilovestosuffer-skinai-bangladesh.hf.space"
+INTERVAL = 20 * 60  # 20 minutes
+def ping():
+    try:
+        r = requests.get(HF_SPACE_URL, timeout=15)
+        print(f"Ping OK — {r.status_code}")
+    except Exception as e:
+        print(f"Ping failed: {e}")
+if __name__ == "__main__":
+    while True:
+        ping()
+        time.sleep(INTERVAL)
+```
+Also write .github/workflows/keepalive.yml — cron every 20 min.
 
-### TASK 3 — W2 sign-off
-- All modules done: voice, RAG, severity, PDF, UI, app.py
-- Remaining: model checkpoint (external, ~Jun 2), hospital map (Week 3)
-- Update PROGRESS.md for W2 completion
+### TASK 3 — Demo mode
+Add a "🎬 Load Demo Case" button in Tab 1 sidebar section:
+- Loads: Scabies, 0.38 confidence (→ Tier 3 via Signal 2), coverage_pct=45.0
+- Pre-fills session_state so all 3 tabs show demo data without real image/voice
+- Label: "🎬 Load Demo (Scabies — Tier 3)"
 
 ### TASK 4 — Commit and push
 ```
-git add app.py PROGRESS.md TASK.md PLAN.md
-git commit -m "[w2/d14] W2 integration test + HF Space verified"
+git add map/hospital_finder.py tests/test_hospital.py app.py scripts/keepalive.py \
+        .github/workflows/keepalive.yml PROGRESS.md TASK.md PLAN.md DECISIONS.md
+git commit -m "[w3/d15+16] hospital map + keepalive + demo mode"
 git push origin main
 ```
+Push to HF Space via clean branch strategy.
 
 ---
 
 ## DEFINITION OF DONE
-- [ ] HF Space loads without error at public URL
-- [ ] Sidebar: dark theme, Bengali text visible
-- [ ] Tab 1: image upload shows disease card + triage badge (placeholder model)
-- [ ] Tab 2: RAG question returns styled answer
-- [ ] Tab 3: "complete Tab 1 first" message before diagnosis
-- [ ] W2 marked complete in PROGRESS.md
-- [ ] Committed and pushed
+- [ ] Hospital map: Tier 3 → district input → hospital table + Folium map (already done Day 15)
+- [ ] RAG chatbot shows current disease context banner
+- [ ] scripts/keepalive.py written and works (python scripts/keepalive.py — single ping)
+- [ ] GitHub Actions keepalive.yml with cron schedule
+- [ ] Demo mode button loads Scabies Tier 3 case instantly
+- [ ] All tests still passing
+- [ ] Committed and pushed to GitHub + HF Space
 
 ---
 
-## NEXT SESSION (Day 15 — Jun 1)
-- Write map/hospital_finder.py — Overpass API, top 5 nearest hospitals, Folium map
-- Wire into Tab 1: show map only when tier == 3
-- Inject hospital[0] into PDF Section 4
-- Commit: [w3/d15] emergency hospital map
+## NEXT SESSION (Day 17 — Jun 2)
+- Checkpoint arrives (~Jun 2) — plug in real BD-SkinNet inference
+- Polish UI: loading spinners, error messages, edge cases
+- Commit: [w3/d13b] real model inference connected

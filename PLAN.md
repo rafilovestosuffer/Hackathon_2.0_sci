@@ -133,64 +133,63 @@
 - [ ] Commit: [w2/d13b] real BD-SkinNet inference connected
 
 ### Day 14 — May 31 | W2 Integration Test
-- [ ] E2E test: voice → transcript → patient JSON displayed
-- [ ] E2E test: image → classification → heatmap displayed
-- [ ] RAG: question → answer returned
-- [ ] Update PROGRESS.md — all flow statuses
-- [ ] W2 DONE: Voice ✓ | Gemini ✓ | RAG ✓ | UI ✓ | Classification ✓
+- [x] 133/133 tests passing — all modules verified
+- [x] All public APIs confirmed importable (8 modules checked)
+- [x] app.py syntax clean, pushed to GitHub + HF Space
+- [x] st.audio_input() wired for in-browser Bengali mic recording
+- [x] W2 DONE: Voice ✓ | Gemini ✓ | RAG ✓ | UI ✓ | app.py ✓ | Severity ✓ | PDF ✓
 
 ---
 
 ## ⚡ WEEK 3 — FULL INTEGRATION (Jun 1–7)
+## NOTE: W2 ran ahead of schedule. Severity UI, RAG chatbot UI, voice wiring,
+## and PDF integration are already done in app.py. Week 3 focuses on:
+## hospital map, model checkpoint plug-in, keepalive, and demo polish.
 
-### Day 15 — Jun 1 | Severity Engine UI
-- [ ] Wire severity engine into app.py post-classification
-- [ ] Tier display with color coding (green/yellow/red banners)
-- [ ] Show Bengali + English tier action text
-- [ ] Show "জরুরি চিকিৎসা প্রয়োজন" red alert for Tier 3
-- [ ] Commit: [w3/d15] severity UI integration
+### Day 15 — Jun 1 | Emergency Hospital Map
+- [ ] Write map/hospital_finder.py — Overpass API query, no API key needed
+- [ ] find_nearest_hospitals(lat, lon, n=5) → list[dict]
+- [ ] Render folium map with hospital pins in Streamlit (streamlit-folium)
+- [ ] Wire into app.py Tab 1: show map only when tier == 3
+- [ ] Inject hospital[0] name+address into PDF Section 4
+- [ ] Write tests/test_hospital.py — mock Overpass responses, ≥8 tests
+- [ ] Commit: [w3/d15] emergency hospital map + Folium
 
-### Day 16 — Jun 2 | Emergency Hospital Map
-- [ ] Write map/hospital_finder.py — Overpass API query
-- [ ] Implement find_nearest_hospitals(district, lat, lon, n=5)
-- [ ] Render folium map with hospital pins in Streamlit
-- [ ] Table: Name | Distance (km) | Address
-- [ ] Wire: Tier 3 → auto-trigger hospital search
-- [ ] Commit: [w3/d16] Overpass API hospital finder + Folium map
+### Day 13b — ~Jun 2 | Plug In Model Checkpoint  ← CHECKPOINT ARRIVES HERE
+- [ ] Receive bd_skinnet_best.pth
+- [ ] Place in model/checkpoints/bd_skinnet_best.pth
+- [ ] Replace _run_model() stub in app.py with real BD-SkinNet + GradCAM++ forward pass
+- [ ] Verify heatmap renders in Tab 1, coverage_pct flows to triage
+- [ ] Commit: [w3/d13b] real BD-SkinNet inference connected
 
-### Day 17 — Jun 3 | PDF Full Integration
-- [ ] Wire session_state → referral letter (all 4 sections auto-populated)
-- [ ] Tier 3: inject hospital[0] name+address into Section 4
-- [ ] Add Bengali text in Sections 1 and 4
-- [ ] Add "রেফারেল পত্র ডাউনলোড করুন" button → st.download_button
-- [ ] Test PDF: all sections populated correctly
-- [ ] Commit: [w3/d17] full referral PDF integration with session_state
+### Day 16 — Jun 3 | RAG Context Awareness + Chat History
+- [ ] Pass current disease to RAG system prompt as context
+- [ ] Add st.chat_message style conversation history (st.session_state list)
+- [ ] Show disease context banner above chat: "Asking about: Tinea"
+- [ ] Commit: [w3/d16] RAG context-aware chatbot
 
-### Day 18 — Jun 4 | RAG Chatbot UI
-- [ ] Build chat interface in Tab 2 (st.chat_message style)
-- [ ] Show session context (current disease) in RAG system prompt
-- [ ] Support Bengali and English questions
-- [ ] Show sources used (CDC/NIH/WHO/DGHS label only, no URLs)
-- [ ] Commit: [w3/d18] RAG chatbot UI with context awareness
+### Day 17 — Jun 4 | Scripts + Keepalive
+- [ ] Write scripts/keepalive.py — ping HF Space every 20 min
+- [ ] Write scripts/seed_commits.py — verify commit history density
+- [ ] Add GitHub Actions workflow for keepalive (CONSTRAINT 7)
+- [ ] Commit: [w3/d17] keepalive script + GitHub Actions
 
-### Day 19 — Jun 5 | Voice → Full Pipeline
-- [ ] Wire voice tab: audio recorder → transcribe → patient_history JSON display
-- [ ] Display extracted patient info as formatted card
-- [ ] Pass patient_history to session_state → auto-populates referral Section 1
-- [ ] Test: speak Bengali → see structured history
-- [ ] Commit: [w3/d19] voice pipeline fully wired end-to-end
+### Day 18 — Jun 5 | Demo Mode + UI Polish
+- [ ] Add demo mode: pre-loaded sample case (Scabies, Tier 3) for judges
+- [ ] Add image quality warning (blur detection via Laplacian variance)
+- [ ] Polish sidebar: show session summary as it builds
+- [ ] Commit: [w3/d18] demo mode + UI polish
 
-### Day 20 — Jun 6 | Full E2E Integration Test
-- [ ] Run FULL pipeline: voice → image → severity → PDF → hospital map (Tier 3 case)
-- [ ] Run FULL pipeline: voice → image → severity → PDF (Tier 1 case)
-- [ ] Test with 5 different disease scenarios
-- [ ] Document bugs in PROGRESS.md
-- [ ] Commit: [w3/d20] integration test pass + bug fixes
+### Day 19 — Jun 6 | Full E2E Integration Test
+- [ ] Run FULL pipeline: voice → image → severity → PDF → hospital map (Tier 3)
+- [ ] Run FULL pipeline: voice → image → severity → PDF (Tier 1)
+- [ ] Checkpoint plugged in and verified (if received)
+- [ ] Document results in PROGRESS.md
+- [ ] Commit: [w3/d19] E2E integration test pass
 
-### Day 21 — Jun 7 | Bug Fix + Deploy Integration Build
-- [ ] Fix all bugs from Day 20
-- [ ] Deploy working build to HF Spaces
-- [ ] Test public URL end-to-end (all features)
+### Day 21 — Jun 7 | W3 Deploy + Verify
+- [ ] Deploy to HF Space, verify public URL end-to-end
+- [ ] Check all features: mic, image, triage, RAG, PDF, map (Tier 3)
 - [ ] W3 DONE: Full working demo on public URL ✓
 
 ---

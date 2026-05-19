@@ -2,7 +2,7 @@
 # Update this file at the END of EVERY Claude Code session.
 
 ## 📍 CURRENT STATUS
-- Week: 2 | Day: 14 (starting)
+- Week: 3 | Day: 16 (starting)
 - HF Spaces URL: https://huggingface.co/spaces/rafilovestosuffer/skinai-bangladesh
 - GitHub Repo: https://github.com/rafilovestosuffer/Hackathon_2.0_sci
 - Demo Video: [TO BE ADDED WEEK 4]
@@ -22,10 +22,10 @@
 - [x] rag/retriever.py
 - [x] rag/knowledge/ (chunks)
 - [x] pdf_gen/referral.py
-- [ ] map/hospital_finder.py
+- [x] map/hospital_finder.py
 - [x] ui/components.py
 - [x] ui/styles.py
-- [x] app.py (full integration — checkpoint stub)
+- [x] app.py (full integration — checkpoint stub, all 3 tabs live)
 - [x] tests/test_severity.py
 - [x] tests/test_gradcam.py
 - [x] tests/test_pdf.py
@@ -42,6 +42,75 @@
 
 ## 📝 SESSION LOG
 <!-- Append to this after every session. Newest at top. -->
+
+### Session: May 31, 2026 — Day 14+15 — W2 SIGN-OFF + Hospital Map ✅
+**Done (Day 14 — W2 sign-off):**
+- 133/133 tests, all 8 module APIs verified
+- DECISIONS.md: 3 new entries (google-genai SDK, st.audio_input, checkpoint stub)
+- PLAN.md Week 3 rewritten to reflect actual remaining work
+
+**Done (Day 15 — Hospital Map):**
+- Written map/hospital_finder.py — full Overpass API hospital finder
+  - find_nearest_hospitals(lat, lon, n, radius_km) → list[dict] sorted by distance
+  - render_hospital_map(hospitals, user_lat, user_lon) → folium.Map with pins
+  - get_district_coords(district) → (lat, lon) for 64+ Bangladesh districts
+  - Haversine distance calculation (no external library)
+  - Network failure → returns [] gracefully, never raises
+- Written tests/test_hospital.py — 17 tests, all passing (150 total)
+  - TestGetDistrictCoords: 5 tests
+  - TestFindNearestHospitals: 9 tests (mocked Overpass)
+  - TestHaversine: 3 tests
+- Wired into app.py Tab 1: shows ONLY when tier == 3
+  - District text input → geocode → Overpass query → hospital table + Folium map
+  - hospital[0] stored in session_state.nearest_hospital → injected into PDF Section 4
+- Full test suite: 150/150 passing
+
+**Blockers:**
+- BD-SkinNet checkpoint still pending (~Jun 2)
+
+**Next session start point:**
+- Day 16: RAG context-aware chatbot + scripts/keepalive.py
+
+**Git commits this session:**
+- [w2/d14] W2 sign-off — all MD files updated
+- [w3/d15] emergency hospital map + Folium + 17 tests
+
+---
+
+### Session: May 31, 2026 — Day 14 — W2 SIGN-OFF ✅
+**Done:**
+- Full W2 verification: 133/133 tests passing
+- All 8 public module APIs confirmed importable
+- st.audio_input() wired for in-browser Bengali mic recording (replaces file uploader)
+- DECISIONS.md updated: 3 new decisions (google-genai SDK, st.audio_input, placeholder stub)
+- PLAN.md updated: Week 3 rewritten to reflect actual remaining work
+  (W2 ran ahead — severity UI, RAG UI, voice, PDF all already in app.py)
+- Committed and pushed to GitHub + HF Space
+
+**W2 Milestone — COMPLETE:**
+- [x] voice/pipeline.py — faster-whisper Bengali transcription
+- [x] voice/pipeline.py — Gemini JSON patient history extraction
+- [x] rag/knowledge/ — 100 chunks (CDC/NIH/WHO/DGHS)
+- [x] rag/build_index.py — FAISS index builder
+- [x] rag/retriever.py — FAISS query + Gemini answer
+- [x] ui/styles.py — Bengali CSS + professional design
+- [x] ui/components.py — 6 reusable widgets
+- [x] app.py — full 3-tab pipeline (mic, image, triage, RAG, PDF)
+- [x] 133/133 tests passing
+
+**Blockers:**
+- BD-SkinNet checkpoint (bd_skinnet_best.pth) — ETA ~Jun 2
+  Placeholder in app.py._run_model() until then
+
+**Next session start point:**
+- Day 15: map/hospital_finder.py — Overpass API + Folium
+  Wire into Tab 1: show only when tier == 3
+  Inject hospital[0] into PDF Section 4
+
+**Git commits this session:**
+- [w2/d14] W2 sign-off — all MD files updated
+
+---
 
 ### Session: May 30, 2026 — Day 13
 **Done:**
