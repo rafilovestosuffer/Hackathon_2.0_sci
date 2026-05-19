@@ -1,3 +1,13 @@
+---
+title: SkinAI Bangladesh
+emoji: 🏥
+colorFrom: green
+colorTo: blue
+sdk: docker
+app_file: app.py
+pinned: false
+---
+
 # SkinAI Bangladesh
 
 > AI-powered dermatological screening and triage for rural Bangladesh.
