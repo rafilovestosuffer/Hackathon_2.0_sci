@@ -15,7 +15,7 @@
 - [x] model/gradcam.py
 - [x] model/disease_labels.py
 - [x] model/export_int8.py
-- [ ] severity/engine.py
+- [x] severity/engine.py
 - [ ] voice/pipeline.py (transcription)
 - [ ] voice/pipeline.py (Gemini extraction)
 - [ ] rag/build_index.py
@@ -26,7 +26,7 @@
 - [ ] ui/components.py
 - [ ] ui/styles.py
 - [ ] app.py (full integration)
-- [ ] tests/test_severity.py
+- [x] tests/test_severity.py
 - [x] tests/test_gradcam.py
 - [ ] tests/test_pdf.py
 - [ ] scripts/keepalive.py
@@ -41,6 +41,24 @@
 
 ## 📝 SESSION LOG
 <!-- Append to this after every session. Newest at top. -->
+
+### Session: May 21, 2026 — Day 4
+**Done:**
+- Wrote severity/engine.py — compute_tier(disease_class, confidence, coverage_pct, transcript) → dict
+- Implemented all 4 signals exactly per CLAUDE.md spec
+- Wrote tests/test_severity.py — 29 assertions across 6 test classes covering all signals, boundaries, combined escalation, and return structure
+- All 29 tests pass (pytest -v)
+
+**Blockers:**
+- None
+
+**Next session start point:**
+- Write voice/pipeline.py — faster-whisper transcription + Gemini JSON extraction (Day 5)
+
+**Git commits this session:**
+- 68e037d [w1/d4] multi-signal severity engine + full test suite
+
+---
 
 ### Session: May 20, 2026 — Day 3
 **Done:**
