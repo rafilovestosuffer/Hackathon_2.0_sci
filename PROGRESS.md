@@ -21,14 +21,14 @@
 - [ ] rag/build_index.py
 - [ ] rag/retriever.py
 - [ ] rag/knowledge/ (chunks)
-- [ ] pdf_gen/referral.py
+- [x] pdf_gen/referral.py
 - [ ] map/hospital_finder.py
 - [ ] ui/components.py
 - [ ] ui/styles.py
 - [ ] app.py (full integration)
 - [x] tests/test_severity.py
 - [x] tests/test_gradcam.py
-- [ ] tests/test_pdf.py
+- [x] tests/test_pdf.py
 - [ ] scripts/keepalive.py
 - [ ] scripts/seed_commits.py
 - [ ] tests/test_pipeline.py
@@ -41,6 +41,34 @@
 
 ## 📝 SESSION LOG
 <!-- Append to this after every session. Newest at top. -->
+
+### Session: May 23, 2026 — Day 6
+**Done:**
+- Wrote pdf_gen/referral.py — generate_referral_pdf(session_data) → bytes
+- 4 sections: Patient History, Clinical Observation, AI Diagnosis, Triage Recommendation
+- Bengali text via Noto Sans Bengali font (downloaded at build/runtime, not tracked in git)
+- Heatmap embedded as PNG image; heatmap=None handled gracefully
+- Differential shown only when top2[1].confidence > 0.15
+- Tier 3 hospital name+address injected into Section 4
+- Colour-coded urgency badge (green/orange/red) per tier
+- Wrote tests/test_pdf.py — 11 smoke tests, all passing
+- Font not tracked in git (HF binary file policy) — downloaded via Dockerfile wget + runtime fallback
+- Updated Dockerfile to wget font at Docker build time
+- Pushed to GitHub (main) and HF Space (clean branch, no binary history)
+
+**Blockers:**
+- None
+
+**Next session start point:**
+- Day 7: Run full test suite (pytest tests/ -v — all 53 tests green)
+- Verify HF Space rebuilds with Dockerfile font download
+- Write TASK.md for Week 2
+
+**Git commits this session:**
+- 4e8433f [w1/d6] referral letter PDF generator (font tracking — later removed)
+- febb961 [w1/d6] referral letter PDF generator + font via Dockerfile download
+
+---
 
 ### Session: May 22, 2026 — Day 5
 **Done:**
