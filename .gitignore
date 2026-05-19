@@ -26,6 +26,9 @@ env/
 rag/faiss_index.bin
 rag/chunks_metadata.json
 
+# Fonts (downloaded at build/runtime)
+pdf_gen/fonts/*.ttf
+
 # OS
 .DS_Store
 Thumbs.db

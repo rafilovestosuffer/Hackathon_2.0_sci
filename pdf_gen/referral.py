@@ -27,10 +27,23 @@ _BENGALI_FONT = "NotoSansBengali"
 _FONT_REGISTERED = False
 
 
+_FONT_URL = (
+    "https://fonts.gstatic.com/s/notosansbengali/v33/"
+    "Cn-SJsCGWQxOjaGwMQ6fIiMywrNJIky6nvd8BjzVMvJx2mcSPVFpVEqE-6KmsolLudA.ttf"
+)
+
+
 def _register_font():
     global _FONT_REGISTERED, _BENGALI_FONT
     if _FONT_REGISTERED:
         return
+    if not os.path.exists(_FONT_PATH):
+        try:
+            import urllib.request
+            os.makedirs(_FONT_DIR, exist_ok=True)
+            urllib.request.urlretrieve(_FONT_URL, _FONT_PATH)
+        except Exception:
+            pass
     if os.path.exists(_FONT_PATH):
         pdfmetrics.registerFont(TTFont(_BENGALI_FONT, _FONT_PATH))
     else:
