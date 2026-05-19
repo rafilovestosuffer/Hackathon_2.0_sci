@@ -2,7 +2,7 @@
 # Update this file at the END of EVERY Claude Code session.
 
 ## 📍 CURRENT STATUS
-- Week: 3 | Day: 18 (starting)
+- Week: 3 | Day: 19 (starting)
 - HF Spaces URL: https://huggingface.co/spaces/rafilovestosuffer/skinai-bangladesh
 - GitHub Repo: https://github.com/rafilovestosuffer/Hackathon_2.0_sci
 - Demo Video: [TO BE ADDED WEEK 4]
@@ -48,6 +48,41 @@
 
 ## 📝 SESSION LOG
 <!-- Append to this after every session. Newest at top. -->
+
+### Session: Jun 2, 2026 — Day 18 — Error Handling + Sidebar Progress + README ✅
+**Done:**
+- app.py: bilingual error handler for corrupt image uploads
+  - `Image.open()` wrapped in try/except → `st.error()` (EN + BN) + `st.stop()`
+  - App never crashes on bad file upload
+- app.py: bilingual Overpass API fallback message (was English-only)
+- app.py: sidebar 4-step pipeline progress tracker
+  - ✅/⬜ per step: Voice recorded → Image analysed → Diagnosis ready → Referral ready
+  - Placed between diagnosis/tier display and Demo mode button
+  - Updates live as session_state fills in — judges see the pipeline unfold at a glance
+- README.md: full submission-grade rewrite (was placeholder "Under Construction")
+  - Problem statement with Bangladesh stats (1 derm per 250k, 80% untreated)
+  - ASCII pipeline diagram (full 5-stage flow)
+  - BD-SkinNet model card (F1=92.46%, AUC=0.9937, 7 classes)
+  - Triage engine 4-signal table
+  - Full tech stack table (13 rows)
+  - Setup instructions (local dev, 5 steps)
+  - Test summary table (164 tests across 8 files)
+  - Attribution table (14 resources with licenses)
+  - Team section + bilingual disclaimer
+- Full test suite: 164/164 passing (no regressions)
+- Committed and pushed to GitHub (cb8b2db) and HF Space (560397f)
+
+**Blockers:**
+- BD-SkinNet checkpoint still pending — _run_model() placeholder active
+
+**Next session start point:**
+- Day 19: W3 sign-off + full E2E live test + Week 4 planning
+
+**Git commits this session:**
+- cb8b2db [w3/d18] error handling + sidebar progress tracker + README (GitHub)
+- 560397f same — clean branch push (HF Space)
+
+---
 
 ### Session: Jun 1, 2026 — Day 17 — Bengali Confidence Captions + Blur Detection ✅
 **Done:**
