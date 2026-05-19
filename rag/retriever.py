@@ -31,25 +31,29 @@ _BENGALI_FALLBACK = "দুঃখিত, এই প্রশ্নের উত�
 _ENGLISH_FALLBACK = "Sorry, I could not find an answer."
 
 _PROMPT_TEMPLATE = """\
-You are a medical information assistant for a Bangladesh skin disease app.
-Answer the patient's question using ONLY the provided context.
-Do NOT recommend specific medications. Refer to a doctor for diagnosis.
-If the answer is not explicitly in the context, summarise what the context says that is most relevant.
-Answer in {lang_label} language. If answering in Bengali, translate the relevant context into Bengali.
+You are SkinAI Bangladesh — a helpful medical information assistant for rural Bangladesh.
+A patient has asked: "{question}"
+
+Your task:
+1. Use the medical context below to give a clear, helpful answer about the skin condition mentioned.
+2. The context is in English — if the patient asked in Bengali or asked for a Bengali answer, translate your answer into natural Bengali (বাংলা).
+3. Always explain what the condition is, what causes it, and when to see a doctor.
+4. Do NOT recommend specific medication names. Do NOT make a diagnosis.
+5. Keep the answer concise — 3 to 5 sentences.
+
 {disease_note}
-Context:
+Medical context (CDC · NIH · WHO · DGHS Bangladesh):
 {context}
 
-Question: {question}
-
-Answer:\
+Answer in {lang_label}:\
 """
 
-# Romanized Bengali keywords that signal the user wants a Bengali reply
+# Romanized Bengali keywords — signal Bengali reply AND are stripped before BM25 search
 _ROMANIZED_BN_TRIGGERS = {
-    "bangla", "banglai", "bengali", "bolo", "bolun", "ki", "kি",
+    "bangla", "banglai", "bengali", "bolo", "bolun", "ki",
     "ami", "apni", "amar", "apnar", "rog", "janai", "janate",
-    "kora", "kore", "hobe", "hobey", "chai", "chahi",
+    "kora", "kore", "hobe", "hobey", "chai", "chahi", "bolte",
+    "somporkay", "somporke", "niye", "keno", "kothay",
 }
 
 # ── Singletons ────────────────────────────────────────────────────────────────
@@ -65,6 +69,13 @@ _idf: dict[str, float] = {}       # precomputed IDF for BM25
 
 def _tokenize(text: str) -> list[str]:
     return re.findall(r"[a-zঀ-৿]+", text.lower())
+
+
+def _search_tokens(question: str) -> list[str]:
+    """Return BM25 search tokens: strip Romanized Bengali filler so medical terms dominate."""
+    tokens = _tokenize(question)
+    cleaned = [t for t in tokens if t not in _ROMANIZED_BN_TRIGGERS]
+    return cleaned if cleaned else tokens  # fallback: use all tokens if nothing remains
 
 
 def _build_idf(chunks: list[dict]) -> dict[str, float]:
@@ -225,7 +236,7 @@ def retrieve(question: str, top_k: int = TOP_K) -> list[dict]:
     # BM25 keyword path — always works
     if not _chunks:
         return []
-    query_tokens = _tokenize(question)
+    query_tokens = _search_tokens(question)  # strips Romanized Bengali filler words
     scored = [(
         _bm25_score(query_tokens, c.get("text", "")),
         i,
