@@ -157,6 +157,27 @@ with st.sidebar:
                 unsafe_allow_html=True,
             )
 
+    # ── Pipeline progress tracker ─────────────────────────────────────────────
+    st.markdown("---")
+    st.markdown(
+        '<div class="sidebar-stat"><strong>📊 Pipeline Progress</strong></div>',
+        unsafe_allow_html=True,
+    )
+    _progress_steps = [
+        ("🎙️ Voice recorded",  bool(st.session_state.transcript)),
+        ("📷 Image analysed",   st.session_state.prediction is not None),
+        ("🧠 Diagnosis ready",  st.session_state.tier_result is not None),
+        ("📄 Referral ready",   st.session_state.pdf_bytes is not None),
+    ]
+    for _label, _done in _progress_steps:
+        _tick  = "✅" if _done else "⬜"
+        _color = "#60a5fa" if _done else "#64748b"
+        st.markdown(
+            f'<div class="sidebar-stat" style="color:{_color} !important;">'
+            f'{_tick} {_label}</div>',
+            unsafe_allow_html=True,
+        )
+
     st.markdown("---")
 
     # ── Demo mode ─────────────────────────────────────────────────────────────
@@ -341,7 +362,17 @@ with tab1:
         )
 
         if image_file is not None:
-            pil_img = Image.open(image_file).convert("RGB")
+            try:
+                pil_img = Image.open(image_file).convert("RGB")
+            except Exception:
+                st.error(
+                    "⚠️ Could not read this image file. "
+                    "Please upload a valid JPG or PNG.\n\n"
+                    "ছবিটি পড়া যাচ্ছে না। "
+                    "অনুগ্রহ করে একটি বৈধ JPG বা PNG ফাইল আপলোড করুন।"
+                )
+                st.stop()
+
             st.image(pil_img, use_container_width=True,
                      caption="Uploaded skin image")
 
@@ -423,7 +454,12 @@ with tab1:
                         except Exception:
                             pass
                     else:
-                        st.warning("No hospitals found nearby. Please try a different district.")
+                        st.warning(
+                            "🏥 No hospitals found nearby. "
+                            "Try a different or more specific district name.\n\n"
+                            "নিকটে কোনো হাসপাতাল পাওয়া যায়নি। "
+                            "অন্য জেলার নাম দিয়ে আবার চেষ্টা করুন।"
+                        )
 
             # GradCAM
             render_gradcam_overlay(pred["heatmap"], pred["coverage_pct"])
