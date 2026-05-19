@@ -2,8 +2,8 @@
 # Update this file at the END of EVERY Claude Code session.
 
 ## 📍 CURRENT STATUS
-- Week: 1 | Day: 4
-- HF Spaces URL: [TO BE ADDED DAY 5]
+- Week: 1 | Day: 5
+- HF Spaces URL: https://huggingface.co/spaces/rafilovestosuffer/skinai-bangladesh
 - GitHub Repo: https://github.com/rafilovestosuffer/Hackathon_2.0_sci
 - Demo Video: [TO BE ADDED WEEK 4]
 
@@ -41,6 +41,34 @@
 
 ## 📝 SESSION LOG
 <!-- Append to this after every session. Newest at top. -->
+
+### Session: May 22, 2026 — Day 5
+**Done:**
+- Created HF Space: rafilovestosuffer/skinai-bangladesh (Docker + Streamlit, CPU Basic, Public)
+- Added hf git remote and force-pushed project code
+- Upgraded app.py to full Bengali-tabbed skeleton:
+  - Sidebar: project info, team, competition, Bengali disclaimer
+  - Tab 1 "রোগ নির্ণয়" — voice + image placeholders + triage metrics
+  - Tab 2 "প্রশ্ন করুন" — RAG chatbot placeholder
+  - Tab 3 "রেফারেল পত্র" — PDF download placeholder (disabled button)
+  - Bengali info banner + footer disclaimer
+- Added HF Spaces YAML metadata to README.md
+- Pushed to both GitHub and HF Space remotes
+- Public URL: https://huggingface.co/spaces/rafilovestosuffer/skinai-bangladesh
+
+**Blockers:**
+- None
+
+**Next session start point:**
+- Write pdf_gen/referral.py — 4-section reportlab PDF
+- Write tests/test_pdf.py — smoke test
+- Test Bengali font rendering (Noto Sans Bengali via reportlab)
+
+**Git commits this session:**
+- dd7f8ae [w1/d5] add HF Spaces metadata to README
+- a9ade29 [w1/d5] HF Spaces deployed — public URL live
+
+---
 
 ### Session: May 21, 2026 — Day 4
 **Done:**
