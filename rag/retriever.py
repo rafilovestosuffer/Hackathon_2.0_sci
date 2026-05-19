@@ -34,8 +34,8 @@ _PROMPT_TEMPLATE = """\
 You are a medical information assistant for a Bangladesh skin disease app.
 Answer the patient's question using ONLY the provided context.
 Do NOT recommend specific medications. Refer to a doctor for diagnosis.
-If the answer is not in the context, say so honestly.
-Answer in {lang_label} language.
+If the answer is not explicitly in the context, summarise what the context says that is most relevant.
+Answer in {lang_label} language. If answering in Bengali, translate the relevant context into Bengali.
 {disease_note}
 Context:
 {context}
@@ -44,6 +44,13 @@ Question: {question}
 
 Answer:\
 """
+
+# Romanized Bengali keywords that signal the user wants a Bengali reply
+_ROMANIZED_BN_TRIGGERS = {
+    "bangla", "banglai", "bengali", "bolo", "bolun", "ki", "kি",
+    "ami", "apni", "amar", "apnar", "rog", "janai", "janate",
+    "kora", "kore", "hobe", "hobey", "chai", "chahi",
+}
 
 # ── Singletons ────────────────────────────────────────────────────────────────
 _chunks: list[dict] = []          # raw chunks from .txt files — always populated
@@ -186,7 +193,14 @@ def load_index() -> bool:
 
 
 def _detect_lang(text: str) -> str:
-    return "bn" if any("ঀ" <= ch <= "৿" for ch in text) else "en"
+    # Unicode Bengali script — definitive
+    if any("ঀ" <= ch <= "৿" for ch in text):
+        return "bn"
+    # Romanized Bengali: user typed in Latin script but wants Bengali reply
+    words = set(re.findall(r"[a-z]+", text.lower()))
+    if words & _ROMANIZED_BN_TRIGGERS:
+        return "bn"
+    return "en"
 
 
 def retrieve(question: str, top_k: int = TOP_K) -> list[dict]:
