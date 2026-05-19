@@ -1,0 +1,14 @@
+SOURCE: WHO
+TOPIC: Seborrheic Dermatitis — Global and Regional Perspectives
+---
+Seborrheic dermatitis is a chronic relapsing inflammatory skin condition that affects populations worldwide, with no significant geographic predilection. Its global prevalence is estimated at one to three percent in immunocompetent adults, with significantly higher rates in specific populations.
+
+Immunocompromised individuals bear a disproportionate burden. In people with HIV infection, seborrheic dermatitis affects thirty to eighty percent, compared to one to three percent in the general population. Its severity correlates with degree of immunosuppression. In many settings, severe seborrheic dermatitis may be a marker for undiagnosed HIV infection.
+
+In South and Southeast Asia, including Bangladesh, the warm and humid climate promotes Malassezia yeast proliferation and may increase seborrheic dermatitis prevalence and severity, though systematic epidemiological data from these regions are limited.
+
+Cultural hair care practices prevalent in South Asia — including frequent application of hair oils (coconut, mustard, sesame) — may worsen seborrheic dermatitis by providing lipid substrates for Malassezia growth. Educating patients about this relationship is important in cultural contexts where oil application is a deeply embedded practice.
+
+WHO essential medicines for seborrheic dermatitis — including ketoconazole shampoo and hydrocortisone cream — are widely available. Access barriers relate more to cost and healthcare access than availability.
+
+Integration of seborrheic dermatitis management into HIV care programs is an important strategy for improving quality of life in people living with HIV. Dermatological care should be part of comprehensive HIV management.

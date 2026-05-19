@@ -1,0 +1,14 @@
+SOURCE: WHO
+TOPIC: WHO Perspective — Eczema and Non-communicable Skin Diseases
+---
+Atopic dermatitis and eczema are classified as non-communicable diseases (NCDs) by the World Health Organization. The WHO NCD framework increasingly recognizes the burden of chronic inflammatory skin conditions alongside the more commonly tracked NCDs such as cardiovascular disease, diabetes, cancer, and chronic respiratory conditions.
+
+The global burden of atopic dermatitis is estimated at two hundred thirty million affected individuals, with the highest burden in children. In low- and middle-income countries, the prevalence is rising as these countries undergo epidemiological transition associated with urbanization and lifestyle changes.
+
+WHO recognizes that chronic skin diseases including atopic dermatitis are associated with significant mental health burden. Internationally, there is growing recognition that skin conditions should be addressed as part of comprehensive NCD programs rather than exclusively as dermatological conditions.
+
+Access to affordable topical corticosteroids — the cornerstone of atopic dermatitis treatment — is highly variable globally. In many low- and middle-income countries, patients rely on potent corticosteroids obtained without prescription, leading to side effects from inappropriate use. Generic low- and medium-potency corticosteroids are on the WHO Essential Medicines List.
+
+Emollients (moisturizers) are not currently on the WHO EML, despite being the cornerstone of daily eczema management. This represents a gap in access for patients in resource-limited settings.
+
+WHO supports community-based approaches to eczema management that include patient education, support groups, and integration of skin disease care into primary health care. Training community health workers to recognize and manage common inflammatory skin conditions is endorsed as a strategy for expanding access to care.

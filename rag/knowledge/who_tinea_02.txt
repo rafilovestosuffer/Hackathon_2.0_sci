@@ -1,0 +1,16 @@
+SOURCE: WHO
+TOPIC: WHO Essential Medicines for Skin Diseases
+---
+The World Health Organization's Essential Medicines List (EML) includes several medications critical for managing common skin diseases. Access to these medicines in primary healthcare settings is fundamental to reducing the burden of skin disease in low- and middle-income countries.
+
+For fungal skin infections (tinea, pityriasis versicolor), the WHO EML includes clotrimazole 1% cream for topical treatment, and griseofulvin oral tablets for systemic treatment of tinea capitis and extensive tinea. Fluconazole is listed for systemic fungal infections. Ketoconazole shampoo is included for seborrheic dermatitis.
+
+For scabies, the WHO EML includes permethrin 5% cream as the preferred topical scabicide, and ivermectin oral tablets as the systemic option, particularly for outbreaks and mass drug administration.
+
+For inflammatory skin conditions, hydrocortisone 1% cream (low-potency corticosteroid) and betamethasone cream (medium/high-potency) are listed for eczema and atopic dermatitis management.
+
+For secondary bacterial skin infections, phenoxymethylpenicillin and amoxicillin are included for streptococcal infections, and cloxacillin or dicloxacillin for staphylococcal infections.
+
+Ensuring these medicines are consistently available at all levels of the health system — from community clinics through district hospitals — is a WHO advocacy priority. Stock-outs and supply chain disruptions disproportionately affect rural populations who have fewer alternative sources.
+
+In Bangladesh, the DGHS supply chain distributes WHO essential medicines to upazila health complexes and community clinics. Monitoring and improving supply chain reliability is essential for effective skin disease management at the primary care level.

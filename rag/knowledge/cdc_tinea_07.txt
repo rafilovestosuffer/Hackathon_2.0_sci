@@ -1,0 +1,14 @@
+SOURCE: CDC
+TOPIC: Tinea Unguium — Nail Fungal Infection
+---
+Tinea unguium, also known as onychomycosis, is a fungal infection of the nails caused by dermatophytes, yeasts, or non-dermatophyte molds. It is the most common nail disease, affecting approximately ten percent of the general population. Prevalence increases with age.
+
+The toenails are affected more commonly than fingernails, partly because shoes create a warm, moist environment that favors fungal growth. Risk factors include older age, male sex, immunosuppression, peripheral vascular disease, diabetes, participation in sports, communal showers, and prior nail trauma.
+
+Infected nails typically become thick, discolored (yellow, brown, or white), brittle, and crumbly. The nail may separate from the nail bed (onycholysis). In some cases, debris accumulates under the nail. The infection usually starts at the tip of the nail and progresses toward the base.
+
+Diagnosis should be confirmed by laboratory testing (KOH examination, fungal culture, or PCR) before initiating treatment, because other nail conditions — including psoriasis, trauma, and lichen planus — can mimic onychomycosis. Starting long-term oral antifungal treatment without confirmed diagnosis is inappropriate.
+
+Treatment is challenging because nails grow slowly and medications must penetrate the nail plate. Oral terbinafine for twelve weeks (toenails) is the most effective treatment, achieving cure rates of approximately seventy-five percent. Itraconazole pulse therapy is an alternative. Topical treatments alone are generally effective only for very early, limited infections.
+
+In Bangladesh and other tropical countries, tinea unguium is common, particularly among agricultural workers and people who frequently walk barefoot.

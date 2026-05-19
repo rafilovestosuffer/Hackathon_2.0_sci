@@ -1,0 +1,14 @@
+SOURCE: CDC
+TOPIC: Tinea Capitis — Scalp Ringworm in Children
+---
+Tinea capitis, or scalp ringworm, is a fungal infection of the scalp and hair shaft most commonly affecting school-age children between three and fourteen years. It is caused by dermatophyte fungi, primarily Trichophyton tonsurans in the United States and Trichophyton violaceum or Microsporum audouinii in other regions including parts of Asia and Africa.
+
+The infection spreads easily in settings where children have close contact, including schools, childcare centers, and households. Sharing combs, brushes, hats, and pillows facilitates transmission. The fungus can survive on contaminated objects for extended periods.
+
+Clinical presentation varies from mild scaling resembling dandruff to patchy hair loss with broken hair stumps. The inflammatory form, called a kerion, presents as a boggy, inflamed, tender mass from which pus can be expressed. Kerions represent an intense immune response to the fungal infection and can cause permanent scarring and alopecia if not treated promptly.
+
+Black dot tinea capitis occurs when hair breaks off at the scalp surface, leaving dark spots visible in the pores. This pattern is associated with Trichophyton tonsurans infection.
+
+Diagnosis requires laboratory confirmation because other conditions — including alopecia areata, seborrheic dermatitis, and psoriasis — can mimic tinea capitis. Fungal culture of scalp scrapings or broken hair remains the gold standard.
+
+Treatment requires oral antifungal medication. Topical antifungals alone are inadequate because the infection is within the hair shaft. Griseofulvin taken with a fatty meal for six to twelve weeks is standard. Terbinafine for four weeks is an effective and shorter alternative. Antifungal shampoos can help reduce transmission.

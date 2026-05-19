@@ -1,0 +1,12 @@
+SOURCE: CDC
+TOPIC: Contact Dermatitis — Overview and Types
+---
+Contact dermatitis is inflammation of the skin that occurs when the skin comes into contact with a substance that causes irritation or an allergic reaction. It is one of the most common occupational skin diseases and affects millions of people worldwide.
+
+There are two main types of contact dermatitis. Irritant contact dermatitis is the most common type and accounts for approximately eighty percent of cases. It results from direct damage to the skin by a chemical substance. The reaction occurs at the site of contact and begins within minutes to hours of exposure. Common irritants include water, soaps, detergents, cleaning products, solvents, acids, alkalis, and friction.
+
+Allergic contact dermatitis is an immune-mediated reaction that occurs in individuals who have become sensitized to a particular substance. Sensitization requires at least one prior exposure. Subsequent exposures trigger an immune response that causes inflammation. Allergic contact dermatitis typically develops twelve to seventy-two hours after exposure. Common allergens include nickel (found in jewelry and belt buckles), latex rubber, fragrances, preservatives in cosmetics and personal care products, hair dyes containing paraphenylenediamine (PPD), poison ivy and related plants, and certain medications applied to the skin.
+
+A third type, photocontact dermatitis, occurs when a substance on the skin is activated by sunlight to cause irritation or an allergic reaction.
+
+Risk factors for contact dermatitis include occupation (healthcare workers, hairdressers, construction workers, and food handlers are at high risk), history of atopic dermatitis, and frequent hand washing or exposure to water.

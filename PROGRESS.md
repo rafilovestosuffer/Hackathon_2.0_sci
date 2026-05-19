@@ -2,7 +2,7 @@
 # Update this file at the END of EVERY Claude Code session.
 
 ## 📍 CURRENT STATUS
-- Week: 2 | Day: 10 (starting)
+- Week: 2 | Day: 11 (starting)
 - HF Spaces URL: https://huggingface.co/spaces/rafilovestosuffer/skinai-bangladesh
 - GitHub Repo: https://github.com/rafilovestosuffer/Hackathon_2.0_sci
 - Demo Video: [TO BE ADDED WEEK 4]
@@ -18,9 +18,9 @@
 - [x] severity/engine.py
 - [x] voice/pipeline.py (transcription)
 - [x] voice/pipeline.py (Gemini extraction)
-- [ ] rag/build_index.py
+- [x] rag/build_index.py
 - [ ] rag/retriever.py
-- [ ] rag/knowledge/ (chunks)
+- [x] rag/knowledge/ (chunks)
 - [x] pdf_gen/referral.py
 - [ ] map/hospital_finder.py
 - [ ] ui/components.py
@@ -42,6 +42,38 @@
 
 ## 📝 SESSION LOG
 <!-- Append to this after every session. Newest at top. -->
+
+### Session: May 27, 2026 — Day 10
+**Done:**
+- Written 100 knowledge base chunks to rag/knowledge/ (100 .txt files)
+  - CDC: 32 chunks (tinea×8, scabies×7, atopic_dermatitis×5, eczema×3, contact_dermatitis×3, seborrheic×3, vitiligo×3)
+  - NIH: 32 chunks (all 7 diseases + general skin care, itch, phototherapy, infection, microbiome, nutrition, skin color topics)
+  - WHO: 16 chunks (scabies NTD×3, tinea×2, atopic dermatitis, skin diseases SE Asia, vitiligo stigma, community MDA, occupational, integrated care, climate, BD country, seborrheic)
+  - DGHS: 20 chunks (all 7 diseases BD context, referral pathways, rural skin, monsoon, children, elderly, garment sector, skin hygiene, prevention, upazila protocol, emergency, patient navigation, telemedicine, education)
+- All 7 BD-SkinNet disease classes covered (min 8 chunks each)
+- No DermNet content anywhere
+- rag/seed_knowledge.py: one-time seeder script (writes chunks from in-memory dict)
+- rag/build_index.py: FAISS index builder with SentenceTransformer → AutoModel fallback
+- FAISS code path verified locally with random embeddings (100 chunks → IndexFlatIP → search confirmed)
+- Note: local HF Hub model download blocked by network (HF Hub returns 401/404 from this network)
+  → Build will succeed on HF Space which has direct HF Hub access
+  → faiss_index.bin + chunks_metadata.json are gitignored; rebuilt at HF Space startup
+- Committed rag/knowledge/ + rag/build_index.py + rag/seed_knowledge.py
+- Pushed to GitHub and HF Space
+
+**Blockers:**
+- HF Hub model download blocked locally (sentence-transformers/paraphrase-multilingual-MiniLM-L6-v2 returns 401)
+  — Does NOT affect HF Space deployment; index rebuilt at startup there
+
+**Next session start point:**
+- Day 11: Write rag/retriever.py — FAISS query + Gemini answer
+- Implement answer_question(question, context) → str
+- Write tests/test_rag.py
+
+**Git commits this session:**
+- [w2/d10] knowledge base chunks (CDC/NIH/WHO/DGHS) + FAISS index builder
+
+---
 
 ### Session: May 26, 2026 — Day 9
 **Done:**

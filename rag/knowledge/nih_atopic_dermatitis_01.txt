@@ -1,0 +1,14 @@
+SOURCE: NIH
+TOPIC: Atopic Dermatitis — Pathophysiology and Skin Barrier
+---
+The understanding of atopic dermatitis (AD) has advanced significantly with the recognition that skin barrier dysfunction is central to the disease. The skin barrier normally prevents water loss from the body (transepidermal water loss, TEWL) and blocks entry of environmental allergens, irritants, and microorganisms.
+
+In atopic dermatitis, the skin barrier is functionally impaired. Loss-of-function mutations in the FLG gene, which encodes the protein filaggrin, are the strongest known genetic risk factor for atopic dermatitis. Filaggrin is essential for forming the cornified cell envelope and maintaining skin barrier integrity.
+
+With a defective skin barrier, water evaporates more readily from the skin, causing chronic dryness. Allergens, irritants, and microorganisms penetrate more easily, triggering immune activation. The resulting immune response involves activation of T helper type 2 (Th2) cells, which produce inflammatory cytokines including interleukin-4 (IL-4), IL-5, and IL-13.
+
+Staphylococcus aureus colonizes the skin of more than ninety percent of people with moderate to severe atopic dermatitis. Staphylococcal toxins act as superantigens, amplifying the immune response and worsening inflammation. They also promote IgE sensitization to skin-associated allergens.
+
+The itch-scratch cycle is central to disease perpetuation. Scratching damages the skin barrier further, worsens inflammation, and creates portals for infection. Controlling itch is therefore a central therapeutic goal.
+
+Understanding these mechanisms has led to targeted biological therapies. Dupilumab, which blocks the IL-4 and IL-13 pathways, represents a major advance in the treatment of moderate to severe atopic dermatitis.

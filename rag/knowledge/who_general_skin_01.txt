@@ -1,0 +1,12 @@
+SOURCE: WHO
+TOPIC: WHO Integrated Approach to Skin Health in Primary Care
+---
+Skin diseases are among the most common reasons for primary healthcare consultations worldwide, yet they receive disproportionately little attention in health system planning. The World Health Organization advocates for a comprehensive, integrated approach to skin health within primary care.
+
+Integrating skin disease management into primary care reduces unnecessary specialist referrals, improves timely access to treatment, and reduces costs for patients and health systems. The majority of common skin diseases — including tinea, scabies, contact dermatitis, seborrheic dermatitis, and mild atopic dermatitis — can be effectively managed at the primary care level by trained generalists.
+
+WHO recommendations for integrating skin health into primary care include: incorporating basic dermatology into undergraduate and postgraduate medical and nursing curricula; providing continuing education for primary care providers on recognition and management of common skin diseases; developing and disseminating clinical practice guidelines adapted to local disease burden and available resources; ensuring essential dermatological medicines are available in primary care facilities; and establishing clear referral pathways for cases requiring specialist care.
+
+Task-sharing between physicians, nurses, and community health workers can extend dermatological service delivery at lower cost. Community health workers trained to recognize and manage common skin diseases (scabies, tinea, impetigo) and to refer complex cases can significantly expand access in resource-limited settings.
+
+Digital health tools, including teledermatology and AI-assisted diagnosis, offer additional opportunities to extend dermatological expertise to primary care. WHO supports appropriate validation and implementation of such tools to improve skin disease management in underserved settings.

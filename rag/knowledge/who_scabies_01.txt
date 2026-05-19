@@ -1,0 +1,14 @@
+SOURCE: WHO
+TOPIC: Scabies as a Neglected Tropical Disease
+---
+Scabies is included in the World Health Organization's list of neglected tropical diseases (NTDs). It is estimated that at any given time, more than two hundred million people worldwide are affected by scabies. The global burden is highest in tropical and resource-limited settings in sub-Saharan Africa, South and Southeast Asia, and the Pacific Islands.
+
+Scabies affects all ages but is particularly burdensome for children and the elderly. In many endemic communities, scabies prevalence can exceed fifty percent among children. The condition causes significant morbidity through intense pruritus that disrupts sleep and daily activities.
+
+Beyond the direct impact of infestation, scabies carries serious secondary health consequences. Secondary bacterial infection with Streptococcus pyogenes and Staphylococcus aureus is extremely common, particularly in tropical settings. Streptococcal skin infections can lead to post-streptococcal glomerulonephritis (kidney disease) and rheumatic fever, contributing to significant morbidity and mortality.
+
+The economic burden of scabies in endemic communities is substantial. Lost workdays due to illness, costs of treatment, and reduced school attendance by affected children have measurable impacts on household and community productivity.
+
+WHO's 2030 NTD Road Map targets the global control of scabies, with a focus on reducing its prevalence in endemic areas and preventing the serious complications of secondary bacterial infection. The strategy includes mass drug administration (MDA) with ivermectin in highly endemic communities, strengthened surveillance, and integration of scabies control into primary health care systems.
+
+Bangladesh, with its dense population, tropical climate, and high rates of poverty in rural areas, bears a significant scabies burden, particularly among children in rural and peri-urban communities.

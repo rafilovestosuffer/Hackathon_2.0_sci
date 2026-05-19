@@ -1,0 +1,14 @@
+SOURCE: NIH
+TOPIC: Vitiligo — Diagnosis and Assessment
+---
+The diagnosis of vitiligo is clinical in the vast majority of cases, based on the characteristic appearance of well-demarcated, depigmented white patches. In individuals with darker skin tones — as in Bangladesh — the contrast between depigmented and surrounding skin is striking and diagnosis is usually straightforward.
+
+Wood's lamp (ultraviolet A light) examination enhances the contrast between depigmented and normally pigmented skin, particularly in fair-skinned individuals where the patches may not be easily visible under normal light. Under Wood's lamp, vitiligo patches fluoresce bright white due to the absence of melanin.
+
+The differential diagnosis of vitiligo includes pityriasis versicolor (tinea versicolor — hypopigmented rather than depigmented, with fine scale, positive KOH examination), pityriasis alba (poorly demarcated, hypopigmented patches common in children with atopic tendency), post-inflammatory hypopigmentation (follows skin inflammation, less sharp border), chemical leukoderma (history of chemical exposure, usually occupational), leprosy (associated with reduced sensation in the patch, confirmed by skin biopsy), and nevus depigmentosus (present from birth, stable, irregular border).
+
+Distinguishing vitiligo from leprosy is particularly important in Bangladesh and other South Asian countries, where leprosy remains present (though declining) and carries profound social stigma. In leprosy, depigmented or hypopigmented patches are associated with reduced sensation. The Fite-stained biopsy and skin-slit smear for acid-fast bacilli confirm leprosy.
+
+Dermoscopy can identify residual melanocytes at follicular openings, which is a positive prognostic sign for repigmentation response to treatment.
+
+Thyroid function testing and a complete blood count are the minimum baseline investigations for newly diagnosed vitiligo.

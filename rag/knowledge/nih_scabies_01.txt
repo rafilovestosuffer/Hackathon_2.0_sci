@@ -1,0 +1,16 @@
+SOURCE: NIH
+TOPIC: Scabies — Clinical Diagnosis
+---
+The diagnosis of scabies is primarily clinical, based on the characteristic history of intense pruritus (especially nocturnal), typical distribution of the rash, and the presence of burrows. Confirmation by identifying the mite, its eggs, or feces (scybala) under dermoscopy or microscopy strengthens the diagnosis.
+
+Dermoscopy (dermatoscopy) has emerged as a useful non-invasive tool for diagnosing scabies. The scabies mite appears under dermoscopy as a triangular brown structure at the end of a burrow — sometimes described as a jet plane with its contrail.
+
+For microscopic confirmation, skin scrapings taken from a burrow are examined under microscopy after treatment with mineral oil or potassium hydroxide. The presence of mites, eggs, or scybala confirms the diagnosis.
+
+The distribution of rash and burrows varies by age. In adults and older children, the genitals, interdigital spaces, wrists, axillae, umbilical area, and buttocks are classic sites. In infants and young children, involvement of the palms, soles, face, and scalp is common and helps distinguish pediatric from adult scabies.
+
+Serological tests and skin tests have limited utility in routine clinical practice. Polymerase chain reaction (PCR) techniques for scabies mite DNA show promise for diagnosis in research settings.
+
+The differential diagnosis of scabies includes other itchy skin conditions such as atopic dermatitis, contact dermatitis, insect bites, pityriasis rosea, and secondary syphilis. The simultaneous occurrence of similar symptoms in multiple household members strongly suggests scabies.
+
+Post-scabetic itch persisting after successful treatment is due to hypersensitivity to remaining mite antigens and does not indicate treatment failure. This commonly leads to unnecessary retreatment.

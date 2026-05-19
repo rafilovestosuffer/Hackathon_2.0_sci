@@ -1,0 +1,18 @@
+SOURCE: DGHS
+TOPIC: Skin Diseases in Elderly Bangladeshis
+---
+Elderly people in Bangladesh face distinct skin disease challenges related to physiological changes in aging skin, comorbid conditions, and the particular social context of elderly care in Bangladesh.
+
+Aging skin undergoes significant changes that increase susceptibility to skin disease. Sebum production decreases, leading to drier skin that is more susceptible to irritation and infection. The skin barrier becomes less efficient. Immune responses are less robust, making infections more severe and harder to clear.
+
+Scabies in elderly Bangladeshis often presents atypically. Classic burrows may be absent. The rash may be non-specific and widespread. Nursing home residents and those in institutional care are particularly vulnerable.
+
+Venous stasis dermatitis — inflammation of the lower leg skin related to poor venous return — is common in elderly patients. It presents as brownish, scaly skin on the lower legs, sometimes with weeping and ulceration. Management requires compression bandaging, emollients, and treatment of secondary infection.
+
+Lichen simplex chronicus — thickened skin from chronic scratching — is common in older adults with chronic itch due to dry skin or other conditions.
+
+Bullous pemphigoid — an autoimmune blistering condition — predominantly affects elderly individuals. It presents with large, tense blisters on the skin. It requires prompt diagnosis and specialist management with immunosuppressive therapy.
+
+Skin cancer, particularly squamous cell carcinoma, is a concern in elderly Bangladeshis with history of sun exposure. While skin cancer is less common in darker-skinned populations, it is not negligible and tends to present at more advanced stages.
+
+Elderly patients in Bangladesh may face barriers to skin care access including mobility limitations, transportation difficulties, and financial constraints. Mobile health camps and telemedicine services are particularly valuable for this population.

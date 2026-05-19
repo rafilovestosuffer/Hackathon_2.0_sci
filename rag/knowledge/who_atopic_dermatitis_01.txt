@@ -1,0 +1,14 @@
+SOURCE: WHO
+TOPIC: WHO Perspective on Atopic Dermatitis Global Burden
+---
+Atopic dermatitis is recognized as a significant global public health problem by the World Health Organization. The condition affects an estimated two hundred thirty million people worldwide, including up to twenty percent of children in high-income countries and between two and ten percent of children in low- and middle-income countries.
+
+The incidence of atopic dermatitis has increased substantially in recent decades, particularly in developing countries undergoing urbanization and lifestyle changes. The hygiene hypothesis proposes that reduced early childhood exposure to infections and microorganisms associated with modern urban lifestyles leads to inappropriate immune development and increased susceptibility to allergic conditions.
+
+Environmental factors driving the rise of atopic dermatitis in developing countries include increased air pollution, changes in diet, reduced biodiversity of skin and gut microbiomes, and increased exposure to chemical irritants. Climate change may further increase disease burden by intensifying temperature extremes and altering aeroallergen patterns.
+
+The burden of atopic dermatitis extends beyond the affected individual. Caregivers of children with atopic dermatitis experience significant psychological distress, sleep disruption, and economic burden. The cost of medical care, lost productivity, and reduced quality of life constitute substantial societal costs.
+
+WHO promotes a comprehensive approach to managing atopic dermatitis that includes accessible basic skincare education, availability of affordable moisturizers and topical corticosteroids, and integration of mental health support.
+
+In countries like Bangladesh, the dual challenge of tropical climate (promoting dryness and irritation through sweating followed by evaporative cooling) and limited access to specialist dermatology care creates a significant unmet need for accessible, effective atopic dermatitis management.

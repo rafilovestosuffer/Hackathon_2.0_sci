@@ -1,166 +1,145 @@
-# TASK — May 27, 2026 | Week 2 / Day 10
+# TASK — May 28, 2026 | Week 2 / Day 11
 
 ## TODAY'S GOAL
-Build the RAG knowledge base — write and chunk CDC, NIH, WHO, and DGHS Bangladesh
-content into rag/knowledge/ as plain text files. This is offline work — no API
-key needed today. The FAISS index is built on Day 11.
+Write rag/retriever.py — FAISS query + Gemini answer.
+Implement answer_question(question, context) → str.
+Write tests/test_rag.py with mocked FAISS and Gemini.
 
 ## CONTEXT
-- Day 9 complete: voice/pipeline.py fully done (transcription + Gemini extraction)
+- Day 10 complete: 100 knowledge chunks in rag/knowledge/, rag/build_index.py done
 - Full suite: 78/78 passing
-- rag/knowledge/ directory does NOT exist yet — create it today
-- Target: 100–200 chunks, 100–300 words each
-- Sources allowed: CDC, NIH/MedlinePlus, WHO, DGHS Bangladesh ONLY
-- FORBIDDEN source: DermNet (hard constraint from CLAUDE.md)
+- HF Hub access blocked locally (network issue) — build_index.py tested via FAISS path only
+- On HF Space, build_index.py will download the model and build the real index at startup
 - Do NOT touch today: model/, severity/, pdf_gen/, voice/, app.py
 
 ---
 
-## WHAT IS A CHUNK?
-Each chunk = one plain .txt file in rag/knowledge/.
-Format of each file:
+## MODULE SPEC: rag/retriever.py
+
+```python
+# rag/retriever.py
+# Provides: load_index(), answer_question(question, lang)
+
+# Index is built at HF Space startup via build_index.py
+# rag/faiss_index.bin + rag/chunks_metadata.json must exist before calling
+
+import json, os, faiss, numpy as np
+from sentence_transformers import SentenceTransformer  # or AutoModel fallback
+from google import genai
+
+INDEX_PATH = "rag/faiss_index.bin"
+METADATA_PATH = "rag/chunks_metadata.json"
+EMBED_MODEL = "sentence-transformers/paraphrase-multilingual-MiniLM-L6-v2"
+TOP_K = 5
+
+# Singletons
+_index = None
+_metadata = None
+_embed_model = None
+_gemini_client = None
+
+def load_index() -> bool:
+    """Load FAISS index + metadata. Returns True if successful."""
+    ...
+
+def _embed_query(text: str) -> np.ndarray:
+    """Embed a single query string → normalized float32 array shape (1, dim)."""
+    ...
+
+def retrieve(question: str, top_k: int = TOP_K) -> list[dict]:
+    """Return top_k chunks most relevant to question."""
+    ...
+
+def answer_question(question: str, lang: str = "en") -> str:
+    """
+    RAG pipeline: embed question → retrieve top-k → Gemini answer.
+    lang: "en" or "bn" (Bengali) — match user's language.
+    Always returns a string. Returns a fallback message if anything fails.
+    """
+    ...
 ```
-SOURCE: CDC / NIH / WHO / DGHS
-TOPIC: <topic name>
----
-<150–300 words of factual content about the skin disease or condition>
+
+### Gemini prompt for RAG answer:
 ```
-Naming: `cdc_tinea_01.txt`, `nih_eczema_02.txt`, `who_scabies_01.txt`, etc.
+You are a medical information assistant for a Bangladesh skin disease app.
+Answer the patient's question using ONLY the provided context.
+Do NOT recommend specific medications. Refer to a doctor for diagnosis.
+If the answer is not in the context, say so honestly.
+Answer in {lang_label} language.
 
----
+Context:
+{top_k_chunks_joined}
 
-## DISEASE COVERAGE (must cover all 7 BD-SkinNet classes)
+Question: {question}
 
-| Disease | English | Bengali | Priority |
-|---------|---------|---------|----------|
-| Tinea | Ringworm / Tinea Corporis | দাদ | HIGH — most common in BD |
-| Scabies | Scabies | খোস-পাঁচড়া | HIGH — WHO neglected tropical disease |
-| Atopic Dermatitis | Atopic Dermatitis / Eczema | অ্যাটোপিক ডার্মাটাইটিস | HIGH |
-| Eczema | Eczema | একজিমা | HIGH |
-| Contact Dermatitis | Contact Dermatitis | কন্টাক্ট ডার্মাটাইটিস | MEDIUM |
-| Seborrheic Dermatitis | Seborrheic Dermatitis | সেবোরিক ডার্মাটাইটিস | MEDIUM |
-| Vitiligo | Vitiligo | শ্বেতী রোগ | MEDIUM |
+Answer:
+```
+
+### Language detection:
+Use langdetect or simple heuristic: if question contains Bengali Unicode characters
+(range ঀ–৿), answer in Bengali (lang="bn"), else English (lang="en").
 
 ---
 
 ## TASKS (in order)
 
-### TASK 1 — Create rag/knowledge/ directory and write chunks
+### TASK 1 — Write rag/retriever.py
+Key requirements:
+- Singleton pattern for index, metadata, embed_model, gemini_client (load once)
+- load_index() returns False if index file doesn't exist (not an error — first run)
+- answer_question() always returns a str — never raises
+- 3-retry on Gemini call (same pattern as voice/pipeline.py)
+- Fallback message: "দুঃখিত, এই প্রশ্নের উত্তর দিতে পারছি না।" (Bengali) or "Sorry, I could not find an answer." (English)
+- Match voice/pipeline.py pattern for Gemini client singleton
 
-Write at least 5 chunks per disease × 7 diseases = 35 minimum.
-Target 100+ chunks total by also covering general skin hygiene,
-when to see a doctor, and Bangladesh-specific context.
+### TASK 2 — Write tests/test_rag.py
+Tests to write (all mocked — no real API calls, no real model download):
+1. TestLoadIndex:
+   - test_load_index_missing_files → returns False when files don't exist
+   - test_load_index_success → returns True when files exist (mock faiss.read_index)
+2. TestRetrieve:
+   - test_retrieve_returns_list → returns list of dicts
+   - test_retrieve_top_k → respects top_k parameter
+   - test_retrieve_has_required_keys → each result has filename, source, topic, text
+3. TestAnswerQuestion:
+   - test_answer_returns_string → always returns str
+   - test_answer_empty_question → handles empty string input
+   - test_answer_bengali_detection → detects Bengali input and sets lang="bn"
+   - test_answer_fallback_on_gemini_failure → returns fallback when Gemini fails
+   - test_answer_fallback_on_index_missing → returns fallback when index not loaded
+   - test_answer_no_medicine_recommendation → Gemini prompt contains "Do NOT recommend"
+4. TestGeminiPrompt:
+   - test_prompt_includes_context → retrieved chunks appear in prompt
+   - test_prompt_includes_question → question appears in prompt
 
-#### CDC chunks (target: 30 chunks)
-Topics to cover per disease:
-- What is it / definition
-- Causes and risk factors
-- Symptoms and signs
-- Treatment overview
-- Prevention
+Target: 12+ tests, all passing.
 
-Files: `cdc_tinea_01.txt` through `cdc_tinea_05.txt`, etc.
-
-#### NIH / MedlinePlus chunks (target: 30 chunks)
-Topics to cover:
-- Clinical description
-- Diagnosis
-- When to see a doctor
-- Living with the condition (eczema, vitiligo)
-
-Files: `nih_atopic_dermatitis_01.txt`, etc.
-
-#### WHO chunks (target: 20 chunks)
-Focus on:
-- Scabies as neglected tropical disease
-- Tinea as neglected tropical disease
-- Global burden and Bangladesh context
-- WHO treatment guidelines (ivermectin for scabies, antifungals for tinea)
-
-Files: `who_scabies_01.txt`, `who_tinea_01.txt`, etc.
-
-#### DGHS Bangladesh chunks (target: 20 chunks)
-Focus on:
-- Bangladesh-specific prevalence data
-- National skin disease guidelines
-- Upazila Health Complex referral protocol
-- Common skin conditions in rural Bangladesh
-- Heat and humidity as risk factors in BD climate
-
-Files: `dghs_tinea_bd_01.txt`, `dghs_scabies_bd_01.txt`, etc.
-
----
-
-### TASK 2 — Write rag/build_index.py
-
-Script that reads all .txt files from rag/knowledge/ and builds a FAISS index.
-
-```python
-# rag/build_index.py
-# Run once: python rag/build_index.py
-# Outputs: rag/faiss_index.bin + rag/chunks_metadata.json
-
-from sentence_transformers import SentenceTransformer
-import faiss, json, os, numpy as np
-
-KNOWLEDGE_DIR = "rag/knowledge"
-INDEX_PATH = "rag/faiss_index.bin"
-METADATA_PATH = "rag/chunks_metadata.json"
-EMBED_MODEL = "sentence-transformers/paraphrase-multilingual-MiniLM-L6-v2"
-
-def build():
-    # 1. Load all .txt files
-    # 2. Embed with SentenceTransformer
-    # 3. Build faiss.IndexFlatIP (inner product / cosine)
-    # 4. Save index as faiss_index.bin
-    # 5. Save chunk texts + sources as chunks_metadata.json
-    ...
-
-if __name__ == "__main__":
-    build()
+### TASK 3 — Run tests
 ```
-
-### TASK 3 — Run build_index.py locally
+pytest tests/test_rag.py -v
 ```
-python rag/build_index.py
-```
-- Confirm: faiss_index.bin created, chunks_metadata.json created
-- Print: "Index built: N chunks" (N should be 100+)
-- faiss_index.bin and chunks_metadata.json are in .gitignore ✓
-  (they are rebuilt at HF Space startup)
+All tests must pass. Do NOT run the full test suite today (FAISS model download required for integration).
 
-### TASK 4 — Verify chunk quality
-Spot-check 5 random chunks:
-- [ ] Each file has SOURCE, TOPIC, and --- header
-- [ ] Content is 100–300 words
-- [ ] No DermNet content anywhere
-- [ ] All 7 diseases represented
-- [ ] Bangladesh-specific context present in DGHS files
-
-### TASK 5 — Commit and push
+### TASK 4 — Commit and push
 ```
-git add rag/knowledge/ rag/build_index.py
-git commit -m "[w2/d10] knowledge base chunks (CDC/NIH/WHO/DGHS)"
+git add rag/retriever.py tests/test_rag.py
+git commit -m "[w2/d11] FAISS retriever + Gemini RAG + tests"
 git push origin main
 ```
-Note: faiss_index.bin and chunks_metadata.json are gitignored — do NOT commit them.
+Push to HF Space using clean branch strategy.
 
 ---
 
 ## DEFINITION OF DONE
-- [ ] rag/knowledge/ exists with 100+ .txt chunk files
-- [ ] All 7 BD-SkinNet disease classes covered (min 5 chunks each)
-- [ ] All 4 sources represented: CDC, NIH, WHO, DGHS
-- [ ] No DermNet content
-- [ ] rag/build_index.py runs without error
-- [ ] FAISS index builds successfully (N chunks confirmed)
-- [ ] Committed and pushed (chunks only — not the .bin files)
+- [ ] rag/retriever.py implemented (load_index, retrieve, answer_question)
+- [ ] answer_question always returns str, never raises
+- [ ] Gemini prompt says "Do NOT recommend specific medications"
+- [ ] 12+ tests in tests/test_rag.py, all passing
+- [ ] Committed and pushed to GitHub and HF Space
 
 ---
 
-## NEXT SESSION (Day 11 — May 28)
-- Write rag/retriever.py — FAISS query + Gemini answer
-- Implement answer_question(question, context) → str
-- Build final index on HF Space at startup
-- Commit: [w2/d11] FAISS index + RAG retriever
-- Needs: GEMINI_API_KEY ✓ (already set)
+## NEXT SESSION (Day 12 — May 29)
+- Write ui/components.py — reusable Streamlit widgets
+- Write ui/styles.py — Bengali Noto Sans CSS injection
+- Commit: [w2/d12] UI components + styles

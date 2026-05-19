@@ -1,0 +1,14 @@
+SOURCE: CDC
+TOPIC: Atopic Dermatitis Diagnosis and Comorbidities
+---
+The diagnosis of atopic dermatitis is based on clinical criteria rather than specific laboratory tests. The classic criteria require the presence of itching, typical distribution and morphology of rash, and chronic or relapsing course. No single finding is pathognomonic.
+
+Diagnostic criteria commonly used include the Hanifin-Rajka criteria and the UK Working Party criteria. Both require the presence of pruritus and at least three of the following: history of skin crease involvement, history of asthma or hay fever, history of dry skin, visible flexural eczema, and onset before two years of age.
+
+Allergy testing — both skin prick testing and specific IgE blood tests — can identify sensitizations that may be relevant to eczema management, particularly in patients with moderate to severe disease or suspected food triggers. However, a positive allergy test does not necessarily mean the allergen is causing atopic dermatitis flares; clinical relevance must be assessed in the context of the patient's history.
+
+Atopic dermatitis is strongly associated with other atopic conditions. Approximately thirty percent of patients have asthma, and up to sixty percent have allergic rhinitis. The sequence in which these conditions develop — eczema in infancy, food allergy, asthma, allergic rhinitis — is often called the atopic march.
+
+Psychological comorbidities are common and often underrecognized. Depression and anxiety occur at approximately double the rate in people with atopic dermatitis compared to the general population. Attention-deficit hyperactivity disorder (ADHD) is more prevalent in children with atopic dermatitis. These comorbidities should be assessed and managed as part of comprehensive care.
+
+Infections are important comorbidities. Eczema herpeticum — a serious widespread herpes simplex infection — requires urgent antiviral treatment and can be life-threatening.

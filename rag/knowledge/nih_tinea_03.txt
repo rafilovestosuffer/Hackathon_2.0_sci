@@ -1,0 +1,18 @@
+SOURCE: NIH
+TOPIC: Tinea — Antifungal Medications
+---
+A range of antifungal medications is available for treating tinea infections. Selection depends on the type and severity of infection, the site of involvement, and patient factors.
+
+Topical antifungals are the first-line treatment for uncomplicated tinea of the body (tinea corporis) and other superficial infections. These include azole antifungals such as clotrimazole, miconazole, econazole, and ketoconazole; allylamines such as terbinafine and naftifine; and other agents such as ciclopirox and tolnaftate. Allylamine antifungals (terbinafine) generally require shorter treatment durations than azoles.
+
+Application should continue for one to two weeks after visible resolution to prevent recurrence. Stopping treatment too early is a common cause of relapse.
+
+Oral antifungals are necessary for tinea capitis, onychomycosis, tinea affecting hair follicles (tinea barbae), and extensive or recalcitrant tinea corporis. Griseofulvin has been used for decades for tinea capitis. Terbinafine and itraconazole are newer oral antifungals with broad activity and shorter treatment courses.
+
+For tinea capitis in children, terbinafine dosed by weight for four weeks or griseofulvin for six to twelve weeks are standard regimens.
+
+For onychomycosis (nail tinea), oral terbinafine for twelve weeks (toenails) or six weeks (fingernails) achieves cure rates of approximately seventy-five percent for toenails.
+
+Drug interactions and potential hepatotoxicity with oral antifungals require consideration. Liver function monitoring is recommended for prolonged courses.
+
+In resource-limited settings including rural Bangladesh, clotrimazole and miconazole creams are widely available and affordable, making them appropriate first-line choices for uncomplicated tinea.

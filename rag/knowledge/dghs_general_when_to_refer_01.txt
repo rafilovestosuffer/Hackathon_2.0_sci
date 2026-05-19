@@ -1,0 +1,14 @@
+SOURCE: DGHS
+TOPIC: When to Refer Skin Disease Patients — DGHS Guidelines
+---
+The Directorate General of Health Services Bangladesh provides guidance on referral criteria for skin disease patients to ensure appropriate care at the right level of the health system.
+
+Refer to Upazila Health Complex when: the diagnosis is uncertain or the rash does not match a common pattern; the condition is not responding to initial treatment after two to three weeks; the patient is immunocompromised (HIV, diabetes, cancer); secondary bacterial infection is present and not responding to oral antibiotics; the rash is extensive or rapidly spreading; or the patient is a child with scalp ringworm (tinea capitis) requiring systemic antifungal treatment.
+
+Refer to District Hospital when: systemic antifungal treatment is needed and not available at UHC level; the patient has a severe allergic reaction including angioedema; crusted (Norwegian) scabies is suspected; a serious bacterial skin infection (necrotizing fasciitis, extensive cellulitis) is present; there is suspicion of malignancy; or the patient has not responded to UHC-level management.
+
+Refer to Medical College Hospital / Dermatology Specialist when: the condition requires phototherapy (vitiligo, severe psoriasis, atopic dermatitis); biologic treatment for severe atopic dermatitis or psoriasis is being considered; a complex inflammatory or bullous skin disease is suspected; occupational skin disease evaluation is needed; or patch testing for allergic contact dermatitis is required.
+
+EMERGENCY referral to the nearest hospital IMMEDIATELY when: signs of severe sepsis or necrotizing infection are present; anaphylaxis following an allergen exposure is occurring; extensive burns with skin involvement are present; or the patient has a rapidly spreading infection with systemic signs (fever, tachycardia, confusion).
+
+Providing a written referral letter with the clinical history, examination findings, provisional diagnosis, and treatments already given significantly improves the quality and continuity of care when patients are transferred between health system levels.

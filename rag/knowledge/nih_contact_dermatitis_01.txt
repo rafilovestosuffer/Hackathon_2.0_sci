@@ -1,0 +1,14 @@
+SOURCE: NIH
+TOPIC: Contact Dermatitis — Diagnosis and Patch Testing
+---
+Accurate diagnosis of contact dermatitis, particularly the allergic type, is important for effective management. The history is paramount, including details of occupation, hobbies, personal care product use, jewelry wearing habits, and any new exposures that preceded rash onset.
+
+The location and pattern of the rash provide important clues. A rash on the earlobes, neck, and wrists suggests nickel allergy. A rash on the feet may indicate allergy to shoe materials. Rash around the eyes may result from nail cosmetics transferred from the fingers. An unusual or unexpected pattern warrants careful exploration of indirect exposures.
+
+Patch testing is the gold standard for identifying specific allergens causing allergic contact dermatitis. Standardized panels of common allergens are applied to the back under occlusive patches for forty-eight hours. Readings are performed at forty-eight and ninety-six hours. Positive reactions appear as redness, swelling, or vesicles at the site of the allergen.
+
+Common allergens identified through patch testing include metals (nickel, cobalt, chromate), fragrances (fragrance mix I and II, balsam of Peru), preservatives (methylisothiazolinone, parabens, formaldehyde releasers), rubber chemicals, hair dye components (paraphenylenediamine), and topical medications (neomycin, bacitracin).
+
+Once the causative allergen is identified, written information about sources of exposure and safe alternatives should be provided. Avoiding the specific allergen is the definitive treatment.
+
+In occupational contact dermatitis, workplace assessment may be needed to identify all sources of exposure and implement substitutions or protective measures. Workers compensation and occupational health support may be relevant.

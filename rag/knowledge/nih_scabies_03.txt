@@ -1,0 +1,16 @@
+SOURCE: NIH
+TOPIC: Scabies Complications and Secondary Infections
+---
+While scabies itself is treatable, its complications — particularly secondary bacterial infections — are responsible for much of its associated morbidity, especially in tropical settings.
+
+Scratching the intensely itchy scabies rash breaks the skin surface, creating entry points for bacteria. Secondary bacterial superinfection with Staphylococcus aureus and Streptococcus pyogenes (Group A Streptococcus) is the most common complication of scabies.
+
+Staphylococcal superinfection manifests as impetiginized lesions with honey-colored crusting, folliculitis, or more severe infections including cellulitis and furunculosis. Streptococcal infection appears similarly but may have a more violaceous hue.
+
+In tropical countries including Bangladesh, scabies-associated streptococcal skin infections are a significant cause of post-streptococcal glomerulonephritis (PSGN) — a kidney inflammation that can cause acute renal failure. This is particularly concerning in children. The contribution of scabies to PSGN burden in Bangladesh is underappreciated.
+
+Scabies-associated streptococcal infections may also contribute to acute rheumatic fever in endemic regions, though this relationship is less well-established than for pharyngeal streptococcal infection.
+
+Management of complicated scabies requires simultaneous treatment of the scabies infestation and the bacterial superinfection. Systemic antibiotics (typically flucloxacillin for staphylococcal infections, or amoxicillin/phenoxymethylpenicillin for streptococcal infections) are required for cellulitis and more extensive bacterial infections. Topical antibiotics may suffice for localized impetigo.
+
+Recognition that scabies complications extend beyond skin discomfort to systemic disease is essential for appropriate public health prioritization in Bangladesh and similar settings.

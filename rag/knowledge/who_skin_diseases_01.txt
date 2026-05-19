@@ -1,0 +1,16 @@
+SOURCE: WHO
+TOPIC: WHO Skin Diseases in South and Southeast Asia
+---
+Skin diseases represent a disproportionate burden in South and Southeast Asia, including Bangladesh, due to a combination of tropical climate, population density, limited healthcare access, and socioeconomic factors.
+
+The World Health Organization estimates that skin diseases account for nearly thirty percent of all outpatient consultations in primary healthcare settings in tropical countries. Despite their high prevalence, many skin conditions receive inadequate attention in public health planning.
+
+Common skin diseases in the region include fungal infections (tinea, pityriasis versicolor), scabies, bacterial infections (impetigo, cellulitis), eczema, contact dermatitis, leprosy (though declining), and pigmentary disorders including vitiligo.
+
+The ratio of dermatologists to population in South Asian countries is extremely low. In Bangladesh, there is approximately one dermatologist per two hundred fifty thousand people. The vast majority of skin disease patients are seen by general practitioners, community health workers, or traditional healers, many of whom have limited dermatology training.
+
+Misdiagnosis and inappropriate treatment are common. Many patients with scabies are treated for eczema, and vice versa. Antifungal treatments are often inadequate in duration. Reliance on traditional remedies or unlicensed practitioners leads to delayed effective treatment.
+
+WHO supports integration of basic skin disease management into primary healthcare curricula and training programs. The essential medicines list includes permethrin, clotrimazole, topical corticosteroids, and ivermectin — all relevant to common skin diseases in the region.
+
+Task-sharing and training of community health workers in basic skin disease recognition and management is a WHO-recommended strategy for closing the healthcare gap in underserved regions.

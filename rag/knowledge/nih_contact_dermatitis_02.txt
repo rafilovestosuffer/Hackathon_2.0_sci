@@ -1,0 +1,16 @@
+SOURCE: NIH
+TOPIC: Allergic Contact Dermatitis — Common Allergens
+---
+Allergic contact dermatitis results from a delayed-type hypersensitivity reaction to specific allergens. Sensitization requires at least one prior exposure. Subsequent exposures trigger a reaction within twelve to seventy-two hours at the site of contact.
+
+Nickel is the most common contact allergen worldwide. It is found in jewelry (earrings, necklaces, belt buckles, watchbands), clothing fasteners, coins, and many everyday objects. Ear piercing is a major route of nickel sensitization. In Bangladesh, nickel sensitization from cheap metal jewelry and clothing fasteners is common.
+
+Fragrances represent a major category of skin allergens. Hundreds of chemical compounds contribute to fragrance mixtures. Common sensitizers include geraniol, eugenol, cinnamic aldehyde, and isoeugenol. Fragrances are present in perfumes, colognes, deodorants, soaps, shampoos, and cosmetics.
+
+Preservatives used in cosmetics and personal care products are an increasing cause of contact allergy. Methylisothiazolinone (MI) and methylchloroisothiazolinone (MCI) are found in many rinse-off and leave-on products. Formaldehyde releasers (quaternium-15, DMDM hydantoin) and parabens are other preservative allergens.
+
+Hair dyes containing paraphenylenediamine (PPD) are a common sensitizer. Hair dye allergy can cause severe reactions involving the scalp, forehead, neck, and eyelids. Henna tattoos often contain PPD and can cause sensitization that persists with subsequent exposures.
+
+Rubber chemicals in gloves, footwear, and elastic bands are important occupational allergens. Latex allergen itself causes immediate-type reactions in some individuals.
+
+Topical medications including neomycin, bacitracin, and topical anesthetics are common sensitizers, particularly in patients who use them frequently for wound care.

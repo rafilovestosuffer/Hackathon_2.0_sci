@@ -1,0 +1,16 @@
+SOURCE: NIH
+TOPIC: Skin Disease Recognition in Darker Skin Tones
+---
+Many dermatological texts and resources describe skin disease appearances primarily in fair-skinned populations, yet the majority of the world's population — including in Bangladesh — has darker skin tones. Skin disease presentation can differ significantly in darker skin, and recognizing these differences is essential for accurate diagnosis.
+
+In darker skin (Fitzpatrick types IV-VI, common in Bangladesh), erythema (redness) may not appear red but rather as a darker hue, purplish or brownish discoloration. Inflammation is harder to detect visually, potentially delaying diagnosis. Tinea infections may appear brown rather than the classic pink-red ring.
+
+Post-inflammatory hyperpigmentation (PIH) — darkening of skin following inflammation or injury — is much more common and more pronounced in darker skin tones. It can persist for months to years after the original skin condition has resolved. PIH from acne, eczema, and other skin conditions causes significant distress in darker-skinned patients.
+
+Post-inflammatory hypopigmentation — lightening following skin inflammation — also occurs more frequently in darker skin. It can be confused with vitiligo or other depigmenting conditions.
+
+Vitiligo is particularly visible in darker-skinned individuals, as the contrast between depigmented patches and surrounding skin is striking. This contributes to the significant social impact of vitiligo in Bangladesh and other South Asian countries.
+
+Healthcare providers serving primarily darker-skinned patients — as in Bangladesh — require specific training in recognizing skin disease presentations appropriate to their patient population. AI diagnostic tools developed for dermatology should be trained on diverse skin tone datasets to avoid diagnostic bias.
+
+The BD-SkinNet model, trained on clinical data from Bangladeshi medical college hospitals (Faridpur and Rangpur), is specifically designed to recognize skin disease presentations in Bangladeshi skin tones.

@@ -1,0 +1,16 @@
+SOURCE: NIH
+TOPIC: Understanding and Managing Chronic Itch (Pruritus)
+---
+Chronic itch (pruritus) lasting more than six weeks is one of the most debilitating symptoms in dermatology. It is a cardinal feature of atopic dermatitis, scabies, contact dermatitis, and many other skin conditions. Untreated chronic itch severely impacts quality of life, causes sleep disruption, and drives the scratch-skin damage cycle that worsens many skin conditions.
+
+Itch is mediated by specialized C-nerve fibers in the skin that transmit itch signals to the spinal cord and brain. The sensation shares neural pathways with pain but is a distinct sensation. Histamine is one mediator of itch, but many other molecules are involved — including IL-31, substance P, and proteases — explaining why antihistamines do not fully control itch in conditions like atopic dermatitis.
+
+The itch-scratch cycle is central to skin disease progression. Scratching provides temporary relief but damages the skin barrier, worsens inflammation, and releases more itch mediators. Breaking this cycle is a key therapeutic goal.
+
+Non-pharmacological approaches to itch include keeping skin cool (heat worsens itch), applying cold compresses, keeping fingernails short and smooth, wearing cool, loose-fitting clothing, and distraction techniques. Cognitive-behavioral therapy can help patients modify scratching behavior.
+
+Topical treatments for itch include menthol creams (cooling sensation), capsaicin cream (desensitizes itch nerve fibers), topical calcineurin inhibitors, and topical corticosteroids. Topical anesthetics provide temporary relief.
+
+Systemic antihistamines (cetirizine, fexofenadine, chlorpheniramine) help control histamine-mediated itch. Sedating antihistamines (hydroxyzine, chlorpheniramine) improve nighttime itching and sleep.
+
+In severe chronic itch, dupilumab and other newer targeted therapies provide significant itch reduction by targeting inflammatory pathways.

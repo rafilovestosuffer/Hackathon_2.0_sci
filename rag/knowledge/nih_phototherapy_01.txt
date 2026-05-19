@@ -1,0 +1,16 @@
+SOURCE: NIH
+TOPIC: Phototherapy for Skin Diseases
+---
+Phototherapy — the therapeutic use of ultraviolet light — is an effective treatment for several chronic skin diseases including vitiligo, atopic dermatitis, psoriasis, and mycosis fungoides. It is delivered in controlled clinical settings using specialized light-emitting equipment.
+
+Narrowband ultraviolet B (NB-UVB) phototherapy, which emits UV light at 311-313 nanometers, is the most widely used form of phototherapy. It is effective for vitiligo (inducing repigmentation through melanocyte stimulation), atopic dermatitis (reducing inflammation), and psoriasis (normalizing skin cell turnover).
+
+NB-UVB phototherapy requires multiple sessions per week — typically two to three — over months. Initial sessions use very low UV doses that are gradually increased based on individual skin response. The main side effects are temporary redness, itching, and potential long-term increase in skin cancer risk with very prolonged cumulative exposure.
+
+Psoralen plus UVA (PUVA) therapy combines a photosensitizing medication (psoralen) with UVA exposure. It is effective for severe psoriasis and has been used for vitiligo, but its use has declined due to increased cancer risk with long-term use compared to NB-UVB.
+
+Targeted phototherapy using the excimer laser (308 nm) delivers UVB to specific skin areas. It is effective for localized vitiligo and psoriasis, requiring fewer sessions than whole-body phototherapy.
+
+In Bangladesh, phototherapy equipment is available at medical college hospitals in major cities (Dhaka, Chittagong, Rajshahi, etc.). Rural patients requiring phototherapy must travel to access it — a major access barrier for conditions like vitiligo and severe atopic dermatitis requiring prolonged treatment courses.
+
+Expanding phototherapy access through district hospitals and telemedicine-guided protocols is a priority in Bangladesh's dermatology service development.

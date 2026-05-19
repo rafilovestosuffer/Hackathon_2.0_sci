@@ -1,0 +1,16 @@
+SOURCE: NIH
+TOPIC: Skin Microbiome and Skin Disease
+---
+The skin hosts a diverse community of microorganisms — bacteria, fungi, viruses, and mites — collectively known as the skin microbiome. This microbial community plays an important role in skin health, immune development, and protection against pathogens.
+
+The composition of the skin microbiome varies by body site. Sebaceous (oil-rich) areas like the face and chest are dominated by Cutibacterium (formerly Propionibacterium) species. Moist areas like armpits and toe webs harbor Staphylococcus and Corynebacterium species. Malassezia fungi dominate sebum-rich areas.
+
+In healthy skin, the microbiome forms a protective ecological community that excludes pathogenic organisms through competition for nutrients, production of antimicrobial substances, and stimulation of the host immune system. Disruption of this community can predispose to skin disease.
+
+In atopic dermatitis, the skin microbiome is significantly altered. Staphylococcus aureus — an uncommon colonizer of healthy skin — predominates in affected skin. Staphylococcal toxins trigger immune activation and worsening inflammation. Rebalancing the skin microbiome through treatment of atopic dermatitis shifts the community back toward Staphylococcus epidermidis and other commensal species.
+
+In seborrheic dermatitis, overgrowth of Malassezia yeast — which is part of the normal skin flora — in the context of excess sebum and impaired host response drives inflammation.
+
+In tinea infections, dermatophytes displace the normal skin flora through keratin degradation and immunomodulation.
+
+Understanding the skin microbiome opens new approaches to treating skin disease through microbiome restoration — the use of probiotic bacteria applied to skin to restore healthy microbial ecology.
