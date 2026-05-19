@@ -207,19 +207,22 @@ with tab1:
             unsafe_allow_html=True,
         )
 
-        audio_file = st.file_uploader(
-            "বাংলায় আপনার লক্ষণ বলুন (WAV / MP3 / WebM)",
-            type=["wav", "mp3", "webm", "ogg"],
-            key="audio_upload",
+        st.markdown(
+            '<div style="font-size:0.82rem;color:#94a3b8;margin-bottom:0.4rem;">'
+            '🎙️ Click the mic button below to record in Bengali</div>',
+            unsafe_allow_html=True,
+        )
+        audio_data = st.audio_input(
+            "বাংলায় বলুন",
+            key="audio_record",
             label_visibility="collapsed",
         )
 
-        if audio_file is not None:
-            st.audio(audio_file)
+        if audio_data is not None:
+            st.audio(audio_data)
             with st.spinner("🔄 Transcribing Bengali audio…"):
-                audio_bytes = audio_file.read()
-                fmt = audio_file.name.rsplit(".", 1)[-1].lower()
-                transcript = _transcribe(audio_bytes, fmt)
+                audio_bytes = audio_data.read()
+                transcript = _transcribe(audio_bytes, "wav")
                 st.session_state.transcript = transcript
 
             if transcript:
@@ -229,7 +232,7 @@ with tab1:
                     history = _extract_history(transcript)
                     st.session_state.history = history
             else:
-                st.warning("Could not transcribe audio. Please try a clearer recording.")
+                st.warning("Could not transcribe audio. Please try again in a quiet environment.")
 
         if st.session_state.history:
             st.markdown("")
