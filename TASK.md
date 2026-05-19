@@ -1,16 +1,16 @@
-# TASK — Jun 2–3, 2026 | Week 3 / Day 17–18
+# TASK — Jun 2–3, 2026 | Week 3 / Day 18
 
 ## TODAY'S GOAL
-1. Checkpoint plug-in (bd_skinnet_best.pth) — if received TODAY
-2. Full E2E integration test — run the complete pipeline manually
-3. UI polish: loading spinners, error messages, edge cases
-4. Demo video script draft
+1. Checkpoint plug-in (bd_skinnet_best.pth) — ONLY if file received
+2. Error handling polish + edge case messages
+3. Sidebar session summary as it builds
+4. Begin README.md (public-facing, submission-ready draft)
 
 ## CONTEXT
-- Day 16 complete: 154/154 tests, chat history UI, keepalive, demo mode
-- Keepalive cron live on GitHub Actions (every 20 min)
-- BD-SkinNet checkpoint still pending (~Jun 2) — _run_model() placeholder active
-- Do NOT touch today: rag/retriever.py, scripts/, .github/, tests/ (unless checkpoint arrives)
+- Day 17 complete: 164/164 tests, confidence captions, blur detection live
+- BD-SkinNet checkpoint still pending (~Jun 2)
+- All features working: Demo mode, hospital map, RAG chat, PDF, blur check
+- Do NOT touch today: severity/, rag/, voice/, map/, tests/ (unless checkpoint arrives)
 
 ---
 
@@ -49,61 +49,55 @@ return {"disease": top2[0]["disease"], "confidence": top2[0]["confidence"],
 
 ## TASKS (in order)
 
-### TASK 1 — E2E integration test (manual checklist)
-Run the app locally and verify every feature:
-```
-streamlit run app.py
-```
-Check:
-- [ ] Demo button in sidebar loads Scabies Tier 3 case
-- [ ] Tab 1 shows disease card + triage badge + hospital district input
-- [ ] Tab 2 shows disease context banner + chat input works
-- [ ] Tab 3 shows PDF generate button + download works
-- [ ] Chat history persists across questions in the same session
-- [ ] Clear Chat button resets history
+### TASK 1 — Error handling polish
+Handle edge cases gracefully:
+- Corrupt image file → `Image.open()` fails → catch exception, show:
+  "⚠️ Could not read image. Please upload a valid JPG or PNG file."
+- Overpass API timeout (already handled, verify message is bilingual)
+- PDF generation failure → already caught, verify error message clear
 
-### TASK 2 — UI polish: loading spinners + edge cases
-Add `st.spinner()` wrappers where missing:
-- Hospital map query
-- PDF generation (already has one — verify)
-Add error messages for:
-- Image upload fails (corrupt file)
-- Overpass API timeout (graceful message — already in place, verify)
-Add confidence-level caption in Bengali:
-- >80%: "মডেল নিশ্চিত" (model is confident)
-- 60-80%: "মোটামুটি নিশ্চিত" (moderately confident)
-- <60%: "অনিশ্চিত — ডাক্তার দেখান" (uncertain — see doctor)
-This goes inside render_disease_card() or app.py post-prediction.
+### TASK 2 — Sidebar session summary
+Add dynamic session summary in sidebar that builds as user completes steps:
+```
+Step 1: 🎙️ Voice recorded ✅ / ⬜ Pending
+Step 2: 📷 Image analysed ✅ / ⬜ Pending
+Step 3: 🧠 Diagnosis ready ✅ / ⬜ Pending
+Step 4: 📄 Referral ready ✅ / ⬜ Pending
+```
+Shows progress at a glance — judges see the pipeline unfold.
 
-### TASK 3 — Demo video script draft
-Write the Rahim story narration (text only, no video yet):
-- 0:00-0:30 — Rahim's problem (voice-over text)
-- 0:30-1:00 — Demo: Bengali voice input
-- 1:00-2:00 — Demo: image → classification → GradCAM
-- 2:00-2:30 — Severity tier + Bengali triage badge
-- 2:30-3:00 — Hospital map (Tier 3 scenario via demo mode)
-- 3:00-3:30 — PDF referral letter generation
-- 3:30-4:00 — RAG chatbot (ask in context)
-- 4:00-4:30 — Impact slide + system diagram
-Save as: DEMO_SCRIPT.md
+### TASK 3 — README.md (submission-grade draft)
+Per PLAN.md Day 32 checklist:
+- [ ] Project title + one-line description
+- [ ] Problem statement (2-3 sentences with stats)
+- [ ] Live demo URL + HF Spaces badge
+- [ ] Demo video link placeholder [TO BE ADDED]
+- [ ] Full tech stack table
+- [ ] Pipeline diagram (text/ASCII)
+- [ ] Setup instructions (local dev)
+- [ ] Attribution table (all third-party resources)
+- [ ] Team section
+- [ ] Disclaimer (not a medical device)
 
 ### TASK 4 — Commit and push
 ```
-git commit -m "[w3/d17] E2E test + UI polish + confidence captions"
+git commit -m "[w3/d18] error handling + sidebar summary + README draft"
 git push origin main
 ```
+Push clean branch to HF Space.
 
 ---
 
 ## DEFINITION OF DONE
-- [ ] Demo mode: all tabs populated with one sidebar click
-- [ ] Confidence-level caption in Bengali shown under disease card
-- [ ] All existing 154 tests still passing
+- [ ] Corrupt image upload shows bilingual error message, no crash
+- [ ] Sidebar session summary shows step completion status
+- [ ] README.md has all required submission sections
+- [ ] All 164 tests still passing
 - [ ] Committed and pushed to GitHub + HF Space
 
 ---
 
-## NEXT SESSION (Day 18 — Jun 3–4)
-- Polish Tab 1 image quality check (Laplacian blur detection)
-- Polish sidebar: show session summary as it builds
-- Begin project report structure (if Week 5 target allows)
+## NEXT SESSION (Day 19 — Jun 4–5)
+- Full E2E test on live HF Space (from a fresh incognito browser)
+- W3 sign-off: verify all 7 planned W3 features are complete
+- Begin Week 4: UI polish pass (loading animations, mobile layout)

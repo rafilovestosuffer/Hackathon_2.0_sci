@@ -2,7 +2,7 @@
 # Update this file at the END of EVERY Claude Code session.
 
 ## 📍 CURRENT STATUS
-- Week: 3 | Day: 17 (starting)
+- Week: 3 | Day: 18 (starting)
 - HF Spaces URL: https://huggingface.co/spaces/rafilovestosuffer/skinai-bangladesh
 - GitHub Repo: https://github.com/rafilovestosuffer/Hackathon_2.0_sci
 - Demo Video: [TO BE ADDED WEEK 4]
@@ -48,6 +48,34 @@
 
 ## 📝 SESSION LOG
 <!-- Append to this after every session. Newest at top. -->
+
+### Session: Jun 1, 2026 — Day 17 — Bengali Confidence Captions + Blur Detection ✅
+**Done:**
+- ui/components.py: added Bengali+English confidence caption to `render_disease_card()`
+  - >=80%: "মডেল নিশ্চিত · Model is confident" (green pill)
+  - 60–80%: "মোটামুটি নিশ্চিত · Moderately confident" (amber pill)
+  - <60%: "অনিশ্চিত — ডাক্তার দেখান · Uncertain — see a doctor" (red pill)
+  - Boundary-exact: 0.80 → high, 0.60 → mid
+- ui/components.py: added `check_image_quality(pil_img) -> (is_blurry, float)`
+  - Laplacian variance blur detection (threshold=80), never raises
+- ui/styles.py: `.conf-caption` / `.conf-high` / `.conf-mid` / `.conf-low` CSS pills
+  - Also `.blur-warning` styled box (amber border, warm background)
+- app.py: blur check wired after image upload — bilingual warning shown, processing continues
+- tests/test_ui.py: 10 new tests (TestConfidenceCaption ×6 + TestCheckImageQuality ×4)
+- Full suite: 164/164 passing (was 154)
+- Committed and pushed to GitHub (3e8ffe6) and HF Space (d189963)
+
+**Blockers:**
+- BD-SkinNet checkpoint still pending — _run_model() placeholder active
+
+**Next session start point:**
+- Day 18: Error handling polish + sidebar session summary + begin README
+
+**Git commits this session:**
+- 3e8ffe6 [w3/d17] Bengali confidence captions + blur detection + 10 new tests (GitHub)
+- d189963 same — clean branch push (HF Space)
+
+---
 
 ### Session: Jun 1, 2026 — Day 16 — RAG Context + Keepalive + Demo Mode ✅
 **Done:**
