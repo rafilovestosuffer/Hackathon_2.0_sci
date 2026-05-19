@@ -2,7 +2,7 @@
 # Update this file at the END of EVERY Claude Code session.
 
 ## 📍 CURRENT STATUS
-- Week: 3 | Day: 16 (starting)
+- Week: 3 | Day: 17 (starting)
 - HF Spaces URL: https://huggingface.co/spaces/rafilovestosuffer/skinai-bangladesh
 - GitHub Repo: https://github.com/rafilovestosuffer/Hackathon_2.0_sci
 - Demo Video: [TO BE ADDED WEEK 4]
@@ -40,8 +40,49 @@
 
 ---
 
+## ✅ COMPLETED MODULES (updated)
+- [x] scripts/keepalive.py ← done Day 16
+- [x] .github/workflows/keepalive.yml ← done Day 16
+
+---
+
 ## 📝 SESSION LOG
 <!-- Append to this after every session. Newest at top. -->
+
+### Session: Jun 1, 2026 — Day 16 — RAG Context + Keepalive + Demo Mode ✅
+**Done:**
+- rag/retriever.py: added `disease_context: str | None` param to `answer_question()`
+  - Injected into Gemini system prompt when diagnosis exists: "The patient has been diagnosed with: {disease}"
+  - Backward-compatible: old callers work unchanged (None default)
+- app.py Tab 2: full chat history UI
+  - Replaced single-form + last-answer display with `st.chat_message` + `st.chat_input`
+  - `chat_history` list in session_state stores all turns (role, content, lang)
+  - Disease context banner (st.success): "Current diagnosis: X — answering in this context"
+  - Clear Chat button resets history + rerun
+  - Backward-compat: `rag_answer` / `rag_lang` fields preserved for PDF flow
+- app.py sidebar: "🎬 Load Demo (Scabies — Tier 3)" button
+  - Scabies/38% confidence/coverage_pct=45 → Tier 3 via Signals 2+3+4
+  - Bengali transcript with escalation keywords pre-filled
+  - All 3 tabs fully populated with one click — no image or audio needed
+- scripts/keepalive.py: `ping()` + `run_loop()` — 20-min interval keepalive
+- .github/workflows/keepalive.yml: GitHub Actions cron `*/20 * * * *`
+- tests/test_rag.py: 4 new tests (disease_context injection, backward compat)
+- DECISIONS.md: 3 new architecture decisions documented
+- Full test suite: 154/154 passing (was 150)
+- Committed and pushed to GitHub (6a7a989) and HF Space (739cf1e)
+
+**Blockers:**
+- BD-SkinNet checkpoint still pending (~Jun 2) — _run_model() placeholder active
+
+**Next session start point:**
+- Day 17: E2E integration test + UI polish (loading spinners, edge case error messages)
+  Also: checkpoint plug-in (bd_skinnet_best.pth) if received
+
+**Git commits this session:**
+- 6a7a989 [w3/d16] RAG context-aware chatbot + keepalive + demo mode (GitHub)
+- 739cf1e [w3/d16] same — clean branch push (HF Space)
+
+---
 
 ### Session: May 31, 2026 — Day 14+15 — W2 SIGN-OFF + Hospital Map ✅
 **Done (Day 14 — W2 sign-off):**
