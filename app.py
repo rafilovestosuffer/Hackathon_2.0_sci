@@ -209,9 +209,10 @@ with tab1:
             unsafe_allow_html=True,
         )
 
+        # ── Option A: in-browser mic recorder ────────────────────────────
         st.markdown(
-            '<div style="font-size:0.82rem;color:#94a3b8;margin-bottom:0.4rem;">'
-            '🎙️ Click the mic button below to record in Bengali</div>',
+            '<div style="font-size:0.82rem;color:#94a3b8;margin-bottom:0.25rem;">'
+            '⏺ Option 1 — Record directly (click mic, speak, click stop)</div>',
             unsafe_allow_html=True,
         )
         audio_data = st.audio_input(
@@ -220,11 +221,35 @@ with tab1:
             label_visibility="collapsed",
         )
 
+        # ── Option B: file upload fallback ────────────────────────────────
+        st.markdown(
+            '<div style="font-size:0.82rem;color:#94a3b8;margin:0.5rem 0 0.25rem 0;">'
+            '📁 Option 2 — Upload a voice file (WAV / MP3 / OGG)</div>',
+            unsafe_allow_html=True,
+        )
+        audio_file = st.file_uploader(
+            "Upload audio",
+            type=["wav", "mp3", "ogg", "webm", "m4a"],
+            key="audio_file",
+            label_visibility="collapsed",
+        )
+
+        # ── Process whichever source provided audio ───────────────────────
+        audio_bytes = None
+        audio_fmt = "wav"
+
         if audio_data is not None:
+            audio_bytes = audio_data.read()
+            audio_fmt = "wav"
             st.audio(audio_data)
+        elif audio_file is not None:
+            audio_bytes = audio_file.read()
+            audio_fmt = audio_file.name.rsplit(".", 1)[-1].lower()
+            st.audio(audio_file)
+
+        if audio_bytes:
             with st.spinner("🔄 Transcribing Bengali audio…"):
-                audio_bytes = audio_data.read()
-                transcript = _transcribe(audio_bytes, "wav")
+                transcript = _transcribe(audio_bytes, audio_fmt)
                 st.session_state.transcript = transcript
 
             if transcript:
@@ -234,7 +259,7 @@ with tab1:
                     history = _extract_history(transcript)
                     st.session_state.history = history
             else:
-                st.warning("Could not transcribe audio. Please try again in a quiet environment.")
+                st.warning("Could not transcribe. Please speak clearly, or try uploading a WAV file.")
 
         if st.session_state.history:
             st.markdown("")
