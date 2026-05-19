@@ -1,0 +1,19 @@
+SOURCE: DGHS Bangladesh
+TOPIC: Skin Cancer in Bangladesh — When to Seek Urgent Care
+---
+Skin cancer awareness in Bangladesh is limited compared to high-income countries. However, skin cancer does occur among Bangladeshi patients, particularly older adults with long histories of sun exposure, and those with chronic non-healing wounds or scars.
+
+Common presentations seen in Bangladesh include:
+- Basal cell carcinoma on the face, particularly around the nose and eyelids, presenting as a pearly or flesh-colored lump that may bleed easily.
+- Squamous cell carcinoma arising from chronic wounds, burns, or long-standing ulcers (Marjolin's ulcer). This is particularly relevant in rural Bangladesh where wound care may be delayed.
+- Fungating or ulcerative lesions on sun-exposed skin in elderly farmers or outdoor workers.
+
+Warning signs that require immediate referral to a government Medical College Hospital or specialized cancer center (such as National Institute of Cancer Research and Hospital, Dhaka):
+- Any skin lesion that does not heal after 4 weeks of standard treatment
+- A mole or dark spot that is growing rapidly, changing color, or bleeding
+- A lump under the skin that is hard and fixed
+- An ulcer with raised, irregular edges that bleeds easily
+
+The National Institute of Cancer Research and Hospital (NICRH) in Mohakhali, Dhaka is the main government facility for cancer diagnosis and treatment in Bangladesh. Patients from outside Dhaka should seek evaluation at their nearest Medical College Hospital dermatology or oncology department.
+
+IMPORTANT: This app (SkinAI Bangladesh) screens for common skin conditions — Tinea, Scabies, Eczema, Atopic Dermatitis, Contact Dermatitis, Seborrheic Dermatitis, and Vitiligo. It does NOT screen for skin cancer. If skin cancer is suspected, seek specialist care immediately — do not wait.

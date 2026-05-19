@@ -1,0 +1,16 @@
+SOURCE: NIH
+TOPIC: Melanoma Warning Signs and ABCDE Rule
+---
+Melanoma is the deadliest form of skin cancer. Dermatologists use the ABCDE rule to help identify suspicious moles or lesions that may be melanoma:
+
+A — Asymmetry: One half of the mole does not match the other half.
+B — Border: The edges are irregular, ragged, notched, or blurred.
+C — Color: The color is not uniform and may include shades of brown, black, pink, red, white, or blue.
+D — Diameter: The spot is larger than 6 millimeters (about the size of a pencil eraser), although melanomas can be smaller when first detected.
+E — Evolving: The mole is changing in size, shape, or color, or any new symptom such as bleeding, itching, or crusting develops.
+
+Any mole or skin lesion that fits one or more of these criteria should be evaluated by a doctor immediately. Early melanoma found before it spreads is nearly 100% curable with surgical removal.
+
+Other warning signs include: a sore that does not heal within 3 weeks, a spot or sore that continues to itch, hurt, crust, or bleed, or areas of skin that look different from surrounding skin.
+
+In Bangladesh, patients with these warning signs should seek care at a district hospital or medical college hospital dermatology department without delay. Do not rely on this app for skin cancer screening — this app screens for common benign skin conditions only.
