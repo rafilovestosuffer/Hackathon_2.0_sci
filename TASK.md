@@ -1,93 +1,148 @@
-# TASK — May 24, 2026 | Week 1 / Day 7
+# TASK — May 25, 2026 | Week 2 / Day 8
 
 ## TODAY'S GOAL
-Week 1 review day — run the full test suite, verify the HF Space is live and
-rebuilding correctly with the Dockerfile, and write the Week 2 TASK.md so the
-next session can start coding immediately.
+Write the voice transcription pipeline using faster-whisper — Bengali audio in,
+clean Bengali transcript out. This is the first half of the voice pipeline
+(transcription only — Gemini extraction comes Day 9).
 
 ## CONTEXT
-- Day 6 complete: pdf_gen/referral.py + tests/test_pdf.py (11/11 passing)
-- Total tests so far: test_gradcam (13) + test_severity (29) + test_pdf (11) = 53
-- HF Space: font now downloaded via Dockerfile wget — Space is rebuilding
-- Do NOT start any new feature code today — this is review + prep only
+- Week 1 complete: Model ✓ | GradCAM ✓ | Severity ✓ | HF Space ✓ | PDF ✓ | 53 tests green
+- voice/pipeline.py does NOT exist yet — voice/__init__.py is the only file
+- faster-whisper is already in requirements.txt ✓
+- packages.txt already has ffmpeg ✓ (needed by faster-whisper)
+- Gemini API key NOT needed today — transcription only, no LLM yet
+- Do NOT touch today: model/, severity/, pdf_gen/, rag/, app.py
+
+---
+
+## PIPELINE SPEC (from CLAUDE.md — implement EXACTLY)
+
+```
+Bengali audio → faster-whisper (base model, language="bn") → Bengali transcript string
+```
+
+The transcript feeds into:
+- Signal 4 of severity engine (keyword escalation)
+- Gemini extraction (Day 9)
+- Referral Section 1 (via patient_history JSON)
 
 ---
 
 ## TASKS (in order)
 
-### TASK 1 — Run full test suite
+### TASK 1 — Write voice/pipeline.py (transcription function only)
+
+#### Function signature:
+```python
+def transcribe_audio(audio_bytes: bytes, fmt: str = "wav") -> str:
+```
+Returns: Bengali transcript string (may be empty string if silent/failed).
+
+#### Requirements:
+- Model: `faster-whisper` — use `WhisperModel("base", device="cpu", compute_type="int8")`
+- Language: force `language="bn"` (Bengali) — do NOT use auto-detect
+- Input: raw audio bytes (from Streamlit mic recorder or file upload)
+- Supported formats: wav, mp3, webm — write bytes to a temp file, pass path to whisper
+- Use `tempfile.NamedTemporaryFile` with correct suffix (`.wav`, `.mp3`, `.webm`)
+- Return concatenated transcript from all segments: `" ".join(seg.text for seg in segments)`
+- On any exception: log the error, return `""` — never crash
+- Model loading: use module-level lazy load (load once, reuse) — wrap in a
+  function `_get_model()` so it only loads when first called
+
+#### File structure:
+```python
+# voice/pipeline.py
+
+from faster_whisper import WhisperModel
+import tempfile, os, logging
+
+logger = logging.getLogger(__name__)
+
+_model = None
+
+def _get_model() -> WhisperModel:
+    # load once, reuse across calls
+    ...
+
+def transcribe_audio(audio_bytes: bytes, fmt: str = "wav") -> str:
+    # write bytes to temp file, run whisper, return transcript
+    ...
+```
+
+#### Do NOT add today:
+- `extract_patient_history()` — that's Day 9 (needs Gemini API key)
+- Any Streamlit UI wiring — that's Day 12
+
+### TASK 2 — Install faster-whisper locally for testing
+```
+python -m pip install faster-whisper
+```
+Note: faster-whisper downloads the model (~150MB) on first use — this is expected.
+The model is cached in ~/.cache/huggingface/ and NOT committed to git.
+
+### TASK 3 — Write tests/test_voice.py
+
+Test cases (no real audio needed — use synthetic silent WAV bytes):
+
+```python
+# Helper: generate a minimal valid WAV file in memory (silent, 1 second)
+# Use Python's built-in `wave` module — no external deps needed
+
+# Test 1: transcribe_audio returns str type
+# Test 2: transcribe_audio with silent audio returns str (not None, not crash)
+# Test 3: transcribe_audio with wav format — no exception raised
+# Test 4: transcribe_audio with mp3 format bytes — no exception raised
+# Test 5: transcribe_audio with webm format bytes — no exception raised
+# Test 6: transcribe_audio with empty bytes — returns "" gracefully (no crash)
+# Test 7: _get_model() returns a WhisperModel instance
+# Test 8: _get_model() called twice returns the same object (singleton)
+```
+
+**Important:** faster-whisper model downloads ~150MB on first test run.
+Mark slow tests with `@pytest.mark.slow` so they can be skipped in CI:
+```
+pytest tests/test_voice.py -v -m "not slow"   # skip model download
+pytest tests/test_voice.py -v                  # run everything
+```
+
+### TASK 4 — Run tests
+```
+pytest tests/test_voice.py -v
+```
+All tests must pass.
+
+### TASK 5 — Run full suite to confirm no regressions
 ```
 pytest tests/ -v
 ```
-- [ ] All 53 tests must pass (test_gradcam + test_severity + test_pdf)
-- [ ] If any test fails — fix it before moving on
-- [ ] Screenshot or copy the final pytest summary line
+Must still show 53 + new voice tests all passing.
 
-### TASK 2 — Verify HF Space
-- [ ] Open https://huggingface.co/spaces/rafilovestosuffer/skinai-bangladesh in incognito
-- [ ] Confirm green "Running" badge
-- [ ] Confirm Bengali tabs visible: রোগ নির্ণয় | প্রশ্ন করুন | রেফারেল পত্র
-- [ ] Confirm no login prompt
-- [ ] Check build logs — confirm font wget line ran without error
-
-### TASK 3 — W1 completion checklist
-Tick off every item below — if anything is missing, fix it now:
-- [ ] model/bd_skinnet.py — Swin+CBAM architecture ✓
-- [ ] model/gradcam.py — GradCAM++ wrapper ✓
-- [ ] model/disease_labels.py — 7 classes + Bengali names + tiers ✓
-- [ ] model/export_int8.py — INT8 quantization script ✓
-- [ ] severity/engine.py — 4-signal triage engine ✓
-- [ ] pdf_gen/referral.py — 4-section referral letter ✓
-- [ ] app.py — Bengali 3-tab skeleton ✓
-- [ ] Dockerfile — Docker build for HF Space ✓
-- [ ] tests/test_gradcam.py — 13 tests ✓
-- [ ] tests/test_severity.py — 29 tests ✓
-- [ ] tests/test_pdf.py — 11 tests ✓
-- [ ] HF Space live at public URL ✓
-- [ ] GitHub commits from May 18–24 ✓
-
-### TASK 4 — Write TASK.md for Week 2 Day 8
-Week 2 starts with voice transcription (Day 8 — May 25).
-Rewrite TASK.md for Day 8 based on PLAN.md:
-- faster-whisper Bengali transcription
-- transcribe_audio(audio_bytes) → str
-- Handle mp3/wav/webm formats
-
-### TASK 5 — Final commit
+### TASK 6 — Commit and push
 ```
-git add TASK.md PROGRESS.md
-git commit -m "[w1/d7] W1 review complete — all tests green, Week 2 ready"
+git add voice/pipeline.py tests/test_voice.py
+git commit -m "[w2/d8] faster-whisper Bengali transcription"
 git push origin main
+git push hf main
 ```
+Note: for HF push use the token as password (no binary files today, should push cleanly).
 
 ---
 
 ## DEFINITION OF DONE
-- [ ] pytest tests/ -v → 53/53 passed
-- [ ] HF Space green and Bengali UI visible in incognito
-- [ ] PROGRESS.md updated with Day 7 session log
-- [ ] TASK.md rewritten for Day 8
-- [ ] Committed and pushed
+- [ ] voice/pipeline.py exists with transcribe_audio(audio_bytes, fmt) → str
+- [ ] faster-whisper base model, language="bn", device="cpu", compute_type="int8"
+- [ ] Handles wav / mp3 / webm via temp file
+- [ ] Empty/bad audio returns "" — never raises
+- [ ] _get_model() singleton — loads once
+- [ ] tests/test_voice.py — all tests pass
+- [ ] Full suite (pytest tests/ -v) still green
+- [ ] Committed and pushed to GitHub + HF Space
 
 ---
 
-## W1 MILESTONE SUMMARY (for PROGRESS.md)
-```
-Week 1 complete:
-  Model      ✓  Swin-B + CBAM, 7 classes, INT8 export
-  GradCAM    ✓  GradCAM++ wrapper, coverage_pct computation
-  Severity   ✓  4-signal triage engine, all edge cases tested
-  HF Space   ✓  Live public URL, Bengali skeleton UI, Dockerfile
-  PDF        ✓  4-section referral letter, Bengali font, all tiers
-  Tests      ✓  53 total — 13 + 29 + 11 — all passing
-```
-
----
-
-## NEXT SESSION (Day 8 — May 25) PREVIEW
-Week 2 begins — voice pipeline:
-- Write voice/pipeline.py — faster-whisper (base model, Bengali language)
-- Implement transcribe_audio(audio_bytes) → str
-- Handle mp3/wav/webm (Streamlit mic recorder output formats)
-- Test with a sample Bengali audio clip
-- Commit: [w2/d8] faster-whisper Bengali transcription
+## NEXT SESSION (Day 9 — May 26)
+- Add extract_patient_history(transcript) → dict to voice/pipeline.py
+- Uses Gemini 1.5 Flash to extract 9-field patient JSON from Bengali transcript
+- 3-retry logic for API failures
+- **Needs: GEMINI_API_KEY** — set in .env before starting Day 9
+- Commit: [w2/d9] Gemini JSON symptom extraction

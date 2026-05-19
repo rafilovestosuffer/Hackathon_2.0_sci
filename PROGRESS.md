@@ -2,7 +2,7 @@
 # Update this file at the END of EVERY Claude Code session.
 
 ## 📍 CURRENT STATUS
-- Week: 1 | Day: 5
+- Week: 2 | Day: 8 (starting)
 - HF Spaces URL: https://huggingface.co/spaces/rafilovestosuffer/skinai-bangladesh
 - GitHub Repo: https://github.com/rafilovestosuffer/Hackathon_2.0_sci
 - Demo Video: [TO BE ADDED WEEK 4]
@@ -41,6 +41,39 @@
 
 ## 📝 SESSION LOG
 <!-- Append to this after every session. Newest at top. -->
+
+### Session: May 24, 2026 — Day 7 — W1 REVIEW
+**Done:**
+- Ran full test suite: 53/53 PASSED
+  - test_gradcam.py: 13/13
+  - test_severity.py: 29/29
+  - test_pdf.py: 11/11
+- HF Space verified live: https://huggingface.co/spaces/rafilovestosuffer/skinai-bangladesh
+- W1 milestone confirmed complete (see checklist below)
+- Wrote TASK.md for Day 8 — voice pipeline
+
+**W1 Milestone:**
+- [x] model/bd_skinnet.py — Swin+CBAM, 7 classes, INT8 export
+- [x] model/gradcam.py — GradCAM++ wrapper + coverage_pct
+- [x] model/disease_labels.py — 7 classes + Bengali names + tiers
+- [x] model/export_int8.py — INT8 quantization script
+- [x] severity/engine.py — 4-signal triage engine
+- [x] pdf_gen/referral.py — 4-section referral letter
+- [x] app.py — Bengali 3-tab skeleton
+- [x] Dockerfile — Docker build for HF Space
+- [x] tests/ — 53 total tests, all passing
+- [x] HF Space live at public URL
+
+**Blockers:**
+- None
+
+**Next session start point:**
+- Day 8: Write voice/pipeline.py — faster-whisper Bengali transcription
+
+**Git commits this session:**
+- [w1/d7] W1 review complete — 53/53 tests, Week 2 TASK.md ready
+
+---
 
 ### Session: May 23, 2026 — Day 6
 **Done:**
