@@ -2,7 +2,7 @@
 # Update this file at the END of EVERY Claude Code session.
 
 ## 📍 CURRENT STATUS
-- Week: 2 | Day: 8 (starting)
+- Week: 2 | Day: 9 (starting)
 - HF Spaces URL: https://huggingface.co/spaces/rafilovestosuffer/skinai-bangladesh
 - GitHub Repo: https://github.com/rafilovestosuffer/Hackathon_2.0_sci
 - Demo Video: [TO BE ADDED WEEK 4]
@@ -16,7 +16,7 @@
 - [x] model/disease_labels.py
 - [x] model/export_int8.py
 - [x] severity/engine.py
-- [ ] voice/pipeline.py (transcription)
+- [x] voice/pipeline.py (transcription)
 - [ ] voice/pipeline.py (Gemini extraction)
 - [ ] rag/build_index.py
 - [ ] rag/retriever.py
@@ -31,6 +31,7 @@
 - [x] tests/test_pdf.py
 - [ ] scripts/keepalive.py
 - [ ] scripts/seed_commits.py
+- [x] tests/test_voice.py
 - [ ] tests/test_pipeline.py
 - [ ] README.md (final)
 - [ ] Project Report PDF
@@ -41,6 +42,28 @@
 
 ## 📝 SESSION LOG
 <!-- Append to this after every session. Newest at top. -->
+
+### Session: May 25, 2026 — Day 8
+**Done:**
+- Wrote voice/pipeline.py — transcribe_audio(audio_bytes, fmt) → str
+- faster-whisper base model, language="bn", device="cpu", compute_type="int8"
+- Lazy singleton _get_model() — loads once, reused across calls
+- Handles wav/mp3/webm via tempfile; empty/bad bytes return "" gracefully
+- Wrote tests/test_voice.py — 10 tests (model singleton + transcription robustness)
+- Full suite: 63/63 passing (13 gradcam + 11 pdf + 29 severity + 10 voice)
+- Pushed to GitHub (main) and HF Space (clean branch — binary-free history)
+
+**Blockers:**
+- None
+
+**Next session start point:**
+- Day 9: Add extract_patient_history(transcript) → dict to voice/pipeline.py
+- Needs GEMINI_API_KEY — set in .env before starting
+
+**Git commits this session:**
+- 118cc5a [w2/d8] faster-whisper Bengali transcription
+
+---
 
 ### Session: May 24, 2026 — Day 7 — W1 REVIEW
 **Done:**
