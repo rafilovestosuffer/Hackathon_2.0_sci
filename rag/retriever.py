@@ -33,7 +33,7 @@ Answer the patient's question using ONLY the provided context.
 Do NOT recommend specific medications. Refer to a doctor for diagnosis.
 If the answer is not in the context, say so honestly.
 Answer in {lang_label} language.
-
+{disease_note}
 Context:
 {context}
 
@@ -168,10 +168,16 @@ def retrieve(question: str, top_k: int = TOP_K) -> list[dict]:
         return []
 
 
-def answer_question(question: str, lang: str | None = None) -> str:
+def answer_question(
+    question: str,
+    lang: str | None = None,
+    disease_context: str | None = None,
+) -> str:
     """
     Full RAG pipeline: embed → retrieve top-k → Gemini answer.
     - lang: 'en' or 'bn'; if None, auto-detected from question.
+    - disease_context: optional current diagnosis string injected into system prompt
+      (e.g. "Scabies (38% confidence)") so Gemini can contextualise the answer.
     - Always returns a str. Never raises.
     """
     if not question or not question.strip():
@@ -195,10 +201,16 @@ def answer_question(question: str, lang: str | None = None) -> str:
         f"[{c.get('source', '')} | {c.get('topic', '')}]\n{c.get('text', '')}"
         for c in chunks
     )
+    disease_note = (
+        f"The patient has been diagnosed with: {disease_context}\n"
+        if disease_context
+        else ""
+    )
     prompt = _PROMPT_TEMPLATE.format(
         lang_label=lang_label,
         context=context,
         question=question.strip(),
+        disease_note=disease_note,
     )
 
     client = _get_gemini_client()

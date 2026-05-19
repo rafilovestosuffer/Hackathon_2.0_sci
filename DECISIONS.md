@@ -72,7 +72,21 @@
 
 ---
 
+### [2026-06-01] Inject disease context into RAG system prompt
+**Decision:** Add optional `disease_context` parameter to `answer_question()` in `rag/retriever.py`. When a diagnosis exists in `session_state`, the current disease name + confidence is prepended to the Gemini prompt.
+**Reason:** Grounded, contextual answers beat generic ones. A patient asking "how serious is this?" after a Scabies diagnosis should get a Scabies-specific answer, not a generic skin-disease answer. This is a scoring differentiator under Innovation (25%) and Real-world Impact (20%).
+**Trade-off:** Slightly longer prompt → marginally higher token usage. Negligible on Gemini 2.5 Flash free tier.
+
+### [2026-06-01] st.chat_message style history for RAG chatbot
+**Decision:** Replace single-form + last-answer display with full `st.chat_message` conversation history (`chat_history` list in session_state) and `st.chat_input` widget.
+**Reason:** Judges and rural users expect a chat interface for Q&A, not a single-question form. History improves follow-up question UX dramatically. `st.chat_message` + `st.chat_input` are Streamlit's native chat primitives — no extra dependencies.
+**Trade-off:** `st.rerun()` needed after each message. Acceptable performance cost.
+
+### [2026-06-01] Demo mode: pre-loaded Scabies Tier 3 case
+**Decision:** Sidebar "Load Demo" button pre-fills `session_state` with a Scabies/38% confidence/coverage_pct=45 case, triggering Tier 3 via Signals 2+3+4.
+**Reason:** CONSTRAINT 2 (no login) + Demo Quality (20% rubric weight) demand zero-friction judge access. HF Spaces can be slow to respond for the first image upload. Demo mode gives judges instant access to all features (hospital map, PDF, context RAG) in one click.
+**Trade-off:** Fake data until checkpoint. Clearly marked "(Demo)" in patient name.
+
 ## PENDING DECISIONS (evaluate during build)
 - [ ] Should we support Bangla-English code-switching in voice?
-- [ ] Should we add a demo mode with pre-loaded sample case (for slow HF Spaces)?
 - [ ] Should we add image quality check (blur detection) before inference?

@@ -231,6 +231,27 @@ class TestAnswerQuestion:
         prompt = call_args[1]["contents"] if "contents" in call_args[1] else call_args[0][1]
         assert "Bengali" in prompt
 
+    def test_answer_with_disease_context_returns_string(self):
+        self._mock_gemini("Scabies is treated by a doctor.")
+        result = retriever.answer_question(
+            "How serious is this?", disease_context="Scabies (38% confidence)"
+        )
+        assert isinstance(result, str)
+        assert len(result) > 0
+
+    def test_answer_none_disease_context_works(self):
+        self._mock_gemini("Generic skin answer.")
+        result = retriever.answer_question("What is eczema?", disease_context=None)
+        assert isinstance(result, str)
+
+    def test_answer_without_disease_context_no_injection(self):
+        self._mock_gemini("Answer without context.")
+        mock_client = retriever._gemini_client
+        retriever.answer_question("What is tinea?", disease_context=None)
+        call_args = mock_client.models.generate_content.call_args
+        prompt = call_args[1]["contents"] if "contents" in call_args[1] else call_args[0][1]
+        assert "The patient has been diagnosed with:" not in prompt
+
 
 # ── TestGeminiPrompt ──────────────────────────────────────────────────────────
 
@@ -270,3 +291,14 @@ class TestGeminiPrompt:
     def test_prompt_only_from_context(self):
         prompt = self._capture_prompt("skin question")
         assert "ONLY the provided context" in prompt
+
+    def test_prompt_contains_disease_context_when_provided(self):
+        mock_client = MagicMock()
+        mock_response = MagicMock()
+        mock_response.text = "test answer"
+        mock_client.models.generate_content.return_value = mock_response
+        retriever._gemini_client = mock_client
+        retriever.answer_question("Is this serious?", disease_context="Scabies (38% confidence)")
+        call_args = mock_client.models.generate_content.call_args
+        prompt = call_args[1]["contents"] if "contents" in call_args[1] else call_args[0][1]
+        assert "Scabies (38% confidence)" in prompt

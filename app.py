@@ -106,6 +106,7 @@ _DEFAULTS = {
     "pdf_bytes":         None,
     "rag_answer":        "",
     "rag_lang":          "en",
+    "chat_history":      [],     # list of {role, content, lang} for Tab 2 chat UI
 }
 for _k, _v in _DEFAULTS.items():
     st.session_state.setdefault(_k, _v)
@@ -154,6 +155,56 @@ with st.sidebar:
                 f'<strong>Tier {t["tier"]}</strong> — {t["urgency_label"]}</div>',
                 unsafe_allow_html=True,
             )
+
+    st.markdown("---")
+
+    # ── Demo mode ─────────────────────────────────────────────────────────────
+    st.markdown(
+        '<div class="sidebar-stat">🎬 <strong>Demo Mode</strong></div>',
+        unsafe_allow_html=True,
+    )
+    if st.button(
+        "🎬 Load Demo (Scabies — Tier 3)",
+        use_container_width=True,
+        help="Pre-loads a Scabies Tier 3 case so all tabs are populated instantly.",
+        key="demo_btn",
+    ):
+        _demo_transcript = "জ্বর আছে, চুলকানি ছড়িয়ে পড়ছে, ব্যথা হচ্ছে"
+        _demo_pred = {
+            "disease":      "Scabies",
+            "confidence":   0.38,   # < 0.40 → Signal 2 → Tier 3
+            "top2": [
+                {"disease": "Scabies", "confidence": 0.38},
+                {"disease": "Eczema",  "confidence": 0.22},
+            ],
+            "heatmap":      None,
+            "coverage_pct": 45.0,   # > 40 % → Signal 3 escalates further
+        }
+        _demo_tier = compute_tier(
+            disease_class=_demo_pred["disease"],
+            confidence=_demo_pred["confidence"],
+            coverage_pct=_demo_pred["coverage_pct"],
+            transcript=_demo_transcript,
+        )
+        _demo_history = {
+            "patient_name":       "রহিম (Demo)",
+            "patient_age":        "৩৫",
+            "chief_complaint":    "সারা শরীরে তীব্র চুলকানি ও ফুসকুড়ি",
+            "symptoms":           ["intense itching", "spreading rash", "skin thickening"],
+            "affected_area":      "বাহু, পেট, উরু",
+            "duration":           "১০ দিন",
+            "progression":        "দ্রুত ছড়িয়ে পড়ছে",
+            "previous_treatment": "কোনো চিকিৎসা নেওয়া হয়নি",
+            "associated_symptoms": ["জ্বর", "ব্যথা"],
+        }
+        st.session_state.prediction       = _demo_pred
+        st.session_state.tier_result      = _demo_tier
+        st.session_state.history          = _demo_history
+        st.session_state.transcript       = _demo_transcript
+        st.session_state.nearest_hospital = None
+        st.session_state.pdf_bytes        = None
+        st.session_state.chat_history     = []
+        st.rerun()
 
     st.markdown("---")
     st.markdown(
@@ -384,7 +435,7 @@ with tab1:
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# TAB 2 — RAG Chatbot
+# TAB 2 — RAG Chatbot (context-aware, with chat history)
 # ═══════════════════════════════════════════════════════════════════════════════
 with tab2:
     st.markdown(
@@ -408,25 +459,67 @@ with tab2:
         icon="ℹ️",
     )
 
-    with st.form(key="rag_form", clear_on_submit=False):
-        question = st.text_input(
-            "আপনার প্রশ্ন লিখুন / Type your question:",
-            placeholder="e.g. দাদ রোগের কারণ কী? / What causes ringworm?",
-            label_visibility="collapsed",
+    # ── Disease context banner ────────────────────────────────────────────────
+    _disease_context_str: str | None = None
+    if st.session_state.prediction:
+        _p = st.session_state.prediction
+        _disease_display = _p["disease"].replace("_", " ")
+        _conf_pct = int(_p["confidence"] * 100)
+        _disease_context_str = f"{_disease_display} ({_conf_pct}% confidence)"
+        st.success(
+            f"💊 **Current diagnosis: {_disease_display}** ({_conf_pct}%) — "
+            "answering questions in this context.",
+            icon="🩺",
         )
-        submitted = st.form_submit_button("🔍 উত্তর খুঁজুন / Search", use_container_width=True)
 
-    if submitted and question.strip():
+    # ── Clear chat button ─────────────────────────────────────────────────────
+    if st.session_state.chat_history:
+        if st.button("🗑️ Clear Chat", key="clear_chat_btn"):
+            st.session_state.chat_history = []
+            st.session_state.rag_answer = ""
+            st.rerun()
+
+    # ── Chat history display ──────────────────────────────────────────────────
+    for _msg in st.session_state.chat_history:
+        with st.chat_message(_msg["role"]):
+            if _msg["role"] == "assistant":
+                render_rag_answer(_msg["content"], _msg.get("lang", "en"))
+            else:
+                st.write(_msg["content"])
+
+    # ── Chat input (always at bottom) ─────────────────────────────────────────
+    _question = st.chat_input(
+        "আপনার প্রশ্ন লিখুন / Type your question… (Bengali or English)",
+        key="chat_input",
+    )
+    if _question and _question.strip():
+        _q = _question.strip()
+        # Append user turn
+        st.session_state.chat_history.append({"role": "user", "content": _q})
+
+        # Detect language
+        _lang = "bn" if any("ঀ" <= ch <= "৿" for ch in _q) else "en"
+
+        # Get answer with disease context injected into system prompt
         with st.spinner("🔍 Searching knowledge base…"):
-            answer = answer_question(question.strip())
-            # detect language from question
-            lang = "bn" if any("ঀ" <= ch <= "৿" for ch in question) else "en"
-            st.session_state.rag_answer = answer
-            st.session_state.rag_lang = lang
+            _answer = answer_question(
+                _q,
+                lang=_lang,
+                disease_context=_disease_context_str,
+            )
 
-    if st.session_state.rag_answer:
-        st.markdown("")
-        render_rag_answer(st.session_state.rag_answer, st.session_state.rag_lang)
+        # Append assistant turn
+        st.session_state.chat_history.append({
+            "role":    "assistant",
+            "content": _answer,
+            "lang":    _lang,
+        })
+
+        # Keep backward-compat fields (used in PDF flow)
+        st.session_state.rag_answer = _answer
+        st.session_state.rag_lang   = _lang
+
+        st.rerun()
 
     st.markdown(
         '<div class="sk-disclaimer">AI-generated educational content only. '
