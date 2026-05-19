@@ -16,7 +16,7 @@ pinned: false
 
 [![Hugging Face Spaces](https://img.shields.io/badge/🤗%20Live%20Demo-HF%20Spaces-blue)](https://huggingface.co/spaces/rafilovestosuffer/skinai-bangladesh)
 [![GitHub](https://img.shields.io/badge/GitHub-Repository-black)](https://github.com/rafilovestosuffer/Hackathon_2.0_sci)
-![Tests](https://img.shields.io/badge/tests-164%20passing-brightgreen)
+![Tests](https://img.shields.io/badge/tests-166%20passing-brightgreen)
 ![Python](https://img.shields.io/badge/python-3.10%2B-blue)
 
 **SciBlitz AI Challenge 2026 — IEEE SB CUET — Track A: Health & Society**
@@ -203,7 +203,7 @@ To deploy your own fork:
 
 ```bash
 pytest tests/ -v
-# Expected: 164 passed
+# Expected: 166 passed
 ```
 
 | Test file | Module | Tests |
@@ -216,7 +216,7 @@ pytest tests/ -v
 | test_rag.py | FAISS + RAG | 30 |
 | test_ui.py | Components + blur | 39 |
 | test_hospital.py | Hospital finder | 17 |
-| **Total** | | **164** |
+| **Total** | | **166** |
 
 ---
 
