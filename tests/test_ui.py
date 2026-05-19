@@ -240,3 +240,77 @@ class TestRenderRAGAnswer:
             render_rag_answer("বাংলায় উত্তর।", "bn")
             html = _captured_html(mock_st.markdown)
             assert "Bengali" in html or "বাংলা" in html
+
+
+# ── TestConfidenceCaption ─────────────────────────────────────────────────────
+
+class TestConfidenceCaption:
+    def _call(self, confidence):
+        with patch("ui.components.st") as mock_st:
+            from ui.components import render_disease_card
+            render_disease_card("Tinea", confidence, [])
+            return _captured_html(mock_st.markdown)
+
+    def test_high_confidence_shows_certain_label(self):
+        html = self._call(0.85)
+        assert "মডেল নিশ্চিত" in html
+
+    def test_mid_confidence_shows_moderate_label(self):
+        html = self._call(0.70)
+        assert "মোটামুটি নিশ্চিত" in html
+
+    def test_low_confidence_shows_uncertain_label(self):
+        html = self._call(0.35)
+        assert "অনিশ্চিত" in html
+
+    def test_boundary_exactly_080_is_high(self):
+        html = self._call(0.80)
+        assert "মডেল নিশ্চিত" in html
+
+    def test_boundary_exactly_060_is_mid(self):
+        html = self._call(0.60)
+        assert "মোটামুটি নিশ্চিত" in html
+
+    def test_low_confidence_includes_doctor_advice(self):
+        html = self._call(0.30)
+        assert "ডাক্তার" in html
+
+
+# ── TestCheckImageQuality ─────────────────────────────────────────────────────
+
+class TestCheckImageQuality:
+    def test_sharp_image_returns_not_blurry(self):
+        from PIL import Image
+        from ui.components import check_image_quality
+        # High-contrast checkerboard → very high Laplacian variance
+        img_np = np.zeros((64, 64, 3), dtype=np.uint8)
+        img_np[::2, ::2] = 255
+        pil_img = Image.fromarray(img_np)
+        is_blurry, var = check_image_quality(pil_img)
+        assert is_blurry is False
+        assert var > 80.0
+
+    def test_flat_image_returns_blurry(self):
+        from PIL import Image
+        from ui.components import check_image_quality
+        # Uniform grey image → Laplacian variance is 0
+        pil_img = Image.fromarray(np.full((64, 64, 3), 128, dtype=np.uint8))
+        is_blurry, var = check_image_quality(pil_img)
+        assert is_blurry is True
+        assert var < 80.0
+
+    def test_returns_tuple_of_bool_and_float(self):
+        from PIL import Image
+        from ui.components import check_image_quality
+        pil_img = Image.fromarray(np.zeros((32, 32, 3), dtype=np.uint8))
+        result = check_image_quality(pil_img)
+        assert isinstance(result, tuple)
+        assert len(result) == 2
+        assert isinstance(result[0], bool)
+        assert isinstance(result[1], float)
+
+    def test_error_returns_safe_defaults(self):
+        from ui.components import check_image_quality
+        is_blurry, var = check_image_quality(None)  # None will cause an exception
+        assert is_blurry is False
+        assert var == -1.0

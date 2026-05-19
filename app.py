@@ -17,6 +17,7 @@ from ui.components import (
     render_disease_card,
     render_rag_answer,
     render_referral_download_button,
+    check_image_quality,
 )
 from severity.engine import compute_tier
 from pdf_gen.referral import generate_referral_pdf
@@ -343,6 +344,18 @@ with tab1:
             pil_img = Image.open(image_file).convert("RGB")
             st.image(pil_img, use_container_width=True,
                      caption="Uploaded skin image")
+
+            # ── Image quality check ───────────────────────────────────────
+            is_blurry, blur_var = check_image_quality(pil_img)
+            if is_blurry:
+                st.markdown(
+                    f'<div class="blur-warning">'
+                    f'⚠️ <strong>Image may be blurry</strong> (sharpness score: {blur_var:.0f}). '
+                    f'ছবিটি অস্পষ্ট হতে পারে — ভালো ফলাফলের জন্য স্পষ্ট আলোকিত ছবি ব্যবহার করুন। '
+                    f'Processing anyway…'
+                    f'</div>',
+                    unsafe_allow_html=True,
+                )
 
             with st.spinner("🔬 Analysing image…"):
                 pred = _run_model(pil_img)

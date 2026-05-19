@@ -344,6 +344,30 @@ def inject_css() -> None:
             border-color: {PRIMARY} !important;
         }}
 
+        /* ── Confidence caption pills ─────────────────────────────────── */
+        .conf-caption {{
+            font-size: 0.78rem;
+            font-weight: 600;
+            border-radius: 6px;
+            padding: 0.2rem 0.65rem;
+            margin-top: 0.45rem;
+            display: inline-block;
+        }}
+        .conf-high {{ background: {TIER1_BG}; color: {TIER1_TEXT}; }}
+        .conf-mid  {{ background: {TIER2_BG}; color: {TIER2_TEXT}; }}
+        .conf-low  {{ background: {TIER3_BG}; color: {TIER3_TEXT}; }}
+
+        /* ── Image quality warning ────────────────────────────────────── */
+        .blur-warning {{
+            background: #fffbeb;
+            border: 1px solid #f59e0b;
+            border-radius: 8px;
+            padding: 0.5rem 0.85rem;
+            font-size: 0.82rem;
+            color: #92400e;
+            margin-bottom: 0.5rem;
+        }}
+
         /* ── Info / warning / error boxes ─────────────────────────────── */
         .stAlert {{
             border-radius: 10px;

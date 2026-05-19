@@ -170,6 +170,26 @@ def render_disease_card(disease: str, confidence: float, top2: list) -> None:
     else:
         bar_color = TIER3_BORDER
 
+    # Confidence-level caption (Bengali + English)
+    if confidence >= 0.80:
+        conf_caption = (
+            '<div class="conf-caption conf-high">'
+            '✓ মডেল নিশ্চিত &nbsp;·&nbsp; Model is confident'
+            '</div>'
+        )
+    elif confidence >= 0.60:
+        conf_caption = (
+            '<div class="conf-caption conf-mid">'
+            '~ মোটামুটি নিশ্চিত &nbsp;·&nbsp; Moderately confident'
+            '</div>'
+        )
+    else:
+        conf_caption = (
+            '<div class="conf-caption conf-low">'
+            '⚠ অনিশ্চিত — ডাক্তার দেখান &nbsp;·&nbsp; Uncertain — see a doctor'
+            '</div>'
+        )
+
     # Differential diagnosis pill
     diff_html = ""
     if (
@@ -200,6 +220,7 @@ def render_disease_card(disease: str, confidence: float, top2: list) -> None:
             <div class="conf-bar-wrap">
                 <div class="conf-bar-fill" style="width:{conf_pct}%;background:{bar_color};"></div>
             </div>
+            {conf_caption}
             {diff_html}
         </div>
         """,
@@ -234,7 +255,26 @@ def render_rag_answer(answer: str, lang: str = "en") -> None:
     )
 
 
-# ── 6. Referral download button ───────────────────────────────────────────────
+# ── 6. Image quality check ────────────────────────────────────────────────────
+
+def check_image_quality(pil_img) -> tuple[bool, float]:
+    """
+    Laplacian variance blur detection.
+    Returns (is_blurry, variance).
+    is_blurry = True when variance < 80 (likely too blurry for reliable inference).
+    Never raises — returns (False, -1.0) on any error so it never blocks processing.
+    """
+    try:
+        import cv2
+        import numpy as np
+        img_np = np.array(pil_img.convert("L"))  # grayscale
+        lap_var = float(cv2.Laplacian(img_np, cv2.CV_64F).var())
+        return lap_var < 80.0, lap_var
+    except Exception:
+        return False, -1.0
+
+
+# ── 7. Referral download button ───────────────────────────────────────────────
 
 def render_referral_download_button(pdf_bytes) -> None:
     """Render PDF download button when bytes provided; disabled placeholder otherwise."""
