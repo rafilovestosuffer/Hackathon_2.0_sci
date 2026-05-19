@@ -1,110 +1,164 @@
-# TASK — May 22, 2026 | Week 1 / Day 5
+# TASK — May 23, 2026 | Week 1 / Day 6
 
 ## TODAY'S GOAL
-Deploy SkinAI Bangladesh to Hugging Face Spaces as a live, publicly accessible
-skeleton — zero login, instant load, Bengali UI visible — and record the public URL.
+Write the 4-section PDF referral letter generator and a smoke test that confirms
+the PDF builds correctly — Bengali font included, zero manual input required.
 
 ## CONTEXT
-- Day 4 complete: severity/engine.py + tests/test_severity.py (29/29 passing)
-- packages.txt already has: libsndfile1, ffmpeg ✓
-- app.py is a minimal 3-line placeholder — needs a real skeleton today
-- HF Space does NOT exist yet — you must create it manually (Step 0 below)
-- Do NOT touch today: model/, severity/, voice/, rag/
+- Day 5 complete: HF Space live at https://huggingface.co/spaces/rafilovestosuffer/skinai-bangladesh
+- pdf_gen/__init__.py exists — pdf_gen/referral.py does NOT exist yet
+- reportlab is already in requirements.txt ✓
+- The PDF must work from session_state data only — single button, zero manual input
+- Bengali font: Noto Sans Bengali — must be registered with reportlab
+- Do NOT touch today: model/, severity/, voice/, rag/, app.py
+
+---
+
+## REFERRAL LETTER SPEC (from CLAUDE.md — implement EXACTLY)
+
+4 sections, each sourced from a different pipeline stage:
+
+| Section | Data Source | Key Fields |
+|---------|-------------|------------|
+| 1. Patient History | Gemini JSON (voice pipeline) | chief_complaint, symptoms, affected_area, duration, progression, previous_treatment |
+| 2. Clinical Observation | GradCAM++ output | heatmap image (embedded), coverage_pct, assessment datetime |
+| 3. AI Diagnostic Assessment | BD-SkinNet output | disease (English+Bengali), confidence %, differential if top2 > 15%, model name, disclaimer |
+| 4. Triage Recommendation | Severity engine | tier, urgency_label, action, facility, Bengali instruction text |
+
+**Differential diagnosis rule:** If top2[1].confidence > 0.15 → show differential in Section 3.
+**Tier 3 only:** inject nearest hospital name+address into Section 4.
 
 ---
 
 ## TASKS (in order)
 
-### STEP 0 — Create HF Space manually (you do this, not Claude)
-1. Go to https://huggingface.co/spaces → click "Create new Space"
-2. Settings:
-   - Space name: `skinai-bangladesh`
-   - SDK: **Streamlit**
-   - Python version: **3.10**
-   - Hardware: **CPU Basic (free)**
-   - Visibility: **Public**
-3. Click "Create Space" — it will show an empty repo
-4. Copy the git remote URL shown on the Space page
-   (format: `https://huggingface.co/spaces/<your-username>/skinai-bangladesh`)
-5. Add the remote locally:
-   ```
-   git remote add hf https://huggingface.co/spaces/<your-username>/skinai-bangladesh
-   ```
+### TASK 1 — Write pdf_gen/referral.py
 
----
+#### Function signature:
+```python
+def generate_referral_pdf(session_data: dict) -> bytes:
+```
+Returns raw PDF bytes (use `io.BytesIO` — no file written to disk).
 
-### STEP 1 — Upgrade app.py to proper skeleton
-- [ ] Replace current placeholder app.py with a full Bengali-tabbed skeleton:
-  - `st.set_page_config` — title, icon, wide layout
-  - Sidebar: project name, team, competition name, disclaimer (Bengali)
-  - 3 tabs in Bengali:
-    - Tab 1 "রোগ নির্ণয়" — voice + image placeholders (st.info coming soon)
-    - Tab 2 "প্রশ্ন করুন" — RAG chatbot placeholder
-    - Tab 3 "রেফারেল পত্র" — PDF download placeholder
-  - st.info banner: "পরীক্ষামূলক সংস্করণ — সম্পূর্ণ সিস্টেম শীঘ্রই আসছে"
-  - Footer: "Not a medical device. Always consult a licensed physician."
+#### session_data keys it must accept:
+```python
+{
+    # Section 1 — Patient History
+    "patient_name": str,
+    "patient_age": str,
+    "chief_complaint": str,
+    "symptoms": list[str],
+    "affected_area": str,
+    "duration": str,
+    "progression": str,
+    "previous_treatment": str,
 
-### STEP 2 — Verify requirements.txt is HF-compatible
-- [ ] Check requirements.txt — confirm no GPU-only packages
-- [ ] Confirm `torch` line does NOT have `+cu118` or CUDA suffix
-  (HF CPU Spaces need CPU-only torch — use torch>=2.0.0 with no CUDA suffix)
-- [ ] If needed, add this line at the top of requirements.txt:
-  `--extra-index-url https://download.pytorch.org/whl/cpu`
+    # Section 2 — Clinical Observation
+    "heatmap": np.ndarray | None,   # H×W×3 uint8 overlay image (or None)
+    "coverage_pct": float,
 
-### STEP 3 — Push to HF Space
-- [ ] Push GitHub repo to HF Space remote:
-  ```
-  git push hf main
-  ```
-- [ ] Watch build logs on the HF Space page
-- [ ] Wait for "Running" green badge (usually 3–8 minutes for first build)
+    # Section 3 — AI Diagnostic Assessment
+    "disease_class": str,           # e.g. "Tinea"
+    "disease_bengali": str,         # e.g. "দাদ (টিনিয়া)"
+    "confidence": float,            # 0.0–1.0
+    "top2": list[dict],             # [{"class": str, "confidence": float}, ...]
 
-### STEP 4 — Verify public URL
-- [ ] Open the Space URL in an incognito window (no HF login)
-- [ ] Confirm: page loads, Bengali tabs visible, no errors
-- [ ] Confirm: no login prompt, instant access
-- [ ] Screenshot or note the exact public URL
+    # Section 4 — Triage Recommendation
+    "tier": int,                    # 1 | 2 | 3
+    "urgency_label": str,
+    "action": str,
+    "facility": str,
+    "bengali_text": str,
+    "hospital_name": str | None,    # Tier 3 only
+    "hospital_address": str | None, # Tier 3 only
+}
+```
 
-### STEP 5 — Record URL and commit
-- [ ] Add public URL to PROGRESS.md:
-  `HF Spaces URL: https://huggingface.co/spaces/<username>/skinai-bangladesh`
-- [ ] Commit to GitHub:
-  ```
-  git commit -m "[w1/d5] HF Spaces deployed — public URL live"
-  git push origin main
-  ```
-- [ ] Also push updated code to HF Space:
-  ```
-  git push hf main
-  ```
+#### PDF structure requirements:
+- **Header:** "SkinAI Bangladesh — AI Referral Letter" + generation datetime
+- **Section 1 — Patient History**
+  - Table: field label (Bengali + English) | value
+  - Fields: Name, Age, Chief Complaint, Symptoms (comma-joined), Affected Area,
+    Duration, Progression, Previous Treatment
+- **Section 2 — Clinical Observation**
+  - GradCAM heatmap image embedded (if heatmap is not None, resize to ~300px wide)
+  - If heatmap is None: placeholder text "Image not provided"
+  - Bengali caption: "লাল এলাকা মডেলের মনোযোগের কেন্দ্র"
+  - Coverage: "Lesion coverage: {coverage_pct:.1f}%"
+  - Assessment datetime
+- **Section 3 — AI Diagnostic Assessment**
+  - Primary: "{disease_class} ({disease_bengali}) — {confidence:.1%} confidence"
+  - Differential: if top2[1]["confidence"] > 0.15 → show "Differential: {class} ({conf:.1%})"
+  - Model: "Model: BD-SkinNet (Swin-B + CBAM, INT8) | F1 = 92.46%"
+  - Disclaimer: "This is an AI-assisted screening tool, not a medical diagnosis."
+- **Section 4 — Triage Recommendation**
+  - Tier badge: NON-URGENT (green) | ROUTINE (orange) | URGENT (red)
+  - English action text
+  - Bengali instruction text
+  - Facility type
+  - If tier == 3 and hospital_name: "Nearest Hospital: {name} — {address}"
+- **Footer:** "Not a medical device. Always consult a licensed physician."
+
+#### Technical requirements:
+- Use `reportlab.platypus` (SimpleDocTemplate, Table, Paragraph, Image, Spacer)
+- Register Noto Sans Bengali font for Bengali text rendering
+  - Font file: download at runtime if not present, or use a fallback
+  - Simplest approach: use `reportlab`'s built-in fonts for English sections,
+    register `NotoSansBengali-Regular.ttf` for Bengali strings only
+  - Font download: https://fonts.google.com/download?family=Noto+Sans+Bengali
+    → save to pdf_gen/fonts/NotoSansBengali-Regular.ttf
+- Return `io.BytesIO.getvalue()` as bytes
+
+### TASK 2 — Download Noto Sans Bengali font
+- [ ] Create pdf_gen/fonts/ directory
+- [ ] Download NotoSansBengali-Regular.ttf into pdf_gen/fonts/
+- [ ] Add pdf_gen/fonts/*.ttf to .gitignore? NO — keep it tracked so HF Space has it
+
+### TASK 3 — Write tests/test_pdf.py
+Test cases (smoke tests — no real model output needed, use dummy session_data):
+
+```python
+# Test 1: PDF generates without error, returns bytes, size > 0
+# Test 2: Returns bytes type (not str, not None)
+# Test 3: Tier 1 case — NON-URGENT PDF generates
+# Test 4: Tier 3 case with hospital — hospital name appears in output
+# Test 5: heatmap=None case — PDF still generates (no crash)
+# Test 6: top2 differential > 0.15 — no crash
+# Test 7: top2 differential <= 0.15 — no crash
+```
+
+Use dummy data — no model, no checkpoint, no real image required.
+
+### TASK 4 — Run tests
+```
+pytest tests/test_pdf.py -v
+```
+All tests must pass.
+
+### TASK 5 — Commit and push
+```
+git add pdf_gen/referral.py pdf_gen/fonts/ tests/test_pdf.py
+git commit -m "[w1/d6] referral letter PDF generator"
+git push origin main
+git push hf main
+```
 
 ---
 
 ## DEFINITION OF DONE
-- [ ] HF Space shows "Running" (green) — not "Building" or "Error"
-- [ ] Public URL opens with zero login in incognito browser
-- [ ] Bengali tabs visible: রোগ নির্ণয় | প্রশ্ন করুন | রেফারেল পত্র
-- [ ] No Python errors or import crashes in build logs
-- [ ] Public URL recorded in PROGRESS.md
-- [ ] Committed and pushed to both GitHub AND HF Space remote
+- [ ] pdf_gen/referral.py exists with generate_referral_pdf(session_data) → bytes
+- [ ] All 4 sections present in output
+- [ ] Bengali text renders (Noto Sans Bengali font registered)
+- [ ] Differential shown only when top2[1].confidence > 0.15
+- [ ] Tier 3 hospital injection works
+- [ ] heatmap=None does not crash
+- [ ] tests/test_pdf.py — all tests pass with pytest -v
+- [ ] Committed and pushed to GitHub + HF Space
 
 ---
 
-## KNOWN RISK: Build failures on HF Spaces
-If the build fails, most likely causes (check logs):
-1. **torch CUDA suffix** → remove `+cu118`, use `--extra-index-url` for CPU wheel
-2. **faster-whisper** → needs ffmpeg (already in packages.txt) ✓
-3. **sentence-transformers** → may try to download model on import → add
-   `@st.cache_resource` wrapping or defer imports to inside functions
-4. **Memory limit** → CPU Basic = 16GB RAM — fine for skeleton, avoid loading
-   model or FAISS index at startup today
-
-For the skeleton today, none of these heavy imports should be triggered.
-app.py should import ONLY streamlit. Do NOT import model/, voice/, rag/ in app.py yet.
-
----
-
-## NEXT SESSION (Day 6 — May 23)
-- Write pdf_gen/referral.py — 4-section reportlab PDF
-- Write tests/test_pdf.py — smoke test
-- Test Bengali font rendering (Noto Sans Bengali via reportlab)
+## NEXT SESSION (Day 7 — May 24)
+- Run full test suite: pytest tests/ -v — all green across all modules
+- Verify HF Space still live and showing Bengali UI
+- Write TASK.md for Week 2
+- W1 DONE: Model ✓ | GradCAM ✓ | Severity ✓ | HF Space ✓ | PDF ✓
