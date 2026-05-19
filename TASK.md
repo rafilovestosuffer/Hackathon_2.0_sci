@@ -2,7 +2,7 @@
 # Target date: Jun 7–8, 2026
 
 ## STARTING STATE
-- Tests: 164/164 passing
+- Tests: 166/166 passing
 - Week 4, Day 20 complete: spinners audited, mobile CSS added, demo script written
 - Demo script: `docs/demo_script.md` (8 segments, 4 minutes, full narration)
 - BD-SkinNet checkpoint: still pending (bd_skinnet_best.pth)
@@ -50,7 +50,7 @@ NOTE: Do NOT use torchvision.transforms.Normalize inline — the model was train
 albumentations normalization via `inference_transform`. Using a different pipeline
 reduces accuracy. `load_model()` and `bd_predict()` handle everything correctly.
 
-**Step 3:** `pytest tests/ -q` — all 164 must still pass.
+**Step 3:** `pytest tests/ -q` — all 166 must still pass.
 
 **Step 4:** Run `streamlit run app.py`, upload test image, verify real class + GradCAM.
 
@@ -160,6 +160,6 @@ Rewrite TASK.md for Day 22:
 ## NEXT SESSION — Day 22 / Project Report
 - Theme: project report skeleton (LaTeX or Google Docs, 8-page target)
 - Sections: Abstract, Problem Statement, System Architecture, BD-SkinNet Model, Evaluation, Demo, Limitations, Conclusion
-- Include all quantitative results: F1=92.46%, AUC=0.9937, 164 tests, 7 classes
+- Include all quantitative results: F1=92.46%, AUC=0.9937, 166 tests, 7 classes
 - Day 23: flesh out Architecture and Results sections with diagrams
 - Day 24: final submission package (report PDF, model card, README final review)
