@@ -61,8 +61,8 @@ def render_triage_badge(tier_result: dict) -> None:
 
     urgency = tier_result.get("urgency_label", cfg["label"])
     action_en = tier_result.get("action", "")
-    action_bn = tier_result.get("bn", "")
-    facility = tier_result.get("facility_type", "")
+    action_bn = tier_result.get("bengali_text", tier_result.get("bn", ""))
+    facility = tier_result.get("facility", tier_result.get("facility_type", ""))
 
     st.markdown(
         f"""

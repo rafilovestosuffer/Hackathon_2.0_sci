@@ -1,123 +1,68 @@
-# TASK — May 30, 2026 | Week 2 / Day 13
+# TASK — May 31, 2026 | Week 2 / Day 14
 
 ## TODAY'S GOAL
-Wire up full app.py — all 3 tabs fully functional end-to-end.
-Do NOT write new modules today; only integrate what is already built.
+W2 integration test — full E2E smoke test on HF Space.
+Fix any bugs found. Day 14 is validation + polish, not new features.
 
 ## CONTEXT
-- Day 12 complete: ui/styles.py + ui/components.py + 29/29 tests passing
-- Full suite: 133/133 passing
-- All backend modules done: voice/, rag/, severity/, pdf_gen/, model/, ui/
-- Do NOT touch today: any module in model/, severity/, voice/, rag/, pdf_gen/, ui/
+- Day 13 complete: app.py fully wired — 3 tabs, all components, RAG, PDF
+- 133/133 tests passing
+- BD-SkinNet checkpoint NOT yet received (ETA ~Jun 2)
+  _run_model() in app.py is a clean placeholder — real inference drops in when checkpoint arrives
+- Do NOT touch today: any module except app.py bug fixes
 
 ---
 
-## app.py INTEGRATION SPEC
-
-### Imports
-```python
-import streamlit as st
-from ui.styles import inject_css
-from ui.components import (
-    render_triage_badge, render_gradcam_overlay,
-    render_patient_history_table, render_disease_card,
-    render_rag_answer, render_referral_download_button,
-)
-from voice.pipeline import transcribe_audio, extract_patient_history
-from rag.retriever import load_index, answer_question
-from severity.engine import compute_tier
-from pdf_gen.referral import generate_referral_pdf
-```
-
-### Sidebar
-```python
-# Logo: "🩺 SkinAI Bangladesh"
-# Tagline: "ত্বকের রোগ নির্ণয় · AI-চালিত"
-# Stats: 7 diseases · Bengali voice · CDC/NIH/WHO/DGHS
-# Disclaimer: "Not a substitute for medical advice"
-```
-
-### Session state keys
-```python
-st.session_state.setdefault("transcript", "")
-st.session_state.setdefault("history", {})
-st.session_state.setdefault("prediction", None)   # {disease, confidence, top2}
-st.session_state.setdefault("gradcam", None)       # {heatmap, coverage_pct}
-st.session_state.setdefault("tier_result", None)
-st.session_state.setdefault("pdf_bytes", None)
-st.session_state.setdefault("rag_answer", "")
-st.session_state.setdefault("rag_lang", "en")
-```
-
-### Tab 1 — রোগ নির্ণয় (Diagnosis)
-Layout: two columns (left: voice + history table | right: image + disease card + triage)
-
-LEFT COLUMN:
-- st.audio_input() or st.file_uploader() for Bengali audio
-- On audio upload: transcribe_audio(audio_bytes) → transcript
-- extract_patient_history(transcript) → history dict
-- render_patient_history_table(history)
-
-RIGHT COLUMN:
-- st.file_uploader() for skin image (jpg/png)
-- On image upload: run BD-SkinNet inference (try/except — checkpoint may be missing)
-  - If checkpoint missing: show placeholder prediction for demo
-- render_disease_card(disease, confidence, top2)
-- compute_tier(disease, confidence, coverage_pct, transcript) → tier_result
-- render_triage_badge(tier_result)
-- render_gradcam_overlay(heatmap_img, coverage_pct)
-
-### Tab 2 — প্রশ্ন করুন (RAG Chatbot)
-- Text input for question (Bengali or English)
-- On submit: answer_question(question) → answer
-- render_rag_answer(answer, lang)
-- Show st.info("ℹ️ Answers from CDC · NIH · WHO · DGHS Bangladesh only")
-
-### Tab 3 — রেফারেল পত্র (PDF)
-- Show summary of diagnosis + triage
-- Button: generate_referral_pdf(session_data) → pdf_bytes
-- render_referral_download_button(pdf_bytes)
+## CHECKPOINT INTEGRATION NOTE (when bd_skinnet_best.pth arrives)
+File to edit: app.py — function _run_model(pil_img)
+Replace the body with real BD-SkinNet + GradCAM forward pass:
+- Load model via BDSkinNet(num_classes=7) + torch.load(CKPT, map_location="cpu")
+- Apply INT8 quantization: torch.quantization.quantize_dynamic(model, {torch.nn.Linear})
+- Run compute_gradcam(model, tensor) for heatmap + coverage_pct
+- Return same dict: {disease, confidence, top2, heatmap, coverage_pct}
 
 ---
 
 ## TASKS (in order)
 
-### TASK 1 — Wire app.py
-- Call inject_css() at top (before any st.* call)
-- Call load_index() at startup (cached via @st.cache_resource)
-- Build sidebar with logo + stats + disclaimer
-- Build all 3 tabs per spec above
-- Handle checkpoint-missing gracefully (placeholder mode for demo)
+### TASK 1 — Deploy to HF Space and smoke test
+- Push Day 13 code to HF Space (clean branch strategy)
+- Open HF Space public URL: https://huggingface.co/spaces/rafilovestosuffer/skinai-bangladesh
+- Check: sidebar loads with dark theme and Bengali text
+- Check: all 3 tabs render without error
+- Check: Tab 2 RAG question returns an answer (needs GEMINI_API_KEY in HF secrets)
+- Check: Tab 3 shows "complete Tab 1 first" message correctly
 
-### TASK 2 — Smoke test manually
-- Run: `streamlit run app.py`
-- Verify: sidebar loads, all 3 tabs render, no ImportError
-- Verify: RAG chatbot returns answer (needs GEMINI_API_KEY in .env)
+### TASK 2 — Fix any bugs found
+- List bugs, fix them, re-test
 
-### TASK 3 — Commit and push
+### TASK 3 — W2 sign-off
+- All modules done: voice, RAG, severity, PDF, UI, app.py
+- Remaining: model checkpoint (external, ~Jun 2), hospital map (Week 3)
+- Update PROGRESS.md for W2 completion
+
+### TASK 4 — Commit and push
 ```
-git add app.py
-git commit -m "[w2/d13] full app.py integration — 3-tab pipeline"
+git add app.py PROGRESS.md TASK.md PLAN.md
+git commit -m "[w2/d14] W2 integration test + HF Space verified"
 git push origin main
 ```
-Push to HF Space via clean branch strategy.
 
 ---
 
 ## DEFINITION OF DONE
-- [ ] app.py: 3 tabs fully wired — no placeholder st.write() remaining
-- [ ] inject_css() called once at startup
-- [ ] load_index() cached via @st.cache_resource
-- [ ] Sidebar: logo + Bengali tagline + stats + disclaimer
-- [ ] Tab 1: voice → history + image → disease card + triage badge
-- [ ] Tab 2: RAG chatbot with styled answer box
-- [ ] Tab 3: PDF download button
-- [ ] No ImportError on `streamlit run app.py`
-- [ ] Committed and pushed to GitHub and HF Space
+- [ ] HF Space loads without error at public URL
+- [ ] Sidebar: dark theme, Bengali text visible
+- [ ] Tab 1: image upload shows disease card + triage badge (placeholder model)
+- [ ] Tab 2: RAG question returns styled answer
+- [ ] Tab 3: "complete Tab 1 first" message before diagnosis
+- [ ] W2 marked complete in PROGRESS.md
+- [ ] Committed and pushed
 
 ---
 
-## NEXT SESSION (Day 14 — May 31)
-- W2 integration test: full end-to-end with real audio + real image (placeholder checkpoint)
-- Fix any bugs found during manual smoke test
-- Commit: [w2/d14] W2 integration test + bug fixes
+## NEXT SESSION (Day 15 — Jun 1)
+- Write map/hospital_finder.py — Overpass API, top 5 nearest hospitals, Folium map
+- Wire into Tab 1: show map only when tier == 3
+- Inject hospital[0] into PDF Section 4
+- Commit: [w3/d15] emergency hospital map

@@ -2,7 +2,7 @@
 # Update this file at the END of EVERY Claude Code session.
 
 ## 📍 CURRENT STATUS
-- Week: 2 | Day: 13 (starting)
+- Week: 2 | Day: 14 (starting)
 - HF Spaces URL: https://huggingface.co/spaces/rafilovestosuffer/skinai-bangladesh
 - GitHub Repo: https://github.com/rafilovestosuffer/Hackathon_2.0_sci
 - Demo Video: [TO BE ADDED WEEK 4]
@@ -25,7 +25,7 @@
 - [ ] map/hospital_finder.py
 - [x] ui/components.py
 - [x] ui/styles.py
-- [ ] app.py (full integration)
+- [x] app.py (full integration — checkpoint stub)
 - [x] tests/test_severity.py
 - [x] tests/test_gradcam.py
 - [x] tests/test_pdf.py
@@ -42,6 +42,35 @@
 
 ## 📝 SESSION LOG
 <!-- Append to this after every session. Newest at top. -->
+
+### Session: May 30, 2026 — Day 13
+**Done:**
+- Full app.py integration — all 3 tabs wired end-to-end
+  - inject_css() called at top; @st.cache_resource for RAG index + Whisper
+  - Sidebar: dark professional, logo, tagline, live stats, disclaimer
+  - Tab 1 (রোগ নির্ণয়): voice upload → transcribe → extract history → render_patient_history_table
+    + image upload → _run_model() → render_disease_card + compute_tier + render_triage_badge + render_gradcam_overlay
+  - Tab 2 (প্রশ্ন করুন): st.form → answer_question() → render_rag_answer with source tags
+  - Tab 3 (রেফারেল পত্র): summary metrics → generate_referral_pdf() → render_referral_download_button
+- _run_model() placeholder stub — identical API to real model, drops in when checkpoint arrives
+  - Real inference: replace body of _run_model() in app.py when bd_skinnet_best.pth provided (~Jun 2)
+- Fixed key mismatch: render_triage_badge now reads bengali_text + facility (matching compute_tier output)
+- PLAN.md updated: Day 13b stub added for checkpoint plug-in day
+- Full test suite: 133/133 passing
+
+**Blockers:**
+- BD-SkinNet checkpoint (bd_skinnet_best.pth) not yet received — ETA ~Jun 2
+  Placeholder model returns Tinea/82% for demo. Real inference ready to drop in.
+
+**Next session start point:**
+- Day 14: W2 integration test — full E2E smoke test on HF Space
+  Voice upload + image upload + RAG question + PDF download
+  Fix any bugs found
+
+**Git commits this session:**
+- [w2/d13] full app.py integration — 3-tab pipeline wired
+
+---
 
 ### Session: May 29, 2026 — Day 12
 **Done:**

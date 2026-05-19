@@ -116,12 +116,21 @@
   - Tab 3: "রেফারেল পত্র" — PDF download placeholder
 - [ ] Commit: [w2/d12] Streamlit UI layout with Bengali tabs
 
-### Day 13 — May 30 | Classification Display
-- [ ] Connect image upload → BD-SkinNet inference
-- [ ] Display: disease name (En+Bn), confidence bar, GradCAM heatmap
-- [ ] Add Bengali GradCAM caption: "লাল এলাকা মডেলের মনোযোগের কেন্দ্র"
-- [ ] Show differential if top2 > 15%
-- [ ] Commit: [w2/d13] classification + GradCAM display
+### Day 13 — May 30 | Full app.py Integration
+- [x] Wire all 3 tabs in app.py (voice → history, image → triage, RAG, PDF)
+- [x] inject_css() + @st.cache_resource for RAG + Whisper
+- [x] _run_model() placeholder stub — same API as real model, drops in when checkpoint arrives
+- [x] NOTE: BD-SkinNet checkpoint not yet available — ETA ~Jun 2
+      When checkpoint is provided: replace _run_model() body with real inference
+      File: app.py lines starting with "def _run_model()"
+- [x] Commit: [w2/d13] full app.py integration
+
+### Day 13b — ~Jun 2 | Plug In Model Checkpoint  ← CHECKPOINT ARRIVES HERE
+- [ ] Receive bd_skinnet_best.pth from training
+- [ ] Place in model/checkpoints/bd_skinnet_best.pth
+- [ ] Replace _run_model() stub with real BD-SkinNet + GradCAM++ forward pass
+- [ ] Verify heatmap renders correctly in Tab 1
+- [ ] Commit: [w2/d13b] real BD-SkinNet inference connected
 
 ### Day 14 — May 31 | W2 Integration Test
 - [ ] E2E test: voice → transcript → patient JSON displayed
