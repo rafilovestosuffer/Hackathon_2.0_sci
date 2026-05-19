@@ -87,6 +87,14 @@
 **Reason:** CONSTRAINT 2 (no login) + Demo Quality (20% rubric weight) demand zero-friction judge access. HF Spaces can be slow to respond for the first image upload. Demo mode gives judges instant access to all features (hospital map, PDF, context RAG) in one click.
 **Trade-off:** Fake data until checkpoint. Clearly marked "(Demo)" in patient name.
 
+### [2026-06-05] W3 delivered ahead of PLAN.md schedule
+**Decision:** All W3 features (hospital map, RAG chat history, keepalive, demo mode,
+confidence captions, blur detection, progress tracker, README) completed by Day 18
+instead of Day 21.
+**Why:** W2 also ran ahead — early completion frees W4 for polish and demo video.
+**Impact:** W4 can focus entirely on demo video, project report, and UI polish.
+No architecture changes required.
+
 ## PENDING DECISIONS (evaluate during build)
 - [ ] Should we support Bangla-English code-switching in voice?
 - [ ] Should we add image quality check (blur detection) before inference?

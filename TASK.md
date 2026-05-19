@@ -1,19 +1,12 @@
-# TASK — Week 3 / Day 19
-# Target date: Jun 3–4, 2026
+# TASK — Week 4 / Day 20
+# Target date: Jun 5–6, 2026
 
 ## STARTING STATE
 - Tests: 164/164 passing
-- All W3 planned features delivered:
-  ✅ Hospital map (Tier 3, Overpass + Folium)
-  ✅ RAG context-aware chatbot (chat history, disease context banner)
-  ✅ Keepalive script + GitHub Actions cron
-  ✅ Demo mode (Scabies Tier 3, one-click)
-  ✅ Bengali confidence captions
-  ✅ Image blur detection
-  ✅ Sidebar pipeline progress tracker
-  ✅ Error handling (corrupt image, bilingual fallbacks)
-  ✅ README.md (submission-grade)
-- Checkpoint: bd_skinnet_best.pth still pending (ETA ~Jun 2–3)
+- Week 3: fully complete and signed off (all 7 W3 features + sign-off checklist)
+- Week 4 theme: Polish + Demo Video
+- BD-SkinNet checkpoint: still pending (bd_skinnet_best.pth not yet received)
+- Demo video: NOT yet recorded (record only after full feature completion)
 - HF Space: live at https://huggingface.co/spaces/rafilovestosuffer/skinai-bangladesh
 
 ---
@@ -74,99 +67,157 @@ def _run_model(pil_img: Image.Image) -> dict:
 
 ---
 
-## TASK 1 — W3 Sign-Off Checklist
+## TASK 1 — Loading Spinners Audit
 
-Run through this checklist manually. Mark each item ✅ or ❌.
+All slow operations must be wrapped in `st.spinner()`. Audit app.py for any gaps.
 
-### Code quality
-- [ ] `pytest tests/ -v` — 164/164 pass, zero failures
-- [ ] `python -c "import ast; ast.parse(open('app.py', encoding='utf-8').read())"` — no syntax error
-- [ ] All module imports work: `python -c "from severity.engine import compute_tier; from rag.retriever import answer_question; from pdf_gen.referral import generate_referral_pdf; from map.hospital_finder import find_nearest_hospitals; print('OK')"`
+### Known slow operations — verify each is wrapped:
 
-### Feature checklist (run `streamlit run app.py` locally)
-- [ ] Demo button in sidebar loads Scabies Tier 3 case instantly
-- [ ] Sidebar progress tracker shows ✅ steps updating correctly
-- [ ] Tab 1: voice upload triggers transcription + history table
-- [ ] Tab 1: image upload triggers disease card + confidence caption
-- [ ] Tab 1: Tier 3 shows hospital district input + Folium map (via demo mode)
-- [ ] Tab 1: blurry image shows amber warning (test with a plain-colour image)
-- [ ] Tab 1: corrupt file (.txt renamed to .jpg) shows bilingual error, no crash
-- [ ] Tab 2: disease context banner shown after diagnosis
-- [ ] Tab 2: chat input works, conversation history persists
-- [ ] Tab 2: Clear Chat button resets history
-- [ ] Tab 3: Generate Referral Letter button works, PDF downloads
-- [ ] Tab 3: PDF contains Bengali text and all 4 sections
-- [ ] Keepalive: `python scripts/keepalive.py` runs one ping and prints status
+| Operation | Expected spinner text | Location in app.py |
+|---|---|---|
+| faster-whisper transcription | "🎙️ Transcribing audio..." | Tab 1, audio processing |
+| BD-SkinNet inference + GradCAM | "🔍 Analysing image..." | Tab 1, image processing |
+| Gemini patient history extraction | "📋 Extracting patient history..." | Tab 1, voice post-processing |
+| Overpass API hospital query | "🗺️ Finding nearest hospitals..." | Tab 1, Tier 3 map section |
+| FAISS + Gemini RAG answer | "💬 Searching knowledge base..." | Tab 2, chat input handler |
+| PDF generation (reportlab) | "📄 Generating referral letter..." | Tab 3, generate button |
 
-### GitHub / HF Space
-- [ ] `git log --oneline -8` — commits from May 18 to present
-- [ ] HF Space URL loads from incognito browser
-- [ ] `.github/workflows/keepalive.yml` is visible on GitHub Actions tab
+### Implementation pattern:
+```python
+with st.spinner("🔍 Analysing image..."):
+    result = _run_model(pil_img)
+```
+
+### After fixing gaps:
+- `pytest tests/ -q` — still 164/164 (spinners don't affect logic, but verify)
+- Run `streamlit run app.py` locally, go through each tab, confirm no slow op runs naked (without a spinner visible)
 
 ---
 
-## TASK 2 — W3 Complete: Plan Week 4
+## TASK 2 — Mobile / Narrow Layout Check
 
-W3 is done. Cross off completed items in PLAN.md and document W4 scope.
+Open the running app at `http://localhost:8501` and resize the browser window to ~375px wide (phone width). Note any broken layout. Fix the worst offenders only — do not over-engineer.
 
-Week 4 target (Jun 8–14 per PLAN.md) — pull forward if time allows:
-1. **Loading spinners** — `st.spinner()` already on model/RAG; verify all slow ops covered
-2. **Mobile layout check** — open HF Space on a phone/narrow browser, note any broken layout
-3. **Demo video recording** — record 3–5 min Rahim story walkthrough (OBS / Loom)
-   Script structure (from PLAN.md Day 25):
-   - 0:00–0:30 Rahim's problem (voice-over)
-   - 0:30–1:00 Bengali voice input demo
-   - 1:00–2:00 Image → classification → GradCAM
-   - 2:00–2:30 Severity tier + Bengali triage badge
-   - 2:30–3:00 Hospital map (Tier 3 via demo mode)
-   - 3:00–3:30 PDF referral letter
-   - 3:30–4:00 RAG chatbot Q&A
-   - 4:00–4:30 Impact slide + close
-4. **Project report outline** — start skeleton (LaTeX or Google Docs)
+### Common issues to check:
+- [ ] Sidebar: does it collapse cleanly or overlap main content?
+- [ ] Tab bar: do tab labels fit at narrow width, or overflow?
+- [ ] Disease card: do the two columns (image + text) stack or overlap?
+- [ ] GradCAM overlay: does the image scale down correctly?
+- [ ] Triage badge: does the text wrap cleanly?
+- [ ] Hospital table: does it scroll horizontally or overflow?
+- [ ] PDF download button: full width or cut off?
+
+### Fix strategy (CSS in ui/styles.py):
+Add responsive breakpoints only where needed. Example pattern:
+```css
+@media (max-width: 480px) {
+    .sk-card { padding: 0.75rem 1rem; }
+    .badge-urgency { font-size: 1.1rem; }
+    .disease-name-en { font-size: 1.1rem; }
+}
+```
+
+Keep changes surgical — do not refactor the layout. Note any issues that cannot be fixed via CSS (Streamlit limitations) in DECISIONS.md.
 
 ---
 
-## TASK 3 — PLAN.md + DECISIONS.md update
+## TASK 3 — Demo Video Script (Writing only — NOT recording yet)
 
-Update PLAN.md: mark all W3 items as complete.
+Write the final demo video script as a markdown file at `docs/demo_script.md`.
 
-Add one DECISIONS.md entry:
+Structure (target: 4 minutes):
+
 ```
-### [2026-06-02] W3 delivered ahead of PLAN.md schedule
-Decision: All W3 features (hospital map, RAG chat history, keepalive, demo mode,
-confidence captions, blur detection, progress tracker, README) completed by Day 18
-instead of Day 21.
-Why: W2 also ran ahead — early completion frees W4 for polish and demo video.
-Impact: W4 can focus entirely on demo video, project report, and UI polish.
-No architecture changes required.
+## 0:00–0:30 — Rahim's Story (voice-over, no screen action)
+"Rahim is a farmer in Rangpur..."
+[Full narrative — write it out word for word]
+
+## 0:30–1:00 — Bengali Voice Input
+Screen: Tab 1, sidebar visible
+Action: Click mic input → speak Bengali sentence (write the sentence to say)
+Expected: Transcription appears, patient history table populates
+
+## 1:00–2:00 — Image Upload → Classification → GradCAM
+Screen: Tab 1 (continuing)
+Action: Upload scabies test image
+Expected: Disease card, confidence caption, GradCAM heatmap, triage badge
+
+## 2:00–2:30 — Severity Tier + Bengali Triage Badge
+Screen: Tab 1, triage section
+Action: None (auto-populates from above)
+Expected: Tier 2 or Tier 3 badge with Bengali action text
+
+## 2:30–3:00 — Hospital Map (Tier 3 via Demo Mode)
+Screen: Sidebar → click Demo button
+Action: "Load Demo (Scabies — Tier 3)" → Tab 1 → type "Rangpur" in district input
+Expected: Folium map with 5 hospital pins, table with distances
+
+## 3:00–3:30 — PDF Referral Letter
+Screen: Tab 3
+Action: Click "Generate Referral Letter"
+Expected: PDF downloads, show 4-section contents briefly
+
+## 3:30–4:00 — RAG Chatbot Q&A
+Screen: Tab 2
+Action: Type "স্ক্যাবিসের চিকিৎসা কী?" (What is the treatment for scabies?)
+Expected: Grounded Bengali answer with source tags
+
+## 4:00 — Impact Slide + Close (voice-over)
+"1 dermatologist per 250,000 people..."
+"Right patient → Right doctor → Right time"
 ```
+
+Write every word of narration fully. Include the exact Bengali sentence to speak during the voice demo.
 
 ---
 
-## TASK 4 — Commit and push
+## TASK 4 — PROGRESS.md + TASK.md update
+
+Update PROGRESS.md:
+- Change current status to Week 4 / Day 20 (starting)
+- Add Day 20 session log entry at the top of the session log
+
+Rewrite TASK.md for Day 21:
+- Theme: demo video recording (Rahim story, 3–5 min, OBS or Loom)
+- Include the `docs/demo_script.md` path as the script source
+- Include recording checklist (resolution, audio, screen layout, one-take vs edit)
+
+---
+
+## TASK 5 — Commit and push
 
 ```
-git add PLAN.md DECISIONS.md PROGRESS.md TASK.md
-git commit -m "[w3/d19] W3 sign-off + PLAN.md + DECISIONS.md updated"
+git add app.py ui/styles.py docs/demo_script.md PROGRESS.md TASK.md
+git commit -m "[w4/d20] loading spinners audit + mobile CSS + demo video script"
 git push origin main
 ```
 
-No HF Space push needed for markdown-only changes.
+HF Space push: yes — spinner changes are visible to judges.
+Use clean-branch strategy (binary font file is in git history on GitHub, not on HF):
+```
+git checkout -b hf-push hf/main
+git checkout main -- app.py ui/styles.py ui/components.py
+git commit -m "[w4/d20] loading spinners + mobile CSS"
+git push hf hf-push:main
+git checkout main && git branch -d hf-push
+```
 
 ---
 
 ## DEFINITION OF DONE
-- [ ] W3 sign-off checklist fully verified (all ✅)
-- [ ] PLAN.md W3 section marked complete
-- [ ] DECISIONS.md updated
+- [ ] All slow operations confirmed wrapped in `st.spinner()`
+- [ ] `pytest tests/ -q` — 164/164 still pass (no regressions)
+- [ ] Mobile layout tested at ~375px width — worst issues fixed
+- [ ] `docs/demo_script.md` written (all 8 segments, full narration)
 - [ ] PROGRESS.md updated
-- [ ] TASK.md written for Day 20 (start of Week 4 polish)
-- [ ] If checkpoint received: real model connected, 164 tests still pass
+- [ ] TASK.md written for Day 21
+- [ ] Committed and pushed to GitHub + HF Space
 
 ---
 
-## NEXT SESSION — Day 20 / Week 4 Start
-- Week 4 theme: Polish + Demo Video
-- Day 20: loading spinners audit + mobile layout check + demo video script finalisation
-- Day 21: demo video recording (Rahim story, 3–5 min)
+## NEXT SESSION — Day 21 / Demo Video Recording
+- Theme: record the 3–5 min Rahim story demo video using `docs/demo_script.md`
+- Tools: OBS Studio (screen capture) or Loom — user's choice
+- Resolution: 1920×1080 recommended; HF Space loaded in Chrome at full width
+- After recording: upload to YouTube (unlisted) or Google Drive; add link to README.md
 - Day 22: project report skeleton (LaTeX or Google Docs, 8-page target)

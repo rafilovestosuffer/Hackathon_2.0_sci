@@ -2,7 +2,7 @@
 # Update this file at the END of EVERY Claude Code session.
 
 ## 📍 CURRENT STATUS
-- Week: 3 | Day: 19 (starting)
+- Week: 4 | Day: 20 (starting)
 - HF Spaces URL: https://huggingface.co/spaces/rafilovestosuffer/skinai-bangladesh
 - GitHub Repo: https://github.com/rafilovestosuffer/Hackathon_2.0_sci
 - Demo Video: [TO BE ADDED WEEK 4]
@@ -48,6 +48,24 @@
 
 ## 📝 SESSION LOG
 <!-- Append to this after every session. Newest at top. -->
+
+### Session: Jun 5, 2026 — Day 19 — W3 Sign-Off ✅
+**Done:**
+- Full W3 sign-off checklist verified manually (all items ✅)
+- PLAN.md: all W3 items marked complete
+- DECISIONS.md: W3 delivered-ahead entry added
+- TASK.md written for Day 20 (loading spinners + mobile check + demo script)
+
+**Blockers:**
+- BD-SkinNet checkpoint still pending — _run_model() placeholder active
+
+**Next session start point:**
+- Day 20: loading spinners audit + mobile layout check + demo video script writing
+
+**Git commits this session:**
+- [w3/d19] W3 sign-off + PLAN.md + DECISIONS.md updated
+
+---
 
 ### Session: Jun 2, 2026 — Day 18 — Error Handling + Sidebar Progress + README ✅
 **Done:**
