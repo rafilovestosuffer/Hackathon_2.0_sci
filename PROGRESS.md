@@ -2,7 +2,7 @@
 # Update this file at the END of EVERY Claude Code session.
 
 ## 📍 CURRENT STATUS
-- Week: 2 | Day: 9 (starting)
+- Week: 2 | Day: 10 (starting)
 - HF Spaces URL: https://huggingface.co/spaces/rafilovestosuffer/skinai-bangladesh
 - GitHub Repo: https://github.com/rafilovestosuffer/Hackathon_2.0_sci
 - Demo Video: [TO BE ADDED WEEK 4]
@@ -17,7 +17,7 @@
 - [x] model/export_int8.py
 - [x] severity/engine.py
 - [x] voice/pipeline.py (transcription)
-- [ ] voice/pipeline.py (Gemini extraction)
+- [x] voice/pipeline.py (Gemini extraction)
 - [ ] rag/build_index.py
 - [ ] rag/retriever.py
 - [ ] rag/knowledge/ (chunks)
@@ -42,6 +42,29 @@
 
 ## 📝 SESSION LOG
 <!-- Append to this after every session. Newest at top. -->
+
+### Session: May 26, 2026 — Day 9
+**Done:**
+- Added extract_patient_history(transcript) → dict to voice/pipeline.py
+- Gemini 1.5 Flash via new google-genai SDK (migrated away from deprecated google-generativeai)
+- 3-retry logic, JSON fence stripping, _empty_history() fallback, _validate_fields()
+- All 9 fields always present in output — no KeyError possible downstream
+- Wrote tests/test_voice_gemini.py — 15 tests (5 helpers + 10 extraction), all mocked
+- Full suite: 78/78 passing (13 gradcam + 11 pdf + 29 severity + 10 voice + 15 gemini)
+- Updated requirements.txt: google-genai>=1.0.0 + python-dotenv>=1.0.0
+- Pushed to GitHub and HF Space
+
+**Blockers:**
+- GEMINI_API_KEY in .env is invalid — needs a fresh key from Google AI Studio
+  The code is correct (3-retry works, graceful fallback confirmed); only live calls affected
+
+**Next session start point:**
+- Day 10: Build RAG knowledge base — chunk CDC/NIH/WHO/DGHS text into rag/knowledge/
+
+**Git commits this session:**
+- [w2/d9] Gemini JSON symptom extraction + new SDK migration
+
+---
 
 ### Session: May 25, 2026 — Day 8
 **Done:**
