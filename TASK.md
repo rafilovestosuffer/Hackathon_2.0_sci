@@ -15,45 +15,40 @@
 
 **Step 1:** Place file at `model/checkpoints/bd_skinnet_best.pth`
 
-**Step 2:** Replace `_run_model()` body in app.py:
+**Step 2:** Replace the entire `_load_whisper` block through `_run_model` in app.py:
 ```python
-from model.bd_skinnet import BDSkinNet
+from model.bd_skinnet import load_model, predict as bd_predict
 from model.gradcam import compute_gradcam
-import torch, torchvision.transforms as T
 
 CKPT = "model/checkpoints/bd_skinnet_best.pth"
 
-@st.cache_resource
+@st.cache_resource(show_spinner="Loading BD-SkinNet model…")
 def _load_bd_skinnet():
-    model = BDSkinNet(num_classes=7)
-    model.load_state_dict(torch.load(CKPT, map_location="cpu"))
-    model.eval()
-    return torch.quantization.quantize_dynamic(
-        model, {torch.nn.Linear}, dtype=torch.qint8
-    )
+    return load_model(CKPT, device="cpu")
 
 def _run_model(pil_img: Image.Image) -> dict:
     model = _load_bd_skinnet()
-    tfm = T.Compose([
-        T.Resize((224, 224)),
-        T.ToTensor(),
-        T.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
-    ])
-    tensor = tfm(pil_img).unsqueeze(0)
-    with torch.no_grad():
-        probs = torch.softmax(model(tensor), dim=1)[0].tolist()
-    from model.disease_labels import CLASS_NAMES
-    indexed = sorted(enumerate(probs), key=lambda x: -x[1])
-    top2 = [{"disease": CLASS_NAMES[i], "confidence": p} for i, p in indexed[:2]]
+    # bd_predict() uses the correct albumentations normalization the model was trained with
+    result = bd_predict(model, pil_img, device="cpu")
+    # GradCAM: build tensor using the same albumentations pipeline as bd_predict()
+    import numpy as np
+    from model.bd_skinnet import inference_transform
+    img_np = np.array(pil_img.convert("RGB"))
+    tensor = inference_transform(image=img_np)["image"].unsqueeze(0)
     gc = compute_gradcam(model, tensor)
     return {
-        "disease":      top2[0]["disease"],
-        "confidence":   top2[0]["confidence"],
-        "top2":         top2,
+        "disease":      result["disease_class"],
+        "confidence":   result["confidence"],
+        # Normalise key name: bd_predict returns "class", app/PDF/UI expect "disease"
+        "top2":         [{"disease": t["class"], "confidence": t["confidence"]}
+                         for t in result["top2"]],
         "heatmap":      gc["overlay"],
         "coverage_pct": gc["coverage_pct"],
     }
 ```
+NOTE: Do NOT use torchvision.transforms.Normalize inline — the model was trained with
+albumentations normalization via `inference_transform`. Using a different pipeline
+reduces accuracy. `load_model()` and `bd_predict()` handle everything correctly.
 
 **Step 3:** `pytest tests/ -q` — all 164 must still pass.
 

@@ -183,6 +183,20 @@ streamlit run app.py
 
 **Requirements:** Python 3.10+, CPU only (no GPU needed), ~3 GB RAM
 
+## ☁️ HF Spaces Deployment
+
+The live demo is hosted at [huggingface.co/spaces/rafilovestosuffer/skinai-bangladesh](https://huggingface.co/spaces/rafilovestosuffer/skinai-bangladesh).
+
+To deploy your own fork:
+
+1. Create a new Hugging Face Space (Docker SDK, CPU Basic, Public)
+2. Go to **Settings → Variables and Secrets → New Secret**
+   - Name: `GEMINI_API_KEY`
+   - Value: your Gemini API key from [aistudio.google.com](https://aistudio.google.com)
+3. Push the code — Docker build runs automatically
+   - The RAG index and embedding model are built inside the Docker image (no manual step needed)
+4. First cold start takes ~3–5 minutes; subsequent loads are instant
+
 ---
 
 ## 🧪 Tests

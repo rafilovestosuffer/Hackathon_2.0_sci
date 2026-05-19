@@ -9,6 +9,7 @@ def _base_session(**overrides):
         "patient_age": "35",
         "chief_complaint": "Spreading rash on forearm",
         "symptoms": ["itching", "redness", "scaling"],
+        "associated_symptoms": ["fever", "pain"],
         "affected_area": "Forearm",
         "duration": "2 weeks",
         "progression": "Slowly spreading",
@@ -101,6 +102,20 @@ class TestPdfGeneration:
 
     def test_empty_symptoms_list(self):
         data = _base_session(symptoms=[])
+        result = generate_referral_pdf(data)
+        assert isinstance(result, bytes) and len(result) > 0
+
+    def test_associated_symptoms_included(self):
+        data = _base_session(associated_symptoms=["জ্বর", "ব্যথা"])
+        result = generate_referral_pdf(data)
+        assert isinstance(result, bytes) and len(result) > 0
+
+    def test_top2_disease_key_works(self):
+        """top2 dicts with 'disease' key (from checkpoint integration) render correctly."""
+        data = _base_session(top2=[
+            {"disease": "Tinea", "confidence": 0.80},
+            {"disease": "Eczema", "confidence": 0.18},
+        ])
         result = generate_referral_pdf(data)
         assert isinstance(result, bytes) and len(result) > 0
 

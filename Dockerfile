@@ -20,6 +20,12 @@ RUN pip install --no-cache-dir -r requirements.txt
 # App code
 COPY . .
 
+# Pre-cache the sentence-transformers embedding model so first-run load is instant
+RUN python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('sentence-transformers/paraphrase-multilingual-MiniLM-L6-v2')" || true
+
+# Build FAISS index from knowledge base (index files are gitignored; must be built at deploy time)
+RUN python rag/build_index.py || true
+
 # HF Spaces requires port 7860
 EXPOSE 7860
 

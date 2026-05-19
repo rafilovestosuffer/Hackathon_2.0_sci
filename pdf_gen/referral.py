@@ -42,8 +42,11 @@ def _register_font():
             import urllib.request
             os.makedirs(_FONT_DIR, exist_ok=True)
             urllib.request.urlretrieve(_FONT_URL, _FONT_PATH)
-        except Exception:
-            pass
+        except Exception as e:
+            import logging as _log
+            _log.getLogger(__name__).warning(
+                "Bengali font download failed: %s — PDF will use Helvetica fallback", e
+            )
     if os.path.exists(_FONT_PATH):
         pdfmetrics.registerFont(TTFont(_BENGALI_FONT, _FONT_PATH))
     else:
@@ -187,6 +190,7 @@ def generate_referral_pdf(session_data: dict) -> bytes:
     _section_rule(story, "Section 1 — Patient History | রোগীর ইতিহাস", section_style)
 
     symptoms_val = ", ".join(session_data.get("symptoms") or []) or "—"
+    assoc_val = ", ".join(session_data.get("associated_symptoms") or []) or "—"
     rows_s1 = [
         ("Name", "নাম", session_data.get("patient_name")),
         ("Age", "বয়স", session_data.get("patient_age")),
@@ -196,6 +200,7 @@ def generate_referral_pdf(session_data: dict) -> bytes:
         ("Duration", "সময়কাল", session_data.get("duration")),
         ("Progression", "অগ্রগতি", session_data.get("progression")),
         ("Previous Treatment", "পূর্ববর্তী চিকিৎসা", session_data.get("previous_treatment")),
+        ("Associated Symptoms", "সহগামী উপসর্গ", assoc_val),
     ]
     story.append(_kv_table(rows_s1, body_style, bengali_style))
 
@@ -231,7 +236,7 @@ def generate_referral_pdf(session_data: dict) -> bytes:
     ))
 
     if len(top2) > 1 and top2[1].get("confidence", 0.0) > 0.15:
-        diff_class = top2[1].get("class", "")
+        diff_class = top2[1].get("disease", top2[1].get("class", ""))
         diff_conf = top2[1].get("confidence", 0.0)
         story.append(Paragraph(
             f"<b>Differential Diagnosis:</b> {diff_class} ({diff_conf:.1%})",

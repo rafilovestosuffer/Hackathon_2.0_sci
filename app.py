@@ -388,6 +388,9 @@ with tab1:
                     unsafe_allow_html=True,
                 )
 
+            st.session_state.pdf_bytes = None   # reset before new inference
+            st.session_state.chat_history = []  # clear stale chat on new diagnosis
+
             with st.spinner("🔬 Analysing image…"):
                 pred = _run_model(pil_img)
                 st.session_state.prediction = pred
@@ -407,7 +410,6 @@ with tab1:
                 transcript=st.session_state.transcript,
             )
             st.session_state.tier_result = tier_result
-            st.session_state.pdf_bytes = None  # reset so PDF regenerates
 
             render_triage_badge(tier_result)
 
@@ -427,8 +429,13 @@ with tab1:
                     coords = get_district_coords(district)
                     user_lat = coords[0] if coords else _DEFAULT_LAT
                     user_lon = coords[1] if coords else _DEFAULT_LON
-                    with st.spinner("🔍 Finding nearest hospitals…"):
-                        hospitals = find_nearest_hospitals(user_lat, user_lon, n=5)
+                    # Cache per district so repeated lookups don't hammer Overpass API
+                    _hcache = st.session_state.setdefault("hospital_cache", {})
+                    _dk = district.strip().lower()
+                    if _dk not in _hcache:
+                        with st.spinner("🔍 Finding nearest hospitals…"):
+                            _hcache[_dk] = find_nearest_hospitals(user_lat, user_lon, n=5)
+                    hospitals = _hcache[_dk]
                     if hospitals:
                         # Store top hospital for PDF Section 4
                         st.session_state.nearest_hospital = hospitals[0]

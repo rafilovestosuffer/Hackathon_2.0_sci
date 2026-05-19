@@ -17,7 +17,7 @@ import requests
 logger = logging.getLogger(__name__)
 
 OVERPASS_URL = "https://overpass-api.de/api/interpreter"
-REQUEST_TIMEOUT = 10  # seconds
+REQUEST_TIMEOUT = 30  # seconds — HF Spaces has variable latency; 10s caused frequent cold misses
 
 # Default coordinates if user location unknown — Dhaka centre
 _DEFAULT_LAT = 23.8103
@@ -112,7 +112,7 @@ def _haversine_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
 # ── Overpass query ────────────────────────────────────────────────────────────
 
 def _query_overpass(lat: float, lon: float, radius_m: int) -> list[dict]:
-    """Return raw hospital elements from Overpass API."""
+    """Return raw hospital elements from Overpass API. Retries once on timeout."""
     query = f"""
     [out:json][timeout:{REQUEST_TIMEOUT}];
     (
@@ -121,17 +121,25 @@ def _query_overpass(lat: float, lon: float, radius_m: int) -> list[dict]:
     );
     out center tags;
     """
-    try:
-        resp = requests.post(
-            OVERPASS_URL,
-            data={"data": query},
-            timeout=REQUEST_TIMEOUT + 5,
-        )
-        resp.raise_for_status()
-        return resp.json().get("elements", [])
-    except Exception as exc:
-        logger.warning("Overpass query failed: %s", exc)
-        return []
+    for attempt in range(2):
+        try:
+            resp = requests.post(
+                OVERPASS_URL,
+                data={"data": query},
+                timeout=REQUEST_TIMEOUT + 10,
+            )
+            resp.raise_for_status()
+            return resp.json().get("elements", [])
+        except requests.exceptions.Timeout:
+            if attempt == 0:
+                logger.warning("Overpass timeout on attempt 1, retrying…")
+                continue
+            logger.error("Overpass timed out after 2 attempts")
+            return []
+        except Exception as exc:
+            logger.warning("Overpass query failed: %s", exc)
+            return []
+    return []
 
 
 def _parse_element(el: dict, user_lat: float, user_lon: float) -> Optional[dict]:
