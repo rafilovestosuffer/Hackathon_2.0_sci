@@ -2,7 +2,7 @@
 # Update this file at the END of EVERY Claude Code session.
 
 ## 📍 CURRENT STATUS
-- Week: 2 | Day: 11 (starting)
+- Week: 2 | Day: 12 (starting)
 - HF Spaces URL: https://huggingface.co/spaces/rafilovestosuffer/skinai-bangladesh
 - GitHub Repo: https://github.com/rafilovestosuffer/Hackathon_2.0_sci
 - Demo Video: [TO BE ADDED WEEK 4]
@@ -19,7 +19,7 @@
 - [x] voice/pipeline.py (transcription)
 - [x] voice/pipeline.py (Gemini extraction)
 - [x] rag/build_index.py
-- [ ] rag/retriever.py
+- [x] rag/retriever.py
 - [x] rag/knowledge/ (chunks)
 - [x] pdf_gen/referral.py
 - [ ] map/hospital_finder.py
@@ -42,6 +42,36 @@
 
 ## 📝 SESSION LOG
 <!-- Append to this after every session. Newest at top. -->
+
+### Session: May 28, 2026 — Day 11
+**Done:**
+- Written rag/retriever.py — full RAG pipeline
+  - load_index() → bool (returns False if index missing, not an error)
+  - retrieve(question, top_k) → list[dict] — FAISS cosine search
+  - answer_question(question, lang) → str — always returns str, never raises
+  - Bengali auto-detection: if question contains ঀ–৿ unicode → lang="bn"
+  - Gemini prompt: "Do NOT recommend specific medications", "Refer to a doctor"
+  - 3-retry on Gemini (same pattern as voice/pipeline.py)
+  - SentenceTransformer primary → AutoModel mean-pooling fallback (same as build_index.py)
+  - Fallbacks: "দুঃখিত..." (Bengali) / "Sorry, I could not find an answer." (English)
+- Written tests/test_rag.py — 26 tests, all passing
+  - TestLoadIndex: 4 tests (missing files, partial missing, success, metadata set)
+  - TestRetrieve: 7 tests (returns list, not empty, top_k, top_k=1, required keys, no index, dict type)
+  - TestAnswerQuestion: 11 tests (str return, not empty, empty input, whitespace, no index, Gemini fail, Bengali fallback, EN detection, BN detection, explicit lang, all mocked)
+  - TestGeminiPrompt: 5 tests (question in prompt, context in prompt, no-medicine clause, refers to doctor, ONLY from context)
+- Full suite: 104/104 passing (78 prior + 26 new)
+- Committed and pushed to GitHub and HF Space
+
+**Blockers:**
+- None
+
+**Next session start point:**
+- Day 12: Write ui/components.py (reusable Streamlit widgets) + ui/styles.py (Bengali Noto Sans CSS)
+
+**Git commits this session:**
+- [w2/d11] FAISS retriever + Gemini RAG + 26 tests
+
+---
 
 ### Session: May 27, 2026 — Day 10
 **Done:**
