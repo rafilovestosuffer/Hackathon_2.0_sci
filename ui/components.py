@@ -451,18 +451,24 @@ def render_disease_card(disease: str, confidence: float, top2: list) -> None:
     display_en   = disease.replace("_", " ")
     conf_pct     = max(0.0, min(100.0, confidence * 100))
 
+    # Bar colour: green ≥ 0.60, amber 0.40–0.60, red < 0.40
     if confidence >= 0.60:
         bar_color = TIER1_BORDER
-        cap_cls   = "conf-high"
-        cap_text  = "✓ মডেল নিশ্চিত &nbsp;·&nbsp; Model is confident"
     elif confidence >= 0.40:
         bar_color = TIER2_BORDER
-        cap_cls   = "conf-mid"
-        cap_text  = "~ মোটামুটি নিশ্চিত &nbsp;·&nbsp; Moderately confident"
     else:
         bar_color = TIER3_BORDER
-        cap_cls   = "conf-low"
-        cap_text  = "⚠ অনিশ্চিত — ডাক্তার দেখান &nbsp;·&nbsp; Uncertain — see a doctor"
+
+    # Caption label: different thresholds from bar colour
+    if confidence >= 0.80:
+        cap_cls  = "conf-high"
+        cap_text = "✓ মডেল নিশ্চিত &nbsp;·&nbsp; Model is confident"
+    elif confidence >= 0.60:
+        cap_cls  = "conf-mid"
+        cap_text = "~ মোটামুটি নিশ্চিত &nbsp;·&nbsp; Moderately confident"
+    else:
+        cap_cls  = "conf-low"
+        cap_text = "⚠ অনিশ্চিত — ডাক্তার দেখান &nbsp;·&nbsp; Uncertain — see a doctor"
 
     diff_html = ""
     if (

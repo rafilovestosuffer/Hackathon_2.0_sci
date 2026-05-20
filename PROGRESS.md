@@ -2,7 +2,7 @@
 # Update this file at the END of EVERY Claude Code session.
 
 ## 📍 CURRENT STATUS
-- Week: 4 | Day: 21 (starting)
+- Week: 4 | Day: 22 (starting)
 - HF Spaces URL: https://huggingface.co/spaces/rafilovestosuffer/skinai-bangladesh
 - GitHub Repo: https://github.com/rafilovestosuffer/Hackathon_2.0_sci
 - Demo Video: [TO BE ADDED WEEK 4]
@@ -32,7 +32,7 @@
 - [ ] scripts/keepalive.py
 - [ ] scripts/seed_commits.py
 - [x] tests/test_voice.py
-- [ ] tests/test_pipeline.py
+- [x] tests/test_pipeline.py
 - [ ] README.md (final)
 - [ ] Project Report PDF
 - [ ] Model & Data Card PDF
@@ -48,6 +48,59 @@
 
 ## 📝 SESSION LOG
 <!-- Append to this after every session. Newest at top. -->
+
+### Session: Jun 7, 2026 — Day 21 — UI Overhaul + Test Coverage ✅
+**Done:**
+- ui/styles.py: complete medical-grade design system rewrite
+  - Design tokens as Python constants (PRIMARY, TEAL, ALERT_RED, AMBER, SUCCESS, etc.)
+  - Google Fonts: Noto Sans Bengali + Inter + JetBrains Mono
+  - Sidebar dark theme (#0B1929), custom scrollbar, pipeline step animations
+  - Tab styling (teal underline on active), column-as-card CSS
+  - Tier banners (.tier-banner-1/2/3 + @keyframes pulse-urgent for Tier 3)
+  - Chat container (490px height, overflow-y: auto, auto-scroll script)
+  - Source pills, `.conf-caption` pills, `.hospital-card` styling
+- ui/components.py: 7 new component functions
+  - `render_sidebar_pipeline()` — animated 4-step pipeline progress tracker
+  - `render_stat_card()` — metric cards for sidebar (F1, AUC, classes)
+  - `render_tier_banner()` — tier 1/2/3 alert banners with Bengali text
+  - `render_confidence_bar()` — visual confidence gauge with Bengali label
+  - `render_chat_message()` — returns HTML string for chat bubbles + source chips
+  - `render_suggested_questions()` — clickable pre-written Bengali/English questions
+  - `render_referral_preview()` — 4-section referral preview (no PDF needed)
+  - `_md_to_html()` — minimal markdown→HTML helper for RAG answers
+- ui/components.py: fixed confidence caption boundary bug
+  - Bar colour thresholds (≥0.60 green) separated from caption thresholds (≥0.80 confident)
+  - Boundary exactly 0.60 now correctly shows "মোটামুটি নিশ্চিত" (Moderately confident)
+- app.py: full UI restructure (logic unchanged)
+  - Sidebar: render_sidebar_pipeline + stat cards + About expander
+  - Hero header: .hero-title + .hero-tagline + .stat-bar with 4 stat chips
+  - Tab 1: 2-column card layout (voice left, image right), tier banner below columns
+  - Tab 2: scrollable HTML chat container, suggested questions, chat_input at bottom
+  - Tab 3: render_referral_preview for rich PDF preview before download
+  - Footer: SciBlitz attribution bar
+- tests/test_ui.py: 46 new tests for 7 new components (was 39, now 85 total)
+  - TestRenderSidebarPipeline (6), TestRenderStatCard (4), TestRenderTierBanner (7)
+  - TestRenderConfidenceBar (7), TestRenderChatMessage (9)
+  - TestRenderSuggestedQuestions (4), TestRenderReferralPreview (9)
+- tests/test_pipeline.py: new file — 35 end-to-end interface compatibility tests
+  - TestModelOutputStructure (10), TestSeverityIntegration (12)
+  - TestPDFPipeline (7), TestFullPipeline (6)
+- Full test suite: 245/245 passing (was 164)
+- Committed and pushed to GitHub + HF Space (binary-free branch pattern)
+- README.md: test count badge updated to 245
+
+**Blockers:**
+- BD-SkinNet checkpoint still pending — _run_model() placeholder active
+- Demo video not yet recorded
+
+**Next session start point:**
+- Day 22: project report skeleton (LaTeX or Google Docs, 8-page target)
+
+**Git commits this session:**
+- [w4/d21] UI overhaul: medical-grade design system + 7 new components
+- [w4/d21] fix confidence caption boundary + 79 new tests (245 total)
+
+---
 
 ### Session: Jun 6, 2026 — Day 20 — Spinners + Mobile CSS + Demo Script ✅
 **Done:**

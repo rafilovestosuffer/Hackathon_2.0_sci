@@ -314,3 +314,316 @@ class TestCheckImageQuality:
         is_blurry, var = check_image_quality(None)  # None will cause an exception
         assert is_blurry is False
         assert var == -1.0
+
+
+# ── TestRenderSidebarPipeline ─────────────────────────────────────────────────
+
+class TestRenderSidebarPipeline:
+    def _call(self, **kwargs):
+        with patch("ui.components.st") as mock_st:
+            from ui.components import render_sidebar_pipeline
+            render_sidebar_pipeline(**kwargs)
+            return _captured_html(mock_st.markdown)
+
+    def test_renders_four_steps(self):
+        html = self._call(voice_done=False, image_done=False,
+                          diagnosis_done=False, referral_done=False)
+        assert html.count("pipeline-step") == 4
+
+    def test_done_step_gets_done_class(self):
+        html = self._call(voice_done=True, image_done=False,
+                          diagnosis_done=False, referral_done=False)
+        assert "pipeline-step done" in html
+
+    def test_active_step_present_when_not_all_done(self):
+        html = self._call(voice_done=False, image_done=False,
+                          diagnosis_done=False, referral_done=False)
+        assert "pipeline-step active" in html
+
+    def test_pending_step_present(self):
+        html = self._call(voice_done=True, image_done=False,
+                          diagnosis_done=False, referral_done=False)
+        assert "pending" in html
+
+    def test_all_done_no_active_step(self):
+        html = self._call(voice_done=True, image_done=True,
+                          diagnosis_done=True, referral_done=True)
+        assert "active" not in html
+
+    def test_done_dot_shows_checkmark(self):
+        html = self._call(voice_done=True, image_done=False,
+                          diagnosis_done=False, referral_done=False)
+        assert "✓" in html
+
+
+# ── TestRenderStatCard ────────────────────────────────────────────────────────
+
+class TestRenderStatCard:
+    def _call(self, label, value, color="#1A6FA8"):
+        with patch("ui.components.st") as mock_st:
+            from ui.components import render_stat_card
+            render_stat_card(label, value, color)
+            return _captured_html(mock_st.markdown)
+
+    def test_label_in_html(self):
+        html = self._call("Clinical Accuracy", "92.46%")
+        assert "Clinical Accuracy" in html
+
+    def test_value_in_html(self):
+        html = self._call("Clinical Accuracy", "92.46%")
+        assert "92.46%" in html
+
+    def test_custom_color_in_html(self):
+        html = self._call("Conditions", "7", color="#27AE60")
+        assert "#27AE60" in html
+
+    def test_renders_stat_card_class(self):
+        html = self._call("Source", "BD Hospitals")
+        assert "stat-card-sb" in html
+
+
+# ── TestRenderTierBanner ──────────────────────────────────────────────────────
+
+class TestRenderTierBanner:
+    def _call(self, tier=1, urgency="NON-URGENT", action="See pharmacist",
+              bn="ফার্মাসিস্ট", facility="Local Pharmacy"):
+        with patch("ui.components.st") as mock_st:
+            from ui.components import render_tier_banner
+            render_tier_banner(tier, urgency, action, bn, facility)
+            return _captured_html(mock_st.markdown)
+
+    def test_tier1_banner_class(self):
+        html = self._call(tier=1)
+        assert "tier-banner-1" in html
+
+    def test_tier2_banner_class(self):
+        html = self._call(tier=2, urgency="ROUTINE", action="Visit clinic",
+                          bn="ক্লিনিকে যান")
+        assert "tier-banner-2" in html
+
+    def test_tier3_banner_class(self):
+        html = self._call(tier=3, urgency="URGENT", action="Emergency",
+                          bn="জরুরি")
+        assert "tier-banner-3" in html
+
+    def test_urgency_label_shown(self):
+        html = self._call(tier=2, urgency="ROUTINE VISIT", action="Go clinic",
+                          bn="ক্লিনিক")
+        assert "ROUTINE VISIT" in html
+
+    def test_bengali_text_shown(self):
+        html = self._call(tier=1, bn="ফার্মাসিস্টে যান")
+        assert "ফার্মাসিস্টে যান" in html
+
+    def test_facility_shown(self):
+        html = self._call(tier=2, facility="Upazila Health Complex")
+        assert "Upazila Health Complex" in html
+
+    def test_tier3_has_urgent_label(self):
+        html = self._call(tier=3, urgency="URGENT")
+        assert "URGENT" in html
+
+
+# ── TestRenderConfidenceBar ───────────────────────────────────────────────────
+
+class TestRenderConfidenceBar:
+    def _call(self, confidence, label_en="Confident", label_bn="নিশ্চিত"):
+        with patch("ui.components.st") as mock_st:
+            from ui.components import render_confidence_bar
+            render_confidence_bar(confidence, label_en, label_bn)
+            return _captured_html(mock_st.markdown)
+
+    def test_renders_percentage(self):
+        html = self._call(0.82)
+        assert "82" in html
+
+    def test_high_confidence_green(self):
+        html = self._call(0.85)
+        assert "#27AE60" in html
+
+    def test_low_confidence_red(self):
+        html = self._call(0.35)
+        assert "#C0392B" in html
+
+    def test_mid_confidence_amber(self):
+        html = self._call(0.65)
+        assert "#E67E22" in html
+
+    def test_label_en_in_html(self):
+        html = self._call(0.75, label_en="Model confident")
+        assert "Model confident" in html
+
+    def test_label_bn_in_html(self):
+        html = self._call(0.75, label_bn="মডেল নিশ্চিত")
+        assert "মডেল নিশ্চিত" in html
+
+    def test_confidence_bar_class_present(self):
+        html = self._call(0.80)
+        assert "conf-bar-wrap-v2" in html or "conf-bar-fill-v2" in html
+
+
+# ── TestRenderChatMessage ─────────────────────────────────────────────────────
+
+class TestRenderChatMessage:
+    """render_chat_message returns an HTML string — no st mocking needed."""
+
+    def test_returns_string(self):
+        from ui.components import render_chat_message
+        result = render_chat_message("user", "Hello")
+        assert isinstance(result, str)
+
+    def test_user_bubble_class(self):
+        from ui.components import render_chat_message
+        html = render_chat_message("user", "Test question")
+        assert "chat-bubble-user" in html
+
+    def test_ai_bubble_class(self):
+        from ui.components import render_chat_message
+        html = render_chat_message("assistant", "Test answer")
+        assert "chat-bubble-ai" in html
+
+    def test_user_content_in_html(self):
+        from ui.components import render_chat_message
+        html = render_chat_message("user", "What is scabies?")
+        assert "What is scabies?" in html
+
+    def test_ai_content_in_html(self):
+        from ui.components import render_chat_message
+        html = render_chat_message("assistant", "Scabies is caused by mites.")
+        assert "Scabies is caused by mites." in html
+
+    def test_sources_rendered_as_chips(self):
+        from ui.components import render_chat_message
+        html = render_chat_message("assistant", "Answer", sources=["CDC", "WHO"])
+        assert "CDC" in html
+        assert "WHO" in html
+        assert "chat-source-chip" in html
+
+    def test_user_html_chars_escaped(self):
+        from ui.components import render_chat_message
+        html = render_chat_message("user", "<script>alert('xss')</script>")
+        assert "<script>" not in html
+        assert "&lt;script&gt;" in html
+
+    def test_ai_avatar_present(self):
+        from ui.components import render_chat_message
+        html = render_chat_message("assistant", "Hello")
+        assert "ai-avatar" in html
+
+    def test_empty_sources_no_chip_div(self):
+        from ui.components import render_chat_message
+        html = render_chat_message("assistant", "Hello", sources=[])
+        assert "chat-source-chips" not in html
+
+
+# ── TestRenderSuggestedQuestions ──────────────────────────────────────────────
+
+class TestRenderSuggestedQuestions:
+    def _mock_cols(self, n):
+        col = MagicMock()
+        col.__enter__ = MagicMock(return_value=col)
+        col.__exit__ = MagicMock(return_value=False)
+        return [col] * n
+
+    def test_button_called_for_each_question(self):
+        with patch("ui.components.st") as mock_st:
+            mock_st.columns.return_value = self._mock_cols(3)
+            mock_st.button.return_value = False
+            from ui.components import render_suggested_questions
+            render_suggested_questions(["Q1", "Q2", "Q3"])
+            assert mock_st.button.call_count == 3
+
+    def test_returns_none_when_no_click(self):
+        with patch("ui.components.st") as mock_st:
+            mock_st.columns.return_value = self._mock_cols(2)
+            mock_st.button.return_value = False
+            from ui.components import render_suggested_questions
+            result = render_suggested_questions(["Q1", "Q2"])
+            assert result is None
+
+    def test_returns_question_when_clicked(self):
+        with patch("ui.components.st") as mock_st:
+            mock_st.columns.return_value = self._mock_cols(3)
+            # First button click returns True
+            mock_st.button.side_effect = [True, False, False]
+            from ui.components import render_suggested_questions
+            result = render_suggested_questions(["টিনিয়া কী?", "Q2", "Q3"])
+            assert result == "টিনিয়া কী?"
+
+    def test_columns_called_with_question_count(self):
+        with patch("ui.components.st") as mock_st:
+            mock_st.columns.return_value = self._mock_cols(3)
+            mock_st.button.return_value = False
+            from ui.components import render_suggested_questions
+            render_suggested_questions(["A", "B", "C"])
+            mock_st.columns.assert_called_once_with(3)
+
+
+# ── TestRenderReferralPreview ─────────────────────────────────────────────────
+
+class TestRenderReferralPreview:
+    _PRED = {
+        "disease": "Tinea", "confidence": 0.82, "coverage_pct": 22.5,
+        "top2": [
+            {"disease": "Tinea", "confidence": 0.82},
+            {"disease": "Contact_Dermatitis", "confidence": 0.11},
+        ],
+    }
+    _TIER = {
+        "tier": 1, "urgency_label": "NON-URGENT",
+        "action": "Consult local pharmacist within 3-5 days",
+        "bengali_text": "৩-৫ দিনের মধ্যে ফার্মাসিস্ট",
+        "facility": "Local Pharmacy",
+    }
+    _HISTORY = {
+        "patient_name": "Rahim", "chief_complaint": "Itchy ring-shaped rash",
+        "symptoms": ["itching", "redness"], "affected_area": "Arm",
+    }
+
+    def _call(self, pred=None, tier=None, history=None):
+        with patch("ui.components.st") as mock_st:
+            from ui.components import render_referral_preview
+            render_referral_preview(
+                pred    or self._PRED,
+                tier    or self._TIER,
+                history or self._HISTORY,
+            )
+            return _captured_html(mock_st.markdown)
+
+    def test_four_section_cards_rendered(self):
+        html = self._call()
+        assert html.count("referral-section-card") == 4
+
+    def test_section_numbers_present(self):
+        html = self._call()
+        assert "referral-section-num" in html
+
+    def test_disease_name_shown(self):
+        html = self._call()
+        assert "Tinea" in html
+
+    def test_patient_name_shown(self):
+        html = self._call()
+        assert "Rahim" in html
+
+    def test_coverage_pct_shown(self):
+        html = self._call()
+        assert "22.5" in html
+
+    def test_tier1_color_applied(self):
+        html = self._call()
+        assert "#27AE60" in html  # Tier 1 green
+
+    def test_tier3_color_applied(self):
+        tier3 = dict(self._TIER, tier=3, urgency_label="URGENT",
+                     bengali_text="জরুরি", facility="District Hospital")
+        html = self._call(tier=tier3)
+        assert "#C0392B" in html  # Tier 3 red
+
+    def test_bengali_action_text_shown(self):
+        html = self._call()
+        assert "৩-৫ দিনের মধ্যে ফার্মাসিস্ট" in html
+
+    def test_facility_shown(self):
+        html = self._call()
+        assert "Local Pharmacy" in html

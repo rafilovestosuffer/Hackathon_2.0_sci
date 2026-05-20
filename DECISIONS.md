@@ -95,6 +95,20 @@ instead of Day 21.
 **Impact:** W4 can focus entirely on demo video, project report, and UI polish.
 No architecture changes required.
 
+### [2026-06-07] Medical-grade UI overhaul via CSS injection only
+**Decision:** Full design system rewrite in `ui/styles.py` + 7 new component functions in `ui/components.py`. Zero changes to model/*, severity/*, voice/*, rag/*, pdf_gen/*, map/* modules.
+**Reason:** Demo Quality is 20% of the rubric. Judges see the UI in the first 5 seconds. A medical-grade visual (dark sidebar, teal accents, tier banners, chat bubbles) signals professionalism and domain awareness. CSS injection via `st.markdown(unsafe_allow_html=True)` is the only mechanism Streamlit offers for deep visual customization.
+**Trade-off:** Streamlit's CSS targeting (`[data-testid]` selectors) is fragile — Streamlit version upgrades can break it. Pinned `streamlit>=1.37.0` in requirements.txt. Column-as-card CSS trick may not work on all Streamlit themes.
+
+### [2026-06-07] Confidence caption boundary: separate bar colour from label thresholds
+**Decision:** Bar colour threshold (≥0.60 = green, ≥0.40 = amber, <0.40 = red) is separate from caption label threshold (≥0.80 = confident, ≥0.60 = moderate, <0.60 = uncertain).
+**Reason:** Bar colour reflects model certainty for triage (actionable above 60%). Caption label provides patient-facing clinical communication — "Moderately confident" at 60–79% is medically honest and appropriate. Collapsing them into one threshold (as was done during the overhaul) caused 2 test failures and was clinically incorrect.
+**Trade-off:** None — this is the correct behavior. The distinction is intentional.
+
+### [2026-06-07] Blur detection added, decision: always continue (never block)
+**Decision:** `check_image_quality()` runs after image upload. If blurry (Laplacian variance < 80), show bilingual warning but continue to inference.
+**Reason:** In rural Bangladesh, patients may only have one image. Blocking inference on a blurry image is worse than warning + proceeding. CONSTRAINT 3 (no medicine recommendation) is not violated — we only flag image quality.
+**Trade-off:** Inference on blurry images may produce less accurate results. Mitigated by the confidence-based triage escalation (Signal 2 in the severity engine).
+
 ## PENDING DECISIONS (evaluate during build)
 - [ ] Should we support Bangla-English code-switching in voice?
-- [ ] Should we add image quality check (blur detection) before inference?
