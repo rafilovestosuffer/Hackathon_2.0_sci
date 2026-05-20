@@ -73,19 +73,47 @@ def _run_model(pil_img: Image.Image) -> dict:
     }
 
 
-def _transcribe(audio_bytes: bytes, fmt: str = "wav") -> str:
+def _detect_audio_fmt(audio_bytes: bytes) -> str:
+    """Detect real audio format from magic bytes — browser recorders lie about format."""
+    if len(audio_bytes) < 12:
+        return "wav"
+    if audio_bytes[:4] == b'RIFF':
+        return "wav"
+    if audio_bytes[:4] == b'\x1a\x45\xdf\xa3':
+        return "webm"
+    if audio_bytes[4:8] == b'ftyp':
+        return "mp4"
+    if audio_bytes[:3] == b'ID3' or audio_bytes[:2] in (b'\xff\xfb', b'\xff\xf3', b'\xff\xf2'):
+        return "mp3"
+    if audio_bytes[:4] == b'OggS':
+        return "ogg"
+    return "wav"  # safe default
+
+
+def _transcribe(audio_bytes: bytes, fmt: str = "wav") -> tuple[str, str]:
+    """Transcribe audio bytes → (transcript_str, error_reason_str).
+    Returns ("", reason) on failure so caller can show a helpful message.
+    """
     if not audio_bytes:
-        return ""
+        return "", "no_audio"
+
+    # Auto-detect actual format — browser recorders often return webm regardless of fmt hint
+    real_fmt = _detect_audio_fmt(audio_bytes)
+    if real_fmt != fmt:
+        logger.info("Audio format detected as %s (hint was %s)", real_fmt, fmt)
+        fmt = real_fmt
+
     try:
         from voice.pipeline import transcribe_audio
         result = transcribe_audio(audio_bytes, fmt)
-        return result or ""
+        if result and result.strip():
+            return result.strip(), ""
+        return "", "silence"
     except ImportError:
-        logger.warning("faster-whisper not installed")
-        return ""
+        return "", "not_installed"
     except Exception as e:
         logger.warning("Transcription failed: %s", e)
-        return ""
+        return "", f"error: {e}"
 
 
 def _extract_history(transcript: str) -> dict:
@@ -360,7 +388,7 @@ with tab1:
 
         if audio_bytes:
             with st.spinner("🔄 Transcribing Bengali audio…"):
-                _transcript = _transcribe(audio_bytes, audio_fmt)
+                _transcript, _err = _transcribe(audio_bytes, audio_fmt)
                 st.session_state.transcript = _transcript
 
             if _transcript:
@@ -372,14 +400,37 @@ with tab1:
                     _history = _extract_history(_transcript)
                     st.session_state.history = _history
             else:
+                # ── Transcription failed — show reason + manual text fallback ──
+                _err_map = {
+                    "silence":       "No speech detected — please speak clearly into the mic.",
+                    "not_installed": "faster-whisper is not installed in this environment.",
+                }
+                _err_msg = _err_map.get(_err, f"Transcription engine error ({_err}).")
                 st.warning(
-                    "⚠️ **Could not transcribe audio.**\n\n"
-                    "Tips: speak clearly in Bengali, use a WAV file, or ensure the recording "
-                    "has actual speech (not silence).\n\n"
-                    "**ট্রান্সক্রিপ্ট করা যাচ্ছে না।** বাংলায় স্পষ্টভাবে বলুন, "
-                    "অথবা WAV ফাইল আপলোড করুন।\n\n"
-                    "💡 You can still upload a skin image — voice is optional."
+                    f"⚠️ **Could not transcribe audio.** {_err_msg}\n\n"
+                    "**ট্রান্সক্রিপ্ট করা যাচ্ছে না।** নিচে বাংলায় টাইপ করুন।"
                 )
+                # Manual text fallback — always show when transcription fails
+                st.markdown(
+                    '<div style="font-size:0.82rem;font-weight:600;color:#2D3748;'
+                    'margin:0.5rem 0 0.2rem 0;">'
+                    '✏️ বাংলায় টাইপ করুন (Manual entry)</div>',
+                    unsafe_allow_html=True,
+                )
+                _manual = st.text_area(
+                    "Type patient history in Bengali",
+                    placeholder="যেমন: আমার সারা শরীলে চুলকানি হচ্ছে, জ্বর আছে, ৫ দিন ধরে...",
+                    key="manual_transcript",
+                    label_visibility="collapsed",
+                    height=90,
+                )
+                if st.button("✅ Use this text", key="use_manual_btn"):
+                    if _manual.strip():
+                        st.session_state.transcript = _manual.strip()
+                        with st.spinner("🧠 Extracting patient history…"):
+                            _history = _extract_history(_manual.strip())
+                            st.session_state.history = _history
+                        st.rerun()
 
         # Patient history display
         if st.session_state.history:
