@@ -4,10 +4,10 @@ SkinAI Bangladesh — main Streamlit app.
 "সঠিক রোগী → সঠিক ডাক্তার → সঠিক সময়"
 """
 
-import hashlib
 import io
 import logging
 
+import numpy as np
 import streamlit as st
 from PIL import Image
 
@@ -74,49 +74,37 @@ def _run_model(pil_img: Image.Image) -> dict:
     }
 
 
-def _detect_audio_fmt(audio_bytes: bytes) -> str:
-    """Detect real audio format from magic bytes — browser recorders lie about format."""
-    if len(audio_bytes) < 12:
-        return "wav"
-    if audio_bytes[:4] == b'RIFF':
-        return "wav"
-    if audio_bytes[:4] == b'\x1a\x45\xdf\xa3':
-        return "webm"
-    if audio_bytes[4:8] == b'ftyp':
-        return "mp4"
-    if audio_bytes[:3] == b'ID3' or audio_bytes[:2] in (b'\xff\xfb', b'\xff\xf3', b'\xff\xf2'):
-        return "mp3"
-    if audio_bytes[:4] == b'OggS':
-        return "ogg"
-    return "wav"  # safe default
-
-
-def _transcribe(audio_bytes: bytes, fmt: str = "wav", language: str | None = None) -> tuple[str, str]:
-    """Transcribe audio bytes → (transcript_str, error_reason_str).
-
-    language: "bn" | "en" | None (auto-detect).
-    Returns ("", reason) on failure so caller can show a helpful message.
+def _transcribe(audio_bytes: bytes) -> tuple[str, str, float]:
     """
-    if not audio_bytes:
-        return "", "no_audio"
+    Transcribe audio bytes → (transcript, error_reason, rms_energy).
 
-    # Auto-detect actual format — browser recorders often return webm regardless of fmt hint
-    real_fmt = _detect_audio_fmt(audio_bytes)
-    if real_fmt != fmt:
-        logger.info("Audio format detected as %s (hint was %s)", real_fmt, fmt)
-        fmt = real_fmt
+    - Passes bytes directly; pipeline detects format from magic bytes via PyAV.
+    - Language always "bn" (Bengali) — no auto-detect uncertainty.
+    - Returns ("", reason, rms) on failure.
+    """
+    if not audio_bytes or len(audio_bytes) < 500:
+        return "", "no_audio", 0.0
+
+    # Measure RMS so we can tell user if mic is silent
+    try:
+        from faster_whisper.audio import decode_audio
+        import io as _io
+        _arr = decode_audio(_io.BytesIO(audio_bytes))
+        rms = float(np.sqrt(np.mean(_arr.astype(np.float64) ** 2))) if len(_arr) else 0.0
+    except Exception:
+        rms = -1.0   # unknown
 
     try:
         from voice.pipeline import transcribe_audio
-        result = transcribe_audio(audio_bytes, fmt, language=language)
+        result = transcribe_audio(audio_bytes, language="bn")
         if result and result.strip():
-            return result.strip(), ""
-        return "", "silence"
+            return result.strip(), "", rms
+        return "", "silence", rms
     except ImportError:
-        return "", "not_installed"
+        return "", "not_installed", rms
     except Exception as e:
         logger.warning("Transcription failed: %s", e)
-        return "", f"error: {e}"
+        return "", str(e), rms
 
 
 def _extract_history(transcript: str) -> dict:
@@ -468,11 +456,23 @@ with tab1:
 
             if not _already_processed:
                 st.session_state["_last_audio_hash"] = _audio_hash
-                _lang_label = _audio_lang_choice if _selected_lang else "auto-detecting language"
 
-                with st.spinner(f"🔄 Transcribing ({_lang_label})…"):
-                    _transcript, _err = _transcribe(audio_bytes, audio_fmt, language=_selected_lang)
+                with st.spinner("🔄 Transcribing Bengali audio…"):
+                    _transcript, _err, _rms = _transcribe(audio_bytes)
                     st.session_state.transcript = _transcript
+
+                # Show RMS energy level — helps diagnose silent mic issues
+                if _rms >= 0:
+                    _rms_pct = min(int(_rms * 5000), 100)
+                    _rms_color = "#27AE60" if _rms_pct > 5 else "#E74C3C"
+                    st.markdown(
+                        f'<div style="font-size:0.72rem;color:#718096;margin-bottom:0.3rem;">'
+                        f'🎚️ Mic level: <span style="color:{_rms_color};font-weight:600;">'
+                        f'{_rms_pct}%</span>'
+                        f'{"&nbsp;✅ sound detected" if _rms_pct > 5 else "&nbsp;⚠️ too quiet — speak louder"}'
+                        f'</div>',
+                        unsafe_allow_html=True,
+                    )
 
                 if _transcript:
                     st.markdown(
@@ -491,14 +491,13 @@ with tab1:
                         else:
                             st.info(
                                 "ℹ️ Transcript captured but no patient details found. "
-                                "Try speaking: **name · age · symptoms · duration** "
-                                "(e.g. *'My name is Rahim, age 35, itching on arm for 5 days'*). "
+                                "Try speaking: **name · age · symptoms · duration**. "
                                 "Or fill the form below manually."
                             )
                 else:
                     _err_map = {
-                        "silence":       "No speech detected — please speak clearly and close to the mic.",
-                        "not_installed": "faster-whisper not installed.",
+                        "silence":       "No speech detected — speak louder and closer to the mic.",
+                        "not_installed": "faster-whisper not installed in this environment.",
                     }
                     _err_msg = _err_map.get(_err, f"Error: {_err}")
                     st.warning(f"⚠️ Transcription failed — {_err_msg}")

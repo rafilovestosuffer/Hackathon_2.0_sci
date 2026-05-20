@@ -2,7 +2,7 @@ import io
 import wave
 import pytest
 from faster_whisper import WhisperModel
-from voice.pipeline import transcribe_audio, _get_model
+from voice.pipeline import transcribe_audio, _get_whisper as _get_model
 
 
 def _make_silent_wav(duration_s: float = 1.0, sample_rate: int = 16000) -> bytes:
