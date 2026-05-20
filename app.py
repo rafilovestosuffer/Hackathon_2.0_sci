@@ -127,6 +127,19 @@ def _extract_history(transcript: str) -> dict:
         return {}
 
 
+def _push_history_to_form(h: dict) -> None:
+    """Push extracted history into form widget session_state keys so they auto-fill."""
+    syms = h.get("symptoms", [])
+    st.session_state["form_patient_name"]    = h.get("patient_name", "")
+    st.session_state["form_patient_age"]     = h.get("patient_age", "")
+    st.session_state["form_chief_complaint"] = h.get("chief_complaint", "")
+    st.session_state["form_affected_area"]   = h.get("affected_area", "")
+    st.session_state["form_duration"]        = h.get("duration", "")
+    st.session_state["form_progression"]     = h.get("progression", "")
+    st.session_state["form_prev_treatment"]  = h.get("previous_treatment", "")
+    st.session_state["form_symptoms"]        = ", ".join(syms) if isinstance(syms, list) else str(syms)
+
+
 # ── Session state defaults ────────────────────────────────────────────────────
 _DEFAULTS = {
     "transcript":       "",
@@ -441,13 +454,14 @@ with tab1:
                     with st.spinner("🧠 Extracting patient history…"):
                         _history = _extract_history(_manual.strip())
                         st.session_state.history = _history
+                        _push_history_to_form(_history)
                     st.rerun()
                 else:
                     st.warning("Please enter some text first.")
 
         # ── Process audio if captured ─────────────────────────────────────────
         if audio_bytes:
-            _lang_label = _audio_lang_choice if _selected_lang else "auto-detecting"
+            _lang_label = _audio_lang_choice if _selected_lang else "auto-detecting language"
             with st.spinner(f"🔄 Transcribing ({_lang_label})…"):
                 _transcript, _err = _transcribe(audio_bytes, audio_fmt, language=_selected_lang)
                 st.session_state.transcript = _transcript
@@ -459,7 +473,20 @@ with tab1:
                 )
                 with st.spinner("🧠 Extracting patient history from voice…"):
                     _history = _extract_history(_transcript)
-                    st.session_state.history = _history
+                    _has_data = any(
+                        bool(v) for v in _history.values() if v not in ([], "")
+                    )
+                    if _has_data:
+                        st.session_state.history = _history
+                        _push_history_to_form(_history)
+                        st.success("✅ Patient history extracted — form filled below.")
+                        st.rerun()
+                    else:
+                        st.info(
+                            "ℹ️ Transcript captured but no patient details detected. "
+                            "Fill the **Patient Data** form below manually, "
+                            "or speak with name, age, symptoms (e.g. 'আমার নাম রহিম, বয়স ৩৫, হাতে চুলকানি')."
+                        )
             else:
                 _err_map = {
                     "silence":       "No speech detected — please speak clearly.",
@@ -490,66 +517,59 @@ with tab1:
         with _form_col1:
             _f_name = st.text_input(
                 "Patient Name · রোগীর নাম",
-                value=_h.get("patient_name", ""),
                 key="form_patient_name",
                 placeholder="e.g. রহিম / Rahim",
             )
             _f_complaint = st.text_input(
                 "Chief Complaint · প্রধান সমস্যা",
-                value=_h.get("chief_complaint", ""),
                 key="form_chief_complaint",
                 placeholder="e.g. চুলকানি / Itching rash",
             )
             _f_area = st.text_input(
                 "Affected Area · আক্রান্ত স্থান",
-                value=_h.get("affected_area", ""),
                 key="form_affected_area",
                 placeholder="e.g. বাহু, পেট / Arm, abdomen",
             )
             _f_duration = st.text_input(
                 "Duration · কতদিন ধরে",
-                value=_h.get("duration", ""),
                 key="form_duration",
                 placeholder="e.g. ৫ দিন / 5 days",
             )
         with _form_col2:
             _f_age = st.text_input(
                 "Patient Age · বয়স",
-                value=_h.get("patient_age", ""),
                 key="form_patient_age",
                 placeholder="e.g. ৩৫ / 35",
             )
             _f_symptoms = st.text_input(
                 "Symptoms (comma-separated)",
-                value=", ".join(_h.get("symptoms", [])) if isinstance(_h.get("symptoms"), list) else _h.get("symptoms", ""),
                 key="form_symptoms",
                 placeholder="e.g. itching, redness, fever",
             )
             _f_progression = st.text_input(
                 "Progression · অবস্থার পরিবর্তন",
-                value=_h.get("progression", ""),
                 key="form_progression",
                 placeholder="e.g. ছড়িয়ে পড়ছে / spreading",
             )
             _f_prev = st.text_input(
                 "Previous Treatment · পূর্ববর্তী চিকিৎসা",
-                value=_h.get("previous_treatment", ""),
                 key="form_prev_treatment",
                 placeholder="e.g. কোনো চিকিৎসা নেই / None",
             )
 
         if st.button("💾 Save Patient Data", key="save_patient_btn", use_container_width=True):
-            _syms = [s.strip() for s in _f_symptoms.split(",") if s.strip()]
+            _syms_raw = st.session_state.get("form_symptoms", "")
+            _syms = [s.strip() for s in _syms_raw.split(",") if s.strip()]
             st.session_state.history = {
                 **_h,
-                "patient_name":       _f_name,
-                "patient_age":        _f_age,
-                "chief_complaint":    _f_complaint,
-                "affected_area":      _f_area,
-                "duration":           _f_duration,
-                "progression":        _f_progression,
-                "previous_treatment": _f_prev,
-                "symptoms":           _syms,
+                "patient_name":        st.session_state.get("form_patient_name", ""),
+                "patient_age":         st.session_state.get("form_patient_age", ""),
+                "chief_complaint":     st.session_state.get("form_chief_complaint", ""),
+                "affected_area":       st.session_state.get("form_affected_area", ""),
+                "duration":            st.session_state.get("form_duration", ""),
+                "progression":         st.session_state.get("form_progression", ""),
+                "previous_treatment":  st.session_state.get("form_prev_treatment", ""),
+                "symptoms":            _syms,
                 "associated_symptoms": _h.get("associated_symptoms", []),
             }
             st.success("✅ Patient data saved!")
