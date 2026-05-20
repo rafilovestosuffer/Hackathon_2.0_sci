@@ -243,19 +243,19 @@ with st.sidebar:
 # HERO HEADER
 # ══════════════════════════════════════════════════════════════════════════════
 st.markdown(
-    '<div class="hero-title">🩺 SkinAI Bangladesh</div>',
-    unsafe_allow_html=True,
-)
-st.markdown(
-    '<div class="hero-tagline">সঠিক রোগী → সঠিক ডাক্তার → সঠিক সময়</div>',
-    unsafe_allow_html=True,
-)
-st.markdown(
-    '<div class="stat-bar">'
-    '<span class="stat-chip">🔬 7 Disease Classes</span>'
-    '<span class="stat-chip">📊 F1 = 92.46%</span>'
-    '<span class="stat-chip">🏥 BD Clinical Data</span>'
-    '<span class="stat-chip">🔒 No Login Required</span>'
+    '<div class="hero-banner">'
+    '  <div class="hero-glow"></div>'
+    '  <div class="hero-glow-2"></div>'
+    '  <div class="hero-title">🩺 SkinAI Bangladesh</div>'
+    '  <div class="hero-tagline">'
+    '    সঠিক রোগী &nbsp;→&nbsp; সঠিক ডাক্তার &nbsp;→&nbsp; সঠিক সময়'
+    '  </div>'
+    '  <div class="stat-bar">'
+    '    <span class="stat-chip stat-chip-blue">🔬 7 Disease Classes</span>'
+    '    <span class="stat-chip stat-chip-green">📊 F1 = 92.46%</span>'
+    '    <span class="stat-chip stat-chip-teal">🏥 BD Clinical Data</span>'
+    '    <span class="stat-chip stat-chip-dark">🔒 No Login Required</span>'
+    '  </div>'
     '</div>',
     unsafe_allow_html=True,
 )
@@ -724,28 +724,33 @@ with tab3:
         _image_done     = st.session_state.prediction is not None
         _diagnosis_done = st.session_state.tier_result is not None
 
-        def _prog_dot(done: bool, is_next: bool = False) -> str:
+        def _prog_dot(done: bool, is_next: bool = False, step_num: int = 1) -> tuple:
             if done:
-                return '<div class="prog-dot prog-dot-done">✓</div>'
+                return '<div class="prog-dot prog-dot-done">✓</div>', 'done-row'
             elif is_next:
-                return '<div class="prog-dot prog-dot-next"></div>'
-            return '<div class="prog-dot"></div>'
+                return f'<div class="prog-dot prog-dot-next">{step_num}</div>', 'next-row'
+            return f'<div class="prog-dot">{step_num}</div>', ''
+
+        _d1, _c1 = _prog_dot(_voice_done,     False,                  1)
+        _d2, _c2 = _prog_dot(_image_done,     not _image_done,        2)
+        _d3, _c3 = _prog_dot(_diagnosis_done, _image_done and not _diagnosis_done, 3)
+        _d4, _c4 = _prog_dot(False,           False,                  4)
 
         st.markdown(
             f'<div class="referral-empty">'
             f'<div style="font-size:3rem;margin-bottom:0.75rem;">📋</div>'
-            f'<div style="font-weight:700;font-size:1.05rem;color:#4A5568;margin-bottom:0.3rem;">'
+            f'<div style="font-weight:700;font-size:1.1rem;color:#1A202C;margin-bottom:0.3rem;">'
             f'রেফারেল পত্র পেতে রোগ নির্ণয় সম্পন্ন করুন</div>'
-            f'<div style="font-size:0.82rem;color:#718096;margin-bottom:1rem;">'
-            f'Complete the diagnosis steps to generate your referral letter</div>'
-            f'<div class="referral-progress-row">'
-            f'{_prog_dot(_voice_done)} 🎙️ Voice input (optional)</div>'
-            f'<div class="referral-progress-row">'
-            f'{_prog_dot(_image_done, not _image_done)} 📷 Upload skin image &nbsp;<strong>← Start here</strong></div>'
-            f'<div class="referral-progress-row">'
-            f'{_prog_dot(_diagnosis_done)} 🧠 Run diagnosis</div>'
-            f'<div class="referral-progress-row">'
-            f'{_prog_dot(False)} 📄 Generate referral</div>'
+            f'<div style="font-size:0.84rem;color:#718096;margin-bottom:1.2rem;">'
+            f'Complete the steps below to generate your referral letter</div>'
+            f'<div class="referral-progress-row {_c1}">'
+            f'{_d1} 🎙️ Voice input <span style="font-size:0.78rem;color:#A0AEC0;">(optional)</span></div>'
+            f'<div class="referral-progress-row {_c2}">'
+            f'{_d2} 📷 Upload skin image &nbsp;<strong style="color:#1A6FA8;">← Start here</strong></div>'
+            f'<div class="referral-progress-row {_c3}">'
+            f'{_d3} 🧠 AI analysis runs automatically</div>'
+            f'<div class="referral-progress-row {_c4}">'
+            f'{_d4} 📄 Generate referral letter</div>'
             f'</div>',
             unsafe_allow_html=True,
         )
