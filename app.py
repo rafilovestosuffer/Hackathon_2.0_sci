@@ -285,17 +285,60 @@ with tab1:
         )
         st.markdown(
             '<div class="info-box">'
-            '🤖 Bengali voice input lets AI auto-extract patient history — <strong>optional</strong>, '
-            'upload an image to get a diagnosis without voice'
+            '🤖 Bengali voice input lets AI auto-extract patient history — <strong>optional</strong>'
             '</div>',
             unsafe_allow_html=True,
         )
 
-        # ── Voice tabs: Upload (primary) | Live Mic (secondary) ──────────────
-        _vtab_upload, _vtab_mic = st.tabs(["📁 Upload Audio File", "🎙️ Live Recording"])
+        # ── Voice tabs: Live Mic (primary) | Upload (backup) ─────────────────
+        _vtab_mic, _vtab_upload = st.tabs(["🎙️ Record Voice", "📁 Upload Audio File"])
 
         audio_bytes = None
         audio_fmt   = "wav"
+
+        with _vtab_mic:
+            st.markdown(
+                '<div style="font-size:0.82rem;color:#4A5568;margin-bottom:0.5rem;">'
+                '🎙️ Click the microphone button below — speak in Bengali — click again to stop.</div>',
+                unsafe_allow_html=True,
+            )
+            try:
+                from audio_recorder_streamlit import audio_recorder
+                _mic_bytes = audio_recorder(
+                    text="",
+                    recording_color="#E53E3E",
+                    neutral_color="#718096",
+                    icon_name="microphone",
+                    icon_size="3x",
+                    pause_threshold=2.5,
+                    sample_rate=16_000,
+                    key="mic_recorder",
+                )
+                if _mic_bytes and len(_mic_bytes) > 1000:
+                    audio_bytes = _mic_bytes
+                    audio_fmt   = "wav"
+                    st.audio(audio_bytes, format="audio/wav")
+                    st.success("✅ Recording captured — transcribing below…")
+            except ImportError:
+                # Fallback to st.audio_input if package not available
+                audio_data = st.audio_input(
+                    "বাংলায় বলুন",
+                    key="audio_record",
+                    label_visibility="collapsed",
+                )
+                if audio_data is not None:
+                    _fb_bytes = audio_data.read()
+                    if _fb_bytes:
+                        audio_bytes = _fb_bytes
+                        audio_fmt   = "wav"
+                        st.audio(audio_bytes, format="audio/wav")
+
+            st.markdown(
+                '<div style="font-size:0.72rem;color:#A0AEC0;margin-top:0.4rem;">'
+                '🔒 First use: your browser will ask for microphone permission — click <strong>Allow</strong>.'
+                '</div>',
+                unsafe_allow_html=True,
+            )
 
         with _vtab_upload:
             st.markdown(
@@ -314,40 +357,6 @@ with tab1:
                 audio_fmt   = audio_file.name.rsplit(".", 1)[-1].lower()
                 if audio_bytes:
                     st.audio(audio_bytes, format=f"audio/{audio_fmt}")
-
-            # ── Demo audio download hint ──────────────────────────────────
-            st.markdown(
-                '<div style="font-size:0.73rem;color:#A0AEC0;margin-top:0.5rem;'
-                'padding:0.4rem 0.6rem;background:#F7F9FC;border-radius:6px;">'
-                '💡 <strong>No mic?</strong> Say this Bengali sentence into your phone and '
-                'save as an MP3: &nbsp;<em>"আমার সারা শরীলে চুলকানি হচ্ছে, জ্বর আছে, '
-                'রাশ ছড়িয়ে পড়ছে।"</em>'
-                '</div>',
-                unsafe_allow_html=True,
-            )
-
-        with _vtab_mic:
-            st.markdown(
-                '<div style="font-size:0.74rem;color:#A0AEC0;margin-bottom:0.4rem;'
-                'padding:0.35rem 0.6rem;background:#F7F9FC;border-radius:6px;'
-                'border-left:3px solid #4299E1;">'
-                '🔒 <strong>Browser permission required.</strong> '
-                'If you see an error below → click the 🔒 padlock in the browser address bar '
-                '→ set Microphone to <em>Allow</em> → refresh the page. '
-                'Works best on Chrome / Edge over HTTPS.'
-                '</div>',
-                unsafe_allow_html=True,
-            )
-            audio_data = st.audio_input(
-                "বাংলায় বলুন — Click to start recording",
-                key="audio_record",
-            )
-            if audio_data is not None:
-                _mic_bytes = audio_data.read()
-                if _mic_bytes:
-                    audio_bytes = _mic_bytes
-                    audio_fmt   = "wav"
-                    st.audio(audio_bytes, format="audio/wav")
 
         if audio_bytes:
             with st.spinner("🔄 Transcribing Bengali audio…"):
