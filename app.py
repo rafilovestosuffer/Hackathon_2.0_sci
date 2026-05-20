@@ -4,6 +4,7 @@ SkinAI Bangladesh — main Streamlit app.
 "সঠিক রোগী → সঠিক ডাক্তার → সঠিক সময়"
 """
 
+import hashlib
 import io
 import logging
 
