@@ -4,6 +4,7 @@ SkinAI Bangladesh — main Streamlit app.
 "সঠিক রোগী → সঠিক ডাক্তার → সঠিক সময়"
 """
 
+import hashlib
 import io
 import logging
 
@@ -142,15 +143,16 @@ def _push_history_to_form(h: dict) -> None:
 
 # ── Session state defaults ────────────────────────────────────────────────────
 _DEFAULTS = {
-    "transcript":       "",
-    "history":          {},
-    "prediction":       None,
-    "tier_result":      None,
-    "nearest_hospital": None,
-    "pdf_bytes":        None,
-    "rag_answer":       "",
-    "rag_lang":         "en",
-    "chat_history":     [],
+    "transcript":        "",
+    "history":           {},
+    "prediction":        None,
+    "tier_result":       None,
+    "nearest_hospital":  None,
+    "pdf_bytes":         None,
+    "rag_answer":        "",
+    "rag_lang":          "en",
+    "chat_history":      [],
+    "_last_audio_hash":  "",   # prevents re-processing same audio on rerun
 }
 for _k, _v in _DEFAULTS.items():
     st.session_state.setdefault(_k, _v)
@@ -459,44 +461,61 @@ with tab1:
                 else:
                     st.warning("Please enter some text first.")
 
-        # ── Process audio if captured ─────────────────────────────────────────
+        # ── Process audio if captured (hash-guarded to prevent infinite rerun) ──
         if audio_bytes:
-            _lang_label = _audio_lang_choice if _selected_lang else "auto-detecting language"
-            with st.spinner(f"🔄 Transcribing ({_lang_label})…"):
-                _transcript, _err = _transcribe(audio_bytes, audio_fmt, language=_selected_lang)
-                st.session_state.transcript = _transcript
+            _audio_hash = hashlib.md5(audio_bytes).hexdigest()
+            _already_processed = (_audio_hash == st.session_state.get("_last_audio_hash", ""))
 
-            if _transcript:
+            if not _already_processed:
+                st.session_state["_last_audio_hash"] = _audio_hash
+                _lang_label = _audio_lang_choice if _selected_lang else "auto-detecting language"
+
+                with st.spinner(f"🔄 Transcribing ({_lang_label})…"):
+                    _transcript, _err = _transcribe(audio_bytes, audio_fmt, language=_selected_lang)
+                    st.session_state.transcript = _transcript
+
+                if _transcript:
+                    st.markdown(
+                        f'<div class="transcript-box">📝 {_transcript}</div>',
+                        unsafe_allow_html=True,
+                    )
+                    with st.spinner("🧠 Extracting patient history from voice…"):
+                        _history = _extract_history(_transcript)
+                        _has_data = any(
+                            bool(v) for v in _history.values() if v not in ([], "")
+                        )
+                        if _has_data:
+                            st.session_state.history = _history
+                            _push_history_to_form(_history)
+                            st.success("✅ Patient history extracted — form auto-filled below.")
+                        else:
+                            st.info(
+                                "ℹ️ Transcript captured but no patient details found. "
+                                "Try speaking: **name · age · symptoms · duration** "
+                                "(e.g. *'My name is Rahim, age 35, itching on arm for 5 days'*). "
+                                "Or fill the form below manually."
+                            )
+                else:
+                    _err_map = {
+                        "silence":       "No speech detected — please speak clearly and close to the mic.",
+                        "not_installed": "faster-whisper not installed.",
+                    }
+                    _err_msg = _err_map.get(_err, f"Error: {_err}")
+                    st.warning(f"⚠️ Transcription failed — {_err_msg}")
+
+            # Always show transcript if we have one
+            elif st.session_state.transcript:
                 st.markdown(
-                    f'<div class="transcript-box">📝 {_transcript}</div>',
+                    f'<div class="transcript-box">📝 {st.session_state.transcript}</div>',
                     unsafe_allow_html=True,
                 )
-                with st.spinner("🧠 Extracting patient history from voice…"):
-                    _history = _extract_history(_transcript)
-                    _has_data = any(
-                        bool(v) for v in _history.values() if v not in ([], "")
-                    )
-                    if _has_data:
-                        st.session_state.history = _history
-                        _push_history_to_form(_history)
-                        st.success("✅ Patient history extracted — form filled below.")
-                        st.rerun()
-                    else:
-                        st.info(
-                            "ℹ️ Transcript captured but no patient details detected. "
-                            "Fill the **Patient Data** form below manually, "
-                            "or speak with name, age, symptoms (e.g. 'আমার নাম রহিম, বয়স ৩৫, হাতে চুলকানি')."
-                        )
-            else:
-                _err_map = {
-                    "silence":       "No speech detected — please speak clearly.",
-                    "not_installed": "faster-whisper is not installed in this environment.",
-                }
-                _err_msg = _err_map.get(_err, f"Transcription error: {_err}")
-                st.warning(
-                    f"⚠️ **Could not transcribe audio.** {_err_msg}\n\n"
-                    "Use the **✏️ Type Text** tab to enter patient history manually."
-                )
+
+        # Show persisted transcript even when no audio in this render
+        if not audio_bytes and st.session_state.transcript:
+            st.markdown(
+                f'<div class="transcript-box">📝 {st.session_state.transcript}</div>',
+                unsafe_allow_html=True,
+            )
 
         st.markdown("---")
 
