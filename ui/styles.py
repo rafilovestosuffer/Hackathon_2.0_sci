@@ -64,11 +64,14 @@ html, body, [class*="css"] {
   font-family: 'Inter', 'Noto Sans Bengali', sans-serif !important;
   color: var(--c-t1) !important;
 }
-.stApp { background: var(--c-bg) !important; }
+.stApp { background: #EDF2F7 !important; }
 .main .block-container {
   padding-top: 1.1rem;
   padding-bottom: 3.5rem;
   max-width: 1120px;
+  background: #FFFFFF;
+  border-radius: 0;
+  box-shadow: none;
 }
 
 /* ─── Hide Streamlit chrome ─────────────────────────────────────────────────── */
@@ -312,19 +315,23 @@ section[data-testid="stSidebar"] [data-testid="stExpander"] summary {
 .card-section-title { font-size: 1.05rem; font-weight: 700; color: var(--c-t1); }
 .card-section-sub   { font-size: 0.75rem; color: var(--c-t3); font-weight: 400; }
 
-/* ─── Columns as cards ──────────────────────────────────────────────────────── */
-[data-testid="stHorizontalBlock"] > [data-testid="column"] {
-  background: var(--c-card);
-  border: 1px solid var(--c-border);
-  border-top: 4px solid var(--c-teal);
-  border-radius: 16px;
+/* ─── Columns as cards (multiple selector variants for Streamlit compat) ────── */
+[data-testid="stHorizontalBlock"] > [data-testid="column"],
+[data-testid="stHorizontalBlock"] > div[data-testid="column"],
+div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
+  background: #FFFFFF !important;
+  border: 1px solid #E2E8F0 !important;
+  border-top: 5px solid #0D9E75 !important;
+  border-radius: 16px !important;
   padding: 1.5rem 1.6rem !important;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.09), 0 1px 4px rgba(0,0,0,0.05);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.10), 0 1px 4px rgba(0,0,0,0.06) !important;
   transition: box-shadow 0.22s ease, transform 0.22s ease;
+  margin: 0 0.25rem !important;
 }
-[data-testid="stHorizontalBlock"] > [data-testid="column"]:hover {
-  box-shadow: 0 8px 36px rgba(0,0,0,0.14), 0 2px 8px rgba(0,0,0,0.06);
-  transform: translateY(-2px);
+[data-testid="stHorizontalBlock"] > [data-testid="column"]:hover,
+[data-testid="stHorizontalBlock"] > div[data-testid="column"]:hover {
+  box-shadow: 0 10px 40px rgba(0,0,0,0.14), 0 2px 8px rgba(0,0,0,0.07) !important;
+  transform: translateY(-3px);
 }
 
 /* ─── Info boxes ────────────────────────────────────────────────────────────── */
@@ -361,15 +368,16 @@ section[data-testid="stSidebar"] [data-testid="stExpander"] summary {
 
 /* ─── Transcript box ────────────────────────────────────────────────────────── */
 .transcript-box {
-  background: var(--c-card);
-  border-left: 4px solid var(--c-teal);
-  border-top: 1px solid var(--c-border);
-  border-right: 1px solid var(--c-border);
-  border-bottom: 1px solid var(--c-border);
-  border-radius: 0 8px 8px 0;
-  padding: 0.7rem 1rem;
-  font-size: 0.9rem;
-  color: var(--c-t1);
+  background: #F0FBF7;
+  border-left: 5px solid var(--c-teal);
+  border-top: 1px solid #A9DFBF;
+  border-right: 1px solid #A9DFBF;
+  border-bottom: 1px solid #A9DFBF;
+  border-radius: 0 10px 10px 0;
+  padding: 0.85rem 1.1rem;
+  font-size: 0.92rem;
+  color: #1A202C !important;
+  font-weight: 500;
   font-family: 'Noto Sans Bengali', sans-serif !important;
   line-height: 1.65;
   margin: 0.45rem 0;
@@ -775,17 +783,8 @@ section[data-testid="stSidebar"] [data-testid="stExpander"] summary {
 [data-testid="stFileUploadDropzone"] button:hover {
   background: #155d8e !important;
 }
-/* Audio input widget */
-[data-testid="stAudioInput"],
-[data-testid="stAudioInput"] > div {
-  background: #EEF6FF !important;
-  border-radius: 12px !important;
-}
-[data-testid="stAudioInput"] > div > div {
-  background: #EEF6FF !important;
-  border: 2px solid #CBD5E1 !important;
-  border-radius: 12px !important;
-}
+/* Audio input widget — minimal override only (waveform needs its own dark bg) */
+[data-testid="stAudioInput"] { border-radius: 12px !important; overflow: hidden; }
 
 /* ─── Image quality warning ──────────────────────────────────────────────────── */
 .blur-warning {
