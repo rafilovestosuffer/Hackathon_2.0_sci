@@ -91,24 +91,28 @@ def _strip_fences(text: str) -> str:
     return text.strip()
 
 
-def _get_whisper():
+def _get_model():
+    """Singleton faster-whisper model (tests patch this name)."""
     global _whisper_model
     if _whisper_model is None:
         from faster_whisper import WhisperModel
         _whisper_model = WhisperModel("base", device="cpu", compute_type="int8")
     return _whisper_model
 
+# Alias used internally
+_get_whisper = _get_model
 
-def _get_gemini():
+
+def _get_gemini_client():
+    """Singleton Gemini client (tests patch this name)."""
     global _gemini_client
     if _gemini_client is None:
         from google import genai
         _gemini_client = genai.Client(api_key=os.getenv("GEMINI_API_KEY", ""))
     return _gemini_client
 
-# Backward-compat aliases (tests patch these names)
-_get_model         = _get_whisper
-_get_gemini_client = _get_gemini
+# Alias used internally
+_get_gemini = _get_gemini_client
 
 
 def _bytes_to_audio_array(audio_bytes: bytes) -> np.ndarray | None:
@@ -182,7 +186,7 @@ def transcribe_audio(
 
     # 3. Transcribe
     try:
-        model = _get_whisper()
+        model = _get_model()
         segments, info = model.transcribe(
             audio_arr,
             language=language,
@@ -213,7 +217,7 @@ def extract_patient_history(transcript: str) -> dict:
 
     for attempt in range(3):
         try:
-            client = _get_gemini()
+            client = _get_gemini_client()
             response = client.models.generate_content(
                 model="gemini-2.5-flash",
                 contents=prompt,
