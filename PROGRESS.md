@@ -2,7 +2,7 @@
 # Update this file at the END of EVERY Claude Code session.
 
 ## 📍 CURRENT STATUS
-- Week: 4 | Day: 22 (starting)
+- Week: 4 | Day: 22 (in progress)
 - HF Spaces URL: https://huggingface.co/spaces/rafilovestosuffer/skinai-bangladesh
 - GitHub Repo: https://github.com/rafilovestosuffer/Hackathon_2.0_sci
 - Demo Video: [TO BE ADDED WEEK 4]
@@ -48,6 +48,38 @@
 
 ## 📝 SESSION LOG
 <!-- Append to this after every session. Newest at top. -->
+
+### Session: May 20, 2026 — Day 22 — Voice Input Fix ✅
+**Done:**
+- Fixed audio stream exhaustion bug: `audio_data.read()` drains the stream;
+  `st.audio(audio_data)` was getting an empty stream → now passes `audio_bytes`
+  bytes directly with explicit `format=` param
+- Removed dead `_load_whisper()` cache function (defined but never called)
+- Improved `_transcribe()`: early return on empty bytes, separate ImportError catch
+- Restructured voice UI into two tabs: "📁 Upload Audio File" (primary, tab 1)
+  and "🎙️ Live Recording" (secondary, tab 2) — file upload is now default
+- Added mic permission guidance in the Live Recording tab (browser steps)
+- Added demo hint with sample Bengali sentence for judges without mic
+- Improved transcription failure message: bilingual + actionable tips
+- Force-pushed to HF Spaces (binary-free orphan branch pattern)
+- 245/245 tests passing (no regressions)
+
+**Root cause of "An error has occurred":**
+- `st.audio_input` (Option 1 recording) → browser mic permission denied or
+  browser HTTP context → widget enters error state. This is a browser-level
+  issue we cannot fix from Python; fixed by making file upload the PRIMARY tab.
+- `st.audio(audio_data)` after `.read()` → stream exhausted → audio player error.
+  Fixed by passing bytes directly: `st.audio(audio_bytes, format="audio/wav")`.
+
+**Blockers:**
+- BD-SkinNet checkpoint still pending — _run_model() placeholder active
+
+**Next session start point:**
+- Day 22 continued: project report skeleton
+
+**Git commits this session:**
+- d68cdd9 [w4/d22] fix: audio stream exhaustion bug + mic permission guidance
+- 1415bb2 [w4/d22] fix: voice UI overhaul — file upload primary, mic secondary
 
 ### Session: Jun 7, 2026 — Day 21 — UI Overhaul + Test Coverage ✅
 **Done:**
