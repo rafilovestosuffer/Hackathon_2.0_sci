@@ -1,0 +1,16 @@
+SOURCE: WHO
+TOPIC: WHO Mental Health and Chronic Skin Conditions
+---
+The World Health Organization recognizes a strong bidirectional relationship between mental health and chronic skin conditions. Conditions like vitiligo, atopic dermatitis, and psoriasis carry significant psychological burden, while mental health conditions can worsen skin disease through multiple mechanisms.
+
+The psychological impact of visible skin conditions is particularly profound in social contexts where skin appearance carries significant cultural meaning, as in many South Asian societies including Bangladesh. Social exclusion, employment discrimination, and marriage difficulties associated with visible skin conditions contribute to depression, anxiety, and reduced quality of life.
+
+WHO's integrated care approach advocates for routine psychological screening in dermatological settings. Simple validated tools such as the Dermatology Life Quality Index (DLQI) can efficiently assess the impact of skin conditions on patients' daily lives and prompt referral for psychological support when needed.
+
+Psychological interventions that benefit patients with chronic skin conditions include cognitive-behavioral therapy (addressing maladaptive thoughts about appearance), mindfulness-based approaches (reducing stress reactivity), group therapy and peer support groups, and integrated acceptance and commitment therapy.
+
+Community-level interventions to reduce stigma around skin conditions are also important. Public health campaigns that accurately portray vitiligo, eczema, and other skin conditions can reduce discrimination and create more inclusive social environments.
+
+Healthcare provider training in recognizing and addressing the psychosocial dimensions of skin disease is essential. Dermatologists, general practitioners, and community health workers should be equipped to identify psychological distress and facilitate access to support.
+
+In Bangladesh, expanding access to mental health services generally — and specifically integrating psychological support into dermatological care at district hospital and medical college levels — is a priority.

@@ -1,0 +1,14 @@
+SOURCE: CDC
+TOPIC: Hand Dermatitis and Occupational Contact Dermatitis
+---
+Hand dermatitis is one of the most common occupational skin diseases, affecting between two and ten percent of the general population and even higher proportions in certain occupational groups. The hands are the most frequent site of contact dermatitis because they are the primary points of contact with workplace substances.
+
+Occupations with highest rates of hand dermatitis include healthcare workers (frequent hand washing and glove use), food handlers (wet work, food juices, and cleaning chemicals), hairdressers (shampoos, dyes, bleach, and permanents), construction workers (cement, solvents, and epoxy resins), domestic cleaners (detergents and bleach), and agricultural workers (pesticides, fertilizers, and plant materials).
+
+Wet work — defined as having the hands immersed in liquids for more than two hours per day, wearing waterproof gloves for an equivalent period, or washing hands more than twenty times per day — is the most important occupational risk factor for hand dermatitis. Prolonged wet work damages the stratum corneum and impairs skin barrier function.
+
+Prevention of occupational hand dermatitis requires a hierarchy of controls. The most effective approach is eliminating or substituting the causative substance. If elimination is not possible, engineering controls (ventilation, automation), administrative controls (reducing exposure time, rotating workers), and finally personal protective equipment (gloves, barrier creams) should be implemented.
+
+When gloves are used, appropriate selection is essential. Latex gloves cause allergic contact dermatitis in sensitized individuals. Nitrile or vinyl gloves are safer alternatives. Wearing gloves also creates an occlusive environment that can worsen irritant dermatitis. Wearing cotton liner gloves inside rubber gloves can reduce skin maceration.
+
+Treatment of established hand dermatitis combines avoidance of triggers, regular moisturizer application, and topical corticosteroids for flares.

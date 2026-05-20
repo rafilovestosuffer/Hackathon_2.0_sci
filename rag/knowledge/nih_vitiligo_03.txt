@@ -1,0 +1,18 @@
+SOURCE: NIH
+TOPIC: Vitiligo — Treatment Options
+---
+The management of vitiligo aims to halt progression, repigment affected areas, and address psychological impact. Treatment selection depends on the extent and type of vitiligo, skin type, patient age, and treatment availability.
+
+Topical treatments are appropriate for limited vitiligo. Topical corticosteroids are widely used as first-line therapy, particularly for localized vitiligo in early stages. Repigmentation, when it occurs, typically appears around hair follicles as small brown spots that gradually coalesce. Medium-potency corticosteroids are used on the body; low-potency on the face.
+
+Topical calcineurin inhibitors (tacrolimus 0.1% ointment or pimecrolimus 1% cream) are preferred alternatives for the face and neck, as they do not cause skin atrophy. They are particularly effective for facial vitiligo and are safe for long-term use.
+
+Narrowband UVB (NB-UVB) phototherapy is the most widely used and effective treatment for widespread vitiligo. It involves exposing skin to specific ultraviolet B wavelengths two to three times weekly for six months to two years. Repigmentation responses of fifty percent or more are common with adequate treatment duration.
+
+Excimer laser delivers targeted 308-nm UVB light to specific patches and is useful for focal or localized vitiligo.
+
+Surgical options are appropriate for stable vitiligo that has not responded to other treatments. Melanocyte-keratinocyte transplantation procedure (MKTP) and split-thickness skin grafting can achieve repigmentation in carefully selected patients.
+
+Ruxolitinib cream, a JAK1/JAK2 inhibitor, has FDA approval for non-segmental vitiligo and represents an important advance. It reduces the autoimmune attack on melanocytes and allows repigmentation.
+
+Combination therapy — for example, NB-UVB with topical tacrolimus — may enhance repigmentation compared to either treatment alone.

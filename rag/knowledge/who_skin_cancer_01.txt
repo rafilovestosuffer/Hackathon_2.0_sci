@@ -1,0 +1,16 @@
+SOURCE: WHO
+TOPIC: Skin Cancer Prevention and UV Protection
+---
+Ultraviolet (UV) radiation from the sun is the primary cause of skin cancer worldwide. WHO recommends the following sun protection measures to reduce skin cancer risk:
+
+1. Seek shade, especially during midday hours (10 AM to 4 PM) when UV radiation is strongest.
+2. Wear protective clothing such as long-sleeved shirts, pants, a wide-brimmed hat, and UV-blocking sunglasses.
+3. Use a broad-spectrum sunscreen with SPF 30 or higher. Apply liberally and reapply every two hours when outdoors.
+4. Avoid tanning beds and sunlamps — they emit UV radiation and increase skin cancer risk.
+5. Protect children — sunburns in childhood significantly increase the risk of melanoma later in life.
+
+WHO estimates that 2 to 3 million non-melanoma skin cancers and 132,000 melanoma skin cancers occur globally each year. While the incidence is lower in darker-skinned populations such as South Asians, skin cancer can and does occur in Bangladeshi patients, particularly on sun-exposed areas of the face, hands, and forearms.
+
+In Bangladesh, outdoor workers, farmers, and fishermen face prolonged sun exposure. Wearing protective clothing and seeking shade are the most practical prevention strategies. Patients noticing any non-healing skin lesion, rapidly growing lump, or unusual colored growth should visit a qualified dermatologist at a district hospital immediately.
+
+This app screens for common fungal, inflammatory, and parasitic skin conditions. It does not screen for skin cancer. Suspected skin cancer requires urgent specialist referral.

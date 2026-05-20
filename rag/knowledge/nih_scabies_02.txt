@@ -1,0 +1,16 @@
+SOURCE: NIH
+TOPIC: Scabies in Children and Households
+---
+Scabies in children presents with features distinct from adult infection. Infants and young children are more likely to have involvement of the face, scalp, palms, and soles — areas usually spared in adults. The rash may be more vesicular and pustular in young children.
+
+Infants with scabies are often profoundly irritable, especially at night when pruritus worsens. Feeding difficulties, sleep disturbance, and failure to thrive can result from severe infestation. Parents often seek medical care believing the child has eczema or another skin condition.
+
+Secondary impetiginization (bacterial superinfection) with Streptococcus pyogenes or Staphylococcus aureus is common in children with scabies, particularly in tropical settings. In some regions, scabies-associated streptococcal infection is a significant cause of post-streptococcal glomerulonephritis (kidney disease).
+
+Treatment of scabies must encompass all household members simultaneously, regardless of whether they have symptoms. Treating only symptomatic individuals leads to rapid re-infestation because asymptomatic contacts can transmit the mite.
+
+Permethrin five percent cream is safe for infants aged two months and older. For neonates and infants younger than two months, consultation with a specialist is recommended. Ivermectin can be used in children weighing fifteen kilograms or more.
+
+Practical challenges to effective household treatment in resource-limited settings include cost of medication, large household size, and difficulty ensuring all members are treated at once. Community education and mass treatment programs may be more effective in highly endemic settings.
+
+Post-treatment follow-up at two weeks is recommended to assess treatment response and identify retreatment needs.

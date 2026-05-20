@@ -1,0 +1,16 @@
+SOURCE: NIH
+TOPIC: Eczema and Infection Risk
+---
+Eczema significantly increases susceptibility to skin infections due to the compromised skin barrier and immune dysregulation associated with the condition. Both bacterial and viral infections complicate eczema and can trigger severe flares.
+
+Staphylococcus aureus colonizes the skin of more than ninety percent of people with moderate to severe atopic dermatitis, compared to approximately thirty percent of the general population. Staphylococcal colonization contributes to eczema inflammation through the production of toxins that act as superantigens and stimulate immune cells. Periods of increased colonization often precede or accompany flares.
+
+Signs of secondary bacterial infection requiring treatment include honey-colored crusting (impetigo), increased redness and warmth, pustules, swollen lymph nodes, and systemic signs like fever. When infection is suspected, topical or oral antibiotics (typically targeting Staphylococcus aureus) are required.
+
+Eczema herpeticum is a potentially life-threatening infection caused by herpes simplex virus (HSV) spreading across eczematous skin. It presents as clusters of punched-out erosions, often with fever and malaise. Immediate antiviral treatment with acyclovir or valacyclovir is required. Eczema herpeticum is a dermatological emergency.
+
+Molluscum contagiosum, a viral skin infection that usually causes mild, localized disease in immunocompetent individuals, can spread extensively in children with atopic dermatitis.
+
+Fungal infections, particularly dermatophyte infections (tinea), can also complicate atopic dermatitis and may be confused with eczema flares.
+
+Reducing Staphylococcal colonization through dilute bleach baths (0.005% sodium hypochlorite, one teaspoon per gallon of water) twice weekly can reduce infection frequency and improve eczema control. This should be done under healthcare provider guidance.

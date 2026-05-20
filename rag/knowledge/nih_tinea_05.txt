@@ -1,0 +1,14 @@
+SOURCE: NIH
+TOPIC: Tinea Versicolor — Pityriasis Versicolor
+---
+Tinea versicolor, now more precisely called pityriasis versicolor, is a superficial fungal infection caused by Malassezia species — lipophilic yeasts that are part of normal skin flora. Despite the name containing tinea, it is not caused by dermatophytes. The condition is characterized by multiple small, discrete hypopigmented or hyperpigmented patches on the trunk and proximal limbs.
+
+The patches appear lighter than the surrounding skin in people with tanned or darker skin tones — a common finding in tropical countries including Bangladesh — because Malassezia produces azelaic acid, which inhibits melanin transfer to keratinocytes. In fair-skinned individuals or after sun exposure, the patches may appear darker than surrounding skin.
+
+Pityriasis versicolor is extremely common in tropical countries due to the high ambient temperature and humidity that promote Malassezia overgrowth. Studies from Bangladesh suggest prevalence rates of five to ten percent in the general population.
+
+The condition commonly affects the trunk, upper arms, neck, and abdomen. The face is less commonly involved. Mild itching may be present, but many patients have no symptoms and seek medical care primarily for cosmetic reasons.
+
+Diagnosis is typically clinical, supported by a positive KOH examination showing the characteristic short hyphae and round spores in a pattern described as spaghetti and meatballs. Wood's lamp examination causes some affected skin to fluoresce yellow-green.
+
+Treatment with topical antifungal agents — selenium sulfide, ketoconazole shampoo, or zinc pyrithione — applied to affected areas for two to four weeks is effective. Recurrence is common, and monthly prophylactic application may be needed in predisposed individuals. Skin color normalization after treatment takes months as melanocytes recover.

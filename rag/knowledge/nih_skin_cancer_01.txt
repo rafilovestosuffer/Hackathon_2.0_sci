@@ -1,0 +1,12 @@
+SOURCE: NIH
+TOPIC: Skin Cancer Overview
+---
+Skin cancer is the most common cancer in the world. It occurs when abnormal skin cells grow uncontrollably, most often caused by ultraviolet (UV) radiation from the sun or tanning beds. There are three major types: basal cell carcinoma (BCC), squamous cell carcinoma (SCC), and melanoma.
+
+Basal cell carcinoma is the most common and least dangerous type. It grows slowly and rarely spreads to other parts of the body. It usually appears as a pearly or waxy bump, a flat flesh-colored or brown scar-like lesion, or a bleeding or scabbing sore that heals and returns.
+
+Squamous cell carcinoma is the second most common type. It can spread to nearby lymph nodes or other organs if not treated early. It appears as a firm red nodule, a flat lesion with a scaly, crusted surface, or a new sore or raised area on an old scar.
+
+Melanoma is the most dangerous type of skin cancer. It develops in the cells that give skin its color (melanocytes). It can appear anywhere on the body, even in areas not exposed to sun. Early detection is critical — melanoma found early is almost always curable.
+
+In Bangladesh, skin cancer is less common than in fair-skinned populations but does occur. Anyone noticing a rapidly changing, non-healing, or unusual growth on the skin should seek medical evaluation promptly. This app does not screen for skin cancer — consult a dermatologist immediately if skin cancer is suspected.

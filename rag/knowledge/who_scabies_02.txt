@@ -1,0 +1,14 @@
+SOURCE: WHO
+TOPIC: WHO Guidelines for Scabies Treatment
+---
+The World Health Organization recommends two primary treatments for scabies: topical permethrin five percent cream and oral ivermectin.
+
+Permethrin five percent cream is the preferred first-line topical treatment for scabies based on its safety profile, efficacy, and availability. It is applied to the entire skin surface from the neck down (including the scalp and face in infants and young children) and left in place for eight to twelve hours before washing off. A second application one week later is often recommended.
+
+Oral ivermectin is recommended for the treatment of individual cases of scabies, household contacts, and as the cornerstone of mass drug administration programs for community control. The standard dose is two hundred micrograms per kilogram body weight given as a single oral dose, repeated after one week. Ivermectin is not recommended for children weighing less than fifteen kilograms or for pregnant women, for whom permethrin remains the preferred option.
+
+WHO supports mass drug administration (MDA) with ivermectin as a strategy for scabies control in communities where prevalence exceeds ten percent. MDA targets the entire community simultaneously, including individuals without visible symptoms, to break the transmission cycle. Studies in Pacific Island communities have demonstrated dramatic reductions in scabies prevalence following MDA campaigns.
+
+Alternative topical treatments that may be used in resource-limited settings where permethrin is not available include benzyl benzoate twenty-five percent lotion and sulfur five to ten percent ointment. These are less effective and more irritating than permethrin but are used in some settings due to lower cost.
+
+Simultaneous treatment of all household members and sexual contacts is essential regardless of the treatment approach used. Washing of clothing and bedding should accompany treatment.

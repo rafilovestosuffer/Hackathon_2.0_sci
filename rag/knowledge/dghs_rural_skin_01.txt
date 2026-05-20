@@ -1,0 +1,16 @@
+SOURCE: DGHS
+TOPIC: Skin Diseases in Rural Bangladesh — Burden and Challenges
+---
+Rural Bangladesh faces a disproportionate burden of skin disease due to a combination of occupational, environmental, social, and health system factors.
+
+Agricultural occupations prevalent in rural Bangladesh — particularly rice cultivation, which involves prolonged standing in water — create significant risk for skin conditions including tinea pedis, tinea cruris, contact dermatitis from agrochemicals, and secondary bacterial infections. Pesticide and fertilizer exposure among farmers contributes to contact dermatitis.
+
+Poor sanitation and limited access to clean water in rural areas facilitate transmission of infectious skin diseases including scabies, tinea, and impetigo. Overcrowded households — common in rural Bangladesh — accelerate spread within families.
+
+Limited access to dermatology services is a major challenge. The vast majority of dermatologists practice in Dhaka and other urban centers. Rural patients may travel for four to six hours to reach a dermatologist. The cost of transportation, consultation fees, and medications places specialist care beyond reach for many rural families.
+
+As a result, many rural patients first seek care from village doctors (unqualified practitioners), pharmacists, or traditional healers. Inappropriate treatment — including misuse of topical corticosteroids for tinea infections, which worsens the condition — is common.
+
+The Directorate General of Health Services works to address these challenges through upazila health system strengthening, training of healthcare workers in dermatology basics, mobile health camps providing specialist outreach to remote areas, and telemedicine services expanding access to dermatologist consultation.
+
+SkinAI Bangladesh aims to bridge the gap for rural patients by providing instant AI-powered skin disease screening and triage, guiding patients to the appropriate level of care without the need for immediate specialist consultation.

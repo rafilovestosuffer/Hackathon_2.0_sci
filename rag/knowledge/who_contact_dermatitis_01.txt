@@ -1,0 +1,14 @@
+SOURCE: WHO
+TOPIC: WHO Perspective — Occupational Skin Diseases
+---
+Occupational skin diseases represent a significant proportion of all occupational diseases worldwide. The World Health Organization recognizes occupational contact dermatitis as an important preventable cause of morbidity and lost productivity. Contact dermatitis accounts for approximately ninety percent of all occupational skin diseases.
+
+WHO estimates that occupational skin diseases affect millions of workers globally each year. High-risk sectors include healthcare, construction, food processing, agriculture, hairdressing, and metal working. In Bangladesh, the ready-made garment (RMG) sector — employing over four million workers, predominantly women — and the agricultural sector present the greatest occupational skin disease burden.
+
+The economic impact of occupational skin diseases is substantial. Workers may require time off, change jobs, or permanently leave affected industries. Productivity losses, medical costs, and workers' compensation claims represent measurable economic burdens.
+
+Prevention of occupational contact dermatitis follows the hierarchy of controls. Elimination or substitution of hazardous substances is the most effective approach. Engineering controls — ventilation, automated handling of chemical — reduce exposure. Administrative controls — job rotation, reducing wet work duration — can lower risk. Personal protective equipment, including appropriate gloves and barrier creams, provides the final layer of protection.
+
+WHO recommends integrating occupational skin disease surveillance into national occupational health programs. Reporting and recording of occupational skin diseases enables identification of high-risk workplaces and industries and targets preventive interventions.
+
+For Bangladesh, strengthening occupational health services in the garment and agricultural sectors, and training occupational health officers in skin disease prevention and management, are WHO-endorsed priorities.

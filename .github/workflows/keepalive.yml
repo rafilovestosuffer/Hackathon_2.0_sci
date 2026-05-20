@@ -1,0 +1,28 @@
+name: Keepalive — Ping HF Space
+
+# Runs every 20 minutes from May 19 to July 12, 2026.
+# CONSTRAINT 7: App must stay live until July 12, 2026 (SciBlitz AI Challenge).
+
+on:
+  schedule:
+    # Every 20 minutes — GitHub Actions minimum is 5 min; 20 min is safe.
+    - cron: "*/20 * * * *"
+  workflow_dispatch:   # allow manual trigger from GitHub UI
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Ping HF Space
+        run: |
+          URL="https://rafilovestosuffer-skinai-bangladesh.hf.space"
+          echo "Pinging: $URL"
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 20 "$URL")
+          echo "HTTP status: $STATUS"
+          if [ "$STATUS" -ge 400 ] 2>/dev/null || [ -z "$STATUS" ]; then
+            echo "WARNING: Space may be sleeping or unreachable (status=$STATUS)"
+            exit 0   # don't fail the workflow — just log
+          fi
+          echo "OK — Space is awake."

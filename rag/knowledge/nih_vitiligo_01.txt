@@ -1,0 +1,16 @@
+SOURCE: NIH
+TOPIC: Vitiligo — Autoimmune Mechanisms and Genetics
+---
+Vitiligo is now understood to be primarily an autoimmune disease in which cytotoxic T lymphocytes (CD8+ T cells) destroy melanocytes in the skin and hair follicles. This immune-mediated destruction leads to the characteristic depigmented patches.
+
+The interferon-gamma (IFN-γ) signaling pathway plays a central role in vitiligo pathogenesis. IFN-γ produced by autoreactive T cells activates the JAK-STAT signaling pathway in keratinocytes, which promotes CXCL9 and CXCL10 chemokine production. These chemokines recruit additional T cells to the skin, amplifying melanocyte destruction.
+
+This mechanistic understanding has led to the development of JAK inhibitor treatments for vitiligo. Ruxolitinib cream (a topical JAK inhibitor) has received FDA approval for vitiligo, demonstrating that targeted immunotherapy can restore pigmentation.
+
+Genetic studies have identified over fifty genetic loci associated with vitiligo risk. Many of these genes are involved in immune regulation, melanocyte biology, or apoptosis. Genes shared between vitiligo and other autoimmune conditions (such as PTPN22, CTLA4, and HLA region variants) confirm the autoimmune nature of vitiligo.
+
+Environmental factors that may trigger vitiligo in genetically susceptible individuals include psychological stress, sunburn, physical trauma to the skin (Koebner phenomenon), certain chemical exposures, and viral infections.
+
+Thyroid autoimmunity is the most commonly associated condition in people with vitiligo. Up to thirty percent of vitiligo patients have thyroid antibodies. Screening for thyroid disease is recommended, particularly in women and those with extensive vitiligo.
+
+Understanding the autoimmune mechanisms opens new avenues for therapeutic intervention beyond cosmetic treatment.

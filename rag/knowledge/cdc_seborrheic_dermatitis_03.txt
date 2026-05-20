@@ -1,0 +1,16 @@
+SOURCE: CDC
+TOPIC: Seborrheic Dermatitis — Neurological Associations and Special Populations
+---
+Seborrheic dermatitis has significant associations with several neurological and systemic conditions. Understanding these associations guides appropriate evaluation and management.
+
+Parkinson's disease is the most established neurological association with seborrheic dermatitis. People with Parkinson's disease have a markedly higher prevalence and more severe seborrheic dermatitis. Autonomic dysfunction in Parkinson's disease leads to increased sebum production. Reduced facial expression may result in sebum accumulation in facial skin folds. Certain Parkinson's medications may also contribute.
+
+People with HIV infection have dramatically increased prevalence and severity of seborrheic dermatitis. In some HIV-positive individuals, severe seborrheic dermatitis is the presenting sign of underlying immunosuppression. The severity of seborrheic dermatitis correlates with CD4 count — worsening as immunity declines. With effective antiretroviral therapy, seborrheic dermatitis often improves.
+
+Facial nerve palsy — weakness of facial muscles causing asymmetric expression — can result in sebum accumulation on the paretic side, predisposing to seborrheic dermatitis on that side.
+
+Spinal cord injuries affecting autonomic function can alter sebum production and contribute to seborrheic dermatitis.
+
+Some medications trigger seborrheic dermatitis as a side effect. Lithium carbonate (used for bipolar disorder), psoralen, some interferon preparations, and certain antipsychotic medications have been associated with onset or worsening of seborrheic dermatitis.
+
+Nutritional deficiencies, including zinc and B vitamin deficiencies, can cause skin changes resembling seborrheic dermatitis. Nutritional assessment is warranted when seborrheic dermatitis presents with atypical features or is refractory to standard treatment.

@@ -1,0 +1,14 @@
+SOURCE: DGHS
+TOPIC: Telemedicine and Digital Health for Skin Disease in Bangladesh
+---
+Bangladesh has made significant strides in integrating telemedicine into its healthcare system, particularly to address the shortage of specialist physicians in rural areas. Dermatology is a specialty particularly well-suited to telemedicine because diagnosis often relies on visual assessment of skin lesions.
+
+The Government of Bangladesh launched Shastho Batayon — a national telemedicine service — providing remote physician consultations via telephone and video. Dermatological consultations have been a component of this service. During the COVID-19 pandemic, telemedicine usage expanded substantially.
+
+Mobile health (mHealth) applications for skin disease management are emerging in Bangladesh. Applications that allow community health workers to photograph skin lesions and transmit images to dermatologists for remote assessment are being piloted. This approach can dramatically improve access to dermatological expertise in rural areas.
+
+Artificial intelligence-assisted skin disease diagnosis represents a promising frontier for Bangladesh's healthcare challenges. AI tools trained on local clinical data — such as those developed using Bangladeshi clinical datasets from medical college hospitals in Faridpur and Rangpur — have the potential to provide decision support at the primary care level.
+
+AI-powered screening and triage tools, accessible via smartphone or tablet, could extend the reach of dermatological expertise to community clinics, upazila health complexes, and even community-level health workers. Such tools should be designed to support — not replace — clinical judgment, guiding patients to the appropriate level of care.
+
+DGHS digital health strategy includes integration of AI-assisted diagnostic tools into the health system, subject to appropriate validation, regulatory review, and ongoing monitoring of performance and safety. Ensuring equitable access to digital health tools for rural and underserved populations is a priority.

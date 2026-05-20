@@ -1,0 +1,14 @@
+SOURCE: NIH
+TOPIC: Seborrheic Dermatitis and Malassezia
+---
+The pathogenesis of seborrheic dermatitis involves an interplay between Malassezia yeast, sebum production, and host immune response. Malassezia species, particularly Malassezia globosa and Malassezia restricta, are lipophilic yeasts that naturally colonize human skin in sebum-rich areas.
+
+In susceptible individuals, Malassezia produces lipases that break down sebum triglycerides into free fatty acids. These free fatty acids — particularly oleic acid — penetrate the skin barrier and trigger inflammation, disrupting the skin barrier further and causing the scaling and redness characteristic of seborrheic dermatitis.
+
+Sebum production increases during puberty, which explains why seborrheic dermatitis is common in adolescents. Sebaceous gland activity declines in old age, but seborrheic dermatitis can still occur. The scalp, face, and chest have the highest density of sebaceous glands, explaining the preferential distribution.
+
+The host immune response to Malassezia varies between individuals. People who develop seborrheic dermatitis appear to have an exaggerated inflammatory response to normal levels of Malassezia colonization. Immunocompromised individuals, particularly those with HIV infection or receiving immunosuppressive therapy, can develop severe and widespread seborrheic dermatitis.
+
+Neurological associations of seborrheic dermatitis are well-established. The condition is significantly more common and severe in people with Parkinson's disease. Elevated sebum production due to autonomic dysfunction and impaired facial expression leading to sebum accumulation are proposed mechanisms.
+
+Antifungal treatments that reduce Malassezia load are effective for seborrheic dermatitis, confirming the central role of the yeast in disease pathogenesis.

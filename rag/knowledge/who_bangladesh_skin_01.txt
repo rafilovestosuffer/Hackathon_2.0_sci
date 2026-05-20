@@ -1,0 +1,14 @@
+SOURCE: WHO
+TOPIC: WHO Country Support — Bangladesh Skin Disease Burden
+---
+Bangladesh is classified as a lower-middle-income country by the World Bank, with a population of approximately one hundred seventy million people. The country faces a substantial burden of both communicable and non-communicable skin diseases, with significant unmet needs for dermatological care.
+
+WHO's country office in Bangladesh works with the Government of Bangladesh and the Directorate General of Health Services to strengthen skin disease management within the national health system. Priority areas include neglected tropical diseases (particularly scabies and leprosy), improving access to essential dermatological medicines, and training healthcare workers in basic dermatology.
+
+The dermatologist-to-population ratio in Bangladesh is among the lowest in the region, estimated at approximately one per two hundred fifty thousand people. Most dermatologists practice in major urban centers, leaving vast rural populations with extremely limited access to specialist care.
+
+Bangladesh's geographical characteristics create specific skin disease challenges. The low-lying delta geography is prone to flooding during monsoon season, which increases exposure to skin infections and wounds. The subtropical climate with high humidity promotes fungal infections.
+
+WHO supports telemedicine and digital health innovations as strategies to extend dermatological expertise to remote areas. AI-assisted skin disease screening tools represent a promising approach to improving access to quality care for rural populations.
+
+WHO's Bangladesh country programs include integration of skin disease management into maternal and child health services, school health programs, and primary care training curricula. The WHO-SEARO regional office provides technical support to Bangladesh's national skin disease programs.

@@ -1,0 +1,14 @@
+SOURCE: WHO
+TOPIC: Community Management of Scabies
+---
+Community-level approaches to scabies control are essential in endemic areas where household-level treatment alone is insufficient to break transmission chains.
+
+Mass drug administration (MDA) with oral ivermectin has transformed scabies control in several Pacific Island nations. Studies in Fiji, Vanuatu, and the Solomon Islands have shown that community-wide treatment of all residents, regardless of symptom status, can reduce scabies prevalence from fifty percent or higher to less than two percent within twelve months.
+
+WHO recommends a three-tier approach to scabies control: reactive treatment (treating individual cases and contacts), enhanced reactive treatment (treating entire households of cases), and proactive MDA (treating entire communities when prevalence exceeds ten percent).
+
+Community health education is an essential component of all scabies control programs. Key messages include that scabies is caused by a mite — not poor hygiene; that all household members must be treated simultaneously; that itching may persist for several weeks after successful treatment; and that bedding and clothing must be washed on the day of treatment.
+
+Integration of scabies management into national neglected tropical disease programs allows more efficient use of resources and coordination with other MDA programs such as lymphatic filariasis and soil-transmitted helminthiasis.
+
+In Bangladesh, community health workers (community health assistants and health inspectors) play a vital role in identifying and managing scabies at the household and community level. Strengthening their capacity to recognize and appropriately manage scabies, and ensuring community access to permethrin cream and ivermectin through the upazila health system, is essential for scabies control.

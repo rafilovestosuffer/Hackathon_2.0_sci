@@ -1,0 +1,14 @@
+SOURCE: DGHS
+TOPIC: DGHS Upazila Health Complex — Skin Disease Management Protocol
+---
+Upazila Health Complexes (UHC) are the backbone of Bangladesh's primary health care system, providing the first level of inpatient care and specialist outpatient services across the country. Each of Bangladesh's approximately five hundred upazilas has a health complex serving the rural population of that administrative unit.
+
+For skin diseases, UHCs serve as the primary referral point from community clinics and represent the highest level of care accessible to most rural patients without significant travel burden. UHC medical officers manage the full spectrum of common skin diseases.
+
+Standard treatment protocols at UHC level for common skin diseases include permethrin five percent cream and patient and family education for scabies; clotrimazole cream twice daily for four weeks for tinea corporis; topical corticosteroids (hydrocortisone one percent or betamethasone for severe cases) with emollients for eczema and atopic dermatitis; ketoconazole shampoo and hydrocortisone cream for seborrheic dermatitis; and appropriate wound care and antibiotic therapy for secondary bacterial skin infections.
+
+Patients requiring systemic antifungal therapy (for tinea capitis, extensive tinea, or treatment-resistant cases), biologics for severe atopic dermatitis, or phototherapy for vitiligo and psoriasis are referred to district or medical college hospitals.
+
+The UHC system, with appropriate training and supplies, has the capacity to manage the majority of skin disease burden in rural Bangladesh without requiring specialist referral. Ensuring consistent supply of essential dermatological medicines to all UHCs is a DGHS priority.
+
+Digital health tools, including teledermatology and AI-assisted triage systems, represent innovative solutions to extend the reach of dermatology expertise to the UHC level and below, reducing unnecessary referrals while ensuring urgent cases reach appropriate care.

@@ -1,0 +1,14 @@
+SOURCE: NIH
+TOPIC: Atopic Dermatitis — Triggers and Flare Management
+---
+Understanding and managing triggers is central to long-term atopic dermatitis control. Triggers are factors that cause the immune system to activate and worsen skin inflammation in predisposed individuals. Triggers vary between individuals and must be identified through careful observation.
+
+Skin irritants are among the most common triggers. These include soaps and cleansers that disrupt the skin barrier, detergents, bleach, chlorine in swimming pools, some cosmetics and fragrances, rough fabrics (particularly wool and synthetic fibers), adhesives, and cigarette smoke. Environmental irritants in Bangladesh include dust, smoke from cooking fires (particularly in rural areas where biomass fuel is used), and industrial pollutants.
+
+Allergens can trigger atopic dermatitis through various mechanisms. House dust mites are the most clinically relevant inhalant allergen. Pet dander from cats and dogs is another common sensitizer. Pollen, mold spores, and cockroach allergens are relevant in different settings. Food allergens, particularly milk, eggs, wheat, soy, and peanuts, are relevant triggers in infants and young children.
+
+Infectious agents frequently trigger atopic dermatitis flares. Staphylococcus aureus colonizes affected skin and produces toxins that act as superantigens and stimulate inflammation. Antistaphylococcal treatment can improve atopic dermatitis in colonized patients. Herpes simplex virus can cause a severe flare called eczema herpeticum.
+
+Psychological stress is a well-recognized trigger that worsens atopic dermatitis through neuroimmune mechanisms. Stress management and mental health support are components of comprehensive care.
+
+Flare management involves increasing topical anti-inflammatory treatment, addressing any infection, and identifying and removing the triggering factor. A written action plan helps patients respond appropriately to changing disease severity.

@@ -1,0 +1,20 @@
+SOURCE: NIH
+TOPIC: Contact Dermatitis Treatment and Long-term Management
+---
+Effective management of contact dermatitis requires both treating the acute reaction and identifying the causative substance to prevent recurrence.
+
+In the acute phase, removing the offending substance is the first priority. Wash the affected area thoroughly with mild soap and water. Apply cool, wet compresses to relieve itch and reduce weeping. Avoid further exposure to the suspected substance during evaluation.
+
+Topical corticosteroids are the primary treatment for reducing inflammation. For localized reactions on the body, a medium-potency corticosteroid (such as triamcinolone acetonide 0.1% cream) applied twice daily for one to two weeks is appropriate. For facial or genital involvement, a low-potency agent (hydrocortisone 1%) is preferred. For severe reactions covering large body surface areas, a short course of oral corticosteroids (prednisone) may be required.
+
+Antihistamines provide some relief from itching. Oral antihistamines are particularly helpful for nighttime itching.
+
+Secondary bacterial infections require topical or systemic antibiotics depending on severity.
+
+After the acute reaction resolves, patch testing by a dermatologist is the definitive investigation for allergic contact dermatitis. Patch testing identifies specific allergens from a standardized panel. Results guide avoidance counseling.
+
+Long-term management is centered on avoiding the identified allergen. Allergen avoidance information should include all sources of the allergen in products, materials, and workplace substances. Safe alternatives should be provided.
+
+Regular moisturizer use to maintain skin barrier function is important for long-term management, particularly for hand dermatitis.
+
+In occupational contact dermatitis, workplace assessment and modification are essential components of management alongside individual treatment.

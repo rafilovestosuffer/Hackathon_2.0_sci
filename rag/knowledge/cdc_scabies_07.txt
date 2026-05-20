@@ -1,0 +1,18 @@
+SOURCE: CDC
+TOPIC: Scabies — Global Distribution and Epidemiology
+---
+Scabies is a global public health problem affecting more than two hundred million people at any given time. It is endemic in many tropical and subtropical regions and can reach epidemic proportions in overcrowded settings.
+
+Scabies occurs across all socioeconomic levels and climates, but its burden is greatest in resource-limited settings in sub-Saharan Africa, South and Southeast Asia (including Bangladesh), the Pacific Islands, and Latin America. In endemic communities, the prevalence among children can exceed fifty percent.
+
+The global burden of scabies extends beyond the immediate discomfort of infestation. Secondary bacterial infections — the most significant complication — contribute substantially to the burden of bacterial skin disease, septicemia, and post-streptococcal glomerulonephritis in endemic regions.
+
+Scabies epidemiology shows cyclical patterns, with outbreaks occurring every ten to fifteen years in some populations. The reasons for these cycles are not fully understood but may relate to herd immunity and population density dynamics.
+
+Institutional outbreaks are a distinct epidemiological pattern. Nursing homes, hospitals, prisons, refugee camps, and boarding schools facilitate rapid scabies transmission due to close contact and delayed recognition.
+
+In conflict-affected areas and refugee camps, scabies rates can be extremely high — sometimes exceeding seventy percent — due to overcrowding, limited access to water and sanitation, and disrupted healthcare.
+
+Climate may influence scabies distribution. Warmer temperatures increase mite survival on surfaces and potentially expand the zone of endemicity. Climate change could worsen the global scabies burden.
+
+The COVID-19 pandemic disrupted scabies control programs globally, and subsequent increases in scabies cases were reported in many countries, including in Europe and Asia.

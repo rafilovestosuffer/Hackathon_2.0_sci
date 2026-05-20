@@ -1,0 +1,16 @@
+SOURCE: DGHS
+TOPIC: Skin Disease Referral Pathways in Bangladesh Health System
+---
+Bangladesh's tiered health system provides a structured pathway for managing skin disease patients, from community-level recognition through specialist referral.
+
+At the community level, community health assistants (CHAs) and health assistants conduct household visits and provide basic health education. They are trained to recognize common skin conditions including scabies, tinea, and impetigo, and to refer patients requiring treatment to the nearest community clinic or upazila health complex.
+
+Community clinics, located at the union level, provide the first formal healthcare contact for many rural patients with skin conditions. General practitioners at community clinics can manage common skin conditions including scabies (with permethrin cream), uncomplicated tinea (with clotrimazole cream), and mild eczema (with topical corticosteroids). Essential medicines for these conditions are provided through DGHS supply chains.
+
+Upazila health complexes (UHC) serve as the referral center for cases beyond community clinic capacity. UHCs have medical officers who can manage more complex skin conditions. Patients with severe, widespread, or treatment-resistant skin disease, suspected severe infections, or conditions requiring systemic treatment should be referred to UHC.
+
+District hospitals have specialist physicians including medical officers with dermatology training. They manage complex conditions such as severe atopic dermatitis, widespread scabies outbreaks, and skin disease in immunocompromised patients.
+
+Medical college hospitals in divisional cities (Dhaka, Chittagong, Rajshahi, Khulna, Sylhet, Mymensingh, Barishal) have dermatology departments with consultants who manage severe and complex cases including phototherapy for vitiligo and psoriasis, and inpatient management of severe skin disease.
+
+The goal of the referral system is to ensure appropriate care at the right level — preventing unnecessary referral of simple cases while ensuring complex cases reach specialist care.

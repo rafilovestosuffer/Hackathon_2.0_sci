@@ -1,0 +1,41 @@
+# Model checkpoints (use HF Hub if >100MB)
+model/checkpoints/*.pt
+model/checkpoints/*.pth
+model/checkpoints/*.bin
+model/checkpoints/*.onnx
+
+# Environment
+.env
+*.env
+.streamlit/secrets.toml
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.Python
+*.egg-info/
+dist/
+build/
+.eggs/
+.venv/
+venv/
+env/
+
+# FAISS index (rebuilt at startup)
+rag/faiss_index.bin
+rag/chunks_metadata.json
+
+# Fonts (downloaded at build/runtime)
+pdf_gen/fonts/*.ttf
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Logs
+*.log

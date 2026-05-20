@@ -1,0 +1,14 @@
+SOURCE: NIH
+TOPIC: Tinea Infections — Clinical Overview
+---
+Tinea infections, caused by dermatophytes, represent some of the most common fungal infections in humans. Dermatophytes are a specialized group of fungi that require keratin for growth and can only infect keratinized tissues including skin, hair, and nails. The three main genera responsible for tinea infections are Trichophyton, Microsporum, and Epidermophyton.
+
+Tinea infections are classified by the body site affected. Tinea corporis (body), tinea capitis (scalp), tinea pedis (feet), tinea cruris (groin), tinea unguium (nails), and tinea manuum (hands) are the most common forms.
+
+The clinical presentation of tinea depends on the specific dermatophyte species and the host immune response. The classic presentation is an annular (ring-shaped) lesion with a raised, scaly, erythematous border and central clearing. However, the presentation can be variable, especially in immunocompromised hosts who may develop more widespread and atypical infections.
+
+Diagnosis is often made clinically based on characteristic morphology and location. Laboratory confirmation can be obtained through potassium hydroxide (KOH) examination of skin scrapings, which reveals fungal hyphae under microscopy. Fungal culture on Sabouraud dextrose agar confirms the diagnosis and identifies the specific species, which guides treatment decisions.
+
+Wood's lamp examination causes certain species of Microsporum to fluoresce green, which can be useful in scalp tinea diagnosis, though many dermatophyte species do not fluoresce.
+
+Treatment with topical antifungals is effective for most superficial tinea infections. Systemic therapy is required for tinea capitis, tinea unguium, and extensive or recalcitrant infections.

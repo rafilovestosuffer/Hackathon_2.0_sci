@@ -1,0 +1,16 @@
+SOURCE: DGHS
+TOPIC: Patient Navigation in Bangladesh's Health System — A Practical Guide
+---
+Understanding how to navigate Bangladesh's health system is essential for patients with skin diseases to access appropriate care efficiently without unnecessary delay or expense.
+
+For most skin conditions of mild to moderate severity, the first point of contact should be the community clinic (kaminuniti klinik) at the union level or, in urban areas, a government dispensary. Community clinics are staffed by community health care providers who can manage common conditions including scabies, tinea, and impetigo, and can dispense essential medicines. These services are free for registered community members.
+
+For conditions that require physician evaluation — widespread or treatment-resistant conditions, suspected tinea capitis, atopic dermatitis requiring prescription treatment — the upazila health complex (UHC) provides free or highly subsidized outpatient consultation and medicines. Every upazila has a health complex accessible within the administrative area.
+
+District hospitals, located in the administrative district headquarters, provide a higher level of care with specialist physicians. Patients referred from UHC level with complex or refractory skin disease are seen here. Referral letters from the UHC facilitate efficient evaluation.
+
+For specialist dermatology, patients are referred to medical college hospitals in divisional cities. These hospitals have dermatology departments with consultant dermatologists, phototherapy equipment, and facilities for patch testing and advanced investigations.
+
+Private dermatology practice is available in cities and larger towns. Quality varies. Private consultation involves out-of-pocket costs that can be prohibitive for low-income patients.
+
+When in doubt about where to go, the nearest government health facility is the appropriate starting point. Bringing any previous prescriptions, test results, and a brief written description of the problem — or using a digital health tool like SkinAI Bangladesh for initial triage — helps ensure efficient evaluation at each level of the health system.
