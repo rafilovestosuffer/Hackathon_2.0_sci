@@ -57,16 +57,6 @@ def _load_rag_index():
     return load_index()
 
 
-@st.cache_resource(show_spinner="Loading voice model…")
-def _load_whisper():
-    try:
-        from faster_whisper import WhisperModel
-        return WhisperModel("base", device="cpu", compute_type="int8")
-    except Exception as e:
-        logger.warning("Whisper load failed: %s", e)
-        return None
-
-
 # ── Model inference placeholder ───────────────────────────────────────────────
 # ⚠️  CHECKPOINT NOT YET PROVIDED — plug in real inference here when ready.
 
@@ -84,9 +74,15 @@ def _run_model(pil_img: Image.Image) -> dict:
 
 
 def _transcribe(audio_bytes: bytes, fmt: str = "wav") -> str:
+    if not audio_bytes:
+        return ""
     try:
         from voice.pipeline import transcribe_audio
-        return transcribe_audio(audio_bytes, fmt)
+        result = transcribe_audio(audio_bytes, fmt)
+        return result or ""
+    except ImportError:
+        logger.warning("faster-whisper not installed")
+        return ""
     except Exception as e:
         logger.warning("Transcription failed: %s", e)
         return ""
@@ -299,6 +295,15 @@ with tab1:
             '⏺ Option 1 — Record directly</div>',
             unsafe_allow_html=True,
         )
+        st.markdown(
+            '<div style="font-size:0.74rem;color:#A0AEC0;margin-bottom:0.3rem;'
+            'padding:0.35rem 0.6rem;background:#F7F9FC;border-radius:6px;border-left:3px solid #4299E1;">'
+            '🔒 Requires microphone permission in your browser. '
+            'If you see an error, click the 🔒 icon in the address bar → allow microphone, then refresh. '
+            'Or use Option 2 below to upload a file instead.'
+            '</div>',
+            unsafe_allow_html=True,
+        )
         audio_data = st.audio_input(
             "বাংলায় বলুন",
             key="audio_record",
@@ -306,7 +311,7 @@ with tab1:
         )
 
         st.markdown(
-            '<div style="font-size:0.78rem;color:#718096;margin:0.45rem 0 0.2rem 0;">'
+            '<div style="font-size:0.78rem;color:#718096;margin:0.6rem 0 0.2rem 0;">'
             '📁 Option 2 — Upload voice file (WAV / MP3 / OGG)</div>',
             unsafe_allow_html=True,
         )
@@ -317,17 +322,19 @@ with tab1:
             label_visibility="collapsed",
         )
 
-        # Process audio
+        # Process audio — read bytes first, then pass bytes to st.audio (not the stream)
         audio_bytes = None
         audio_fmt   = "wav"
         if audio_data is not None:
             audio_bytes = audio_data.read()
             audio_fmt   = "wav"
-            st.audio(audio_data)
+            if audio_bytes:
+                st.audio(audio_bytes, format="audio/wav")
         elif audio_file is not None:
             audio_bytes = audio_file.read()
             audio_fmt   = audio_file.name.rsplit(".", 1)[-1].lower()
-            st.audio(audio_file)
+            if audio_bytes:
+                st.audio(audio_bytes, format=f"audio/{audio_fmt}")
 
         if audio_bytes:
             with st.spinner("🔄 Transcribing Bengali audio…"):
@@ -344,8 +351,12 @@ with tab1:
                     st.session_state.history = _history
             else:
                 st.warning(
-                    "Could not transcribe. Please speak clearly or upload a WAV file.\n\n"
-                    "ট্রান্সক্রিপ্ট করা যাচ্ছে না — স্পষ্টভাবে বলুন বা WAV ফাইল আপলোড করুন।"
+                    "⚠️ **Could not transcribe audio.**\n\n"
+                    "Tips: speak clearly in Bengali, use a WAV file, or ensure the recording "
+                    "has actual speech (not silence).\n\n"
+                    "**ট্রান্সক্রিপ্ট করা যাচ্ছে না।** বাংলায় স্পষ্টভাবে বলুন, "
+                    "অথবা WAV ফাইল আপলোড করুন।\n\n"
+                    "💡 You can still upload a skin image — voice is optional."
                 )
 
         # Patient history display
