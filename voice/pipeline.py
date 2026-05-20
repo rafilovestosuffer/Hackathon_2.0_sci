@@ -44,21 +44,28 @@ _HISTORY_KEYS = {
     "patient_age":        "",
 }
 
-_EXTRACTION_PROMPT = """You are a medical assistant. Extract patient history from this transcript (Bengali or English).
-Return ONLY valid JSON with exactly these keys:
+_EXTRACTION_PROMPT = """You are a medical assistant helping rural Bangladeshi patients. \
+Extract patient history from the transcript below. The transcript may be in Bengali (বাংলা), \
+English, or a mix. It may also contain romanized Bengali (e.g. "amar gaye khuj hocche" means \
+"I have itching on my body"). Interpret the meaning carefully regardless of script.
+
+Return ONLY valid JSON with exactly these keys — no extra text, no markdown:
 {{
-  "chief_complaint": "",
-  "symptoms": [],
-  "affected_area": "",
-  "duration": "",
-  "progression": "",
-  "previous_treatment": "",
-  "associated_symptoms": [],
-  "patient_name": "",
-  "patient_age": ""
+  "chief_complaint": "primary skin complaint in English (e.g. Itching, Rash, Redness)",
+  "symptoms": ["list", "of", "symptoms", "in", "English"],
+  "affected_area": "body part in English (e.g. arm, face, back) or empty string",
+  "duration": "how long (e.g. 3 days, 2 weeks) or empty string",
+  "progression": "getting better / getting worse / stable / spreading or empty string",
+  "previous_treatment": "any treatment tried or empty string",
+  "associated_symptoms": ["fever", "pain", "etc. or empty list"],
+  "patient_name": "name if mentioned or empty string",
+  "patient_age": "age if mentioned or empty string"
 }}
-Fill each field from the transcript. Use empty string "" or empty list [] if information is not mentioned.
-Do not add any text outside the JSON.
+
+Rules:
+- Only extract what is CLEARLY stated. Do NOT guess or hallucinate.
+- If the transcript is unclear noise or random words with no medical meaning, return all empty strings/lists.
+- chief_complaint and symptoms must relate to a SKIN or BODY condition.
 
 Transcript: {transcript}"""
 
@@ -96,7 +103,7 @@ def _get_model():
     global _whisper_model
     if _whisper_model is None:
         from faster_whisper import WhisperModel
-        _whisper_model = WhisperModel("base", device="cpu", compute_type="int8")
+        _whisper_model = WhisperModel("small", device="cpu", compute_type="int8")
     return _whisper_model
 
 # Alias used internally
@@ -187,11 +194,15 @@ def transcribe_audio(
     # 3. Transcribe
     try:
         model = _get_model()
+        # initial_prompt in Bengali script forces the model to output Bengali
+        # characters instead of romanizing the speech (common issue with base model)
+        bn_prompt = "আমার ত্বকে সমস্যা হচ্ছে।" if language == "bn" else None
         segments, info = model.transcribe(
             audio_arr,
             language=language,
             beam_size=5,
-            vad_filter=True,        # skip non-speech segments
+            initial_prompt=bn_prompt,
+            vad_filter=True,
             vad_parameters={"min_silence_duration_ms": 500},
         )
         text = " ".join(seg.text.strip() for seg in segments).strip()
