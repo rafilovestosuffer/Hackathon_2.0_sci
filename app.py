@@ -90,8 +90,10 @@ def _detect_audio_fmt(audio_bytes: bytes) -> str:
     return "wav"  # safe default
 
 
-def _transcribe(audio_bytes: bytes, fmt: str = "wav") -> tuple[str, str]:
+def _transcribe(audio_bytes: bytes, fmt: str = "wav", language: str | None = None) -> tuple[str, str]:
     """Transcribe audio bytes → (transcript_str, error_reason_str).
+
+    language: "bn" | "en" | None (auto-detect).
     Returns ("", reason) on failure so caller can show a helpful message.
     """
     if not audio_bytes:
@@ -105,7 +107,7 @@ def _transcribe(audio_bytes: bytes, fmt: str = "wav") -> tuple[str, str]:
 
     try:
         from voice.pipeline import transcribe_audio
-        result = transcribe_audio(audio_bytes, fmt)
+        result = transcribe_audio(audio_bytes, fmt, language=language)
         if result and result.strip():
             return result.strip(), ""
         return "", "silence"
@@ -299,13 +301,13 @@ tab1, tab2, tab3 = st.tabs([
 with tab1:
     col_left, col_right = st.columns([1, 1], gap="large")
 
-    # ── LEFT COLUMN: Voice Input ───────────────────────────────────────────────
+    # ── LEFT COLUMN: Voice Input + Patient Data ────────────────────────────────
     with col_left:
         st.markdown(
             '<div class="card-section-header">'
             '<span style="font-size:1.1rem;">🎙️</span>'
             '<div>'
-            '<div class="card-section-title">ভয়েস ইনপুট (Bengali)</div>'
+            '<div class="card-section-title">ভয়েস ইনপুট · Voice Input</div>'
             '<div class="card-section-sub">(ঐচ্ছিক — optional)</div>'
             '</div>'
             '</div>',
@@ -313,13 +315,38 @@ with tab1:
         )
         st.markdown(
             '<div class="info-box">'
-            '🤖 Bengali voice input lets AI auto-extract patient history — <strong>optional</strong>'
+            '🤖 Speak in <strong>Bengali or English</strong> — AI auto-extracts patient history'
             '</div>',
             unsafe_allow_html=True,
         )
 
-        # ── Voice tabs: Live Mic (primary) | Upload (backup) ─────────────────
-        _vtab_mic, _vtab_upload = st.tabs(["🎙️ Record Voice", "📁 Upload Audio File"])
+        # ── Language selector ─────────────────────────────────────────────────
+        _lang_col1, _lang_col2 = st.columns([1, 2])
+        with _lang_col1:
+            st.markdown(
+                '<div style="font-size:0.78rem;font-weight:600;color:#4A5568;'
+                'padding-top:0.4rem;">🌐 Language:</div>',
+                unsafe_allow_html=True,
+            )
+        with _lang_col2:
+            _audio_lang_choice = st.selectbox(
+                "Audio language",
+                options=["Auto-detect", "Bengali (বাংলা)", "English"],
+                index=0,
+                key="audio_lang_select",
+                label_visibility="collapsed",
+            )
+        _lang_map = {
+            "Auto-detect":        None,
+            "Bengali (বাংলা)":    "bn",
+            "English":            "en",
+        }
+        _selected_lang = _lang_map[_audio_lang_choice]
+
+        # ── Voice tabs: Live Mic (primary) | Upload (backup) | Text ──────────
+        _vtab_mic, _vtab_upload, _vtab_text = st.tabs([
+            "🎙️ Record Voice", "📁 Upload Audio", "✏️ Type Text",
+        ])
 
         audio_bytes = None
         audio_fmt   = "wav"
@@ -327,7 +354,7 @@ with tab1:
         with _vtab_mic:
             st.markdown(
                 '<div style="font-size:0.82rem;color:#4A5568;margin-bottom:0.5rem;">'
-                '🎙️ Click the microphone button below — speak in Bengali — click again to stop.</div>',
+                '🎙️ Click the microphone — speak — click again to stop.</div>',
                 unsafe_allow_html=True,
             )
             try:
@@ -339,27 +366,31 @@ with tab1:
                     icon_name="microphone",
                     icon_size="3x",
                     pause_threshold=2.5,
-                    sample_rate=16_000,
                     key="mic_recorder",
                 )
                 if _mic_bytes and len(_mic_bytes) > 1000:
                     audio_bytes = _mic_bytes
                     audio_fmt   = "wav"
                     st.audio(audio_bytes, format="audio/wav")
-                    st.success("✅ Recording captured — transcribing below…")
+                    st.success("✅ Recording captured — transcribing…")
             except ImportError:
-                # Fallback to st.audio_input if package not available
-                audio_data = st.audio_input(
-                    "বাংলায় বলুন",
-                    key="audio_record",
-                    label_visibility="collapsed",
-                )
-                if audio_data is not None:
-                    _fb_bytes = audio_data.read()
-                    if _fb_bytes:
-                        audio_bytes = _fb_bytes
-                        audio_fmt   = "wav"
-                        st.audio(audio_bytes, format="audio/wav")
+                try:
+                    audio_data = st.audio_input(
+                        "বাংলায় বলুন / Speak now",
+                        key="audio_record",
+                        label_visibility="collapsed",
+                    )
+                    if audio_data is not None:
+                        _fb_bytes = audio_data.read()
+                        if _fb_bytes:
+                            audio_bytes = _fb_bytes
+                            audio_fmt   = "wav"
+                            st.audio(audio_bytes, format="audio/wav")
+                except Exception:
+                    st.info(
+                        "🎙️ Live microphone not available. "
+                        "Use **Upload Audio** or **Type Text** instead."
+                    )
 
             st.markdown(
                 '<div style="font-size:0.72rem;color:#A0AEC0;margin-top:0.4rem;">'
@@ -371,11 +402,11 @@ with tab1:
         with _vtab_upload:
             st.markdown(
                 '<div style="font-size:0.78rem;color:#718096;margin:0.3rem 0 0.4rem 0;">'
-                'Upload a Bengali voice recording (WAV / MP3 / OGG / M4A)</div>',
+                'Upload a voice recording (WAV / MP3 / OGG / M4A / WEBM)</div>',
                 unsafe_allow_html=True,
             )
             audio_file = st.file_uploader(
-                "Upload Bengali audio",
+                "Upload audio",
                 type=["wav", "mp3", "ogg", "webm", "m4a"],
                 key="audio_file",
                 label_visibility="collapsed",
@@ -386,9 +417,39 @@ with tab1:
                 if audio_bytes:
                     st.audio(audio_bytes, format=f"audio/{audio_fmt}")
 
+        with _vtab_text:
+            st.markdown(
+                '<div style="font-size:0.78rem;color:#718096;margin:0.3rem 0 0.4rem 0;">'
+                'বাংলায় বা ইংরেজিতে লিখুন · Type in Bengali or English</div>',
+                unsafe_allow_html=True,
+            )
+            _manual = st.text_area(
+                "Patient history",
+                value=st.session_state.get("manual_transcript_val", ""),
+                placeholder=(
+                    "Bengali: যেমন — আমার নাম রহিম, বয়স ৩৫। সারা শরীলে চুলকানি হচ্ছে, জ্বর আছে, ৫ দিন ধরে...\n"
+                    "English: My name is Rahim, age 35. I have itching all over, fever, for 5 days..."
+                ),
+                key="manual_transcript",
+                label_visibility="collapsed",
+                height=110,
+            )
+            if st.button("✅ Extract history from text", key="use_manual_btn", use_container_width=True):
+                if _manual.strip():
+                    st.session_state["manual_transcript_val"] = _manual.strip()
+                    st.session_state.transcript = _manual.strip()
+                    with st.spinner("🧠 Extracting patient history…"):
+                        _history = _extract_history(_manual.strip())
+                        st.session_state.history = _history
+                    st.rerun()
+                else:
+                    st.warning("Please enter some text first.")
+
+        # ── Process audio if captured ─────────────────────────────────────────
         if audio_bytes:
-            with st.spinner("🔄 Transcribing Bengali audio…"):
-                _transcript, _err = _transcribe(audio_bytes, audio_fmt)
+            _lang_label = _audio_lang_choice if _selected_lang else "auto-detecting"
+            with st.spinner(f"🔄 Transcribing ({_lang_label})…"):
+                _transcript, _err = _transcribe(audio_bytes, audio_fmt, language=_selected_lang)
                 st.session_state.transcript = _transcript
 
             if _transcript:
@@ -400,52 +461,103 @@ with tab1:
                     _history = _extract_history(_transcript)
                     st.session_state.history = _history
             else:
-                # ── Transcription failed — show reason + manual text fallback ──
                 _err_map = {
-                    "silence":       "No speech detected — please speak clearly into the mic.",
+                    "silence":       "No speech detected — please speak clearly.",
                     "not_installed": "faster-whisper is not installed in this environment.",
                 }
-                _err_msg = _err_map.get(_err, f"Transcription engine error ({_err}).")
+                _err_msg = _err_map.get(_err, f"Transcription error: {_err}")
                 st.warning(
                     f"⚠️ **Could not transcribe audio.** {_err_msg}\n\n"
-                    "**ট্রান্সক্রিপ্ট করা যাচ্ছে না।** নিচে বাংলায় টাইপ করুন।"
+                    "Use the **✏️ Type Text** tab to enter patient history manually."
                 )
-                # Manual text fallback — always show when transcription fails
-                st.markdown(
-                    '<div style="font-size:0.82rem;font-weight:600;color:#2D3748;'
-                    'margin:0.5rem 0 0.2rem 0;">'
-                    '✏️ বাংলায় টাইপ করুন (Manual entry)</div>',
-                    unsafe_allow_html=True,
-                )
-                _manual = st.text_area(
-                    "Type patient history in Bengali",
-                    placeholder="যেমন: আমার সারা শরীলে চুলকানি হচ্ছে, জ্বর আছে, ৫ দিন ধরে...",
-                    key="manual_transcript",
-                    label_visibility="collapsed",
-                    height=90,
-                )
-                if st.button("✅ Use this text", key="use_manual_btn"):
-                    if _manual.strip():
-                        st.session_state.transcript = _manual.strip()
-                        with st.spinner("🧠 Extracting patient history…"):
-                            _history = _extract_history(_manual.strip())
-                            st.session_state.history = _history
-                        st.rerun()
 
-        # Patient history display
-        if st.session_state.history:
+        st.markdown("---")
+
+        # ── Patient Data Form — always visible, editable ──────────────────────
+        st.markdown(
+            '<div class="card-section-header">'
+            '<span style="font-size:1rem;">👤</span>'
+            '<div>'
+            '<div class="card-section-title" style="font-size:0.95rem;">Patient Data</div>'
+            '<div class="card-section-sub">Auto-filled from voice · Edit as needed</div>'
+            '</div>'
+            '</div>',
+            unsafe_allow_html=True,
+        )
+
+        _h = st.session_state.history or {}
+        _form_col1, _form_col2 = st.columns(2)
+        with _form_col1:
+            _f_name = st.text_input(
+                "Patient Name · রোগীর নাম",
+                value=_h.get("patient_name", ""),
+                key="form_patient_name",
+                placeholder="e.g. রহিম / Rahim",
+            )
+            _f_complaint = st.text_input(
+                "Chief Complaint · প্রধান সমস্যা",
+                value=_h.get("chief_complaint", ""),
+                key="form_chief_complaint",
+                placeholder="e.g. চুলকানি / Itching rash",
+            )
+            _f_area = st.text_input(
+                "Affected Area · আক্রান্ত স্থান",
+                value=_h.get("affected_area", ""),
+                key="form_affected_area",
+                placeholder="e.g. বাহু, পেট / Arm, abdomen",
+            )
+            _f_duration = st.text_input(
+                "Duration · কতদিন ধরে",
+                value=_h.get("duration", ""),
+                key="form_duration",
+                placeholder="e.g. ৫ দিন / 5 days",
+            )
+        with _form_col2:
+            _f_age = st.text_input(
+                "Patient Age · বয়স",
+                value=_h.get("patient_age", ""),
+                key="form_patient_age",
+                placeholder="e.g. ৩৫ / 35",
+            )
+            _f_symptoms = st.text_input(
+                "Symptoms (comma-separated)",
+                value=", ".join(_h.get("symptoms", [])) if isinstance(_h.get("symptoms"), list) else _h.get("symptoms", ""),
+                key="form_symptoms",
+                placeholder="e.g. itching, redness, fever",
+            )
+            _f_progression = st.text_input(
+                "Progression · অবস্থার পরিবর্তন",
+                value=_h.get("progression", ""),
+                key="form_progression",
+                placeholder="e.g. ছড়িয়ে পড়ছে / spreading",
+            )
+            _f_prev = st.text_input(
+                "Previous Treatment · পূর্ববর্তী চিকিৎসা",
+                value=_h.get("previous_treatment", ""),
+                key="form_prev_treatment",
+                placeholder="e.g. কোনো চিকিৎসা নেই / None",
+            )
+
+        if st.button("💾 Save Patient Data", key="save_patient_btn", use_container_width=True):
+            _syms = [s.strip() for s in _f_symptoms.split(",") if s.strip()]
+            st.session_state.history = {
+                **_h,
+                "patient_name":       _f_name,
+                "patient_age":        _f_age,
+                "chief_complaint":    _f_complaint,
+                "affected_area":      _f_area,
+                "duration":           _f_duration,
+                "progression":        _f_progression,
+                "previous_treatment": _f_prev,
+                "symptoms":           _syms,
+                "associated_symptoms": _h.get("associated_symptoms", []),
+            }
+            st.success("✅ Patient data saved!")
+            st.rerun()
+
+        if st.session_state.history and st.session_state.history.get("patient_name"):
             st.markdown("")
             render_patient_history_table(st.session_state.history)
-        else:
-            st.markdown(
-                '<div style="background:#F8FAFC;border:1.5px dashed #E2E8F0;border-radius:10px;'
-                'padding:1.5rem;text-align:center;color:#718096;font-size:0.85rem;margin-top:0.5rem;">'
-                '🎙️ Upload or record Bengali audio to auto-extract patient history<br>'
-                '<span style="font-size:0.75rem;color:#A0AEC0;">'
-                'Voice is optional — upload a skin image to get a diagnosis</span>'
-                '</div>',
-                unsafe_allow_html=True,
-            )
 
     # ── RIGHT COLUMN: Image Upload + Results ───────────────────────────────────
     with col_right:

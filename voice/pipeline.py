@@ -26,7 +26,7 @@ _HISTORY_KEYS = {
     "patient_age": "",
 }
 
-_EXTRACTION_PROMPT = """You are a medical assistant. Extract patient history from this Bengali transcript.
+_EXTRACTION_PROMPT = """You are a medical assistant. Extract patient history from this transcript (Bengali or English).
 Return ONLY valid JSON with exactly these keys:
 {{
   "chief_complaint": "",
@@ -91,8 +91,11 @@ def _get_model() -> WhisperModel:
 
 # ── Public API ────────────────────────────────────────────────────────────────
 
-def transcribe_audio(audio_bytes: bytes, fmt: str = "wav") -> str:
-    """Transcribe Bengali audio bytes → Bengali transcript string."""
+def transcribe_audio(audio_bytes: bytes, fmt: str = "wav", language: str | None = None) -> str:
+    """Transcribe audio bytes → transcript string.
+
+    language: ISO-639-1 code ("bn", "en") or None for auto-detect.
+    """
     if not audio_bytes:
         return ""
 
@@ -104,7 +107,7 @@ def transcribe_audio(audio_bytes: bytes, fmt: str = "wav") -> str:
             tmp_path = tmp.name
 
         model = _get_model()
-        segments, _ = model.transcribe(tmp_path, language="bn", beam_size=5)
+        segments, _ = model.transcribe(tmp_path, language=language, beam_size=5)
         return " ".join(seg.text.strip() for seg in segments).strip()
 
     except Exception as exc:
