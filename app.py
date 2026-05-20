@@ -285,56 +285,69 @@ with tab1:
         )
         st.markdown(
             '<div class="info-box">'
-            '🤖 Bengali voice recording allows AI to extract patient history automatically'
+            '🤖 Bengali voice input lets AI auto-extract patient history — <strong>optional</strong>, '
+            'upload an image to get a diagnosis without voice'
             '</div>',
             unsafe_allow_html=True,
         )
 
-        st.markdown(
-            '<div style="font-size:0.78rem;color:#718096;margin-bottom:0.2rem;">'
-            '⏺ Option 1 — Record directly</div>',
-            unsafe_allow_html=True,
-        )
-        st.markdown(
-            '<div style="font-size:0.74rem;color:#A0AEC0;margin-bottom:0.3rem;'
-            'padding:0.35rem 0.6rem;background:#F7F9FC;border-radius:6px;border-left:3px solid #4299E1;">'
-            '🔒 Requires microphone permission in your browser. '
-            'If you see an error, click the 🔒 icon in the address bar → allow microphone, then refresh. '
-            'Or use Option 2 below to upload a file instead.'
-            '</div>',
-            unsafe_allow_html=True,
-        )
-        audio_data = st.audio_input(
-            "বাংলায় বলুন",
-            key="audio_record",
-            label_visibility="collapsed",
-        )
+        # ── Voice tabs: Upload (primary) | Live Mic (secondary) ──────────────
+        _vtab_upload, _vtab_mic = st.tabs(["📁 Upload Audio File", "🎙️ Live Recording"])
 
-        st.markdown(
-            '<div style="font-size:0.78rem;color:#718096;margin:0.6rem 0 0.2rem 0;">'
-            '📁 Option 2 — Upload voice file (WAV / MP3 / OGG)</div>',
-            unsafe_allow_html=True,
-        )
-        audio_file = st.file_uploader(
-            "Upload audio",
-            type=["wav", "mp3", "ogg", "webm", "m4a"],
-            key="audio_file",
-            label_visibility="collapsed",
-        )
-
-        # Process audio — read bytes first, then pass bytes to st.audio (not the stream)
         audio_bytes = None
         audio_fmt   = "wav"
-        if audio_data is not None:
-            audio_bytes = audio_data.read()
-            audio_fmt   = "wav"
-            if audio_bytes:
-                st.audio(audio_bytes, format="audio/wav")
-        elif audio_file is not None:
-            audio_bytes = audio_file.read()
-            audio_fmt   = audio_file.name.rsplit(".", 1)[-1].lower()
-            if audio_bytes:
-                st.audio(audio_bytes, format=f"audio/{audio_fmt}")
+
+        with _vtab_upload:
+            st.markdown(
+                '<div style="font-size:0.78rem;color:#718096;margin:0.3rem 0 0.4rem 0;">'
+                'Upload a Bengali voice recording (WAV / MP3 / OGG / M4A)</div>',
+                unsafe_allow_html=True,
+            )
+            audio_file = st.file_uploader(
+                "Upload Bengali audio",
+                type=["wav", "mp3", "ogg", "webm", "m4a"],
+                key="audio_file",
+                label_visibility="collapsed",
+            )
+            if audio_file is not None:
+                audio_bytes = audio_file.read()
+                audio_fmt   = audio_file.name.rsplit(".", 1)[-1].lower()
+                if audio_bytes:
+                    st.audio(audio_bytes, format=f"audio/{audio_fmt}")
+
+            # ── Demo audio download hint ──────────────────────────────────
+            st.markdown(
+                '<div style="font-size:0.73rem;color:#A0AEC0;margin-top:0.5rem;'
+                'padding:0.4rem 0.6rem;background:#F7F9FC;border-radius:6px;">'
+                '💡 <strong>No mic?</strong> Say this Bengali sentence into your phone and '
+                'save as an MP3: &nbsp;<em>"আমার সারা শরীলে চুলকানি হচ্ছে, জ্বর আছে, '
+                'রাশ ছড়িয়ে পড়ছে।"</em>'
+                '</div>',
+                unsafe_allow_html=True,
+            )
+
+        with _vtab_mic:
+            st.markdown(
+                '<div style="font-size:0.74rem;color:#A0AEC0;margin-bottom:0.4rem;'
+                'padding:0.35rem 0.6rem;background:#F7F9FC;border-radius:6px;'
+                'border-left:3px solid #4299E1;">'
+                '🔒 <strong>Browser permission required.</strong> '
+                'If you see an error below → click the 🔒 padlock in the browser address bar '
+                '→ set Microphone to <em>Allow</em> → refresh the page. '
+                'Works best on Chrome / Edge over HTTPS.'
+                '</div>',
+                unsafe_allow_html=True,
+            )
+            audio_data = st.audio_input(
+                "বাংলায় বলুন — Click to start recording",
+                key="audio_record",
+            )
+            if audio_data is not None:
+                _mic_bytes = audio_data.read()
+                if _mic_bytes:
+                    audio_bytes = _mic_bytes
+                    audio_fmt   = "wav"
+                    st.audio(audio_bytes, format="audio/wav")
 
         if audio_bytes:
             with st.spinner("🔄 Transcribing Bengali audio…"):
@@ -367,8 +380,9 @@ with tab1:
             st.markdown(
                 '<div style="background:#F8FAFC;border:1.5px dashed #E2E8F0;border-radius:10px;'
                 'padding:1.5rem;text-align:center;color:#718096;font-size:0.85rem;margin-top:0.5rem;">'
-                '🎙️ বাংলায় রোগীর ইতিহাস রেকর্ড করুন<br>'
-                '<span style="font-size:0.75rem;">Record patient history in Bengali to auto-extract details</span>'
+                '🎙️ Upload or record Bengali audio to auto-extract patient history<br>'
+                '<span style="font-size:0.75rem;color:#A0AEC0;">'
+                'Voice is optional — upload a skin image to get a diagnosis</span>'
                 '</div>',
                 unsafe_allow_html=True,
             )
