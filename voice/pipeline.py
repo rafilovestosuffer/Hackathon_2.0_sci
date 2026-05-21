@@ -162,58 +162,75 @@ def _check_audio_quality(audio_arr: np.ndarray) -> tuple[bool, float, str]:
 
 # ── Public API ────────────────────────────────────────────────────────────────
 
-def transcribe_audio(
+# Initial prompts force the model to output in the right script.
+# Without these, Whisper often romanizes Bengali speech into Latin characters.
+_INITIAL_PROMPTS = {
+    "bn": "আমার ত্বকে সমস্যা হচ্ছে।",
+    "en": "I have a skin problem.",
+}
+
+
+def transcribe_audio_detailed(
     audio_bytes: bytes,
     fmt: str = "wav",              # kept for API compatibility, not used for format detection
-    language: str = "bn",
-) -> str:
+    language: str | None = "bn",
+) -> tuple[str, str, float]:
     """
-    Transcribe audio bytes → Bengali transcript string.
+    Transcribe audio bytes → (transcript, detected_language, language_probability).
 
     - Accepts ANY audio format (WAV/WebM/MP4/OGG/MP3) — format detected from
       magic bytes by PyAV, not the `fmt` hint.
-    - language="bn" forces Bengali; pass language=None for auto-detect.
-    - Returns "" on silence, very short audio, or any error.
+    - language="bn" forces Bengali, "en" forces English, None auto-detects.
+    - initial_prompt is chosen to match the *requested* language so Whisper
+      outputs in the correct script. Auto-detect uses no prompt to avoid bias.
+    - Returns ("", "", 0.0) on silence, very short audio, or any error.
     """
     if not audio_bytes or len(audio_bytes) < 500:
         logger.warning("transcribe_audio: audio_bytes too short (%d)", len(audio_bytes))
-        return ""
+        return "", "", 0.0
 
-    # 1. Decode to float32 numpy array
     audio_arr = _bytes_to_audio_array(audio_bytes)
     if audio_arr is None:
         logger.error("transcribe_audio: could not decode audio bytes")
-        return ""
+        return "", "", 0.0
 
-    # 2. Quality gate
     is_ok, rms, reason = _check_audio_quality(audio_arr)
     if not is_ok:
         logger.warning("transcribe_audio: audio rejected — %s (RMS=%.6f)", reason, rms)
-        return ""
+        return "", "", 0.0
 
-    # 3. Transcribe
     try:
         model = _get_model()
-        # initial_prompt in Bengali script forces the model to output Bengali
-        # characters instead of romanizing the speech (common issue with base model)
-        bn_prompt = "আমার ত্বকে সমস্যা হচ্ছে।" if language == "bn" else None
+        prompt = _INITIAL_PROMPTS.get(language) if language else None
         segments, info = model.transcribe(
             audio_arr,
             language=language,
             beam_size=5,
-            initial_prompt=bn_prompt,
+            initial_prompt=prompt,
             vad_filter=True,
             vad_parameters={"min_silence_duration_ms": 500},
         )
         text = " ".join(seg.text.strip() for seg in segments).strip()
+        detected = getattr(info, "language", "") or ""
+        prob = float(getattr(info, "language_probability", 0.0) or 0.0)
         logger.info(
-            "transcribe_audio: lang=%s (%.0f%%), len=%d chars",
-            info.language, info.language_probability * 100, len(text),
+            "transcribe_audio: requested=%s, detected=%s (%.0f%%), len=%d chars",
+            language, detected, prob * 100, len(text),
         )
-        return text
+        return text, detected, prob
     except Exception as exc:
         logger.error("transcribe_audio: transcription failed: %s", exc)
-        return ""
+        return "", "", 0.0
+
+
+def transcribe_audio(
+    audio_bytes: bytes,
+    fmt: str = "wav",
+    language: str | None = "bn",
+) -> str:
+    """Backward-compatible thin wrapper around transcribe_audio_detailed()."""
+    text, _, _ = transcribe_audio_detailed(audio_bytes, fmt=fmt, language=language)
+    return text
 
 
 def extract_patient_history(transcript: str) -> dict:

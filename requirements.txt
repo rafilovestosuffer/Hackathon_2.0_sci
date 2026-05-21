@@ -10,8 +10,8 @@ grad-cam==1.5.5
 # Speech recognition
 faster-whisper==1.2.1
 
-# Audio recording (reliable cross-browser mic recording)
-audio-recorder-streamlit>=0.0.8
+# Audio recording (reliable cross-browser mic recording on HF Spaces)
+streamlit-mic-recorder>=0.0.8
 
 # LLM / API
 google-genai==1.63.0

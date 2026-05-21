@@ -76,16 +76,20 @@ def _run_model(pil_img: Image.Image) -> dict:
     }
 
 
-def _transcribe(audio_bytes: bytes) -> tuple[str, str, float]:
+def _transcribe(
+    audio_bytes: bytes,
+    language: str | None = "bn",
+) -> tuple[str, str, float, str, float]:
     """
-    Transcribe audio bytes → (transcript, error_reason, rms_energy).
+    Transcribe audio bytes → (transcript, error_reason, rms_energy,
+                              detected_lang, lang_prob).
 
     - Passes bytes directly; pipeline detects format from magic bytes via PyAV.
-    - Language always "bn" (Bengali) — no auto-detect uncertainty.
-    - Returns ("", reason, rms) on failure.
+    - language=None → auto-detect (Whisper picks the language); "bn"/"en" force.
+    - Returns ("", reason, rms, "", 0.0) on failure.
     """
     if not audio_bytes or len(audio_bytes) < 500:
-        return "", "no_audio", 0.0
+        return "", "no_audio", 0.0, "", 0.0
 
     # Measure RMS so we can tell user if mic is silent
     try:
@@ -97,16 +101,16 @@ def _transcribe(audio_bytes: bytes) -> tuple[str, str, float]:
         rms = -1.0   # unknown
 
     try:
-        from voice.pipeline import transcribe_audio
-        result = transcribe_audio(audio_bytes, language="bn")
-        if result and result.strip():
-            return result.strip(), "", rms
-        return "", "silence", rms
+        from voice.pipeline import transcribe_audio_detailed
+        text, detected, prob = transcribe_audio_detailed(audio_bytes, language=language)
+        if text and text.strip():
+            return text.strip(), "", rms, detected, prob
+        return "", "silence", rms, detected, prob
     except ImportError:
-        return "", "not_installed", rms
+        return "", "not_installed", rms, "", 0.0
     except Exception as e:
         logger.warning("Transcription failed: %s", e)
-        return "", str(e), rms
+        return "", str(e), rms, "", 0.0
 
 
 def _extract_history(transcript: str) -> dict:
@@ -406,30 +410,64 @@ with tab1:
         with _vtab_mic:
             st.markdown(
                 '<div style="font-size:0.82rem;color:#4A5568;margin-bottom:0.5rem;">'
-                '🎙️ Click the microphone button — speak in Bengali — click Stop when done.</div>'
-                '<div style="font-size:0.72rem;color:#A0AEC0;">'
+                '🎙️ Click <strong>Start recording</strong>, speak in Bengali or English, '
+                'click <strong>Stop</strong> when done.</div>'
+                '<div style="font-size:0.72rem;color:#A0AEC0;margin-bottom:0.5rem;">'
                 '🔒 First use: your browser will ask for microphone permission — click <strong>Allow</strong>.</div>',
                 unsafe_allow_html=True,
             )
+
+            _mic_available = True
             try:
-                _mic_data = st.audio_input(
-                    "বাংলায় বলুন / Speak now",
-                    key="audio_record",
-                    label_visibility="collapsed",
+                from streamlit_mic_recorder import mic_recorder
+            except ImportError:
+                _mic_available = False
+                st.warning(
+                    "🎙️ Recorder component not installed. "
+                    "Use **Upload Audio** or **Type Text**, or try the demo clip below."
                 )
-                if _mic_data is not None:
-                    _mic_bytes = _mic_data.read()
-                    if _mic_bytes and len(_mic_bytes) > 500:
+
+            if _mic_available:
+                _mic = mic_recorder(
+                    start_prompt="🔴 Start recording",
+                    stop_prompt="⏹️ Stop recording",
+                    just_once=False,
+                    use_container_width=True,
+                    format="wav",
+                    key="mic_recorder_v2",
+                )
+                if _mic and _mic.get("bytes"):
+                    _mic_bytes = _mic["bytes"]
+                    if len(_mic_bytes) > 500:
                         audio_bytes = _mic_bytes
                         audio_fmt   = "wav"
                         st.audio(audio_bytes, format="audio/wav")
                         st.success("✅ রেকর্ডিং সম্পন্ন — Transcribing…")
-            except Exception:
-                st.info(
-                    "🎙️ Live microphone not available in this environment. "
-                    "Use **Upload Audio** or **Type Text** instead.\n\n"
-                    "মাইক্রোফোন পাওয়া যাচ্ছে না — 'Upload Audio' বা 'Type Text' ব্যবহার করুন।"
-                )
+                    else:
+                        st.warning(
+                            "⚠️ Recording too short — please record at least 2 seconds. "
+                            "/ রেকর্ডিং খুব ছোট — অন্তত ২ সেকেন্ড বলুন।"
+                        )
+
+            # Champion-mode: sample clip for judges with no mic / silent room
+            with st.expander("🎧 No mic? Try a sample Bengali clip"):
+                from pathlib import Path as _Path
+                _demo_path = _Path(__file__).parent / "assets" / "demo_bn_sample.wav"
+                if _demo_path.exists():
+                    if st.button(
+                        "▶️ Use demo clip (Rahim, 35, itchy rash for 5 days)",
+                        key="demo_clip_btn",
+                        use_container_width=True,
+                    ):
+                        audio_bytes = _demo_path.read_bytes()
+                        audio_fmt   = "wav"
+                        st.audio(audio_bytes, format="audio/wav")
+                        st.success("✅ Demo clip loaded — Transcribing…")
+                else:
+                    st.caption(
+                        "Demo clip not bundled in this build. Use Upload Audio with any "
+                        "Bengali or English WAV/MP3 file instead."
+                    )
 
         with _vtab_upload:
             st.markdown(
@@ -487,8 +525,14 @@ with tab1:
             if not _already_processed:
                 st.session_state["_last_audio_hash"] = _audio_hash
 
-                with st.spinner("🔄 Transcribing Bengali audio…"):
-                    _transcript, _err, _rms = _transcribe(audio_bytes)
+                _spinner_msg = (
+                    "🔄 Transcribing audio (auto-detect)…" if _selected_lang is None
+                    else f"🔄 Transcribing {_audio_lang_choice} audio…"
+                )
+                with st.spinner(_spinner_msg):
+                    _transcript, _err, _rms, _detected, _det_prob = _transcribe(
+                        audio_bytes, language=_selected_lang
+                    )
                     st.session_state.transcript = _transcript
 
                 # Show RMS energy level — helps diagnose silent mic issues
@@ -500,6 +544,21 @@ with tab1:
                         f'🎚️ Mic level: <span style="color:{_rms_color};font-weight:600;">'
                         f'{_rms_pct}%</span>'
                         f'{"&nbsp;✅ sound detected" if _rms_pct > 5 else "&nbsp;⚠️ too quiet — speak louder"}'
+                        f'</div>',
+                        unsafe_allow_html=True,
+                    )
+
+                # Detected-language pill (only when Whisper actually ran)
+                if _detected:
+                    _lang_flags = {"bn": "🇧🇩 Bengali", "en": "🇬🇧 English"}
+                    _lang_label = _lang_flags.get(_detected, _detected.upper())
+                    _pill_bg = "#E6FFFA" if _det_prob >= 0.6 else "#FFF5E6"
+                    _pill_fg = "#0F766E" if _det_prob >= 0.6 else "#9A3412"
+                    st.markdown(
+                        f'<div style="display:inline-block;background:{_pill_bg};'
+                        f'color:{_pill_fg};padding:0.15rem 0.55rem;border-radius:999px;'
+                        f'font-size:0.72rem;font-weight:600;margin-bottom:0.4rem;">'
+                        f'🔍 Detected: {_lang_label} · {_det_prob * 100:.0f}%'
                         f'</div>',
                         unsafe_allow_html=True,
                     )
@@ -526,12 +585,14 @@ with tab1:
                             )
                 else:
                     _err_map_bn = {
+                        "no_audio":      "রেকর্ডিং খালি — আবার চেষ্টা করুন।",
                         "silence":       "কোনো কণ্ঠস্বর পাওয়া যায়নি — মাইক্রোফোনের কাছে জোরে বলুন।",
                         "not_installed": "faster-whisper এই পরিবেশে ইনস্টল নেই।",
                     }
                     _err_map_en = {
-                        "silence":       "No speech detected — speak louder and closer to the mic.",
-                        "not_installed": "faster-whisper not installed in this environment.",
+                        "no_audio":      "Recording was empty — please try again.",
+                        "silence":       "We couldn't hear anything (mic too quiet) — move closer and speak louder.",
+                        "not_installed": "Voice engine missing — contact admin.",
                     }
                     st.warning(bn_en(
                         "⚠️ " + _err_map_bn.get(_err, f"ট্রান্সক্রিপশন ব্যর্থ: {_err}"),
