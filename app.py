@@ -410,10 +410,12 @@ with tab1:
         with _vtab_mic:
             st.markdown(
                 '<div style="font-size:0.82rem;color:#4A5568;margin-bottom:0.5rem;">'
-                '🎙️ Click <strong>Start recording</strong>, speak in Bengali or English, '
-                'click <strong>Stop</strong> when done.</div>'
+                '🎙️ Click <strong>Start recording</strong>, speak in Bengali or English '
+                'for <strong>at least 3 seconds</strong>, then click <strong>Stop</strong>.</div>'
                 '<div style="font-size:0.72rem;color:#A0AEC0;margin-bottom:0.5rem;">'
-                '🔒 First use: your browser will ask for microphone permission — click <strong>Allow</strong>.</div>',
+                '🔒 First use: your browser will ask for microphone permission — click <strong>Allow</strong>.<br>'
+                '💡 Tip: speak a full sentence (name, age, symptoms, duration) — '
+                'very short clips are hard to transcribe.</div>',
                 unsafe_allow_html=True,
             )
 
@@ -438,15 +440,18 @@ with tab1:
                 )
                 if _mic and _mic.get("bytes"):
                     _mic_bytes = _mic["bytes"]
-                    if len(_mic_bytes) > 500:
+                    # 16 kHz mono 16-bit PCM ≈ 32 kB/s; ~50 kB ≈ 1.5 s of speech.
+                    # Shorter than that almost always fails Whisper + VAD.
+                    if len(_mic_bytes) >= 48_000:
                         audio_bytes = _mic_bytes
                         audio_fmt   = "wav"
                         st.audio(audio_bytes, format="audio/wav")
                         st.success("✅ রেকর্ডিং সম্পন্ন — Transcribing…")
-                    else:
+                    elif len(_mic_bytes) > 500:
                         st.warning(
-                            "⚠️ Recording too short — please record at least 2 seconds. "
-                            "/ রেকর্ডিং খুব ছোট — অন্তত ২ সেকেন্ড বলুন।"
+                            "⚠️ Recording too short (<1.5s). Please speak for at "
+                            "least 3 seconds — say your name, age, and symptoms.\n\n"
+                            "রেকর্ডিং খুব ছোট — অন্তত ৩ সেকেন্ড বলুন: নাম, বয়স, লক্ষণ।"
                         )
 
             # Champion-mode: sample clip for judges with no mic / silent room

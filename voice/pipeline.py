@@ -202,6 +202,8 @@ def transcribe_audio_detailed(
     try:
         model = _get_model()
         prompt = _INITIAL_PROMPTS.get(language) if language else None
+
+        # Pass 1: VAD-filtered (clean output for normal-length speech).
         segments, info = model.transcribe(
             audio_arr,
             language=language,
@@ -213,6 +215,22 @@ def transcribe_audio_detailed(
         text = " ".join(seg.text.strip() for seg in segments).strip()
         detected = getattr(info, "language", "") or ""
         prob = float(getattr(info, "language_probability", 0.0) or 0.0)
+
+        # Pass 2: if VAD ate everything (short utterance, low-volume mic),
+        # retry without VAD so short clips like 1-2 sec phrases still transcribe.
+        if not text:
+            logger.info("transcribe_audio: VAD pass empty — retrying without VAD")
+            segments, info = model.transcribe(
+                audio_arr,
+                language=language,
+                beam_size=5,
+                initial_prompt=prompt,
+                vad_filter=False,
+            )
+            text = " ".join(seg.text.strip() for seg in segments).strip()
+            detected = getattr(info, "language", "") or detected
+            prob = float(getattr(info, "language_probability", 0.0) or 0.0) or prob
+
         logger.info(
             "transcribe_audio: requested=%s, detected=%s (%.0f%%), len=%d chars",
             language, detected, prob * 100, len(text),
