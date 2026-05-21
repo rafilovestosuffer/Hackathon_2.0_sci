@@ -163,11 +163,29 @@ def _check_audio_quality(audio_arr: np.ndarray) -> tuple[bool, float, str]:
 # ── Public API ────────────────────────────────────────────────────────────────
 
 # Initial prompts force the model to output in the right script.
-# Without these, Whisper often romanizes Bengali speech into Latin characters.
+# Without these, Whisper often romanizes Bengali into Latin OR — worse —
+# transcribes Bengali speech into Devanagari (Hindi) characters because the
+# `small` model is biased toward higher-resource Indic scripts.
 _INITIAL_PROMPTS = {
     "bn": "আমার ত্বকে সমস্যা হচ্ছে।",
     "en": "I have a skin problem.",
 }
+
+# Unicode ranges used to detect script leaks (e.g. Bengali speech transcribed
+# as Devanagari) so we can do a corrective second pass.
+_SCRIPT_RANGES = {
+    "bn": ("ঀ", "৿"),   # Bengali block
+    "en": (" ", "~"),   # Basic Latin
+}
+
+
+def _script_matches(text: str, language: str, min_chars: int = 3) -> bool:
+    """Does `text` contain enough characters from the expected script for `language`?"""
+    bounds = _SCRIPT_RANGES.get(language)
+    if not bounds or not text:
+        return True   # nothing to check
+    lo, hi = bounds
+    return sum(1 for c in text if lo <= c <= hi) >= min_chars
 
 
 def transcribe_audio_detailed(
@@ -203,11 +221,12 @@ def transcribe_audio_detailed(
         model = _get_model()
         prompt = _INITIAL_PROMPTS.get(language) if language else None
 
-        # Pass 1: VAD-filtered (clean output for normal-length speech).
+        # Pass 1: VAD-filtered. beam_size=1 is ~3-5x faster than beam_size=5
+        # on CPU int8 with negligible accuracy loss for clinical short-form speech.
         segments, info = model.transcribe(
             audio_arr,
             language=language,
-            beam_size=5,
+            beam_size=1,
             initial_prompt=prompt,
             vad_filter=True,
             vad_parameters={"min_silence_duration_ms": 500},
@@ -216,20 +235,47 @@ def transcribe_audio_detailed(
         detected = getattr(info, "language", "") or ""
         prob = float(getattr(info, "language_probability", 0.0) or 0.0)
 
-        # Pass 2: if VAD ate everything (short utterance, low-volume mic),
-        # retry without VAD so short clips like 1-2 sec phrases still transcribe.
+        # Pass 2: if VAD ate everything (short utterance / low-volume mic),
+        # retry without VAD so 1-2 sec phrases still transcribe.
         if not text:
             logger.info("transcribe_audio: VAD pass empty — retrying without VAD")
             segments, info = model.transcribe(
                 audio_arr,
                 language=language,
-                beam_size=5,
+                beam_size=1,
                 initial_prompt=prompt,
                 vad_filter=False,
             )
             text = " ".join(seg.text.strip() for seg in segments).strip()
             detected = getattr(info, "language", "") or detected
             prob = float(getattr(info, "language_probability", 0.0) or 0.0) or prob
+
+        # Pass 3: script-correction. In auto-detect mode (language is None)
+        # the model often detects "bn" but outputs Devanagari (Hindi script)
+        # because there was no Bengali prompt to anchor the script. If detected
+        # language has a known prompt and the output script doesn't match, do
+        # one corrective pass with the language locked + correct prompt.
+        if (
+            language is None
+            and text
+            and detected in _INITIAL_PROMPTS
+            and not _script_matches(text, detected)
+        ):
+            logger.info(
+                "transcribe_audio: script mismatch (detected=%s, output not in %s script) — re-running with prompt",
+                detected, detected,
+            )
+            segments, info = model.transcribe(
+                audio_arr,
+                language=detected,
+                beam_size=1,
+                initial_prompt=_INITIAL_PROMPTS[detected],
+                vad_filter=True,
+                vad_parameters={"min_silence_duration_ms": 500},
+            )
+            corrected = " ".join(seg.text.strip() for seg in segments).strip()
+            if corrected and _script_matches(corrected, detected):
+                text = corrected
 
         logger.info(
             "transcribe_audio: requested=%s, detected=%s (%.0f%%), len=%d chars",
