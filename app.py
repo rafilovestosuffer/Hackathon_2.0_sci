@@ -385,9 +385,12 @@ with tab1:
                 unsafe_allow_html=True,
             )
         with _lang_col2:
+            # Default to Bengali — single-pass, fastest, and matches the BD
+            # rural-clinic use case. Auto-detect is one click away for the
+            # bilingual showcase.
             _audio_lang_choice = st.selectbox(
                 "Audio language",
-                options=["Auto-detect", "Bengali (বাংলা)", "English"],
+                options=["Bengali (বাংলা)", "English", "Auto-detect"],
                 index=0,
                 key="audio_lang_select",
                 label_visibility="collapsed",
