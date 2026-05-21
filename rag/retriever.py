@@ -30,6 +30,32 @@ TOP_K = 5
 _BENGALI_FALLBACK = "দুঃখিত, এই প্রশ্নের উত্তর দিতে পারছি না।"
 _ENGLISH_FALLBACK = "Sorry, I could not find an answer."
 
+_MEDICINE_SAFE_EN = (
+    "For specific medication advice, please consult a licensed pharmacist or doctor. "
+    "SkinAI Bangladesh provides triage and referral guidance only."
+)
+_MEDICINE_SAFE_BN = (
+    "নির্দিষ্ট ওষুধের পরামর্শের জন্য অনুগ্রহ করে একজন লাইসেন্সপ্রাপ্ত ফার্মাসিস্ট বা ডাক্তারের সাথে পরামর্শ করুন। "
+    "SkinAI Bangladesh শুধুমাত্র ট্রাইয়েজ ও রেফারেল নির্দেশিকা প্রদান করে।"
+)
+
+# Regex patterns that identify medicine-specific content in a model response
+_MEDICINE_PATTERN = re.compile(
+    r"\b\d+\s*mg\b"                           # dosages like "500 mg"
+    r"|\b(tablet|capsule|cream|ointment|syrup|injection|drops)\b"  # dosage forms
+    r"|\bওষুধ\s+(খান|নিন|দিন)\b"              # Bengali: "take medicine"
+    r"|\bট্যাবলেট\b|\bক্যাপসুল\b|\bমলম\b"    # Bengali dosage forms
+    r"|\b\w+(cillin|mycin|zole|prazole|cortisone|steroid)\b",      # drug-class suffixes
+    re.IGNORECASE,
+)
+
+
+def _redact_medicine_names(answer: str, lang: str = "en") -> str:
+    """Replace any medicine/dosage content with a safe referral message."""
+    if _MEDICINE_PATTERN.search(answer):
+        return _MEDICINE_SAFE_BN if lang == "bn" else _MEDICINE_SAFE_EN
+    return answer
+
 _PROMPT_TEMPLATE = """\
 You are SkinAI Bangladesh — a helpful medical information assistant for rural Bangladesh.
 A patient has asked: "{question}"
@@ -295,7 +321,7 @@ def answer_question(
                 model="gemini-2.5-flash",
                 contents=prompt,
             )
-            return response.text.strip()
+            return _redact_medicine_names(response.text.strip(), lang=lang)
         except Exception as exc:
             logger.warning("Gemini attempt %d failed: %s", attempt + 1, exc)
 

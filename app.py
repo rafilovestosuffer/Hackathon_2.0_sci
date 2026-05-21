@@ -27,6 +27,7 @@ from ui.components import (
     render_disease_card,
     render_referral_download_button,
     check_image_quality,
+    bn_en,
 )
 from severity.engine import compute_tier
 from pdf_gen.referral import generate_referral_pdf
@@ -146,7 +147,11 @@ _DEFAULTS = {
 for _k, _v in _DEFAULTS.items():
     st.session_state.setdefault(_k, _v)
 
-_rag_ready = _load_rag_index()
+@st.cache_resource(show_spinner="Loading knowledge base…")
+def _warm_rag() -> bool:
+    return _load_rag_index()
+
+_rag_ready = _warm_rag()
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -209,51 +214,94 @@ with st.sidebar:
     # ── Demo mode ─────────────────────────────────────────────────────────────
     st.markdown(
         '<div class="sidebar-stat" style="font-size:0.72rem;font-weight:700;'
-        'margin-bottom:0.2rem;">🎬 Demo Mode</div>',
+        'margin-bottom:0.2rem;">🎬 Demo Mode</div>'
+        '<div style="font-size:0.68rem;color:#718096;margin-bottom:0.4rem;">'
+        'Shows full triage range — no image/audio needed</div>',
         unsafe_allow_html=True,
     )
-    if st.button(
-        "🎬 Load Demo — Scabies Tier 3",
-        use_container_width=True,
-        help="Pre-loads a Scabies Tier 3 case so all tabs are populated instantly.",
-        key="demo_btn",
-    ):
-        _demo_transcript = "জ্বর আছে, চুলকানি ছড়িয়ে পড়ছে, ব্যথা হচ্ছে"
-        _demo_pred = {
-            "disease":      "Scabies",
-            "confidence":   0.38,
-            "top2": [
-                {"disease": "Scabies", "confidence": 0.38},
-                {"disease": "Eczema",  "confidence": 0.22},
-            ],
-            "heatmap":      None,
-            "coverage_pct": 45.0,
-        }
-        _demo_tier = compute_tier(
-            disease_class=_demo_pred["disease"],
-            confidence=_demo_pred["confidence"],
-            coverage_pct=_demo_pred["coverage_pct"],
-            transcript=_demo_transcript,
-        )
-        _demo_history = {
-            "patient_name":       "রহিম (Demo)",
-            "patient_age":        "৩৫",
-            "chief_complaint":    "সারা শরীরে তীব্র চুলকানি ও ফুসকুড়ি",
-            "symptoms":           ["intense itching", "spreading rash", "skin thickening"],
-            "affected_area":      "বাহু, পেট, উরু",
-            "duration":           "১০ দিন",
-            "progression":        "দ্রুত ছড়িয়ে পড়ছে",
-            "previous_treatment": "কোনো চিকিৎসা নেওয়া হয়নি",
-            "associated_symptoms": ["জ্বর", "ব্যথা"],
-        }
-        st.session_state.prediction       = _demo_pred
-        st.session_state.tier_result      = _demo_tier
-        st.session_state.history          = _demo_history
-        st.session_state.transcript       = _demo_transcript
-        st.session_state.nearest_hospital = None
-        st.session_state.pdf_bytes        = None
-        st.session_state.chat_history     = []
-        st.rerun()
+
+    _DEMO_CASES = {
+        "demo_tier1": {
+            "label": "🟢 Demo — Tinea Tier 1",
+            "help":  "Non-urgent pharmacist case",
+            "transcript": "সামান্য চুলকানি আছে, তেমন সমস্যা নেই",
+            "pred": {
+                "disease": "Tinea", "confidence": 0.85,
+                "top2": [{"disease": "Tinea", "confidence": 0.85},
+                         {"disease": "Contact_Dermatitis", "confidence": 0.09}],
+                "heatmap": None, "coverage_pct": 18.0,
+            },
+            "history": {
+                "patient_name": "করিম (Demo)", "patient_age": "২৮",
+                "chief_complaint": "হাতে গোলাকার ফুসকুড়ি",
+                "symptoms": ["ringworm", "mild itching"],
+                "affected_area": "বাম হাত",
+                "duration": "৩ দিন",
+                "progression": "স্থির আছে",
+                "previous_treatment": "কিছু নেওয়া হয়নি",
+                "associated_symptoms": [],
+            },
+        },
+        "demo_tier2": {
+            "label": "🟡 Demo — Eczema Tier 2",
+            "help":  "Routine Upazila Health Complex case",
+            "transcript": "সারা বাহুতে চুলকানি ও লালচে দাগ, তিন সপ্তাহ ধরে",
+            "pred": {
+                "disease": "Eczema", "confidence": 0.72,
+                "top2": [{"disease": "Eczema", "confidence": 0.72},
+                         {"disease": "Atopic_Dermatitis", "confidence": 0.18}],
+                "heatmap": None, "coverage_pct": 32.0,
+            },
+            "history": {
+                "patient_name": "সুমাইয়া (Demo)", "patient_age": "২২",
+                "chief_complaint": "বাহুতে ও হাঁটুর পেছনে চুলকানি ও শুষ্ক ত্বক",
+                "symptoms": ["itching", "redness", "dry patches"],
+                "affected_area": "বাহু, হাঁটু",
+                "duration": "৩ সপ্তাহ",
+                "progression": "ধীরে ধীরে বাড়ছে",
+                "previous_treatment": "সাধারণ লোশন ব্যবহার করেছেন",
+                "associated_symptoms": [],
+            },
+        },
+        "demo_tier3": {
+            "label": "🔴 Demo — Scabies Tier 3",
+            "help":  "Urgent — full pipeline with hospital map",
+            "transcript": "জ্বর আছে, চুলকানি ছড়িয়ে পড়ছে, ব্যথা হচ্ছে",
+            "pred": {
+                "disease": "Scabies", "confidence": 0.38,
+                "top2": [{"disease": "Scabies", "confidence": 0.38},
+                         {"disease": "Eczema",  "confidence": 0.22}],
+                "heatmap": None, "coverage_pct": 45.0,
+            },
+            "history": {
+                "patient_name": "রহিম (Demo)", "patient_age": "৩৫",
+                "chief_complaint": "সারা শরীরে তীব্র চুলকানি ও ফুসকুড়ি",
+                "symptoms": ["intense itching", "spreading rash", "skin thickening"],
+                "affected_area": "বাহু, পেট, উরু",
+                "duration": "১০ দিন",
+                "progression": "দ্রুত ছড়িয়ে পড়ছে",
+                "previous_treatment": "কোনো চিকিৎসা নেওয়া হয়নি",
+                "associated_symptoms": ["জ্বর", "ব্যথা"],
+            },
+        },
+    }
+
+    for _dk, _dc in _DEMO_CASES.items():
+        if st.button(_dc["label"], use_container_width=True, help=_dc["help"], key=_dk):
+            _dp = _dc["pred"]
+            st.session_state.prediction = _dp
+            st.session_state.tier_result = compute_tier(
+                disease_class=_dp["disease"],
+                confidence=_dp["confidence"],
+                coverage_pct=_dp["coverage_pct"],
+                transcript=_dc["transcript"],
+            )
+            st.session_state.history          = _dc["history"]
+            st.session_state.transcript       = _dc["transcript"]
+            st.session_state.nearest_hospital = None
+            st.session_state.pdf_bytes        = None
+            st.session_state.chat_history     = []
+            st.rerun()
 
     st.markdown("---")
 
@@ -358,50 +406,30 @@ with tab1:
         with _vtab_mic:
             st.markdown(
                 '<div style="font-size:0.82rem;color:#4A5568;margin-bottom:0.5rem;">'
-                '🎙️ Click the microphone — speak — click again to stop.</div>',
+                '🎙️ Click the microphone button — speak in Bengali — click Stop when done.</div>'
+                '<div style="font-size:0.72rem;color:#A0AEC0;">'
+                '🔒 First use: your browser will ask for microphone permission — click <strong>Allow</strong>.</div>',
                 unsafe_allow_html=True,
             )
             try:
-                from audio_recorder_streamlit import audio_recorder
-                _mic_bytes = audio_recorder(
-                    text="",
-                    recording_color="#E53E3E",
-                    neutral_color="#718096",
-                    icon_name="microphone",
-                    icon_size="3x",
-                    pause_threshold=2.5,
-                    key="mic_recorder",
+                _mic_data = st.audio_input(
+                    "বাংলায় বলুন / Speak now",
+                    key="audio_record",
+                    label_visibility="collapsed",
                 )
-                if _mic_bytes and len(_mic_bytes) > 1000:
-                    audio_bytes = _mic_bytes
-                    audio_fmt   = "wav"
-                    st.audio(audio_bytes, format="audio/wav")
-                    st.success("✅ Recording captured — transcribing…")
-            except ImportError:
-                try:
-                    audio_data = st.audio_input(
-                        "বাংলায় বলুন / Speak now",
-                        key="audio_record",
-                        label_visibility="collapsed",
-                    )
-                    if audio_data is not None:
-                        _fb_bytes = audio_data.read()
-                        if _fb_bytes:
-                            audio_bytes = _fb_bytes
-                            audio_fmt   = "wav"
-                            st.audio(audio_bytes, format="audio/wav")
-                except Exception:
-                    st.info(
-                        "🎙️ Live microphone not available. "
-                        "Use **Upload Audio** or **Type Text** instead."
-                    )
-
-            st.markdown(
-                '<div style="font-size:0.72rem;color:#A0AEC0;margin-top:0.4rem;">'
-                '🔒 First use: your browser will ask for microphone permission — click <strong>Allow</strong>.'
-                '</div>',
-                unsafe_allow_html=True,
-            )
+                if _mic_data is not None:
+                    _mic_bytes = _mic_data.read()
+                    if _mic_bytes and len(_mic_bytes) > 500:
+                        audio_bytes = _mic_bytes
+                        audio_fmt   = "wav"
+                        st.audio(audio_bytes, format="audio/wav")
+                        st.success("✅ রেকর্ডিং সম্পন্ন — Transcribing…")
+            except Exception:
+                st.info(
+                    "🎙️ Live microphone not available in this environment. "
+                    "Use **Upload Audio** or **Type Text** instead.\n\n"
+                    "মাইক্রোফোন পাওয়া যাচ্ছে না — 'Upload Audio' বা 'Type Text' ব্যবহার করুন।"
+                )
 
         with _vtab_upload:
             st.markdown(
@@ -420,6 +448,7 @@ with tab1:
                 audio_fmt   = audio_file.name.rsplit(".", 1)[-1].lower()
                 if audio_bytes:
                     st.audio(audio_bytes, format=f"audio/{audio_fmt}")
+                    st.success("✅ অডিও আপলোড সম্পন্ন — Audio received, transcribing…")
 
         with _vtab_text:
             st.markdown(
@@ -496,12 +525,18 @@ with tab1:
                                 "Or fill the form below manually."
                             )
                 else:
-                    _err_map = {
+                    _err_map_bn = {
+                        "silence":       "কোনো কণ্ঠস্বর পাওয়া যায়নি — মাইক্রোফোনের কাছে জোরে বলুন।",
+                        "not_installed": "faster-whisper এই পরিবেশে ইনস্টল নেই।",
+                    }
+                    _err_map_en = {
                         "silence":       "No speech detected — speak louder and closer to the mic.",
                         "not_installed": "faster-whisper not installed in this environment.",
                     }
-                    _err_msg = _err_map.get(_err, f"Error: {_err}")
-                    st.warning(f"⚠️ Transcription failed — {_err_msg}")
+                    st.warning(bn_en(
+                        "⚠️ " + _err_map_bn.get(_err, f"ট্রান্সক্রিপশন ব্যর্থ: {_err}"),
+                        "Transcription failed — " + _err_map_en.get(_err, _err),
+                    ))
 
             # Always show transcript if we have one
             elif st.session_state.transcript:
@@ -622,10 +657,10 @@ with tab1:
             try:
                 pil_img = Image.open(image_file).convert("RGB")
             except Exception:
-                st.error(
-                    "⚠️ Could not read this image. Please upload a valid JPG or PNG.\n\n"
-                    "ছবিটি পড়া যাচ্ছে না। বৈধ JPG বা PNG ফাইল আপলোড করুন।"
-                )
+                st.error(bn_en(
+                    "ছবিটি পড়া যাচ্ছে না। বৈধ JPG বা PNG ফাইল আপলোড করুন।",
+                    "Could not read this image. Please upload a valid JPG or PNG.",
+                ))
                 st.stop()
 
             # Image quality check
@@ -753,10 +788,10 @@ with tab1:
                     except Exception:
                         pass
                 else:
-                    st.warning(
-                        "No hospitals found nearby. Try a different district name.\n\n"
-                        "নিকটে কোনো হাসপাতাল পাওয়া যায়নি। অন্য জেলার নাম দিয়ে চেষ্টা করুন।"
-                    )
+                    st.warning(bn_en(
+                        "নিকটে কোনো হাসপাতাল পাওয়া যায়নি। অন্য জেলার নাম দিয়ে চেষ্টা করুন।",
+                        "No hospitals found nearby. Try a different district name.",
+                    ))
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -765,10 +800,10 @@ with tab1:
 with tab2:
     # ── Source info bar ───────────────────────────────────────────────────────
     if not _rag_ready:
-        st.warning(
-            "⚠️ Knowledge base loading or unavailable. "
-            "Check that build_index.py has been run."
-        )
+        st.warning(bn_en(
+            "⚠️ জ্ঞানভান্ডার লোড হচ্ছে না। build_index.py চালানো হয়েছে কিনা যাচাই করুন।",
+            "Knowledge base unavailable — check that build_index.py has been run.",
+        ))
 
     st.markdown(
         '<div class="chat-outer-info">'
@@ -796,27 +831,14 @@ with tab2:
             icon="🩺",
         )
 
-    # ── Chat container ─────────────────────────────────────────────────────────
+    # ── Chat history (native st.chat_message — auto-scroll, accessible) ─────────
+    for _msg in st.session_state.chat_history:
+        with st.chat_message(_msg["role"]):
+            st.markdown(_msg["content"])
+            if _msg["role"] == "assistant":
+                st.caption("📚 CDC · NIH · WHO · DGHS Bangladesh")
+
     if st.session_state.chat_history:
-        msgs_html = "".join(
-            render_chat_message(
-                role    = m["role"],
-                content = m["content"],
-                sources = ["CDC", "NIH", "WHO", "DGHS"] if m["role"] == "assistant" else [],
-            )
-            for m in st.session_state.chat_history
-        )
-        st.markdown(
-            f'<div class="chat-container" id="skinai-chat">'
-            f'{msgs_html}'
-            f'<div id="chat-bottom"></div>'
-            f'</div>'
-            f'<script>'
-            f'(function(){{var b=document.getElementById("chat-bottom");'
-            f'if(b)b.scrollIntoView({{behavior:"smooth"}});}})();'
-            f'</script>',
-            unsafe_allow_html=True,
-        )
         if st.button("🗑️ Clear Chat", key="clear_chat_btn"):
             st.session_state.chat_history = []
             st.session_state.rag_answer   = ""
@@ -824,13 +846,11 @@ with tab2:
     else:
         # Empty state
         st.markdown(
-            '<div class="chat-container">'
-            '<div class="chat-empty">'
-            '<div class="chat-empty-icon">💬</div>'
-            '<div class="chat-empty-text">ত্বকের রোগ সম্পর্কে প্রশ্ন করুন</div>'
+            '<div class="chat-empty" style="text-align:center;padding:1.5rem 0;">'
+            '<div style="font-size:2rem;margin-bottom:0.4rem;">💬</div>'
+            '<div style="font-weight:600;color:#4A5568;">ত্বকের রোগ সম্পর্কে প্রশ্ন করুন</div>'
             '<div style="font-size:0.78rem;color:#A0AEC0;">'
             'Ask about skin conditions in Bengali or English</div>'
-            '</div>'
             '</div>',
             unsafe_allow_html=True,
         )
@@ -948,7 +968,10 @@ with tab3:
                         st.success("✅ Referral letter generated!")
                         st.rerun()
                     except Exception as e:
-                        st.error(f"PDF generation failed: {e}")
+                        st.error(bn_en(
+                            f"পিডিএফ তৈরি ব্যর্থ হয়েছে। আবার চেষ্টা করুন।",
+                            f"PDF generation failed: {e}",
+                        ))
                         st.session_state.pdf_bytes = None
 
         # ── Download button ────────────────────────────────────────────────────

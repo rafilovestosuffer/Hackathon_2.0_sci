@@ -8,6 +8,8 @@ from model.bd_skinnet import BDSkinNet, IMAGE_SIZE
 
 
 def _get_target_layer(model: BDSkinNet):
+    assert hasattr(model, "cbam_modules") and len(model.cbam_modules) > 0, \
+        "BD-SkinNet is missing cbam_modules — architecture may have changed"
     return model.cbam_modules[-1].spatial_attn.conv
 
 

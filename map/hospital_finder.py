@@ -10,6 +10,7 @@ Provides:
 
 import logging
 import math
+import time
 from typing import Optional
 
 import requests
@@ -98,6 +99,30 @@ DISTRICT_COORDS: dict[str, tuple[float, float]] = {
 }
 
 
+# ── DGHS division-level fallback (one hospital per division) ─────────────────
+# Used when Overpass API fails — ensures PDF Section 4 always has a facility name.
+_DIVISION_FALLBACK: list[dict] = [
+    {"name": "Dhaka Medical College Hospital",          "address": "Bakshi Bazar, Dhaka",      "lat": 23.7248, "lon": 90.3976, "dist_km": 0.0, "phone": "02-55165088"},
+    {"name": "Chittagong Medical College Hospital",     "address": "K B Fazlul Kader Rd, Chattogram", "lat": 22.3574, "lon": 91.8225, "dist_km": 0.0, "phone": "031-636368"},
+    {"name": "Rajshahi Medical College Hospital",       "address": "Rajshahi",                 "lat": 24.3673, "lon": 88.5890, "dist_km": 0.0, "phone": "0721-772150"},
+    {"name": "Khulna Medical College Hospital",         "address": "Khulna",                   "lat": 22.8328, "lon": 89.5396, "dist_km": 0.0, "phone": "041-731012"},
+    {"name": "Sylhet MAG Osmani Medical College Hospital", "address": "Sylhet",               "lat": 24.8906, "lon": 91.8833, "dist_km": 0.0, "phone": "0821-713375"},
+    {"name": "Barisal Sher-E-Bangla Medical College Hospital", "address": "Barisal",          "lat": 22.7108, "lon": 90.3616, "dist_km": 0.0, "phone": "0431-64213"},
+    {"name": "Rangpur Medical College Hospital",        "address": "Rangpur",                  "lat": 25.7483, "lon": 89.2527, "dist_km": 0.0, "phone": "0521-63970"},
+    {"name": "Mymensingh Medical College Hospital",     "address": "Mymensingh",               "lat": 24.7476, "lon": 90.4054, "dist_km": 0.0, "phone": "091-65001"},
+]
+
+
+def _nearest_division_fallback(lat: float, lon: float, n: int = 5) -> list[dict]:
+    """Return the n nearest division hospitals from the static DGHS list."""
+    scored = []
+    for h in _DIVISION_FALLBACK:
+        dist = _haversine_km(lat, lon, h["lat"], h["lon"])
+        scored.append({**h, "dist_km": round(dist, 1)})
+    scored.sort(key=lambda x: x["dist_km"])
+    return scored[:n]
+
+
 # ── Haversine distance ────────────────────────────────────────────────────────
 
 def _haversine_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
@@ -132,7 +157,8 @@ def _query_overpass(lat: float, lon: float, radius_m: int) -> list[dict]:
             return resp.json().get("elements", [])
         except requests.exceptions.Timeout:
             if attempt == 0:
-                logger.warning("Overpass timeout on attempt 1, retrying…")
+                logger.warning("Overpass timeout on attempt 1, retrying in 2 s…")
+                time.sleep(2)
                 continue
             logger.error("Overpass timed out after 2 attempts")
             return []
@@ -205,7 +231,14 @@ def find_nearest_hospitals(
             hospitals.append(parsed)
 
     hospitals.sort(key=lambda h: h["dist_km"])
-    return hospitals[:n]
+    result = hospitals[:n]
+
+    # If Overpass returned nothing, fall back to the static DGHS division list
+    if not result:
+        logger.warning("Overpass returned no hospitals — using DGHS division fallback.")
+        result = _nearest_division_fallback(lat, lon, n=n)
+
+    return result
 
 
 def render_hospital_map(

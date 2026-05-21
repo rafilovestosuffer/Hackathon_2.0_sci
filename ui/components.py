@@ -8,6 +8,7 @@ import re
 import streamlit as st
 
 from model.disease_labels import get_bengali
+from severity.engine import CONF_TIER2, CONF_TIER3  # single source of truth
 from ui.styles import (
     PRIMARY, TEAL,
     TIER1_BG, TIER1_BORDER, TIER1_TEXT,
@@ -24,6 +25,11 @@ _TIER_CONFIG = {
     3: {"badge_class": "badge-tier3", "icon": "🔴", "label": "URGENT",      "label_bn": "জরুরি"},
 }
 _TIER_ICONS = {1: "✅", 2: "⚠️", 3: "🚨"}
+
+def bn_en(bengali: str, english: str) -> str:
+    """Return a bilingual message: Bengali line then italic English line."""
+    return f"{bengali}\n\n_{english}_"
+
 
 _HISTORY_LABELS = {
     "chief_complaint":      ("Chief Complaint",      "প্রধান অভিযোগ"),
@@ -451,19 +457,19 @@ def render_disease_card(disease: str, confidence: float, top2: list) -> None:
     display_en   = disease.replace("_", " ")
     conf_pct     = max(0.0, min(100.0, confidence * 100))
 
-    # Bar colour: green ≥ 0.60, amber 0.40–0.60, red < 0.40
-    if confidence >= 0.60:
+    # Bar colour: green ≥ CONF_TIER2, amber CONF_TIER3–CONF_TIER2, red < CONF_TIER3
+    if confidence >= CONF_TIER2:
         bar_color = TIER1_BORDER
-    elif confidence >= 0.40:
+    elif confidence >= CONF_TIER3:
         bar_color = TIER2_BORDER
     else:
         bar_color = TIER3_BORDER
 
-    # Caption label: different thresholds from bar colour
+    # Caption label
     if confidence >= 0.80:
         cap_cls  = "conf-high"
         cap_text = "✓ মডেল নিশ্চিত &nbsp;·&nbsp; Model is confident"
-    elif confidence >= 0.60:
+    elif confidence >= CONF_TIER2:
         cap_cls  = "conf-mid"
         cap_text = "~ মোটামুটি নিশ্চিত &nbsp;·&nbsp; Moderately confident"
     else:

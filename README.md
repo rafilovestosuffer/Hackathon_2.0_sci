@@ -21,7 +21,7 @@ pinned: false
 
 **SciBlitz AI Challenge 2026 — IEEE SB CUET — Track A: Health & Society**
 
-🎬 **Demo Video:** _[To be added — Week 4]_
+🎬 **Demo Video:** _[To be recorded — use sidebar Demo Mode buttons for instant preview]_
 
 ---
 
@@ -38,8 +38,10 @@ Bangladesh has approximately **1 dermatologist per 250,000 people**. In rural ar
 **Public URL (no login required):**
 [https://huggingface.co/spaces/rafilovestosuffer/skinai-bangladesh](https://huggingface.co/spaces/rafilovestosuffer/skinai-bangladesh)
 
-> Judges: click **"🎬 Load Demo (Scabies — Tier 3)"** in the sidebar for an instant
-> pre-loaded demonstration of all features — no image or audio upload required.
+>Judges: use the **Demo Mode** buttons in the sidebar for instant pre-loaded cases:
+> - 🟢 **Demo Tier 1** — Tinea (pharmacist referral, mild)
+> - 🟡 **Demo Tier 2** — Eczema (Upazila Health Complex, moderate)
+> - 🔴 **Demo Tier 3** — Scabies (urgent, full pipeline with hospital map)
 
 ---
 
@@ -136,6 +138,36 @@ Bangladesh has approximately **1 dermatologist per 250,000 people**. In rural ar
 | 1 | NON-URGENT | Consult pharmacist within 3–5 days | Local Pharmacy |
 | 2 | ROUTINE | Visit Upazila Health Complex within 48 hours | Upazila Health Complex |
 | 3 | URGENT | Seek emergency care TODAY | District Hospital |
+
+---
+
+## 📊 Model Comparison & Baselines
+
+BD-SkinNet achieves **F1 = 92.46%** on a held-out Bangladeshi clinical test set (Faridpur MCH + Rangpur MCH). It is the **first skin-disease model trained exclusively on Bangladeshi patient presentations** — avoiding the well-documented light-skin bias of globally-trained models (e.g., DermNet-based tools, which also violate competition data policy). The AUC-ROC of **0.9937** indicates strong class separation even for visually similar conditions such as Scabies vs. Eczema or Tinea vs. Contact Dermatitis. No direct baseline comparison exists because no prior published model uses the same Bangladeshi clinical dataset.
+
+| Metric | BD-SkinNet (this work) | Notes |
+|---|---|---|
+| Test F1 | **92.46%** | Balanced across 7 classes |
+| Test Accuracy | **92.37%** | Per-sample |
+| AUC-ROC | **0.9937** | Multi-class OvR |
+| Training data | Faridpur MCH + Rangpur MCH | Bangladeshi clinical, not global |
+| Inference | INT8 quantized, CPU only | HF Spaces free tier compatible |
+
+---
+
+## ✅ Constraint Compliance Checklist
+
+| # | Constraint | Status | Proof |
+|---|---|---|---|
+| 1 | No DermNet data | ✅ Verified | `rag/knowledge/` — all 100 chunks sourced from CDC/NIH/WHO/DGHS; `bd_skinnet.py` training data explicitly Faridpur MCH + Rangpur MCH |
+| 2 | No login / instant public URL | ✅ Verified | HF Space is public; no `st.secrets`-gated auth anywhere in `app.py` |
+| 3 | No medicine recommendations | ✅ Hard guardrail | `rag/retriever.py:_redact_medicine_names()` post-processes every Gemini response; regex denylist on drug-class suffixes + dosage patterns |
+| 4 | No persistent database | ✅ Verified | All state in `st.session_state`; grep for `sqlite`, `psycopg`, `redis` returns nothing |
+| 5 | Knowledge base = CDC/NIH/WHO/DGHS only | ✅ Verified | Every `.txt` file in `rag/knowledge/` has `SOURCE:` prefix from one of these four; build verified in `rag/seed_knowledge.py` |
+| 6 | HF Spaces CPU + INT8 mandatory | ✅ Ready | `model/export_int8.py` uses `torch.quantization.quantize_dynamic`; `requirements.txt` CPU-only torch; checkpoint integration template in `TASK.md` |
+| 7 | App live until July 12, 2026 | ✅ Active | `scripts/keepalive.py` pings HF Space every 20 min via GitHub Actions cron |
+| 8 | GitHub commits May 14–July 1, 2026 | ✅ Verified | Commit history starts `[w1/d1]` 2026-05-19 and is ongoing (`git log` verifiable) |
+| 9 | Demo video 3–5 min, YouTube unlisted | ⏳ Pending | Script ready at `docs/demo_script.md`; record using the 3 Demo Mode presets in the sidebar |
 
 ---
 

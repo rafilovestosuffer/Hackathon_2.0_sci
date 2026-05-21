@@ -2,6 +2,11 @@ from model.disease_labels import get_tier
 
 ESCALATION_KEYWORDS = ["জ্বর", "ছড়িয়ে", "ব্যথা", "রক্ত"]
 
+# Single source of truth for confidence thresholds — imported by ui/components.py too
+CONF_TIER3: float = 0.40
+CONF_TIER2: float = 0.60
+COVERAGE_THRESHOLD: float = 40.0
+
 TIER_ACTIONS = {
     1: {
         "urgency_label": "NON-URGENT",
@@ -34,13 +39,13 @@ def compute_tier(
     tier = get_tier(disease_class)
 
     # Signal 2: confidence modifier
-    if confidence < 0.40:
+    if confidence < CONF_TIER3:
         tier = 3
-    elif confidence < 0.60:
+    elif confidence < CONF_TIER2:
         tier = max(tier, 2)
 
     # Signal 3: GradCAM coverage modifier
-    if coverage_pct > 40.0:
+    if coverage_pct > COVERAGE_THRESHOLD:
         tier = min(tier + 1, 3)
 
     # Signal 4: Bengali voice keyword modifier

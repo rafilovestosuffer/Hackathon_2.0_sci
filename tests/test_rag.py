@@ -301,3 +301,83 @@ class TestGeminiPrompt:
         call_args = mock_client.models.generate_content.call_args
         prompt = call_args[1]["contents"] if "contents" in call_args[1] else call_args[0][1]
         assert "Scabies (38% confidence)" in prompt
+
+
+# ── TestMedicineGuardrail ─────────────────────────────────────────────────────
+
+class TestMedicineGuardrail:
+    """Verify _redact_medicine_names strips drug content and answer_question applies it."""
+
+    def setup_method(self):
+        _clear_state()
+        _install_fake_state()
+
+    def _mock_gemini_with(self, text: str):
+        mock_client = MagicMock()
+        mock_response = MagicMock()
+        mock_response.text = text
+        mock_client.models.generate_content.return_value = mock_response
+        retriever._gemini_client = mock_client
+
+    # Direct unit tests on _redact_medicine_names
+
+    def test_redact_dosage_mg(self):
+        result = retriever._redact_medicine_names("Take 500 mg tablet twice daily.", lang="en")
+        assert "500 mg" not in result
+        assert "pharmacist" in result.lower() or "doctor" in result.lower()
+
+    def test_redact_tablet_word(self):
+        result = retriever._redact_medicine_names("Take one tablet every morning.", lang="en")
+        assert "tablet" not in result.lower() or "pharmacist" in result.lower()
+
+    def test_redact_drug_suffix_cillin(self):
+        result = retriever._redact_medicine_names("Take amoxicillin as prescribed.", lang="en")
+        assert "amoxicillin" not in result
+
+    def test_redact_drug_suffix_mycin(self):
+        result = retriever._redact_medicine_names("Erythromycin cream is effective.", lang="en")
+        assert "pharmacist" in result.lower() or "doctor" in result.lower()
+
+    def test_redact_drug_suffix_zole(self):
+        result = retriever._redact_medicine_names("Apply clotrimazole cream.", lang="en")
+        assert "clotrimazole" not in result
+
+    def test_redact_ointment(self):
+        result = retriever._redact_medicine_names("Apply ointment twice a day.", lang="en")
+        assert "ointment" not in result
+
+    def test_redact_bengali_tablet(self):
+        result = retriever._redact_medicine_names("প্রতিদিন একটি ট্যাবলেট খান।", lang="bn")
+        assert "ট্যাবলেট" not in result
+        assert "ফার্মাসিস্ট" in result or "ডাক্তার" in result
+
+    def test_safe_answer_passes_through(self):
+        safe = "Tinea is a fungal infection. See a doctor if it spreads."
+        result = retriever._redact_medicine_names(safe, lang="en")
+        assert result == safe
+
+    def test_bengali_lang_returns_bengali_safe_message(self):
+        result = retriever._redact_medicine_names("Take 500 mg capsule.", lang="bn")
+        assert "ফার্মাসিস্ট" in result or "ডাক্তার" in result
+
+    def test_english_lang_returns_english_safe_message(self):
+        result = retriever._redact_medicine_names("Take 500 mg capsule.", lang="en")
+        assert "pharmacist" in result.lower() or "doctor" in result.lower()
+
+    # Integration: answer_question applies the guardrail
+
+    def test_answer_question_strips_drug_name(self):
+        self._mock_gemini_with("Apply clotrimazole 1% cream twice daily for 2 weeks.")
+        result = retriever.answer_question("How to treat tinea?", lang="en")
+        assert "clotrimazole" not in result
+
+    def test_answer_question_strips_dosage(self):
+        self._mock_gemini_with("Take 250 mg tablet after meals.")
+        result = retriever.answer_question("What medicine for scabies?", lang="en")
+        assert "250 mg" not in result
+
+    def test_answer_question_safe_content_unaffected(self):
+        safe = "Scabies is caused by a mite. See a doctor promptly."
+        self._mock_gemini_with(safe)
+        result = retriever.answer_question("What is scabies?", lang="en")
+        assert result == safe

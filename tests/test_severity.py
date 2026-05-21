@@ -1,5 +1,5 @@
 import pytest
-from severity.engine import compute_tier, TIER_ACTIONS
+from severity.engine import compute_tier, TIER_ACTIONS, CONF_TIER2, CONF_TIER3, COVERAGE_THRESHOLD
 
 
 def _result(disease, conf, cov, transcript=""):
@@ -156,3 +156,42 @@ class TestReturnStructure:
         for tier_conf in [(0.90, 5.0), (0.50, 5.0), (0.35, 5.0)]:
             r = _result("Tinea", *tier_conf)
             assert r["bengali_text"], "Bengali text must not be empty"
+
+
+# ── Boundary regression tests (guard against threshold drift) ─────────────────
+
+class TestBoundaryConstants:
+    """Pinned tests that break immediately if CONF_TIER2/CONF_TIER3 are accidentally changed."""
+
+    def test_conf_tier3_constant_value(self):
+        assert CONF_TIER3 == 0.40, "CONF_TIER3 must be exactly 0.40 per CLAUDE.md spec"
+
+    def test_conf_tier2_constant_value(self):
+        assert CONF_TIER2 == 0.60, "CONF_TIER2 must be exactly 0.60 per CLAUDE.md spec"
+
+    def test_coverage_threshold_constant_value(self):
+        assert COVERAGE_THRESHOLD == 40.0, "COVERAGE_THRESHOLD must be exactly 40.0 per CLAUDE.md spec"
+
+    def test_exactly_conf_tier2_is_not_escalated(self):
+        r = _result("Tinea", CONF_TIER2, 5.0)
+        assert r["tier"] == 1, "At exactly CONF_TIER2 (0.60), Tinea must stay Tier 1"
+
+    def test_just_below_conf_tier2_escalates_tinea_to_tier2(self):
+        r = _result("Tinea", CONF_TIER2 - 0.001, 5.0)
+        assert r["tier"] == 2
+
+    def test_exactly_conf_tier3_is_not_tier3(self):
+        r = _result("Tinea", CONF_TIER3, 5.0)
+        assert r["tier"] != 3, "At exactly CONF_TIER3 (0.40), should not be Tier 3"
+
+    def test_just_below_conf_tier3_forces_tier3(self):
+        r = _result("Tinea", CONF_TIER3 - 0.001, 5.0)
+        assert r["tier"] == 3
+
+    def test_exactly_coverage_threshold_no_escalation(self):
+        r = _result("Tinea", 0.90, COVERAGE_THRESHOLD)
+        assert r["tier"] == 1, "At exactly 40.0% coverage, must NOT escalate"
+
+    def test_just_above_coverage_threshold_escalates(self):
+        r = _result("Tinea", 0.90, COVERAGE_THRESHOLD + 0.001)
+        assert r["tier"] == 2
