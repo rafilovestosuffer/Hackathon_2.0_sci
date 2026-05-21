@@ -695,8 +695,10 @@ with tab1:
                 "symptoms":            _syms,
                 "associated_symptoms": _h.get("associated_symptoms", []),
             }
-            st.success("✅ Patient data saved!")
-            st.rerun()
+            # st.toast survives the implicit rerun that follows the button
+            # click; st.success + st.rerun() killed the feedback before it
+            # could render, so the user thought nothing happened.
+            st.toast("✅ Patient data saved!", icon="💾")
 
         if st.session_state.history and st.session_state.history.get("patient_name"):
             st.markdown("")

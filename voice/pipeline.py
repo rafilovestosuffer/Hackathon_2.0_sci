@@ -250,32 +250,44 @@ def transcribe_audio_detailed(
             detected = getattr(info, "language", "") or detected
             prob = float(getattr(info, "language_probability", 0.0) or 0.0) or prob
 
-        # Pass 3: script-correction. In auto-detect mode (language is None)
-        # the model often detects "bn" but outputs Devanagari (Hindi script)
-        # because there was no Bengali prompt to anchor the script. If detected
-        # language has a known prompt and the output script doesn't match, do
-        # one corrective pass with the language locked + correct prompt.
-        if (
-            language is None
-            and text
-            and detected in _INITIAL_PROMPTS
-            and not _script_matches(text, detected)
-        ):
-            logger.info(
-                "transcribe_audio: script mismatch (detected=%s, output not in %s script) — re-running with prompt",
-                detected, detected,
-            )
-            segments, info = model.transcribe(
-                audio_arr,
-                language=detected,
-                beam_size=1,
-                initial_prompt=_INITIAL_PROMPTS[detected],
-                vad_filter=True,
-                vad_parameters={"min_silence_duration_ms": 500},
-            )
-            corrected = " ".join(seg.text.strip() for seg in segments).strip()
-            if corrected and _script_matches(corrected, detected):
-                text = corrected
+        # Pass 3: BD-centric correction. In auto-detect mode the `small` model
+        # is noisy on short Bengali clinical speech — common failures are:
+        #   - detects "bn" but outputs Devanagari (Hindi) because no prompt
+        #   - mis-detects Bengali as Urdu / Hindi / Marathi at low confidence
+        # Heuristic: in auto-detect mode, force a Bengali re-pass when EITHER
+        #   (a) detected lang isn't supported by our prompts (bn/en), OR
+        #   (b) detected lang IS bn/en but the output script doesn't match.
+        # Skip when detection is en with high confidence and Latin output —
+        # that's a real English speaker and we leave it alone.
+        if language is None and text:
+            needs_correction = False
+            if detected not in _INITIAL_PROMPTS:
+                needs_correction = True
+                fallback_lang = "bn"   # BD-focused app: default to Bengali
+            elif not _script_matches(text, detected):
+                needs_correction = True
+                fallback_lang = detected
+            else:
+                fallback_lang = None
+
+            if needs_correction and fallback_lang:
+                logger.info(
+                    "transcribe_audio: correcting (detected=%s prob=%.2f) → re-running as %s",
+                    detected, prob, fallback_lang,
+                )
+                segments, info = model.transcribe(
+                    audio_arr,
+                    language=fallback_lang,
+                    beam_size=1,
+                    initial_prompt=_INITIAL_PROMPTS[fallback_lang],
+                    vad_filter=True,
+                    vad_parameters={"min_silence_duration_ms": 500},
+                )
+                corrected = " ".join(seg.text.strip() for seg in segments).strip()
+                if corrected and _script_matches(corrected, fallback_lang):
+                    text = corrected
+                    detected = fallback_lang
+                    prob = max(prob, 0.85)   # surface the corrected language confidently
 
         logger.info(
             "transcribe_audio: requested=%s, detected=%s (%.0f%%), len=%d chars",
