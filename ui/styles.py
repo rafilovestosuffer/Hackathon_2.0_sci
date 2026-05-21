@@ -64,14 +64,70 @@ html, body, [class*="css"] {
   font-family: 'Inter', 'Noto Sans Bengali', sans-serif !important;
   color: var(--c-t1) !important;
 }
-.stApp { background: #EDF2F7 !important; }
+
+/* Premium animated gradient-mesh background.
+   - Base: soft clinical off-white that won't fight the white cards.
+   - Layer 1: 4 radial-gradient orbs (teal/blue/Bengal-green/red) drifting
+     slowly via @keyframes — modern SaaS aesthetic.
+   - Layer 2: subtle dot grid (8% opacity) for depth.
+   - All decorative layers use pointer-events:none and stay behind content. */
+.stApp {
+  background:
+    radial-gradient(ellipse at 12% 18%,  rgba(13,158,117,0.16) 0%, transparent 42%),
+    radial-gradient(ellipse at 88% 12%,  rgba(26,111,168,0.14) 0%, transparent 48%),
+    radial-gradient(ellipse at 78% 88%,  rgba(0,106,78,0.13)   0%, transparent 45%),
+    radial-gradient(ellipse at 18% 92%,  rgba(241,80,80,0.08)  0%, transparent 40%),
+    linear-gradient(135deg, #EEF4F9 0%, #F4F8FB 50%, #ECF3F0 100%) !important;
+  background-attachment: fixed !important;
+  background-size: 140% 140%, 130% 130%, 150% 150%, 130% 130%, 100% 100% !important;
+  animation: bg-drift 28s ease-in-out infinite alternate;
+  position: relative;
+}
+/* Dot grid overlay — sits over the gradient but behind the content. */
+.stApp::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image: radial-gradient(rgba(15,42,75,0.07) 1px, transparent 1px);
+  background-size: 22px 22px;
+  pointer-events: none;
+  z-index: 0;
+}
+/* Soft top sheen — subtle horizontal light line under the hero. */
+.stApp::after {
+  content: "";
+  position: fixed;
+  top: 0; left: 0; right: 0; height: 220px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.45) 0%, transparent 100%);
+  pointer-events: none;
+  z-index: 0;
+}
+@keyframes bg-drift {
+  0%   { background-position: 0% 0%,   100% 0%,   100% 100%, 0% 100%,   0% 0%; }
+  100% { background-position: 12% 18%, 84% 14%,   84% 84%,   16% 80%,   0% 0%; }
+}
+
+/* Main container — glass-morphism: translucent white over the mesh,
+   crisp border-radius, soft elevated shadow, sits above decorative layers. */
 .main .block-container {
-  padding-top: 1.1rem;
+  padding-top: 1.4rem;
   padding-bottom: 3.5rem;
-  max-width: 1120px;
-  background: #FFFFFF;
-  border-radius: 0;
-  box-shadow: none;
+  padding-left: 2.2rem;
+  padding-right: 2.2rem;
+  max-width: 1180px;
+  background: rgba(255,255,255,0.78) !important;
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  border-radius: 22px;
+  border: 1px solid rgba(255,255,255,0.55);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.9) inset,
+    0 20px 60px rgba(15,42,75,0.10),
+    0 4px 14px rgba(15,42,75,0.06);
+  margin-top: 1rem;
+  margin-bottom: 1.5rem;
+  position: relative;
+  z-index: 1;
 }
 
 /* ─── Hide Streamlit chrome ─────────────────────────────────────────────────── */
