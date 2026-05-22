@@ -378,7 +378,7 @@ tab1, tab2, tab3, tab4 = st.tabs([
     "🔬 রোগ নির্ণয়",
     "💬 প্রশ্ন করুন",
     "📄 রেফারেল পত্র",
-    "📊 মহামারী বিদ্যা",
+    "📊 Disease Insights",
 ])
 
 
@@ -1236,8 +1236,8 @@ with tab4:
         '<div class="card-section-header">'
         '<span style="font-size:1.1rem;">📊</span>'
         '<div>'
-        '<div class="card-section-title">Bangladesh Skin Disease Prevalence · বাংলাদেশে চর্মরোগের প্রকোপ</div>'
-        '<div class="card-section-sub">Division-level data · DGHS Annual Report 2023 · WHO SE Asia</div>'
+        '<div class="card-section-title">Bangladesh Skin Disease Prevalence · Epidemiological Overview</div>'
+        '<div class="card-section-sub">Division-level data · DGHS Annual Report 2023 · WHO South-East Asia</div>'
         '</div>'
         '</div>',
         unsafe_allow_html=True,
