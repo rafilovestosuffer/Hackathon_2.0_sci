@@ -118,7 +118,32 @@ def _build_styles():
         textColor=colors.HexColor("#922b21"),
         spaceAfter=2,
     )
-    return heading, section, body, bengali, small, disclaimer
+    # Helvetica for purely Latin/English content — avoids NotoSansBengali's
+    # oblique Latin glyphs which make English text look italic in PDF viewers.
+    latin = ParagraphStyle(
+        "SkinAILatin",
+        parent=base["Normal"],
+        fontName="Helvetica",
+        fontSize=10,
+        spaceAfter=4,
+    )
+    latin_small = ParagraphStyle(
+        "SkinAILatinSmall",
+        parent=base["Normal"],
+        fontName="Helvetica",
+        fontSize=8,
+        textColor=colors.grey,
+        spaceAfter=2,
+    )
+    latin_disclaimer = ParagraphStyle(
+        "SkinAILatinDisclaimer",
+        parent=base["Normal"],
+        fontName="Helvetica",
+        fontSize=8,
+        textColor=colors.HexColor("#922b21"),
+        spaceAfter=2,
+    )
+    return heading, section, body, bengali, small, disclaimer, latin, latin_small, latin_disclaimer
 
 
 # ── Tier colours ──────────────────────────────────────────────────────────────
@@ -135,12 +160,19 @@ def _section_rule(story, label, section_style):
     story.append(Paragraph(label, section_style))
 
 
-def _kv_table(rows, body_style, bengali_style):
+def _has_bengali(text: str) -> bool:
+    return any(0x0980 <= ord(c) <= 0x09FF for c in text)
+
+
+def _kv_table(rows, body_style, bengali_style, latin_style=None):
     """Build a two-column label|value table."""
+    _latin = latin_style or bengali_style
     data = []
     for label_en, label_bn, value in rows:
         label_cell = Paragraph(f"<b>{label_en}</b><br/>{label_bn}", bengali_style)
-        val_cell = Paragraph(str(value) if value else "—", bengali_style)
+        val_str = str(value) if value else "—"
+        val_style = bengali_style if _has_bengali(val_str) else _latin
+        val_cell = Paragraph(val_str, val_style)
         data.append([label_cell, val_cell])
     t = Table(data, colWidths=[5 * cm, 13 * cm])
     t.setStyle(TableStyle([
@@ -173,7 +205,9 @@ def generate_referral_pdf(session_data: dict) -> bytes:
     Generate a 4-section AI referral letter PDF.
     Returns raw PDF bytes. No file is written to disk.
     """
-    heading_style, section_style, body_style, bengali_style, small_style, disclaimer_style = _build_styles()
+    (heading_style, section_style, body_style, bengali_style,
+     small_style, disclaimer_style,
+     latin_style, latin_small_style, latin_disclaimer_style) = _build_styles()
 
     buf = io.BytesIO()
     doc = SimpleDocTemplate(
@@ -190,10 +224,10 @@ def generate_referral_pdf(session_data: dict) -> bytes:
 
     # ── Header ────────────────────────────────────────────────────────────────
     story.append(Paragraph("SkinAI Bangladesh — AI Referral Letter", heading_style))
-    story.append(Paragraph(f"Generated: {now}", small_style))
+    story.append(Paragraph(f"Generated: {now}", latin_small_style))
     story.append(Paragraph(
         "AI-powered dermatological screening & triage | SciBlitz AI Challenge 2026",
-        small_style,
+        latin_small_style,
     ))
     story.append(Spacer(1, 0.2 * cm))
 
@@ -213,7 +247,7 @@ def generate_referral_pdf(session_data: dict) -> bytes:
         ("Previous Treatment", "পূর্ববর্তী চিকিৎসা", session_data.get("previous_treatment")),
         ("Associated Symptoms", "সহগামী উপসর্গ", assoc_val),
     ]
-    story.append(_kv_table(rows_s1, body_style, bengali_style))
+    story.append(_kv_table(rows_s1, body_style, bengali_style, latin_style))
 
     # ── Section 2 — Clinical Observation ─────────────────────────────────────
     _section_rule(story, "Section 2 — Clinical Observation | ক্লিনিক্যাল পর্যবেক্ষণ", section_style)
@@ -228,10 +262,10 @@ def generate_referral_pdf(session_data: dict) -> bytes:
             bengali_style,
         ))
     else:
-        story.append(Paragraph("Image not provided", body_style))
+        story.append(Paragraph("Image not provided", latin_style))
 
-    story.append(Paragraph(f"Lesion coverage: {coverage_pct:.1f}%", body_style))
-    story.append(Paragraph(f"Assessment datetime: {now}", small_style))
+    story.append(Paragraph(f"Lesion coverage: {coverage_pct:.1f}%", latin_style))
+    story.append(Paragraph(f"Assessment datetime: {now}", latin_small_style))
 
     # ── Section 3 — AI Diagnostic Assessment ─────────────────────────────────
     _section_rule(story, "Section 3 — AI Diagnostic Assessment | AI রোগ নির্ণয়", section_style)
@@ -243,7 +277,7 @@ def generate_referral_pdf(session_data: dict) -> bytes:
 
     story.append(Paragraph(
         f"<b>Primary Diagnosis:</b> {disease_class} ({disease_bengali}) — {confidence:.1%} confidence",
-        body_style,
+        bengali_style,
     ))
 
     if len(top2) > 1 and top2[1].get("confidence", 0.0) > 0.15:
@@ -251,17 +285,17 @@ def generate_referral_pdf(session_data: dict) -> bytes:
         diff_conf = top2[1].get("confidence", 0.0)
         story.append(Paragraph(
             f"<b>Differential Diagnosis:</b> {diff_class} ({diff_conf:.1%})",
-            body_style,
+            latin_style,
         ))
 
     story.append(Paragraph(
         "Model: BD-SkinNet (Swin-B + CBAM, INT8) | F1 = 92.46% | "
         "Trained on Faridpur MCH + Rangpur MCH clinical data",
-        small_style,
+        latin_small_style,
     ))
     story.append(Paragraph(
         "This is an AI-assisted screening tool, not a medical diagnosis.",
-        disclaimer_style,
+        latin_disclaimer_style,
     ))
 
     # ── Section 4 — Triage Recommendation ────────────────────────────────────
@@ -292,15 +326,15 @@ def generate_referral_pdf(session_data: dict) -> bytes:
     story.append(badge)
     story.append(Spacer(1, 0.2 * cm))
 
-    story.append(Paragraph(f"<b>Action:</b> {action}", body_style))
-    story.append(Paragraph(f"<b>Facility:</b> {facility}", body_style))
+    story.append(Paragraph(f"<b>Action:</b> {action}", latin_style))
+    story.append(Paragraph(f"<b>Facility:</b> {facility}", latin_style))
     story.append(Paragraph(bengali_text, bengali_style))
 
     if tier == 3 and hospital_name:
         addr = hospital_address or ""
         story.append(Paragraph(
             f"<b>Nearest Hospital:</b> {hospital_name} — {addr}",
-            body_style,
+            latin_style,
         ))
 
     # ── Footer ────────────────────────────────────────────────────────────────
@@ -309,7 +343,7 @@ def generate_referral_pdf(session_data: dict) -> bytes:
         Paragraph(
             "[!] Not a medical device. Always consult a licensed physician. | "
             "SkinAI Bangladesh © 2026",
-            disclaimer_style,
+            latin_disclaimer_style,
         ),
     ]))
 
@@ -324,16 +358,17 @@ def generate_chw_referral_slip(session_data: dict) -> bytes:
     Returns raw PDF bytes.
     """
     _register_font()
-    _, _, body_style, bengali_style, small_style, disclaimer_style = _build_styles()
+    (_, _, body_style, bengali_style, small_style, disclaimer_style,
+     latin_style, latin_small_style, latin_disclaimer_style) = _build_styles()
 
     buf = io.BytesIO()
     doc = SimpleDocTemplate(
         buf,
         pagesize=A4,
-        leftMargin=2 * cm,
-        rightMargin=2 * cm,
-        topMargin=2 * cm,
-        bottomMargin=2 * cm,
+        leftMargin=1.5 * cm,
+        rightMargin=1.5 * cm,
+        topMargin=1.5 * cm,
+        bottomMargin=1.5 * cm,
     )
 
     now   = datetime.now().strftime("%Y-%m-%d %H:%M")
@@ -353,7 +388,7 @@ def generate_chw_referral_slip(session_data: dict) -> bytes:
     )
     story.append(Paragraph("SkinAI Bangladesh — CHW Referral Slip", header_style))
     story.append(Paragraph("সেবিকা রেফারেল স্লিপ · Community Health Worker Copy", bengali_style))
-    story.append(Paragraph(f"Date: {now}", small_style))
+    story.append(Paragraph(f"Date: {now}", latin_small_style))
     story.append(Spacer(1, 0.5 * cm))
 
     # Urgency badge — big and central
@@ -400,7 +435,7 @@ def generate_chw_referral_slip(session_data: dict) -> bytes:
         ("Go To", "কোথায় যাবেন", facility),
         ("Est. Cost", "আনুমানিক খরচ", f"{cost_info['range']} — {cost_info['note_bn']}"),
     ]
-    story.append(_kv_table(rows, big_style, bengali_style))
+    story.append(_kv_table(rows, big_style, bengali_style, latin_style))
     story.append(Spacer(1, 0.4 * cm))
 
     # Bengali instruction — large
@@ -421,13 +456,13 @@ def generate_chw_referral_slip(session_data: dict) -> bytes:
         if hospital_name:
             story.append(Paragraph(
                 f"<b>Nearest Hospital:</b> {hospital_name} — {hospital_address}",
-                big_style,
+                latin_style,
             ))
 
-    story.append(Spacer(1, 0.6 * cm))
+    story.append(Spacer(1, 0.4 * cm))
     story.append(Paragraph(
         "AI-assisted screening. Not a substitute for clinical diagnosis. | SkinAI Bangladesh © 2026",
-        disclaimer_style,
+        latin_disclaimer_style,
     ))
 
     doc.build(story)
