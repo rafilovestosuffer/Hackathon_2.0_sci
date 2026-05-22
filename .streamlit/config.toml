@@ -1,3 +1,6 @@
+[server]
+enableXsrfProtection = false
+
 [theme]
 base = "light"
 primaryColor = "#1A6FA8"
