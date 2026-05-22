@@ -21,8 +21,10 @@ python-dotenv==1.2.1
 faiss-cpu==1.13.2
 sentence-transformers==5.2.2
 
-# PDF generation
-reportlab==4.5.1
+# PDF generation — fpdf2 + uharfbuzz applies HarfBuzz GSUB shaping so Bengali
+# renders correctly in Adobe Acrobat (ReportLab skipped shaping entirely)
+fpdf2>=2.7.6
+uharfbuzz>=0.30.0
 
 # Hospital map
 folium>=0.15.0

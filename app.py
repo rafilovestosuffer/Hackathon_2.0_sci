@@ -314,6 +314,7 @@ with st.sidebar:
             st.session_state.nearest_hospital = None
             st.session_state.pdf_bytes        = None
             st.session_state.chat_history     = []
+            _push_history_to_form(_dc["history"])
             st.rerun()
 
     st.markdown("---")
@@ -404,6 +405,7 @@ with tab1:
             st.session_state.history     = _DEMO_CASES["demo_tier1"]["history"]
             st.session_state.transcript  = _DEMO_CASES["demo_tier1"]["transcript"]
             st.session_state.pdf_bytes   = None
+            _push_history_to_form(_DEMO_CASES["demo_tier1"]["history"])
             st.rerun()
     with _dcol2:
         if st.button("🟡 Demo — Eczema (Tier 2)", use_container_width=True, key="tab_demo_t2"):
@@ -413,6 +415,7 @@ with tab1:
             st.session_state.history     = _DEMO_CASES["demo_tier2"]["history"]
             st.session_state.transcript  = _DEMO_CASES["demo_tier2"]["transcript"]
             st.session_state.pdf_bytes   = None
+            _push_history_to_form(_DEMO_CASES["demo_tier2"]["history"])
             st.rerun()
     with _dcol3:
         if st.button("🔴 Demo — Scabies (Tier 3 URGENT)", use_container_width=True, key="tab_demo_t3"):
@@ -422,6 +425,7 @@ with tab1:
             st.session_state.history     = _DEMO_CASES["demo_tier3"]["history"]
             st.session_state.transcript  = _DEMO_CASES["demo_tier3"]["transcript"]
             st.session_state.pdf_bytes   = None
+            _push_history_to_form(_DEMO_CASES["demo_tier3"]["history"])
             st.rerun()
 
     st.markdown("---")
