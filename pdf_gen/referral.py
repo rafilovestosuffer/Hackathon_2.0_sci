@@ -277,7 +277,7 @@ def generate_referral_pdf(session_data: dict) -> bytes:
     tier_color = _TIER_COLOR.get(tier, colors.grey)
     badge_data = [[Paragraph(
         f"<b>{urgency_label}</b>",
-        ParagraphStyle("badge", fontName="Helvetica-Bold", fontSize=13,
+        ParagraphStyle("badge", fontName=_BENGALI_FONT, fontSize=13,
                        textColor=colors.white),
     )]]
     badge = Table(badge_data, colWidths=[17 * cm])
