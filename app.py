@@ -7,6 +7,7 @@ SkinAI Bangladesh — main Streamlit app.
 import hashlib
 import io
 import logging
+from datetime import datetime
 
 import numpy as np
 import streamlit as st
@@ -1407,6 +1408,68 @@ with tab4:
 # ══════════════════════════════════════════════════════════════════════════════
 with tab5:
     render_doctor_booking_tab()
+
+    # ── Post-Consultation AI Summary ──────────────────────────────────────────
+    if st.session_state.get("booking_confirmed"):
+        st.markdown("---")
+        st.markdown("### 📋 পরামর্শ সারসংক্ষেপ | Consultation Summary")
+
+        manual_notes = st.text_area(
+            "চিকিৎসকের পরামর্শ লিখুন | Doctor's consultation notes",
+            placeholder=(
+                "Type what the doctor said: medicines prescribed, dosage, "
+                "follow-up date, dos and don'ts..."
+            ),
+            height=150,
+            key="manual_consultation_notes",
+        )
+        if manual_notes:
+            st.session_state["consultation_transcript"] = manual_notes
+            st.session_state["consultation_completed"] = True
+
+        if (
+            st.session_state.get("consultation_completed")
+            and st.session_state.get("consultation_transcript")
+        ):
+            col1, col2 = st.columns([3, 1])
+            with col1:
+                st.info(
+                    "আপনার পরামর্শ সম্পন্ন হয়েছে। নিচের বোতামে ক্লিক করে "
+                    "আপনার ডাক্তারের নির্দেশনার সারসংক্ষেপ ডাউনলোড করুন।\n\n"
+                    "Your consultation is complete. Download your personalized "
+                    "care summary below."
+                )
+            with col2:
+                duration = st.session_state.get("consultation_duration_minutes", 30)
+                with st.spinner("AI সারসংক্ষেপ তৈরি হচ্ছে... | Generating AI summary..."):
+                    try:
+                        from pdf_gen.consultation_summary import (
+                            generate_consultation_summary_pdf,
+                        )
+                        summary_pdf_bytes = generate_consultation_summary_pdf(
+                            consultation_transcript=st.session_state[
+                                "consultation_transcript"
+                            ],
+                            session_state=dict(st.session_state),
+                            consultation_duration_minutes=duration,
+                        )
+                        st.download_button(
+                            label="📥 সারসংক্ষেপ ডাউনলোড করুন\nDownload Care Summary",
+                            data=summary_pdf_bytes,
+                            file_name=(
+                                "skinai_care_summary_"
+                                + datetime.now().strftime("%Y%m%d_%H%M")
+                                + ".pdf"
+                            ),
+                            mime="application/pdf",
+                            use_container_width=True,
+                            type="primary",
+                        )
+                    except Exception as _e:
+                        st.error(
+                            "সারসংক্ষেপ তৈরিতে সমস্যা হয়েছে। | "
+                            f"Summary generation failed: {_e}"
+                        )
 
 
 # ══════════════════════════════════════════════════════════════════════════════
