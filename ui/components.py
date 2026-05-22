@@ -542,18 +542,15 @@ def check_image_quality(pil_img) -> tuple[bool, float]:
 
 
 def render_referral_download_button(pdf_bytes) -> None:
-    """Large teal download button when PDF available; muted placeholder otherwise."""
+    """Native Streamlit download button when PDF available; muted placeholder otherwise."""
     if pdf_bytes is not None:
-        import base64
-        b64 = base64.b64encode(pdf_bytes).decode()
-        st.markdown(
-            f'<a href="data:application/pdf;base64,{b64}" download="skinai_referral.pdf" '
-            f'style="display:block;width:100%;padding:0.75rem 1rem;background:#0D9E75;'
-            f'color:white;text-align:center;border-radius:8px;font-size:0.95rem;'
-            f'font-weight:700;text-decoration:none;box-sizing:border-box;">'
-            f'📥 রেফারেল পত্র ডাউনলোড করুন &nbsp;·&nbsp; Download Referral Letter (PDF)'
-            f'</a>',
-            unsafe_allow_html=True,
+        st.download_button(
+            label="📥 রেফারেল পত্র ডাউনলোড করুন · Download Referral Letter (PDF)",
+            data=pdf_bytes,
+            file_name="skinai_referral.pdf",
+            mime="application/pdf",
+            use_container_width=True,
+            key="dl_referral_btn",
         )
     else:
         st.markdown(

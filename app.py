@@ -155,6 +155,7 @@ _DEFAULTS = {
     "chat_history":      [],
     "chw_mode":          False,
     "_last_audio_hash":  "",   # prevents re-processing same audio on rerun
+    "prevention_tips_cache": {},
 }
 for _k, _v in _DEFAULTS.items():
     st.session_state.setdefault(_k, _v)
@@ -1168,17 +1169,13 @@ with tab3:
 
         _chw_pdf = st.session_state.get("chw_pdf_bytes")
         if _chw_pdf is not None:
-            import base64 as _b64
-            _chw_b64 = _b64.b64encode(_chw_pdf).decode()
-            st.markdown(
-                f'<a href="data:application/pdf;base64,{_chw_b64}" '
-                f'download="skinai_chw_slip.pdf" '
-                f'style="display:block;width:100%;padding:0.75rem 1rem;background:#805AD5;'
-                f'color:white;text-align:center;border-radius:8px;font-size:0.95rem;'
-                f'font-weight:700;text-decoration:none;box-sizing:border-box;margin-top:0.5rem;">'
-                f'📥 CHW Referral Slip ডাউনলোড করুন · Download CHW Slip (PDF)'
-                f'</a>',
-                unsafe_allow_html=True,
+            st.download_button(
+                label="📥 CHW Referral Slip ডাউনলোড করুন · Download CHW Slip (PDF)",
+                data=_chw_pdf,
+                file_name="skinai_chw_slip.pdf",
+                mime="application/pdf",
+                use_container_width=True,
+                key="dl_chw_btn",
             )
 
     else:
@@ -1325,6 +1322,50 @@ with tab4:
         '</div>',
         unsafe_allow_html=True,
     )
+
+    st.markdown('<div style="margin-top:1.25rem;"></div>', unsafe_allow_html=True)
+
+    with st.expander("💡 Prevention Tips & Early Warning Signs · প্রতিরোধ টিপস", expanded=True):
+        _cache_key = _sel_disease
+        if _cache_key not in st.session_state.prevention_tips_cache:
+            if _rag_ready:
+                with st.spinner("Generating tips from medical knowledge base…"):
+                    _tip_q = (
+                        f"What are the key prevention tips, early warning signs, "
+                        f"and when should someone see a doctor for {_sel_display}? "
+                        f"Give 4-5 bullet points. Answer in both Bengali and English."
+                    )
+                    _tips = answer_question(
+                        _tip_q,
+                        disease_context=_sel_display,
+                    )
+                    st.session_state.prevention_tips_cache[_cache_key] = _tips
+            else:
+                st.session_state.prevention_tips_cache[_cache_key] = (
+                    "Knowledge base not available. Please check RAG index setup."
+                )
+        st.markdown(st.session_state.prevention_tips_cache[_cache_key])
+
+        st.markdown(
+            '<div style="font-size:0.75rem;font-weight:600;color:#4A5568;margin-top:0.75rem;margin-bottom:0.25rem;">'
+            '💬 Ask a quick question · দ্রুত প্রশ্ন করুন</div>',
+            unsafe_allow_html=True,
+        )
+        _prev_questions = [
+            f"How is {_sel_display} spread?",
+            "Can children get this condition?",
+            "What home care steps are safe?",
+        ]
+        _pq_cols = st.columns(len(_prev_questions))
+        _qq = None
+        for _pqi, (_pqc, _pqt) in enumerate(zip(_pq_cols, _prev_questions)):
+            with _pqc:
+                if st.button(_pqt, key=f"prev_tip_{_pqi}", use_container_width=True):
+                    _qq = _pqt
+        if _qq and _rag_ready:
+            with st.spinner("Looking up answer…"):
+                _follow = answer_question(_qq, disease_context=_sel_display)
+            st.markdown(_follow)
 
 
 # ══════════════════════════════════════════════════════════════════════════════
