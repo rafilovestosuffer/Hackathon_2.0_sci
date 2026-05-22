@@ -595,8 +595,9 @@ def _render_warning_signs(pdf: _PDF, data: dict):
              new_x=XPos.LMARGIN, new_y=YPos.NEXT)
     cy += 6
 
-    # Signs (Bengali + English paired)
+    # Signs (Bengali + English paired) — multi_cell so long lines wrap instead of clip
     pdf.set_text_color(*_BLACK)
+    item_w = pw - 10
     for bn_sign, en_sign in zip(
         signs_bn + [""] * max(0, len(signs_en) - len(signs_bn)),
         signs_en + [""] * max(0, len(signs_bn) - len(signs_en)),
@@ -611,10 +612,19 @@ def _render_warning_signs(pdf: _PDF, data: dict):
         if line:
             pdf.set_xy(pdf.l_margin + 5, cy)
             pdf.bn(9)
-            pdf.cell(pw - 8, 7, line, new_x=XPos.LMARGIN, new_y=YPos.NEXT)
-            cy += 8
+            pdf.multi_cell(item_w, 6.5, line, new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+            cy = pdf.get_y() + 1   # track actual y after potential wrap
 
-    pdf.set_y(box_y + box_h + 3)
+    # Extend box to actual content if it grew beyond the estimate
+    actual_bottom = max(box_y + box_h, cy + 3)
+    if actual_bottom > box_y + box_h:
+        pdf.set_fill_color(255, 245, 245)
+        pdf.set_draw_color(*_RED)
+        pdf.set_line_width(1.2)
+        pdf.rect(pdf.l_margin, box_y, pw, actual_bottom - box_y, style="FD")
+        pdf.set_line_width(0.2)
+
+    pdf.set_y(actual_bottom + 3)
     pdf.set_text_color(*_BLACK)
 
 
@@ -625,39 +635,48 @@ def _render_followup(pdf: _PDF, data: dict):
     follow_cond = _safe_str(data, "follow_up_condition")
     doctor_notes = _safe_str(data, "doctor_notes")
 
+    pw = pdf.w - pdf.l_margin - pdf.r_margin
     if follow_date:
+        pdf.set_x(pdf.l_margin)
         pdf.lat(10)
-        pdf.cell(0, 6, f"Return date: {follow_date}", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+        pdf.cell(pw, 6, f"Return date: {follow_date}", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+        pdf.set_x(pdf.l_margin)
         pdf.bn(9)
-        pdf.cell(0, 5, _norm(f"তারিখ: {follow_date}"),
+        pdf.cell(pw, 5, _norm(f"তারিখ: {follow_date}"),
                  new_x=XPos.LMARGIN, new_y=YPos.NEXT)
 
     if follow_cond:
         pdf.ln(2)
+        pdf.set_x(pdf.l_margin)
         pdf.lat(10)
-        pdf.cell(0, 6, f"Return if: {follow_cond}", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+        pdf.multi_cell(pw, 6, f"Return if: {follow_cond}", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+        pdf.set_x(pdf.l_margin)
         pdf.bn(9)
-        pdf.cell(0, 5, _norm(f"যদি: {follow_cond}"),
-                 new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+        pdf.multi_cell(pw, 5, _norm(f"যদি: {follow_cond}"),
+                       new_x=XPos.LMARGIN, new_y=YPos.NEXT)
 
     if not follow_date and not follow_cond:
         pdf.set_text_color(*_GREY)
+        pdf.set_x(pdf.l_margin)
         pdf.bn(10)
-        pdf.cell(0, 6, _norm("আপনার চিকিৎসকের পরামর্শ অনুযায়ী ফলো-আপ করুন"),
+        pdf.cell(pw, 6, _norm("আপনার চিকিৎসকের পরামর্শ অনুযায়ী ফলো-আপ করুন"),
                  new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+        pdf.set_x(pdf.l_margin)
         pdf.lat(9)
-        pdf.cell(0, 5, "Follow up as advised by your doctor.",
+        pdf.cell(pw, 5, "Follow up as advised by your doctor.",
                  new_x=XPos.LMARGIN, new_y=YPos.NEXT)
         pdf.set_text_color(*_BLACK)
 
     if doctor_notes:
         pdf.ln(3)
         pdf.set_text_color(*_BLUE)
+        pdf.set_x(pdf.l_margin)
         pdf.lat(9, bold=True)
-        pdf.cell(0, 5, "Doctor's Notes:", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+        pdf.cell(pw, 5, "Doctor's Notes:", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
         pdf.set_text_color(*_BLACK)
+        pdf.set_x(pdf.l_margin)
         pdf.lat(9)
-        pdf.multi_cell(0, 5, doctor_notes, new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+        pdf.multi_cell(pw, 5, doctor_notes, new_x=XPos.LMARGIN, new_y=YPos.NEXT)
 
 
 def _render_footer(pdf: _PDF):
@@ -676,9 +695,11 @@ def _render_footer(pdf: _PDF):
 
     pdf.set_text_color(*_RED)
     pdf.lat(8)
+    pdf.set_x(pdf.l_margin)
     pdf.multi_cell(pw, 5,
         "[!] This document summarizes your doctor's verbal instructions. "
         "It is NOT a prescription. Always follow your doctor's direct advice.")
+    pdf.set_x(pdf.l_margin)
     pdf.bn(8)
     pdf.multi_cell(pw, 5, _norm(
         "এই নথি আপনার চিকিৎসকের মৌখিক নির্দেশনার সারসংক্ষেপ। "
