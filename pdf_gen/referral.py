@@ -312,3 +312,120 @@ def generate_referral_pdf(session_data: dict) -> bytes:
 
     doc.build(story)
     return buf.getvalue()
+
+
+def generate_chw_referral_slip(session_data: dict) -> bytes:
+    """
+    Generate a simplified 1-page CHW referral slip — large font, no jargon.
+    For Shasthya Seboika / ASHA community health workers.
+    Returns raw PDF bytes.
+    """
+    _register_font()
+    _, _, body_style, bengali_style, small_style, disclaimer_style = _build_styles()
+
+    buf = io.BytesIO()
+    doc = SimpleDocTemplate(
+        buf,
+        pagesize=A4,
+        leftMargin=2 * cm,
+        rightMargin=2 * cm,
+        topMargin=2 * cm,
+        bottomMargin=2 * cm,
+    )
+
+    now   = datetime.now().strftime("%Y-%m-%d %H:%M")
+    tier  = session_data.get("tier", 1)
+    tier_color = _TIER_COLOR.get(tier, colors.grey)
+
+    story = []
+
+    # Header
+    header_style = ParagraphStyle(
+        "CHWHeader",
+        fontName=_BENGALI_FONT,
+        fontSize=18,
+        textColor=colors.HexColor("#1a5276"),
+        spaceAfter=6,
+        alignment=1,  # CENTER
+    )
+    story.append(Paragraph("SkinAI Bangladesh — CHW Referral Slip", header_style))
+    story.append(Paragraph("সেবিকা রেফারেল স্লিপ · Community Health Worker Copy", bengali_style))
+    story.append(Paragraph(f"Date: {now}", small_style))
+    story.append(Spacer(1, 0.5 * cm))
+
+    # Urgency badge — big and central
+    tier_labels = {1: "NON-URGENT · জরুরি নয়", 2: "ROUTINE · রেফারেল করুন", 3: "URGENT · এখনই পাঠান!"}
+    badge_label = tier_labels.get(tier, "ROUTINE")
+    badge_style = ParagraphStyle(
+        "CHWBadge",
+        fontName=_BENGALI_FONT,
+        fontSize=20,
+        textColor=colors.white,
+        alignment=1,
+    )
+    badge_data = [[Paragraph(badge_label, badge_style)]]
+    badge = Table(badge_data, colWidths=[17 * cm])
+    badge.setStyle(TableStyle([
+        ("BACKGROUND", (0, 0), (-1, -1), tier_color),
+        ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+        ("TOPPADDING", (0, 0), (-1, -1), 14),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 14),
+    ]))
+    story.append(badge)
+    story.append(Spacer(1, 0.5 * cm))
+
+    # Patient info — big and simple
+    big_style = ParagraphStyle(
+        "CHWBig",
+        fontName=_BENGALI_FONT,
+        fontSize=13,
+        spaceAfter=6,
+    )
+    name    = session_data.get("patient_name", "—")
+    age     = session_data.get("patient_age", "—")
+    disease = session_data.get("disease_class", "—")
+    disease_bn = session_data.get("disease_bengali", "")
+    facility   = session_data.get("facility", "")
+    action_bn  = session_data.get("bengali_text", "")
+
+    from severity.engine import COST_ESTIMATE
+    cost_info = COST_ESTIMATE.get(tier, COST_ESTIMATE[2])
+
+    rows = [
+        ("Patient", "রোগী", f"{name} · Age {age}"),
+        ("Condition", "রোগ", f"{disease} ({disease_bn})"),
+        ("Go To", "কোথায় যাবেন", facility),
+        ("Est. Cost", "আনুমানিক খরচ", f"{cost_info['range']} — {cost_info['note_bn']}"),
+    ]
+    story.append(_kv_table(rows, big_style, bengali_style))
+    story.append(Spacer(1, 0.4 * cm))
+
+    # Bengali instruction — large
+    instr_style = ParagraphStyle(
+        "CHWInstr",
+        fontName=_BENGALI_FONT,
+        fontSize=14,
+        textColor=tier_color,
+        spaceAfter=8,
+        alignment=1,
+    )
+    story.append(Paragraph(action_bn, instr_style))
+
+    # Hospital if Tier 3
+    if tier == 3:
+        hospital_name    = session_data.get("hospital_name", "")
+        hospital_address = session_data.get("hospital_address", "")
+        if hospital_name:
+            story.append(Paragraph(
+                f"<b>Nearest Hospital:</b> {hospital_name} — {hospital_address}",
+                big_style,
+            ))
+
+    story.append(Spacer(1, 0.6 * cm))
+    story.append(Paragraph(
+        "AI-assisted screening. Not a substitute for clinical diagnosis. | SkinAI Bangladesh © 2026",
+        disclaimer_style,
+    ))
+
+    doc.build(story)
+    return buf.getvalue()

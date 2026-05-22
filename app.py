@@ -21,6 +21,12 @@ from ui.components import (
     render_chat_message,
     render_suggested_questions,
     render_referral_preview,
+    render_cost_estimate,
+    render_impact_comparison,
+    render_audio_triage,
+    enhance_skin_image,
+    render_symptom_timeline,
+    render_chw_result,
     # existing components
     render_gradcam_overlay,
     render_patient_history_table,
@@ -143,9 +149,11 @@ _DEFAULTS = {
     "tier_result":       None,
     "nearest_hospital":  None,
     "pdf_bytes":         None,
+    "chw_pdf_bytes":     None,
     "rag_answer":        "",
     "rag_lang":          "en",
     "chat_history":      [],
+    "chw_mode":          False,
     "_last_audio_hash":  "",   # prevents re-processing same audio on rerun
 }
 for _k, _v in _DEFAULTS.items():
@@ -309,6 +317,28 @@ with st.sidebar:
 
     st.markdown("---")
 
+    # ── CHW Mode toggle ───────────────────────────────────────────────────────
+    st.markdown("---")
+    st.markdown(
+        '<div class="sidebar-stat" style="font-size:0.72rem;font-weight:700;'
+        'margin-bottom:0.2rem;">👩‍⚕️ CHW / সেবিকা মোড</div>'
+        '<div style="font-size:0.65rem;color:#718096;margin-bottom:0.3rem;">'
+        'Simplified view for community health workers</div>',
+        unsafe_allow_html=True,
+    )
+    st.session_state.setdefault("chw_mode", False)
+    _chw = st.toggle(
+        "Enable CHW Mode",
+        key="chw_mode_toggle",
+        value=st.session_state.get("chw_mode", False),
+    )
+    st.session_state["chw_mode"] = _chw
+
+    # ── Impact comparison ─────────────────────────────────────────────────────
+    st.markdown("---")
+    render_impact_comparison()
+    st.markdown("---")
+
     # ── Disclaimer ────────────────────────────────────────────────────────────
     st.markdown(
         '<div class="sk-disclaimer">'
@@ -344,10 +374,11 @@ st.markdown(
 
 
 # ── Tabs ──────────────────────────────────────────────────────────────────────
-tab1, tab2, tab3 = st.tabs([
+tab1, tab2, tab3, tab4 = st.tabs([
     "🔬 রোগ নির্ণয়",
     "💬 প্রশ্ন করুন",
     "📄 রেফারেল পত্র",
+    "📊 মহামারী বিদ্যা",
 ])
 
 
@@ -783,13 +814,29 @@ with tab1:
                     unsafe_allow_html=True,
                 )
 
-            st.image(pil_img, use_container_width=True, caption="Uploaded skin image")
+            # F5 — Auto-enhance low-light / blurry images before inference
+            enhanced_img, was_enhanced = enhance_skin_image(pil_img)
+            if was_enhanced:
+                _ecol1, _ecol2 = st.columns(2)
+                with _ecol1:
+                    st.image(pil_img, use_container_width=True, caption="Original")
+                with _ecol2:
+                    st.image(enhanced_img, use_container_width=True, caption="✨ Enhanced")
+                st.markdown(
+                    '<div class="info-box" style="font-size:0.78rem;">'
+                    '✨ <strong>Auto-enhanced</strong> for better analysis '
+                    '(CLAHE + unsharp mask) · ছবি স্বয়ংক্রিয়ভাবে উন্নত করা হয়েছে'
+                    '</div>',
+                    unsafe_allow_html=True,
+                )
+            else:
+                st.image(pil_img, use_container_width=True, caption="Uploaded skin image")
 
             st.session_state.pdf_bytes    = None
             st.session_state.chat_history = []
 
             with st.spinner("🔬 Analysing skin image…"):
-                pred = _run_model(pil_img)
+                pred = _run_model(enhanced_img if was_enhanced else pil_img)
                 st.session_state.prediction = pred
 
             # Compute tier (stored → rendered below columns)
@@ -829,17 +876,33 @@ with tab1:
                     unsafe_allow_html=True,
                 )
 
-    # ── FULL-WIDTH: Severity Tier Banner (below both columns) ──────────────────
+    # ── FULL-WIDTH: Severity Tier Banner + enhancements ───────────────────────
     if st.session_state.tier_result:
         _tr = st.session_state.tier_result
         st.markdown('<div style="margin-top:0.25rem;"></div>', unsafe_allow_html=True)
-        render_tier_banner(
-            tier          = _tr["tier"],
-            urgency_label = _tr["urgency_label"],
-            action_text   = _tr["action"],
-            bn_text       = _tr["bengali_text"],
-            facility      = _tr["facility"],
-        )
+
+        # F3 — CHW mode: simplified big card instead of standard banner
+        if st.session_state.get("chw_mode") and st.session_state.prediction:
+            render_chw_result(st.session_state.prediction, _tr)
+        else:
+            render_tier_banner(
+                tier          = _tr["tier"],
+                urgency_label = _tr["urgency_label"],
+                action_text   = _tr["action"],
+                bn_text       = _tr["bengali_text"],
+                facility      = _tr["facility"],
+            )
+
+        # F1 — Bengali TTS readout
+        render_audio_triage(_tr.get("bengali_text", ""))
+
+        # F2 — Cost estimate card
+        render_cost_estimate(_tr["tier"])
+
+        # F6 — Symptom timeline (only when history has duration)
+        _dur = (st.session_state.history or {}).get("duration", "")
+        if _dur:
+            render_symptom_timeline(_dur, _tr["tier"])
 
         # ── All tiers: Nearest healthcare facility map ────────────────────────
         _map_config = {
@@ -1048,43 +1111,75 @@ with tab3:
 
         st.markdown("<br>", unsafe_allow_html=True)
 
-        # ── Generate button ────────────────────────────────────────────────────
-        if not st.session_state.pdf_bytes:
+        # ── Generate buttons ───────────────────────────────────────────────────
+        from model.disease_labels import get_bengali as _get_bn
+        _session_data = {
+            **history,
+            "heatmap":         pred.get("heatmap"),
+            "coverage_pct":    pred.get("coverage_pct", 0.0),
+            "disease_class":   pred["disease"],
+            "disease_bengali": _get_bn(pred["disease"]),
+            "confidence":      pred["confidence"],
+            "top2":            pred.get("top2", []),
+            "tier":            tier["tier"],
+            "urgency_label":   tier["urgency_label"],
+            "action":          tier["action"],
+            "facility":        tier["facility"],
+            "bengali_text":    tier["bengali_text"],
+            "transcript":      st.session_state.transcript,
+            "hospital_name":    (st.session_state.nearest_hospital or {}).get("name", ""),
+            "hospital_address": (st.session_state.nearest_hospital or {}).get("address", ""),
+        }
+
+        _pdf_col1, _pdf_col2 = st.columns(2)
+        with _pdf_col1:
             if st.button(
-                "📋 Generate Referral Letter",
+                "📋 Full Referral Letter",
                 use_container_width=True,
                 type="primary",
                 key="gen_pdf_btn",
             ):
-                with st.spinner("📄 Generating PDF referral letter…"):
-                    from model.disease_labels import get_bengali as _get_bn
-                    session_data = {
-                        **history,
-                        "heatmap":         pred.get("heatmap"),
-                        "coverage_pct":    pred.get("coverage_pct", 0.0),
-                        "disease_class":   pred["disease"],
-                        "disease_bengali": _get_bn(pred["disease"]),
-                        "confidence":      pred["confidence"],
-                        "top2":            pred.get("top2", []),
-                        "tier":            tier["tier"],
-                        "urgency_label":   tier["urgency_label"],
-                        "action":          tier["action"],
-                        "facility":        tier["facility"],
-                        "bengali_text":    tier["bengali_text"],
-                        "transcript":      st.session_state.transcript,
-                        "hospital_name":    (st.session_state.nearest_hospital or {}).get("name", ""),
-                        "hospital_address": (st.session_state.nearest_hospital or {}).get("address", ""),
-                    }
+                with st.spinner("📄 Generating PDF…"):
                     try:
-                        pdf_bytes = generate_referral_pdf(session_data)
-                        st.session_state.pdf_bytes = pdf_bytes
-                        st.toast("✅ Referral letter ready — click Download below!", icon="📄")
+                        st.session_state.pdf_bytes     = generate_referral_pdf(_session_data)
+                        st.session_state.chw_pdf_bytes = None
+                        st.toast("✅ Referral letter ready!", icon="📄")
                     except Exception as e:
                         st.error(f"PDF generation failed: {e}")
-                        st.session_state.pdf_bytes = None
 
-        # ── Download button ────────────────────────────────────────────────────
+        with _pdf_col2:
+            if st.button(
+                "👩‍⚕️ CHW Referral Slip",
+                use_container_width=True,
+                key="gen_chw_pdf_btn",
+                help="Simple 1-page slip for community health workers",
+            ):
+                with st.spinner("📄 Generating CHW slip…"):
+                    try:
+                        from pdf_gen.referral import generate_chw_referral_slip
+                        st.session_state.chw_pdf_bytes = generate_chw_referral_slip(_session_data)
+                        st.session_state.pdf_bytes     = None
+                        st.toast("✅ CHW slip ready!", icon="👩‍⚕️")
+                    except Exception as e:
+                        st.error(f"CHW slip generation failed: {e}")
+
+        # ── Download buttons ───────────────────────────────────────────────────
         render_referral_download_button(st.session_state.pdf_bytes)
+
+        _chw_pdf = st.session_state.get("chw_pdf_bytes")
+        if _chw_pdf is not None:
+            import base64 as _b64
+            _chw_b64 = _b64.b64encode(_chw_pdf).decode()
+            st.markdown(
+                f'<a href="data:application/pdf;base64,{_chw_b64}" '
+                f'download="skinai_chw_slip.pdf" '
+                f'style="display:block;width:100%;padding:0.75rem 1rem;background:#805AD5;'
+                f'color:white;text-align:center;border-radius:8px;font-size:0.95rem;'
+                f'font-weight:700;text-decoration:none;box-sizing:border-box;margin-top:0.5rem;">'
+                f'📥 CHW Referral Slip ডাউনলোড করুন · Download CHW Slip (PDF)'
+                f'</a>',
+                unsafe_allow_html=True,
+            )
 
     else:
         # ── Empty state with progress indicator ───────────────────────────────
@@ -1128,6 +1223,97 @@ with tab3:
         '<div class="sk-disclaimer">'
         'This referral letter is AI-generated for informational purposes only. '
         'It does not replace a clinical diagnosis by a licensed physician.'
+        '</div>',
+        unsafe_allow_html=True,
+    )
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# TAB 4 — Epidemiology / Disease Prevalence Heatmap
+# ══════════════════════════════════════════════════════════════════════════════
+with tab4:
+    st.markdown(
+        '<div class="card-section-header">'
+        '<span style="font-size:1.1rem;">📊</span>'
+        '<div>'
+        '<div class="card-section-title">Bangladesh Skin Disease Prevalence · বাংলাদেশে চর্মরোগের প্রকোপ</div>'
+        '<div class="card-section-sub">Division-level data · DGHS Annual Report 2023 · WHO SE Asia</div>'
+        '</div>'
+        '</div>',
+        unsafe_allow_html=True,
+    )
+
+    from map.bd_heatmap import (
+        get_all_diseases, get_division_stats, render_prevalence_map,
+        DISEASE_LABELS_BN, DISEASE_COLORS,
+    )
+
+    _diseases = get_all_diseases()
+    _disease_options = {d.replace("_", " "): d for d in _diseases}
+
+    _sel_display = st.selectbox(
+        "Select disease · রোগ বেছে নিন",
+        options=list(_disease_options.keys()),
+        index=0,
+        key="epi_disease_select",
+    )
+    _sel_disease = _disease_options[_sel_display]
+    _sel_bn      = DISEASE_LABELS_BN.get(_sel_disease, _sel_display)
+    _sel_color   = DISEASE_COLORS.get(_sel_disease, "#1A6FA8")
+
+    st.markdown(
+        f'<div class="info-box" style="font-family:\'Noto Sans Bengali\',sans-serif;">'
+        f'রোগ: <strong>{_sel_display}</strong> · {_sel_bn}'
+        f'</div>',
+        unsafe_allow_html=True,
+    )
+
+    _epi_col1, _epi_col2 = st.columns([3, 2], gap="large")
+
+    with _epi_col1:
+        st.markdown(
+            '<div style="font-size:0.78rem;font-weight:600;color:#4A5568;margin-bottom:0.4rem;">'
+            '🗺️ Geographic Distribution · ভৌগোলিক বিতরণ</div>',
+            unsafe_allow_html=True,
+        )
+        try:
+            from streamlit_folium import st_folium
+            _epi_map = render_prevalence_map(_sel_disease)
+            st_folium(_epi_map, use_container_width=True, height=420)
+        except Exception as _e:
+            st.warning(f"Map rendering failed: {_e}")
+
+    with _epi_col2:
+        st.markdown(
+            '<div style="font-size:0.78rem;font-weight:600;color:#4A5568;margin-bottom:0.4rem;">'
+            '📊 Prevalence by Division · বিভাগ অনুযায়ী প্রকোপ</div>',
+            unsafe_allow_html=True,
+        )
+        _stats = get_division_stats(_sel_disease)
+        _max_pct = _stats[0]["prevalence"] if _stats else 1
+        for _row in _stats:
+            _div  = _row["division"]
+            _pct  = _row["prevalence"]
+            _bar_w = int((_pct / _max_pct) * 100)
+            st.markdown(
+                f'<div style="margin-bottom:0.45rem;">'
+                f'  <div style="display:flex;justify-content:space-between;'
+                f'font-size:0.78rem;font-weight:600;margin-bottom:0.15rem;">'
+                f'    <span>{_div}</span>'
+                f'    <span style="color:{_sel_color};">{_pct}%</span>'
+                f'  </div>'
+                f'  <div style="background:#E2E8F0;border-radius:99px;height:8px;overflow:hidden;">'
+                f'    <div style="width:{_bar_w}%;height:8px;background:{_sel_color};'
+                f'border-radius:99px;transition:width 0.3s;"></div>'
+                f'  </div>'
+                f'</div>',
+                unsafe_allow_html=True,
+            )
+
+    st.markdown(
+        '<div class="sk-disclaimer" style="margin-top:1rem;">'
+        '📋 Data: DGHS Annual Dermatology OPD Report 2023 + WHO South-East Asia Skin Disease Surveillance. '
+        'Figures are estimates for educational purposes only.'
         '</div>',
         unsafe_allow_html=True,
     )

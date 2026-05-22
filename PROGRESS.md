@@ -49,6 +49,19 @@
 ## 📝 SESSION LOG
 <!-- Append to this after every session. Newest at top. -->
 
+### Session: May 22, 2026 — Day 22 — 7 High-Value Feature Additions ✅
+**Done (hackathon judge score maximisation):**
+- F1: Bengali TTS — gTTS reads out triage recommendation in Bengali audio (requires gtts in req.txt)
+- F2: Treatment cost estimate — ৳50-200 / ৳0-100 / ৳0-500 Taka card per tier (static data, zero risk)
+- F3: CHW / Shasthya Seboika simplified mode — sidebar toggle shows large-font binary refer/no-refer card; CHW referral slip PDF (1-page, no jargon)
+- F4: Epidemiology tab (Tab 4) — Bangladesh division-level disease prevalence map (folium circle markers) + horizontal bar chart; DGHS/WHO data
+- F5: Auto image enhancement — CLAHE + unsharp mask applied before inference when image is dark/blurry; before/after preview shown
+- F6: Symptom duration timeline — visual 3-node timeline (Onset → Today → Expected Recovery) parsed from Bengali/English voice duration field
+- F7: Impact comparison panel in sidebar — "Without SkinAI" (quack) vs "With SkinAI" (correct triage) side-by-side cards
+**All 245/245 tests still passing. All new code parses cleanly.**
+**New files:** map/bd_heatmap.py
+**Modified:** severity/engine.py, ui/components.py, pdf_gen/referral.py, app.py, requirements.txt
+
 ### Session: May 20, 2026 — Day 22 — Voice Input Fix ✅
 **Done:**
 - Fixed audio stream exhaustion bug: `audio_data.read()` drains the stream;

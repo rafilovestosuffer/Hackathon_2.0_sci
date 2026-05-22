@@ -565,3 +565,316 @@ def render_referral_download_button(pdf_bytes) -> None:
             f'</div>',
             unsafe_allow_html=True,
         )
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# F2 — Treatment Cost Estimate
+# ══════════════════════════════════════════════════════════════════════════════
+
+def render_cost_estimate(tier: int) -> None:
+    """Teal card showing estimated treatment cost in Taka for the given tier."""
+    from severity.engine import COST_ESTIMATE
+    info = COST_ESTIMATE.get(tier, COST_ESTIMATE[2])
+    tier_colors = {1: "#27AE60", 2: "#E67E22", 3: "#C0392B"}
+    color = tier_colors.get(tier, "#1A6FA8")
+    st.markdown(
+        f'<div style="background:#F0FFF4;border:1.5px solid {color};border-radius:10px;'
+        f'padding:0.75rem 1rem;margin-top:0.5rem;">'
+        f'  <div style="font-size:0.72rem;font-weight:700;color:{color};'
+        f'text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.3rem;">'
+        f'💰 Estimated Cost · আনুমানিক খরচ</div>'
+        f'  <div style="font-size:1.4rem;font-weight:800;color:{color};">'
+        f'{info["range"]}</div>'
+        f'  <div style="font-size:0.8rem;color:#4A5568;margin-top:0.15rem;">'
+        f'{info["note"]}</div>'
+        f'  <div style="font-family:\'Noto Sans Bengali\',sans-serif;font-size:0.78rem;'
+        f'color:#4A5568;margin-top:0.1rem;">{info["note_bn"]}</div>'
+        f'</div>',
+        unsafe_allow_html=True,
+    )
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# F7 — "Without SkinAI vs. With SkinAI" Impact Comparison
+# ══════════════════════════════════════════════════════════════════════════════
+
+def render_impact_comparison() -> None:
+    """Two-column before/after impact panel — goes in sidebar or Tab 1."""
+    st.markdown(
+        '<div style="margin-top:0.5rem;">'
+        '<div style="font-size:0.68rem;font-weight:700;color:#4A6080;'
+        'text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.4rem;">'
+        '⚖️ Impact · পার্থক্য</div>'
+
+        '<div style="display:flex;gap:0.4rem;">'
+
+        # Left — without SkinAI
+        '<div style="flex:1;background:#FFF5F5;border:1.5px solid #FC8181;'
+        'border-radius:8px;padding:0.55rem 0.6rem;">'
+        '<div style="font-size:1rem;margin-bottom:0.15rem;">❌</div>'
+        '<div style="font-size:0.62rem;font-weight:700;color:#C53030;margin-bottom:0.2rem;">'
+        'Without SkinAI</div>'
+        '<div style="font-size:0.6rem;color:#742A2A;line-height:1.4;">'
+        'হাতুড়ে ডাক্তার<br>ভুল চিকিৎসা<br>১৪ দিন দেরি<br>অবস্থা খারাপ'
+        '</div>'
+        '</div>'
+
+        # Right — with SkinAI
+        '<div style="flex:1;background:#F0FFF4;border:1.5px solid #68D391;'
+        'border-radius:8px;padding:0.55rem 0.6rem;">'
+        '<div style="font-size:1rem;margin-bottom:0.15rem;">✅</div>'
+        '<div style="font-size:0.62rem;font-weight:700;color:#22543D;margin-bottom:0.2rem;">'
+        'With SkinAI</div>'
+        '<div style="font-size:0.6rem;color:#276749;line-height:1.4;">'
+        'AI নির্ণয়<br>সঠিক রেফারেল<br>&lt;১ ঘণ্টায়<br>সুস্থতার পথ'
+        '</div>'
+        '</div>'
+
+        '</div>'  # flex container
+        '</div>',
+        unsafe_allow_html=True,
+    )
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# F1 — Bengali TTS (gTTS) for triage result readout
+# ══════════════════════════════════════════════════════════════════════════════
+
+def render_audio_triage(tier_action_bn: str) -> None:
+    """
+    Synthesise triage text → Bengali MP3 via gTTS, play inline.
+    Silently skips on network failure — never raises.
+    """
+    if not tier_action_bn:
+        return
+    try:
+        import io as _io
+        from gtts import gTTS
+        buf = _io.BytesIO()
+        tts = gTTS(text=tier_action_bn, lang="bn", slow=False)
+        tts.write_to_fp(buf)
+        buf.seek(0)
+        st.markdown(
+            '<div style="font-size:0.72rem;color:#4A5568;margin-top:0.4rem;margin-bottom:0.15rem;">'
+            '🔊 বাংলায় শুনুন · Listen in Bengali</div>',
+            unsafe_allow_html=True,
+        )
+        st.audio(buf.read(), format="audio/mp3")
+    except Exception:
+        pass  # TTS is enhancement-only; silent failure is fine
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# F5 — Automatic Image Enhancement (CLAHE + unsharp mask)
+# ══════════════════════════════════════════════════════════════════════════════
+
+def enhance_skin_image(pil_img):
+    """
+    Auto-enhance a skin photo for low light or mild blur.
+    Returns (enhanced_PIL_Image, was_enhanced: bool).
+    Never raises.
+    """
+    try:
+        import cv2
+        import numpy as np
+        from PIL import Image as _PILImage
+
+        img_np = np.array(pil_img.convert("RGB"))
+
+        is_blurry, lap_var = check_image_quality(pil_img)
+        mean_brightness = float(img_np.mean())
+        needs_enhance = is_blurry or mean_brightness < 80
+
+        if not needs_enhance:
+            return pil_img, False
+
+        # CLAHE on L channel for low-light correction
+        lab = cv2.cvtColor(img_np, cv2.COLOR_RGB2LAB)
+        l_ch, a_ch, b_ch = cv2.split(lab)
+        clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
+        l_ch = clahe.apply(l_ch)
+        enhanced = cv2.merge([l_ch, a_ch, b_ch])
+        enhanced = cv2.cvtColor(enhanced, cv2.COLOR_LAB2RGB)
+
+        # Unsharp mask for mild blur
+        if is_blurry:
+            blur = cv2.GaussianBlur(enhanced, (0, 0), 3)
+            enhanced = cv2.addWeighted(enhanced, 1.5, blur, -0.5, 0)
+
+        return _PILImage.fromarray(enhanced.astype(np.uint8)), True
+    except Exception:
+        return pil_img, False
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# F6 — Symptom Duration Timeline
+# ══════════════════════════════════════════════════════════════════════════════
+
+_BN_NUMBERS = {
+    "এক": 1, "দুই": 2, "তিন": 3, "চার": 4, "পাঁচ": 5,
+    "ছয়": 6, "সাত": 7, "আট": 8, "নয়": 9, "দশ": 10,
+    "এগারো": 11, "বারো": 12, "তেরো": 13, "চোদ্দ": 14,
+    "পনেরো": 15, "ষোল": 16, "সতেরো": 17, "আঠারো": 18,
+}
+_BN_DIGITS = str.maketrans("০১২৩৪৫৬৭৮৯", "0123456789")
+
+
+def _parse_duration_days(duration_str: str) -> int | None:
+    """Parse Bengali/English duration string → integer days. Returns None if unparseable."""
+    if not duration_str:
+        return None
+    s = duration_str.strip().lower().translate(_BN_DIGITS)
+
+    # Normalise Bengali unit words
+    s = s.replace("সপ্তাহ", "week").replace("মাস", "month").replace("দিন", "day")
+
+    # Try to extract number
+    nums = re.findall(r'\d+', s)
+    num = int(nums[0]) if nums else None
+
+    # Try Bengali word numbers
+    if num is None:
+        for word, val in _BN_NUMBERS.items():
+            if word in s:
+                num = val
+                break
+
+    if num is None:
+        return None
+
+    if "month" in s:
+        return num * 30
+    if "week" in s:
+        return num * 7
+    return num
+
+
+def render_symptom_timeline(duration_str: str, tier: int) -> None:
+    """
+    Horizontal 3-node timeline: Onset → Today → Expected Recovery.
+    Only renders when duration can be parsed.
+    """
+    days = _parse_duration_days(duration_str)
+    if not days:
+        return
+
+    from datetime import date, timedelta
+    today = date.today()
+    onset = today - timedelta(days=days)
+
+    tier_recovery = {1: 7, 2: 14, 3: None}
+    recovery_days = tier_recovery.get(tier)
+
+    if recovery_days:
+        recovery_date = today + timedelta(days=recovery_days)
+        recovery_label = recovery_date.strftime("%b %d")
+        recovery_note  = f"~{recovery_days}d recovery"
+        node3_color    = "#27AE60"
+    else:
+        recovery_label = "জরুরি চিকিৎসা"
+        recovery_note  = "Seek care NOW"
+        node3_color    = "#C0392B"
+
+    onset_str  = onset.strftime("%b %d")
+    today_str  = today.strftime("%b %d")
+
+    st.markdown(
+        f'<div style="margin:0.75rem 0 0.25rem 0;">'
+        f'  <div style="font-size:0.72rem;font-weight:700;color:#4A5568;'
+        f'text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.5rem;">'
+        f'  📅 Symptom Timeline · উপসর্গের সময়রেখা</div>'
+        f'  <div style="display:flex;align-items:center;gap:0;">'
+
+        # Node 1 — Onset
+        f'  <div style="text-align:center;flex:0 0 auto;">'
+        f'    <div style="width:36px;height:36px;border-radius:50%;background:#C0392B;'
+        f'color:white;display:flex;align-items:center;justify-content:center;'
+        f'font-size:1rem;margin:0 auto;">🔴</div>'
+        f'    <div style="font-size:0.64rem;font-weight:700;color:#C0392B;margin-top:0.2rem;">{onset_str}</div>'
+        f'    <div style="font-size:0.6rem;color:#718096;">Onset</div>'
+        f'  </div>'
+
+        # Line
+        f'  <div style="flex:1;height:3px;background:linear-gradient(90deg,#C0392B,#E67E22);'
+        f'margin:0 4px;"></div>'
+
+        # Node 2 — Today
+        f'  <div style="text-align:center;flex:0 0 auto;">'
+        f'    <div style="width:36px;height:36px;border-radius:50%;background:#E67E22;'
+        f'color:white;display:flex;align-items:center;justify-content:center;'
+        f'font-size:1rem;margin:0 auto;">🟡</div>'
+        f'    <div style="font-size:0.64rem;font-weight:700;color:#E67E22;margin-top:0.2rem;">{today_str}</div>'
+        f'    <div style="font-size:0.6rem;color:#718096;">Today</div>'
+        f'  </div>'
+
+        # Line
+        f'  <div style="flex:1;height:3px;background:linear-gradient(90deg,#E67E22,{node3_color});'
+        f'margin:0 4px;"></div>'
+
+        # Node 3 — Recovery / Care
+        f'  <div style="text-align:center;flex:0 0 auto;">'
+        f'    <div style="width:36px;height:36px;border-radius:50%;background:{node3_color};'
+        f'color:white;display:flex;align-items:center;justify-content:center;'
+        f'font-size:1rem;margin:0 auto;">{"🟢" if recovery_days else "🚨"}</div>'
+        f'    <div style="font-size:0.64rem;font-weight:700;color:{node3_color};margin-top:0.2rem;">{recovery_label}</div>'
+        f'    <div style="font-size:0.6rem;color:#718096;">{recovery_note}</div>'
+        f'  </div>'
+
+        f'  </div>'  # flex
+        f'</div>',
+        unsafe_allow_html=True,
+    )
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# F3 — CHW (Community Health Worker) Simplified Result Card
+# ══════════════════════════════════════════════════════════════════════════════
+
+def render_chw_result(pred: dict, tier_result: dict) -> None:
+    """
+    Simplified decision card for Shasthya Seboika / ASHA workers.
+    Large font, no medical jargon, binary refer/no-refer decision.
+    """
+    from severity.engine import COST_ESTIMATE
+    tier    = tier_result.get("tier", 2)
+    disease = pred.get("disease", "Unknown").replace("_", " ")
+    disease_bn = get_bengali(pred.get("disease", ""))
+    action_bn  = tier_result.get("bengali_text", "")
+    facility   = tier_result.get("facility", "")
+    cost       = COST_ESTIMATE.get(tier, COST_ESTIMATE[2])
+
+    icons  = {1: "✅", 2: "⚠️", 3: "🚨"}
+    labels = {1: "রেফারেল নয়", 2: "রেফারেল করুন", 3: "এখনই পাঠান!"}
+    bgs    = {1: "#F0FFF4", 2: "#FFFBEB", 3: "#FFF5F5"}
+    colors_map = {1: "#22543D", 2: "#7B341E", 3: "#742A2A"}
+    borders = {1: "#68D391", 2: "#F6AD55", 3: "#FC8181"}
+
+    icon     = icons.get(tier, "⚠️")
+    label    = labels.get(tier, "রেফারেল করুন")
+    bg       = bgs.get(tier, "#FFFBEB")
+    fg       = colors_map.get(tier, "#4A5568")
+    border   = borders.get(tier, "#F6AD55")
+
+    st.markdown(
+        f'<div style="background:{bg};border:3px solid {border};border-radius:16px;'
+        f'padding:1.5rem;text-align:center;margin:0.5rem 0;">'
+
+        f'<div style="font-size:3.5rem;line-height:1;">{icon}</div>'
+        f'<div style="font-size:1.8rem;font-weight:900;color:{fg};margin:0.4rem 0;">'
+        f'{label}</div>'
+
+        f'<div style="font-family:\'Noto Sans Bengali\',sans-serif;font-size:1rem;'
+        f'font-weight:700;color:{fg};margin:0.3rem 0;">{disease_bn}</div>'
+        f'<div style="font-size:0.85rem;color:#4A5568;margin-bottom:0.5rem;">{disease}</div>'
+
+        f'<div style="background:rgba(0,0,0,0.06);border-radius:8px;padding:0.5rem 0.75rem;'
+        f'margin:0.5rem 0;font-family:\'Noto Sans Bengali\',sans-serif;'
+        f'font-size:0.95rem;font-weight:600;color:{fg};">{action_bn}</div>'
+
+        f'<div style="font-size:0.78rem;color:#4A5568;">🏥 {facility}</div>'
+        f'<div style="font-size:0.85rem;font-weight:700;color:{fg};margin-top:0.35rem;">'
+        f'💰 {cost["range"]} &nbsp;·&nbsp; {cost["note_bn"]}</div>'
+
+        f'</div>',
+        unsafe_allow_html=True,
+    )

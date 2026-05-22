@@ -7,6 +7,24 @@ CONF_TIER3: float = 0.40
 CONF_TIER2: float = 0.60
 COVERAGE_THRESHOLD: float = 40.0
 
+COST_ESTIMATE = {
+    1: {
+        "range":   "৳50–200",
+        "note":    "OTC cream / antihistamine at local pharmacy",
+        "note_bn": "স্থানীয় ফার্মেসি থেকে সাশ্রয়ী ওষুধ কিনুন",
+    },
+    2: {
+        "range":   "৳0–100",
+        "note":    "Free or subsidised at Upazila Health Complex (government)",
+        "note_bn": "উপজেলা স্বাস্থ্য কমপ্লেক্সে বিনামূল্যে বা ভর্তুকিমূলক",
+    },
+    3: {
+        "range":   "৳0–500",
+        "note":    "Subsidised emergency care at District Hospital",
+        "note_bn": "জেলা হাসপাতালে ভর্তুকিমূলক জরুরি চিকিৎসা",
+    },
+}
+
 TIER_ACTIONS = {
     1: {
         "urgency_label": "NON-URGENT",
