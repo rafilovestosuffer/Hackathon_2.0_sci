@@ -514,7 +514,7 @@ def _render_dos_donts(pdf: _PDF, data: dict):
     pdf.set_xy(x_l + 2, cy)
     pdf.set_text_color(*_GREEN)
     pdf.lat(9, bold=True)
-    pdf.cell(col_w - 4, 6, "✓ What to DO", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+    pdf.cell(col_w - 4, 6, "(+) What to DO", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
     cy += 6
     pdf.set_xy(x_l + 2, cy)
     pdf.bn(8)
@@ -536,7 +536,7 @@ def _render_dos_donts(pdf: _PDF, data: dict):
     pdf.set_xy(x_r + 2, cy)
     pdf.set_text_color(*_RED)
     pdf.lat(9, bold=True)
-    pdf.cell(col_w - 4, 6, "✗ What NOT to DO", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+    pdf.cell(col_w - 4, 6, "(-) What NOT to DO", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
     cy += 6
     pdf.set_xy(x_r + 2, cy)
     pdf.bn(8)
