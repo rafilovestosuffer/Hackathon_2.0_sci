@@ -355,6 +355,44 @@ tab1, tab2, tab3 = st.tabs([
 # TAB 1 — Diagnosis & Triage
 # ══════════════════════════════════════════════════════════════════════════════
 with tab1:
+    # ── Quick Demo Bar ────────────────────────────────────────────────────────
+    st.markdown(
+        '<div style="background:#F0F9FF;border:1px solid #BAE6FD;border-radius:8px;'
+        'padding:0.5rem 0.75rem;margin-bottom:0.75rem;font-size:0.82rem;color:#0369A1;">'
+        '🎬 <strong>No image?</strong> Try instant demo cases below:'
+        '</div>',
+        unsafe_allow_html=True,
+    )
+    _dcol1, _dcol2, _dcol3 = st.columns(3)
+    with _dcol1:
+        if st.button("🟢 Demo — Tinea (Tier 1)", use_container_width=True, key="tab_demo_t1"):
+            _dp = _DEMO_CASES["demo_tier1"]["pred"]
+            st.session_state.prediction  = _dp
+            st.session_state.tier_result = compute_tier(_dp["disease"], _dp["confidence"], _dp["coverage_pct"], _DEMO_CASES["demo_tier1"]["transcript"])
+            st.session_state.history     = _DEMO_CASES["demo_tier1"]["history"]
+            st.session_state.transcript  = _DEMO_CASES["demo_tier1"]["transcript"]
+            st.session_state.pdf_bytes   = None
+            st.rerun()
+    with _dcol2:
+        if st.button("🟡 Demo — Eczema (Tier 2)", use_container_width=True, key="tab_demo_t2"):
+            _dp = _DEMO_CASES["demo_tier2"]["pred"]
+            st.session_state.prediction  = _dp
+            st.session_state.tier_result = compute_tier(_dp["disease"], _dp["confidence"], _dp["coverage_pct"], _DEMO_CASES["demo_tier2"]["transcript"])
+            st.session_state.history     = _DEMO_CASES["demo_tier2"]["history"]
+            st.session_state.transcript  = _DEMO_CASES["demo_tier2"]["transcript"]
+            st.session_state.pdf_bytes   = None
+            st.rerun()
+    with _dcol3:
+        if st.button("🔴 Demo — Scabies (Tier 3 URGENT)", use_container_width=True, key="tab_demo_t3"):
+            _dp = _DEMO_CASES["demo_tier3"]["pred"]
+            st.session_state.prediction  = _dp
+            st.session_state.tier_result = compute_tier(_dp["disease"], _dp["confidence"], _dp["coverage_pct"], _DEMO_CASES["demo_tier3"]["transcript"])
+            st.session_state.history     = _DEMO_CASES["demo_tier3"]["history"]
+            st.session_state.transcript  = _DEMO_CASES["demo_tier3"]["transcript"]
+            st.session_state.pdf_bytes   = None
+            st.rerun()
+
+    st.markdown("---")
     col_left, col_right = st.columns([1, 1], gap="large")
 
     # ── LEFT COLUMN: Voice Input + Patient Data ────────────────────────────────
