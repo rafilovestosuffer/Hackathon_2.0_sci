@@ -29,8 +29,11 @@ _whisper_model = None
 _gemini_client = None
 
 # ── Constants ─────────────────────────────────────────────────────────────────
-_SILENCE_RMS_THRESHOLD = 0.0005   # below this → treat as silence
-_MIN_AUDIO_SECONDS     = 0.5      # recordings shorter than this are rejected
+_SILENCE_RMS_THRESHOLD  = 0.0005   # below this → treat as silence
+_MIN_AUDIO_SECONDS      = 0.5      # recordings shorter than this are rejected
+_NO_SPEECH_PROB_MAX     = 0.55     # segments above this threshold are hallucination
+_MIN_GOOD_SEGMENT_RATIO = 0.4      # if fewer than 40% of segs pass, reject whole result
+_PASS2_MIN_SECONDS      = 2.0      # only do no-VAD retry for audio longer than this
 
 _HISTORY_KEYS = {
     "chief_complaint":    "",
@@ -188,6 +191,43 @@ def _script_matches(text: str, language: str, min_chars: int = 3) -> bool:
     return sum(1 for c in text if lo <= c <= hi) >= min_chars
 
 
+def _is_hallucinated(text: str) -> bool:
+    """
+    Detect Whisper hallucination signatures:
+    - Box/diamond replacement chars (□ ◆ ◇ ▪ ▫ ■ etc.)  U+2500–U+27FF
+    - Unicode replacement char U+FFFD
+    - Excessive repetition of the same token
+    """
+    if not text:
+        return False
+    # Geometric/box chars that appear when Whisper maps noise to invalid tokens.
+    # These NEVER appear in legitimate Bengali medical speech output.
+    garbage = sum(1 for c in text if '─' <= c <= '⟿' or c == '�')
+    if garbage >= 1:
+        return True
+    # Repetition: any word repeated 4+ times in a row
+    words = text.split()
+    for i in range(len(words) - 3):
+        if words[i] == words[i+1] == words[i+2] == words[i+3]:
+            return True
+    return False
+
+
+def _filter_segments(segments) -> tuple[list, int]:
+    """
+    Materialise segment generator, drop high-no_speech_prob segments.
+    Returns (good_segments, total_count).
+    """
+    all_segs = list(segments)
+    total = len(all_segs)
+    good = [s for s in all_segs if getattr(s, "no_speech_prob", 0.0) < _NO_SPEECH_PROB_MAX]
+    return good, total
+
+
+def _segs_to_text(segments: list) -> str:
+    return " ".join(s.text.strip() for s in segments).strip()
+
+
 def transcribe_audio_detailed(
     audio_bytes: bytes,
     fmt: str = "wav",              # kept for API compatibility, not used for format detection
@@ -217,13 +257,14 @@ def transcribe_audio_detailed(
         logger.warning("transcribe_audio: audio rejected — %s (RMS=%.6f)", reason, rms)
         return "", "", 0.0
 
+    duration_sec = len(audio_arr) / 16000.0
+
     try:
         model = _get_model()
         prompt = _INITIAL_PROMPTS.get(language) if language else None
 
-        # Pass 1: VAD-filtered. beam_size=1 is ~3-5x faster than beam_size=5
-        # on CPU int8 with negligible accuracy loss for clinical short-form speech.
-        segments, info = model.transcribe(
+        # Pass 1: VAD-filtered + no_speech_prob segment filtering.
+        raw_segs, info = model.transcribe(
             audio_arr,
             language=language,
             beam_size=1,
@@ -231,39 +272,52 @@ def transcribe_audio_detailed(
             vad_filter=True,
             vad_parameters={"min_silence_duration_ms": 500},
         )
-        text = " ".join(seg.text.strip() for seg in segments).strip()
+        good_segs, total_segs = _filter_segments(raw_segs)
         detected = getattr(info, "language", "") or ""
         prob = float(getattr(info, "language_probability", 0.0) or 0.0)
 
-        # Pass 2: if VAD ate everything (short utterance / low-volume mic),
-        # retry without VAD so 1-2 sec phrases still transcribe.
-        if not text:
-            logger.info("transcribe_audio: VAD pass empty — retrying without VAD")
-            segments, info = model.transcribe(
+        # Reject if too few segments passed the no_speech filter
+        if total_segs > 0 and len(good_segs) / total_segs < _MIN_GOOD_SEGMENT_RATIO:
+            logger.warning(
+                "transcribe_audio: %d/%d segs passed no_speech filter — likely noise",
+                len(good_segs), total_segs,
+            )
+            return "", detected, prob
+
+        text = _segs_to_text(good_segs)
+
+        # Pass 2: only retry without VAD for longer audio where VAD may have been
+        # too aggressive. Skip for short clips where VAD silence = real silence.
+        if not text and duration_sec >= _PASS2_MIN_SECONDS:
+            logger.info("transcribe_audio: VAD pass empty on %.1fs audio — retrying without VAD", duration_sec)
+            raw_segs2, info2 = model.transcribe(
                 audio_arr,
                 language=language,
                 beam_size=1,
                 initial_prompt=prompt,
                 vad_filter=False,
             )
-            text = " ".join(seg.text.strip() for seg in segments).strip()
-            detected = getattr(info, "language", "") or detected
-            prob = float(getattr(info, "language_probability", 0.0) or 0.0) or prob
+            good_segs2, total_segs2 = _filter_segments(raw_segs2)
+            text2 = _segs_to_text(good_segs2)
+            if text2 and not _is_hallucinated(text2):
+                text = text2
+                detected = getattr(info2, "language", "") or detected
+                prob = float(getattr(info2, "language_probability", 0.0) or 0.0) or prob
+
+        # Reject hallucinated output (box chars, looping tokens, mixed garbage)
+        if text and _is_hallucinated(text):
+            logger.warning("transcribe_audio: hallucination detected — discarding: %s", text[:80])
+            return "", detected, prob
 
         # Pass 3: BD-centric correction. In auto-detect mode the `small` model
         # is noisy on short Bengali clinical speech — common failures are:
         #   - detects "bn" but outputs Devanagari (Hindi) because no prompt
         #   - mis-detects Bengali as Urdu / Hindi / Marathi at low confidence
-        # Heuristic: in auto-detect mode, force a Bengali re-pass when EITHER
-        #   (a) detected lang isn't supported by our prompts (bn/en), OR
-        #   (b) detected lang IS bn/en but the output script doesn't match.
-        # Skip when detection is en with high confidence and Latin output —
-        # that's a real English speaker and we leave it alone.
         if language is None and text:
             needs_correction = False
             if detected not in _INITIAL_PROMPTS:
                 needs_correction = True
-                fallback_lang = "bn"   # BD-focused app: default to Bengali
+                fallback_lang = "bn"
             elif not _script_matches(text, detected):
                 needs_correction = True
                 fallback_lang = detected
@@ -275,7 +329,7 @@ def transcribe_audio_detailed(
                     "transcribe_audio: correcting (detected=%s prob=%.2f) → re-running as %s",
                     detected, prob, fallback_lang,
                 )
-                segments, info = model.transcribe(
+                raw_segs3, info3 = model.transcribe(
                     audio_arr,
                     language=fallback_lang,
                     beam_size=1,
@@ -283,14 +337,15 @@ def transcribe_audio_detailed(
                     vad_filter=True,
                     vad_parameters={"min_silence_duration_ms": 500},
                 )
-                corrected = " ".join(seg.text.strip() for seg in segments).strip()
-                if corrected and _script_matches(corrected, fallback_lang):
+                good_segs3, _ = _filter_segments(raw_segs3)
+                corrected = _segs_to_text(good_segs3)
+                if corrected and _script_matches(corrected, fallback_lang) and not _is_hallucinated(corrected):
                     text = corrected
                     detected = fallback_lang
-                    prob = max(prob, 0.85)   # surface the corrected language confidently
+                    prob = max(prob, 0.85)
 
         logger.info(
-            "transcribe_audio: requested=%s, detected=%s (%.0f%%), len=%d chars",
+            "transcribe_audio: requested=%s detected=%s (%.0f%%) len=%d chars",
             language, detected, prob * 100, len(text),
         )
         return text, detected, prob
