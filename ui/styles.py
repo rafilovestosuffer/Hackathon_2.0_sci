@@ -65,43 +65,15 @@ html, body, [class*="css"] {
   color: var(--c-t1) !important;
 }
 
-/* Premium animated gradient-mesh background.
-   - Base: soft clinical off-white that won't fight the white cards.
-   - Layer 1: 4 radial-gradient orbs (teal/blue/Bengal-green/red) drifting
-     slowly via @keyframes — modern SaaS aesthetic.
-   - Layer 2: subtle dot grid (8% opacity) for depth.
-   - All decorative layers use pointer-events:none and stay behind content. */
+/* Clinical gradient background — no pseudo-elements (iframe-safe). */
 .stApp {
-  background-color: #EEF4F9 !important;
-  background-image:
-    radial-gradient(ellipse at 12% 18%,  rgba(13,158,117,0.16) 0%, transparent 42%),
-    radial-gradient(ellipse at 88% 12%,  rgba(26,111,168,0.14) 0%, transparent 48%),
-    radial-gradient(ellipse at 78% 88%,  rgba(0,106,78,0.13)   0%, transparent 45%),
-    radial-gradient(ellipse at 18% 92%,  rgba(241,80,80,0.08)  0%, transparent 40%),
+  background:
+    radial-gradient(ellipse at 12% 18%,  rgba(13,158,117,0.13) 0%, transparent 42%),
+    radial-gradient(ellipse at 88% 12%,  rgba(26,111,168,0.11) 0%, transparent 48%),
+    radial-gradient(ellipse at 78% 88%,  rgba(0,106,78,0.10)   0%, transparent 45%),
+    radial-gradient(ellipse at 18% 92%,  rgba(241,80,80,0.06)  0%, transparent 40%),
     linear-gradient(135deg, #EEF4F9 0%, #F4F8FB 50%, #ECF3F0 100%) !important;
-  background-attachment: scroll !important;
-  background-size: 140% 140%, 130% 130%, 150% 150%, 130% 130%, 100% 100% !important;
-  position: relative;
-}
-/* Dot grid overlay — sits over the gradient but behind the content. */
-.stApp::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  min-height: 100%;
-  background-image: radial-gradient(rgba(15,42,75,0.07) 1px, transparent 1px);
-  background-size: 22px 22px;
-  pointer-events: none;
-  z-index: 0;
-}
-/* Soft top sheen — subtle horizontal light line under the hero. */
-.stApp::after {
-  content: "";
-  position: absolute;
-  top: 0; left: 0; right: 0; height: 220px;
-  background: linear-gradient(180deg, rgba(255,255,255,0.45) 0%, transparent 100%);
-  pointer-events: none;
-  z-index: 0;
+  min-height: 100vh;
 }
 
 /* Main container — glass-morphism: translucent white over the mesh,
