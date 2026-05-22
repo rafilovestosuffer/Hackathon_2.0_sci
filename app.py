@@ -1237,7 +1237,7 @@ with tab4:
         '<span style="font-size:1.1rem;">📊</span>'
         '<div>'
         '<div class="card-section-title">Bangladesh Skin Disease Prevalence · Epidemiological Overview</div>'
-        '<div class="card-section-sub">Division-level data · DGHS Annual Report 2023 · WHO South-East Asia</div>'
+        '<div class="card-section-sub">Relative burden levels · WHO SEARO · peer-reviewed literature</div>'
         '</div>'
         '</div>',
         unsafe_allow_html=True,
@@ -1245,7 +1245,8 @@ with tab4:
 
     from map.bd_heatmap import (
         get_all_diseases, get_division_stats, render_prevalence_map,
-        DISEASE_LABELS_BN, DISEASE_COLORS,
+        DISEASE_LABELS_BN, DISEASE_COLORS, DISEASE_SOURCE,
+        LEVEL_LABEL, LEVEL_COLOR, LEVEL_BG, LEVEL_BORDER,
     )
 
     _diseases = get_all_diseases()
@@ -1286,34 +1287,41 @@ with tab4:
     with _epi_col2:
         st.markdown(
             '<div style="font-size:0.78rem;font-weight:600;color:#4A5568;margin-bottom:0.4rem;">'
-            '📊 Prevalence by Division · বিভাগ অনুযায়ী প্রকোপ</div>',
+            '📊 Burden Level by Division</div>',
             unsafe_allow_html=True,
         )
         _stats = get_division_stats(_sel_disease)
-        _max_pct = _stats[0]["prevalence"] if _stats else 1
         for _row in _stats:
-            _div  = _row["division"]
-            _pct  = _row["prevalence"]
-            _bar_w = int((_pct / _max_pct) * 100)
+            _div   = _row["division"]
+            _level = _row["level"]
+            _label = LEVEL_LABEL.get(_level, _level)
+            _color = LEVEL_COLOR.get(_level, "#718096")
+            _bg    = LEVEL_BG.get(_level, "#F8FAFC")
+            _bord  = LEVEL_BORDER.get(_level, "#CBD5E1")
             st.markdown(
-                f'<div style="margin-bottom:0.45rem;">'
-                f'  <div style="display:flex;justify-content:space-between;'
-                f'font-size:0.78rem;font-weight:600;margin-bottom:0.15rem;">'
-                f'    <span>{_div}</span>'
-                f'    <span style="color:{_sel_color};">{_pct}%</span>'
-                f'  </div>'
-                f'  <div style="background:#E2E8F0;border-radius:99px;height:8px;overflow:hidden;">'
-                f'    <div style="width:{_bar_w}%;height:8px;background:{_sel_color};'
-                f'border-radius:99px;transition:width 0.3s;"></div>'
-                f'  </div>'
+                f'<div style="display:flex;align-items:center;justify-content:space-between;'
+                f'background:{_bg};border:1px solid {_bord};border-radius:8px;'
+                f'padding:0.4rem 0.7rem;margin-bottom:0.35rem;">'
+                f'  <span style="font-size:0.8rem;font-weight:600;color:#2D3748;">{_div}</span>'
+                f'  <span style="background:{_color};color:white;font-size:0.7rem;font-weight:700;'
+                f'border-radius:99px;padding:0.15rem 0.65rem;">{_label}</span>'
                 f'</div>',
                 unsafe_allow_html=True,
             )
 
+    # Citation row
+    _src = DISEASE_SOURCE.get(_sel_disease, "WHO SEARO regional patterns")
     st.markdown(
-        '<div class="sk-disclaimer" style="margin-top:1rem;">'
-        '📋 Data: DGHS Annual Dermatology OPD Report 2023 + WHO South-East Asia Skin Disease Surveillance. '
-        'Figures are estimates for educational purposes only.'
+        f'<div style="font-size:0.72rem;color:#718096;margin-top:0.5rem;">'
+        f'📚 <strong>Source basis:</strong> {_src}</div>',
+        unsafe_allow_html=True,
+    )
+
+    st.markdown(
+        '<div class="sk-disclaimer" style="margin-top:0.75rem;">'
+        '⚠️ Burden levels (High / Medium / Low) are qualitative indicators derived from '
+        'WHO South-East Asia regional patterns and peer-reviewed literature. '
+        'They are not exact survey figures. For official statistics, refer to DGHS Bangladesh Health Bulletin.'
         '</div>',
         unsafe_allow_html=True,
     )
