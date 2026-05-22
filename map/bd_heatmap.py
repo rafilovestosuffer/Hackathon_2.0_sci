@@ -4,8 +4,6 @@ Uses Folium circle markers (no GeoJSON dependency).
 Data source: DGHS Annual Report 2023 + WHO SE Asia dermatology surveillance.
 """
 
-import folium
-
 # Division centroids (lat, lon) — 8 Bangladesh administrative divisions
 DIVISIONS: dict[str, tuple[float, float]] = {
     "Dhaka":       (23.8103, 90.4125),
@@ -65,8 +63,10 @@ def get_division_stats(disease: str) -> list[dict]:
     return sorted(rows, key=lambda x: x["prevalence"], reverse=True)
 
 
-def render_prevalence_map(disease: str = "Tinea") -> folium.Map:
+def render_prevalence_map(disease: str = "Tinea"):
     """Folium map with circle markers sized by prevalence percentage per division."""
+    import folium  # lazy import — folium may not be present locally
+
     m = folium.Map(
         location=[23.7, 90.3],
         zoom_start=7,
