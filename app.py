@@ -164,6 +164,7 @@ _DEFAULTS = {
     "selected_slot":      None,
     "patient_name_input": "",
     "patient_phone":      "",
+    "selected_doctor_id": "dr_nusrat_001",
 }
 for _k, _v in _DEFAULTS.items():
     st.session_state.setdefault(_k, _v)

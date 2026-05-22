@@ -11,9 +11,12 @@ import pytest
 
 from ui.doctor_booking import (
     DEMO_DOCTOR,
+    DEMO_DOCTORS,
     _to_bn_num,
     _time_to_bn,
+    _format_consult_bn,
     get_available_slots,
+    get_doctor,
 )
 
 _VALID_DAYS = {"Sunday", "Tuesday", "Thursday"}
@@ -276,3 +279,119 @@ class TestSlotStructure:
             # Bengali chars are in the range U+0980–U+09FF
             has_bengali = any("ঀ" <= ch <= "৿" for ch in s["date_display_bn"])
             assert has_bengali, f"No Bengali in date_display_bn: {s['date_display_bn']!r}"
+
+
+# ── Multi-doctor roster tests ─────────────────────────────────────────────────
+
+class TestDemoDoctorsRoster:
+    def test_roster_has_six_doctors(self):
+        assert len(DEMO_DOCTORS) == 6
+
+    def test_all_ids_unique(self):
+        ids = [d["id"] for d in DEMO_DOCTORS]
+        assert len(ids) == len(set(ids))
+
+    def test_backward_compat_alias(self):
+        assert DEMO_DOCTOR is DEMO_DOCTORS[0]
+
+    def test_all_doctors_have_required_fields(self):
+        required = [
+            "id", "name", "name_bn", "credentials", "hospital", "hospital_bn",
+            "hospital_short", "available_days", "morning_slots", "evening_slots",
+            "fee_bdt", "rating", "total_consultations", "experience_years",
+            "meet_link", "verified",
+        ]
+        for doc in DEMO_DOCTORS:
+            for field in required:
+                assert field in doc, f"Doctor {doc.get('id')} missing field: {field}"
+
+    def test_all_doctors_have_three_available_days(self):
+        for doc in DEMO_DOCTORS:
+            active = [k for k, v in doc["available_days"].items() if v]
+            assert len(active) == 3, (
+                f"Doctor {doc['id']} has {len(active)} available days, expected 3"
+            )
+
+    def test_all_doctors_have_four_morning_and_evening_slots(self):
+        for doc in DEMO_DOCTORS:
+            assert len(doc["morning_slots"]) == 4, f"{doc['id']} morning slots != 4"
+            assert len(doc["evening_slots"]) == 4, f"{doc['id']} evening slots != 4"
+
+    def test_fees_cover_realistic_range(self):
+        fees = [d["fee_bdt"] for d in DEMO_DOCTORS]
+        assert min(fees) >= 300
+        assert max(fees) <= 1000
+
+    def test_ratings_all_in_range(self):
+        for doc in DEMO_DOCTORS:
+            assert 1.0 <= doc["rating"] <= 5.0, f"{doc['id']} rating out of range"
+
+    def test_locations_diverse(self):
+        locations = {d["location"] for d in DEMO_DOCTORS}
+        assert len(locations) >= 4, f"Expected 4+ cities, got {locations}"
+
+
+class TestGetDoctor:
+    def test_returns_correct_doctor_by_id(self):
+        for doc in DEMO_DOCTORS:
+            result = get_doctor(doc["id"])
+            assert result["id"] == doc["id"]
+
+    def test_unknown_id_returns_first_doctor(self):
+        result = get_doctor("nonexistent_id")
+        assert result is DEMO_DOCTORS[0]
+
+    def test_returns_same_object_reference(self):
+        result = get_doctor(DEMO_DOCTORS[2]["id"])
+        assert result is DEMO_DOCTORS[2]
+
+
+class TestMultiDoctorSlots:
+    def test_slots_use_doctor_available_days(self):
+        for doc in DEMO_DOCTORS:
+            slots = get_available_slots(14, doctor=doc)
+            for s in slots:
+                assert doc["available_days"].get(s["day_name"]) is True, (
+                    f"Doctor {doc['id']}: slot day {s['day_name']} not in available_days"
+                )
+
+    def test_slots_use_doctor_time_slots(self):
+        for doc in DEMO_DOCTORS:
+            slots = get_available_slots(14, doctor=doc)
+            for day in slots:
+                times = [t["time_en"] for t in day["slots"]]
+                expected = doc["morning_slots"] + doc["evening_slots"]
+                assert times == expected, (
+                    f"Doctor {doc['id']}: slot times mismatch"
+                )
+
+    def test_each_doctor_gives_8_time_options(self):
+        for doc in DEMO_DOCTORS:
+            slots = get_available_slots(7, doctor=doc)
+            for day in slots:
+                assert len(day["slots"]) == 8, (
+                    f"Doctor {doc['id']}: expected 8 time slots, got {len(day['slots'])}"
+                )
+
+
+class TestFormatConsultBn:
+    def test_small_number_no_comma(self):
+        result = _format_consult_bn(540)
+        assert result == "৫৪০+"
+
+    def test_four_digit_with_comma(self):
+        result = _format_consult_bn(1240)
+        assert result == "১,২৪০+"
+
+    def test_four_digit_zero_hundreds(self):
+        result = _format_consult_bn(1000)
+        assert result == "১,০০০+"
+
+    def test_large_number_thousands(self):
+        result = _format_consult_bn(3280)
+        assert result == "৩,২৮০+"
+
+    def test_result_contains_bengali_digits(self):
+        result = _format_consult_bn(890)
+        has_bengali = any("০" <= ch <= "৯" for ch in result)
+        assert has_bengali
