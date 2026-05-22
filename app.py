@@ -803,66 +803,70 @@ with tab1:
             facility      = _tr["facility"],
         )
 
-        # ── Tier 3 only: Emergency hospital map ───────────────────────────────
-        if _tr["tier"] == 3:
-            st.markdown(
-                '<div class="card-section-header" style="margin-top:0.25rem;">'
-                '<span style="font-size:1.1rem;color:#C0392B;">🏥</span>'
-                '<div>'
-                '<div class="card-section-title" style="color:#C0392B;">'
-                'Nearest Emergency Hospitals · নিকটতম হাসপাতাল</div>'
-                '</div>'
-                '</div>',
-                unsafe_allow_html=True,
-            )
-            district = st.text_input(
-                "Enter your district (e.g. Rangpur, Dhaka, Chittagong):",
-                key="district_input",
-                placeholder="Type district name…",
-            )
-            if district:
-                coords   = get_district_coords(district)
-                user_lat = coords[0] if coords else _DEFAULT_LAT
-                user_lon = coords[1] if coords else _DEFAULT_LON
+        # ── All tiers: Nearest healthcare facility map ────────────────────────
+        _map_config = {
+            1: ("🏪", "#27AE60", "Nearest Pharmacies · নিকটতম ফার্মেসি"),
+            2: ("🏥", "#D68910", "Nearest Upazila Health Complexes · নিকটতম উপজেলা স্বাস্থ্য কমপ্লেক্স"),
+            3: ("🚨", "#C0392B", "Nearest Emergency Hospitals · নিকটতম জরুরি হাসপাতাল"),
+        }
+        _icon, _color, _title = _map_config.get(_tr["tier"], _map_config[1])
+        st.markdown(
+            f'<div class="card-section-header" style="margin-top:0.25rem;">'
+            f'<span style="font-size:1.1rem;color:{_color};">{_icon}</span>'
+            f'<div>'
+            f'<div class="card-section-title" style="color:{_color};">{_title}</div>'
+            f'</div>'
+            f'</div>',
+            unsafe_allow_html=True,
+        )
+        district = st.text_input(
+            "Enter your district (e.g. Rangpur, Dhaka, Chittagong):",
+            key="district_input",
+            placeholder="Type district name…",
+        )
+        if district:
+            coords   = get_district_coords(district)
+            user_lat = coords[0] if coords else _DEFAULT_LAT
+            user_lon = coords[1] if coords else _DEFAULT_LON
 
-                _hcache = st.session_state.setdefault("hospital_cache", {})
-                _dk     = district.strip().lower()
-                if _dk not in _hcache:
-                    with st.spinner("🔍 Finding nearest hospitals…"):
-                        _hcache[_dk] = find_nearest_hospitals(user_lat, user_lon, n=5)
-                hospitals = _hcache[_dk]
+            _hcache = st.session_state.setdefault("hospital_cache", {})
+            _dk     = district.strip().lower()
+            if _dk not in _hcache:
+                with st.spinner("🔍 Finding nearest healthcare facilities…"):
+                    _hcache[_dk] = find_nearest_hospitals(user_lat, user_lon, n=5)
+            hospitals = _hcache[_dk]
 
-                if hospitals:
-                    st.session_state.nearest_hospital = hospitals[0]
-                    for i, h in enumerate(hospitals):
-                        phone_html = (
-                            f' &nbsp;·&nbsp; 📞 {h["phone"]}' if h.get("phone") else ""
-                        )
-                        st.markdown(
-                            f'<div class="hospital-card">'
-                            f'  <div class="hospital-rank">#{i+1}</div>'
-                            f'  <div>'
-                            f'    <div class="hospital-name">{h["name"]}</div>'
-                            f'    <div class="hospital-meta">'
-                            f'      📍 {h["address"]} &nbsp;·&nbsp; 🚗 {h["dist_km"]} km{phone_html}'
-                            f'    </div>'
-                            f'  </div>'
-                            f'</div>',
-                            unsafe_allow_html=True,
-                        )
-                    try:
-                        from streamlit_folium import st_folium
-                        with st.spinner("🗺️ Rendering map…"):
-                            fmap = render_hospital_map(hospitals, user_lat, user_lon)
-                        if fmap:
-                            st_folium(fmap, use_container_width=True, height=380)
-                    except Exception:
-                        pass
-                else:
-                    st.warning(bn_en(
-                        "নিকটে কোনো হাসপাতাল পাওয়া যায়নি। অন্য জেলার নাম দিয়ে চেষ্টা করুন।",
-                        "No hospitals found nearby. Try a different district name.",
-                    ))
+            if hospitals:
+                st.session_state.nearest_hospital = hospitals[0]
+                for i, h in enumerate(hospitals):
+                    phone_html = (
+                        f' &nbsp;·&nbsp; 📞 {h["phone"]}' if h.get("phone") else ""
+                    )
+                    st.markdown(
+                        f'<div class="hospital-card">'
+                        f'  <div class="hospital-rank">#{i+1}</div>'
+                        f'  <div>'
+                        f'    <div class="hospital-name">{h["name"]}</div>'
+                        f'    <div class="hospital-meta">'
+                        f'      📍 {h["address"]} &nbsp;·&nbsp; 🚗 {h["dist_km"]} km{phone_html}'
+                        f'    </div>'
+                        f'  </div>'
+                        f'</div>',
+                        unsafe_allow_html=True,
+                    )
+                try:
+                    from streamlit_folium import st_folium
+                    with st.spinner("🗺️ Rendering map…"):
+                        fmap = render_hospital_map(hospitals, user_lat, user_lon)
+                    if fmap:
+                        st_folium(fmap, use_container_width=True, height=380)
+                except Exception:
+                    pass
+            else:
+                st.warning(bn_en(
+                    "নিকটে কোনো স্বাস্থ্যসেবা পাওয়া যায়নি। অন্য জেলার নাম দিয়ে চেষ্টা করুন।",
+                    "No facilities found nearby. Try a different district name.",
+                ))
 
 
 # ══════════════════════════════════════════════════════════════════════════════
