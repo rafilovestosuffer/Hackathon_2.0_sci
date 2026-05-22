@@ -17,104 +17,104 @@
 ## ⚡ WEEK 1 — FOUNDATION (May 18–24)
 
 ### Day 1 — May 18 | Repository + Project Structure
-- [ ] Create GitHub repo `skinai-bangladesh` (PUBLIC)
-- [ ] Push full folder skeleton (all dirs) with initial commit
-- [ ] Add CLAUDE.md, PLAN.md, PROGRESS.md, TASK.md, DECISIONS.md
-- [ ] Add .gitignore (exclude checkpoints, .env, __pycache__, *.bin if large)
-- [ ] Add requirements.txt skeleton
-- [ ] Verify: `git log` shows commits with today's date
+- [x] Create GitHub repo `skinai-bangladesh` (PUBLIC)
+- [x] Push full folder skeleton (all dirs) with initial commit
+- [x] Add CLAUDE.md, PLAN.md, PROGRESS.md, TASK.md, DECISIONS.md
+- [x] Add .gitignore (exclude checkpoints, .env, __pycache__, *.bin if large)
+- [x] Add requirements.txt skeleton
+- [x] Verify: `git log` shows commits with today's date
 
 ### Day 2 — May 19 | Model Architecture + INT8 Export
-- [ ] Write model/bd_skinnet.py — Swin+CBAM class (timm-based)
-- [ ] Write model/disease_labels.py — English→Bengali disease name map
-- [ ] Write model/export_int8.py — INT8 quantization export script
-- [ ] Add dummy forward pass test (random tensor, correct output shape)
-- [ ] Commit: [w1/d2] BD-SkinNet architecture + INT8 export
+- [x] Write model/bd_skinnet.py — Swin+CBAM class (timm-based)
+- [x] Write model/disease_labels.py — English→Bengali disease name map
+- [x] Write model/export_int8.py — INT8 quantization export script
+- [x] Add dummy forward pass test (random tensor, correct output shape)
+- [x] Commit: [w1/d2] BD-SkinNet architecture + INT8 export
 
 ### Day 3 — May 20 | GradCAM++ Implementation
-- [ ] Write model/gradcam.py — GradCAM++ on Swin last stage
-- [ ] Implement compute_coverage_pct(heatmap, threshold=0.5)
-- [ ] Write tests/test_gradcam.py — shape + coverage range assertions
-- [ ] All tests pass
-- [ ] Commit: [w1/d3] GradCAM++ + coverage computation + tests
+- [x] Write model/gradcam.py — GradCAM++ on Swin last stage
+- [x] Implement compute_coverage_pct(heatmap, threshold=0.5)
+- [x] Write tests/test_gradcam.py — shape + coverage range assertions
+- [x] All tests pass
+- [x] Commit: [w1/d3] GradCAM++ + coverage computation + tests
 
 ### Day 4 — May 21 | Severity Engine (CRITICAL)
-- [ ] Write severity/engine.py — 4-signal triage engine
-- [ ] Write tests/test_severity.py — test all signals + edge cases:
+- [x] Write severity/engine.py — 4-signal triage engine
+- [x] Write tests/test_severity.py — test all signals + edge cases:
   - melanoma → always Tier 3
   - confidence 0.35 → always Tier 3
   - coverage 45% + Tier 1 base → escalates to Tier 2
   - "জ্বর" in transcript + Tier 2 → Tier 3
   - tier never exceeds 3 (cap test)
-- [ ] All tests pass: pytest tests/test_severity.py -v
-- [ ] Commit: [w1/d4] multi-signal severity engine + full test suite
+- [x] All tests pass: pytest tests/test_severity.py -v
+- [x] Commit: [w1/d4] multi-signal severity engine + full test suite
 
 ### Day 5 — May 22 | HF Spaces Skeleton Deploy
-- [ ] Create HF Space (Streamlit, Python 3.10)
-- [ ] Write minimal app.py (title + team name + "System loading...")
-- [ ] Add packages.txt with libsndfile1, ffmpeg
-- [ ] Push to HF Space — verify public URL loads
-- [ ] Test from incognito: zero login, instant access
-- [ ] RECORD PUBLIC URL IN PROGRESS.md
-- [ ] Commit: [w1/d5] HF Spaces deployed — public URL live
+- [x] Create HF Space (Streamlit, Python 3.10)
+- [x] Write minimal app.py (title + team name + "System loading...")
+- [x] Add packages.txt with libsndfile1, ffmpeg
+- [x] Push to HF Space — verify public URL loads
+- [x] Test from incognito: zero login, instant access
+- [x] RECORD PUBLIC URL IN PROGRESS.md
+- [x] Commit: [w1/d5] HF Spaces deployed — public URL live
 
 ### Day 6 — May 23 | PDF Generator
-- [ ] Write pdf_gen/referral.py — 4-section reportlab PDF
-- [ ] Implement generate_referral_pdf(session_state) → bytes
-- [ ] Write tests/test_pdf.py — smoke test (file generates, size > 0)
-- [ ] Test Bengali font rendering in PDF (Noto Sans Bengali)
-- [ ] Commit: [w1/d6] referral letter PDF generator
+- [x] Write pdf_gen/referral.py — 4-section PDF (fpdf2 + uharfbuzz for Bengali shaping)
+- [x] Implement generate_referral_pdf(session_state) → bytes
+- [x] Write tests/test_pdf.py — smoke test (file generates, size > 0)
+- [x] Test Bengali font rendering in PDF (Noto Sans Bengali)
+- [x] Commit: [w1/d6] referral letter PDF generator
 
 ### Day 7 — May 24 | W1 Review + Prep W2
-- [ ] Run all tests: pytest tests/ -v — all green
-- [ ] Update PROGRESS.md
-- [ ] Verify HF Space still live
-- [ ] Write next week TASK.md
-- [ ] W1 DONE: Model ✓ | GradCAM ✓ | Severity ✓ | PDF ✓ | HF Space ✓
+- [x] Run all tests: pytest tests/ -v — all green
+- [x] Update PROGRESS.md
+- [x] Verify HF Space still live
+- [x] Write next week TASK.md
+- [x] W1 DONE: Model ✓ | GradCAM ✓ | Severity ✓ | PDF ✓ | HF Space ✓
 
 ---
 
 ## ⚡ WEEK 2 — PIPELINE (May 25–31)
 
 ### Day 8 — May 25 | Voice Transcription
-- [ ] Write voice/pipeline.py — faster-whisper base, Bengali language
-- [ ] Implement transcribe_audio(audio_bytes) → str
-- [ ] Handle mp3/wav/webm (Streamlit mic recorder outputs)
-- [ ] Test with sample Bengali audio
-- [ ] Commit: [w2/d8] faster-whisper Bengali transcription
+- [x] Write voice/pipeline.py — faster-whisper base, Bengali language
+- [x] Implement transcribe_audio(audio_bytes) → str
+- [x] Handle mp3/wav/webm (Streamlit mic recorder outputs)
+- [x] Test with sample Bengali audio
+- [x] Commit: [w2/d8] faster-whisper Bengali transcription
 
 ### Day 9 — May 26 | Gemini Symptom Extraction
-- [ ] Add extract_patient_history(transcript) → dict to voice/pipeline.py
-- [ ] Prompt: force JSON output with all 9 fields, handle missing gracefully
-- [ ] Add 3-retry logic for Gemini API failures
-- [ ] Test with sample Bengali transcript
-- [ ] Commit: [w2/d9] Gemini JSON symptom extraction
+- [x] Add extract_patient_history(transcript) → dict to voice/pipeline.py
+- [x] Prompt: force JSON output with all 9 fields, handle missing gracefully
+- [x] Add 3-retry logic for Gemini API failures
+- [x] Test with sample Bengali transcript
+- [x] Commit: [w2/d9] Gemini JSON symptom extraction
 
 ### Day 10 — May 27 | Knowledge Base
-- [ ] Chunk CDC/NIH/WHO/DGHS content into rag/knowledge/ (100-300 words/chunk)
+- [x] Chunk CDC/NIH/WHO/DGHS content into rag/knowledge/ (100-300 words/chunk)
   - CDC: fungal, bacterial skin infections
   - NIH/MedlinePlus: eczema, psoriasis, dermatitis
   - WHO: NTDs (scabies, tinea, leprosy)
   - DGHS Bangladesh: official skin disease guidelines
-- [ ] Target: 100-200 chunks total
-- [ ] Commit: [w2/d10] knowledge base chunks (CDC/NIH/WHO/DGHS)
+- [x] Target: 100-200 chunks total — 100 chunks delivered
+- [x] Commit: [w2/d10] knowledge base chunks (CDC/NIH/WHO/DGHS)
 
 ### Day 11 — May 28 | RAG Pipeline
-- [ ] Write rag/build_index.py — FAISS index from chunks (MiniLM embeddings)
-- [ ] Build and save faiss_index.bin + chunks_metadata.json
-- [ ] Write rag/retriever.py — query → top-k → Gemini answer
-- [ ] Implement answer_question(question, session_context) → str
-- [ ] Commit: [w2/d11] FAISS index + RAG retriever
+- [x] Write rag/build_index.py — FAISS index from chunks (MiniLM embeddings)
+- [x] Build and save faiss_index.bin + chunks_metadata.json
+- [x] Write rag/retriever.py — query → top-k → Gemini answer
+- [x] Implement answer_question(question, session_context) → str
+- [x] Commit: [w2/d11] FAISS index + RAG retriever
 
 ### Day 12 — May 29 | Streamlit UI Layout
-- [ ] Write ui/components.py — reusable widgets
-- [ ] Write ui/styles.py — Bengali Noto Sans CSS injection
-- [ ] Write app.py — full layout:
+- [x] Write ui/components.py — reusable widgets
+- [x] Write ui/styles.py — Bengali Noto Sans CSS injection
+- [x] Write app.py — full layout:
   - Sidebar: About + Bengali instructions
   - Tab 1: "রোগ নির্ণয়" — voice + image upload placeholders
   - Tab 2: "প্রশ্ন করুন" — RAG chatbot placeholder
   - Tab 3: "রেফারেল পত্র" — PDF download placeholder
-- [ ] Commit: [w2/d12] Streamlit UI layout with Bengali tabs
+- [x] Commit: [w2/d12] Streamlit UI layout with Bengali tabs
 
 ### Day 13 — May 30 | Full app.py Integration
 - [x] Wire all 3 tabs in app.py (voice → history, image → triage, RAG, PDF)
@@ -125,7 +125,7 @@
       File: app.py lines starting with "def _run_model()"
 - [x] Commit: [w2/d13] full app.py integration
 
-### Day 13b — ~Jun 2 | Plug In Model Checkpoint  ← CHECKPOINT ARRIVES HERE
+### Day 13b — ~Jun 2 | Plug In Model Checkpoint  ← CHECKPOINT STILL PENDING
 - [ ] Receive bd_skinnet_best.pth from training
 - [ ] Place in model/checkpoints/bd_skinnet_best.pth
 - [ ] Replace _run_model() stub with real BD-SkinNet + GradCAM++ forward pass
@@ -154,13 +154,6 @@
 - [x] Inject hospital[0] name+address into PDF Section 4
 - [x] Write tests/test_hospital.py — mock Overpass responses, 17 tests
 - [x] Commit: [w3/d15] emergency hospital map + Folium
-
-### Day 13b — ~Jun 2 | Plug In Model Checkpoint  ← CHECKPOINT PENDING
-- [ ] Receive bd_skinnet_best.pth (still pending as of Day 20)
-- [ ] Place in model/checkpoints/bd_skinnet_best.pth
-- [ ] Replace _run_model() stub in app.py with real BD-SkinNet + GradCAM++ forward pass
-- [ ] Verify heatmap renders in Tab 1, coverage_pct flows to triage
-- [ ] Commit: [w3/d13b] real BD-SkinNet inference connected
 
 ### Day 16 — Jun 3 | RAG Context Awareness + Chat History ✅ DONE
 - [x] Pass current disease to RAG system prompt as context
@@ -204,63 +197,77 @@
 
 ---
 
-## ⚡ WEEK 4 — POLISH + VIDEO (Jun 8–14)
+## ⚡ WEEK 4 — POLISH + FEATURES + VIDEO (Jun 8–14)
 
-### Day 22 — Jun 8 | UI Polish
-- [ ] Improve UI aesthetics — clean, medical look
-- [ ] Add loading spinners for inference (st.spinner)
-- [ ] Add progress bar for multi-step pipeline
-- [ ] Ensure mobile-responsive layout (judges may use phones)
-- [ ] Commit: [w4/d22] UI polish + loading states
+### Day 20 — Jun 6 | Loading States + Mobile CSS + Demo Script ✅ DONE
+- [x] Loading spinners for all 6 slow operations (st.spinner wrappers)
+- [x] Mobile CSS breakpoints — responsive layout for small screens
+- [x] Write docs/demo_script.md — 8-segment, 4-min Rahim story script
+- [x] Commit: [w4/d20] loading spinners + mobile CSS + demo script
 
-### Day 23 — Jun 9 | Voice QA + Bengali Caption Polish
-- [ ] Test voice with multiple Bengali accents/dialects
-- [ ] Improve GradCAM Bengali caption (plain language, no jargon)
-- [ ] Add confidence level explanation in Bengali
-  - >80%: "মডেল নিশ্চিত" (model is confident)
-  - 60-80%: "মোটামুটি নিশ্চিত" (moderately confident)
-  - <60%: "অনিশ্চিত — ডাক্তার দেখান" (uncertain — see doctor)
-- [ ] Commit: [w4/d23] voice QA + Bengali caption improvements
+### Day 21 — Jun 7 | Medical-Grade UI Overhaul ✅ DONE
+- [x] Full design system in ui/styles.py (colour tokens, typography, card styles)
+- [x] 7 new component functions in ui/components.py (metric cards, triage banner, etc.)
+- [x] app.py restructured to use new design system throughout
+- [x] 245 total tests passing
+- [x] Commit: [w4/d21] medical-grade UI design system
 
-### Day 24 — Jun 10 | Error Handling + Edge Cases
-- [ ] Handle: no image uploaded (graceful message)
-- [ ] Handle: no voice recorded (skip voice section)
-- [ ] Handle: API timeout / Gemini rate limit
-- [ ] Handle: Overpass API failure (fallback message)
-- [ ] Handle: unknown disease class (default to Tier 2)
-- [ ] Commit: [w4/d24] comprehensive error handling
+### Day 22 — May 20+22 | 7 High-Value Features ✅ DONE
+- [x] F1: Bengali TTS — gTTS reads triage recommendation aloud in Bengali audio
+- [x] F2: Treatment cost estimate card — static taka ranges per tier (Tier 1/2/3)
+- [x] F3: CHW / Shasthya Seboika simplified mode — sidebar toggle, large-font binary
+       refer/no-refer display, CHW referral slip PDF
+- [x] F4: Epidemiology tab (Tab 4) — Bangladesh division-level disease prevalence map
+       (folium circle markers) + bar chart; map/bd_heatmap.py
+- [x] F5: Auto image enhancement — CLAHE + unsharp mask before inference if dark/blurry
+- [x] F6: Symptom duration timeline — 3-node visual: Onset → Today → Expected Recovery
+- [x] F7: Impact comparison panel in sidebar (Without SkinAI vs With SkinAI)
+- [x] Voice fix: audio stream exhaustion bug fixed; file upload set as primary tab
+- [x] Commit: [w4/d22] 7 high-value features
 
-### Day 25 — Jun 11 | Demo Video Script
-- [ ] Write full demo video script (3-5 min, Rahim story structure)
+### Day 23 — May 23 | Doctor Booking Tab ✅ DONE
+- [x] ui/doctor_booking.py — Tab 5 doctor booking UI
+- [x] tests/test_doctor_booking.py — 38 tests; 310/312 total tests passing
+- [x] PDF booking injection — booking details written into referral letter
+- [x] Tier 3 disables booking, shows emergency hotline only (medically responsible)
+- [x] Commit: [w4/d23] doctor booking tab + PDF injection + tests
+
+### Day 24 — May 23+ | Project Report Skeleton + Demo Video ← NEXT
+- [ ] Write project report skeleton (8-page, 8 section headers + bullets)
+- [ ] Record demo video (OBS/Loom, 3-5 min, Rahim story structure)
   - 0:00-0:30 — Hook: Rahim's problem (narration, no code)
   - 0:30-1:00 — Demo: voice input in Bengali
   - 1:00-2:00 — Demo: image upload → classification → GradCAM
   - 2:00-2:30 — Demo: severity tier display + Bengali triage
   - 2:30-3:00 — Demo: hospital map (Tier 3 scenario)
   - 3:00-3:30 — Demo: PDF referral letter generation
-  - 3:30-4:00 — Demo: RAG chatbot Q&A
+  - 3:30-4:00 — Demo: RAG chatbot Q&A + doctor booking
   - 4:00-4:30 — Impact slide + system diagram + close
-- [ ] Record demo video (OBS/Loom)
 - [ ] Upload: YouTube unlisted OR Google Drive with link sharing
 
-### Day 26 — Jun 12 | Demo Video Edit + Final QA
-- [ ] Edit video: add captions, highlight key UI elements
-- [ ] Verify: 3-5 minutes total length
-- [ ] Test shared link (incognito browser)
-- [ ] Do final HF Spaces stress test — verify no sleeping
-- [ ] Commit: [w4/d26] demo video ready
+### Day 25 — Jun+ | Finalise Report + Model & Data Card
+- [ ] Flesh out Architecture + Results sections of project report
+- [ ] Include: system architecture diagram, GradCAM heatmap examples
+- [ ] Write model & data card (1-page PDF)
+  - Dataset(s): Faridpur MCH + Rangpur MCH (N images, N classes)
+  - Pre-trained models: Swin-B (timm, Apache 2.0), faster-whisper (MIT)
+  - Third-party APIs: Gemini 1.5 Flash (Google), Overpass API (ODbL)
+  - Known limitations: BD-only clinical data, limited class coverage
+  - Ethical concerns: not a medical device, requires doctor confirmation, data privacy
+- [ ] Export both as PDF
 
-### Day 27 — Jun 13 | Performance Optimization
-- [ ] Profile Streamlit app — identify slow steps
-- [ ] Cache model with @st.cache_resource
-- [ ] Cache FAISS index load with @st.cache_resource
-- [ ] Verify INT8 inference speed on CPU (target: <5 seconds)
-- [ ] Commit: [w4/d27] performance optimization + caching
+### Day 26 — Jun+ | Final README + Keepalive Verify + Submission Dry Run
+- [ ] Final README review — confirm all submission-required fields present
+- [ ] Verify keepalive GitHub Actions cron is firing (already deployed — confirm logs)
+- [ ] Submission dry run: open form, check all fields, do NOT submit yet
+- [ ] Commit: [w4/d26] submission dry run verified
 
-### Day 28 — Jun 14 | W4 Review
-- [ ] Full demo run through (pretend you're a judge)
-- [ ] Fix any remaining demo issues
-- [ ] W4 DONE: Polished demo ✓ | Demo video ✓ | Performance optimized ✓
+### Day 13b — ONGOING | Plug In BD-SkinNet Checkpoint  ← STILL PENDING
+- [ ] Receive bd_skinnet_best.pth from training pipeline
+- [ ] Place in model/checkpoints/bd_skinnet_best.pth
+- [ ] Replace _run_model() stub in app.py with real BD-SkinNet + GradCAM++ forward pass
+- [ ] Verify heatmap renders in Tab 1, coverage_pct flows to triage
+- [ ] Commit: [w4/d13b] real BD-SkinNet inference connected
 
 ---
 
@@ -321,12 +328,13 @@ README.md must contain:
 - [ ] Fix any crashes — commit all fixes
 
 ### Day 38 — Jun 24 | Keep-Alive Script
-- [ ] Write scripts/keepalive.py — pings HF Space URL every 20 min
-- [ ] Set up GitHub Actions cron job to run keepalive from Jul 1–12
+- [x] Write scripts/keepalive.py — pings HF Space URL every 20 min (DONE Day 17)
+- [x] Set up GitHub Actions cron job to run keepalive from Jul 1–12 (DONE Day 17)
   - schedule: '*/20 * * * *'
   - step: curl GET the HF Space URL
-- [ ] Test cron job fires correctly
-- [ ] Commit: [w6/d38] keepalive GitHub Action deployed
+- [x] Test cron job fires correctly
+- [x] Commit: [w3/d17] keepalive GitHub Action deployed (already live — verify logs in W6)
+- NOTE: Keepalive already deployed in W3/Day 17. W6 task = confirm it is still running.
 
 ### Day 39 — Jun 28 | Final Submission Package Check
 - [ ] ✅ Live public URL — test from incognito
@@ -368,7 +376,7 @@ README.md must contain:
 
 ---
 
-## 📋 JUDGE Q&A PREPARATION (15 Questions)
+## 📋 JUDGE Q&A PREPARATION (18 Questions)
 
 1. "Why Swin Transformer over ResNet/EfficientNet?" → Self-attention captures global patterns critical for skin texture analysis. F1 = 92.46% validates the choice.
 2. "How did you collect the training data?" → Clinical collaboration with Faridpur and Rangpur Medical College Hospitals. IRB-approved image collection.
@@ -385,3 +393,6 @@ README.md must contain:
 13. "How do you handle unknown diseases?" → Unknown class defaults to Tier 2 (see doctor). Model outputs confidence; low confidence auto-escalates.
 14. "What's the clinical validation?" → Model tested on held-out clinical test set from same hospitals. F1 = 92.46%. Real clinician feedback informed severity tiers.
 15. "What's next after the competition?" → Clinical trial with a hospital partner, mobile PWA wrapper, expansion to more disease classes, DGHS official integration.
+16. "Why did you add a doctor booking feature?" → Completes the care loop: Screen → Diagnose → Triage → Book → Consult → PDF. Tier 3 disables booking and shows the emergency hotline only — medically responsible design that prevents users in urgent situations from wasting time booking an appointment.
+17. "How does the Bengali TTS work?" → gTTS (Google Text-to-Speech) converts the Bengali triage recommendation text to an audio file played in-browser. No API key needed for basic use. Rural patients who cannot read Bengali script still receive the triage recommendation in spoken form.
+18. "Why fpdf2 instead of reportlab for PDF?" → fpdf2 + uharfbuzz applies HarfBuzz GSUB shaping to Bengali glyphs before rendering. ReportLab does not apply OpenType shaping — Bengali characters render as disconnected boxes in Acrobat and most PDF viewers. fpdf2 + uharfbuzz is the correct solution for Unicode-complex scripts like Bengali.

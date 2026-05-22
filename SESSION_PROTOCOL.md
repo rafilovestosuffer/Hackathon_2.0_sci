@@ -1,17 +1,17 @@
-# SkinAI Bangladesh — Daily Claude Code Session Protocol
-# Follow this EXACTLY every session. This is how you win.
+# SkinAI Bangladesh — Claude Code Session Protocol
+# Follow this exactly every session.
 
 ---
 
-## ⚡ SESSION STARTUP (First 2 minutes — do this before writing any code)
+## SESSION STARTUP (First 2 minutes — do this before writing any code)
 
 ### Step 1: Open Claude Code in your project folder
 ```bash
-cd skinai-bangladesh
-claude  # or claude code
+cd Hackathon_2.0_sci
+claude
 ```
 
-### Step 2: Paste this EXACT opening prompt every session:
+### Step 2: Paste this exact opening prompt every session:
 ```
 Read CLAUDE.md, PROGRESS.md, and TASK.md in order.
 Then tell me:
@@ -22,42 +22,38 @@ Then tell me:
 Then begin working on today's task immediately.
 ```
 
-### Step 3: Let Claude Code orient itself — do NOT interrupt this
-Claude Code will read the 3 files and summarize. If it misses something, correct it.
+### Step 3: Let Claude Code orient itself — do NOT interrupt
+Claude Code will read the 3 files and summarise. If it misses something, correct it.
 This 2-minute investment saves 30+ minutes of re-explanation.
 
 ---
 
-## 📋 TASK.md FORMAT (Rewrite this every session end for next session)
+## TASK.md FORMAT (Rewrite at every session end for next session)
 
 ```markdown
-# TASK — [DATE] | Week [N] / Day [N]
+# TASK — Week [N] / Day [N]
+# Target date: [DATE]
 
-## TODAY'S GOAL (one sentence)
-[e.g., "Implement the 4-signal severity engine with full test coverage"]
+## STARTING STATE
+- Tests: [N]/[N] passing
+- HF Space: live at [URL]
+- BD-SkinNet checkpoint: [pending / connected]
 
-## TASKS (in order)
-1. [ ] [Specific task with file path]
-2. [ ] [Specific task with file path]
-3. [ ] [Specific task with file path]
-
-## CONTEXT
-- Last session left off at: [specific line/function/file]
-- Known issue to fix first: [if any]
-- Do NOT touch today: [files to leave alone]
+## TASK [N] — [Name]
+[Specific tasks with file paths]
 
 ## DEFINITION OF DONE
 - [ ] All tasks checked off
-- [ ] Relevant tests pass
-- [ ] Git committed
-- [ ] PROGRESS.md updated
+- [ ] pytest tests/ -q passes with no new failures
+- [ ] Committed and pushed to GitHub
+- [ ] PROGRESS.md updated, TASK.md rewritten for next session
 ```
 
 ---
 
-## 🧠 HOW TO TALK TO CLAUDE CODE FOR MAXIMUM SPEED
+## HOW TO PROMPT CLAUDE CODE EFFECTIVELY
 
-### ✅ DO: Be file-and-function specific
+### DO: Be file-and-function specific
 ```
 "Write the compute_tier() function in severity/engine.py.
 It takes: disease_class (str), confidence (float), coverage_pct (float), transcript (str).
@@ -65,24 +61,24 @@ Returns: dict with keys tier, urgency_label, action, facility, bengali_text.
 Follow the 4-signal logic in CLAUDE.md Section 'SEVERITY ENGINE'."
 ```
 
-### ❌ DON'T: Be vague
+### DON'T: Be vague
 ```
-"Make the severity engine" ← Claude will make something different every time
+"Make the severity engine"  ← produces different output every time
 ```
 
-### ✅ DO: Reference CLAUDE.md sections explicitly
+### DO: Reference CLAUDE.md sections explicitly
 ```
 "Implement the hospital finder per CLAUDE.md section 'EMERGENCY HOSPITAL MAP'.
 Use Overpass API. No API key needed. Save to map/hospital_finder.py."
 ```
 
-### ✅ DO: Ask for tests alongside code
+### DO: Ask for tests alongside code
 ```
 "Write severity/engine.py AND tests/test_severity.py together.
 Run the tests at the end. Show me the pytest output."
 ```
 
-### ✅ DO: Paste real errors
+### DO: Paste real errors in full
 ```
 "Getting this error: [paste full traceback]
 File is at: model/bd_skinnet.py line 47
@@ -91,7 +87,7 @@ Fix it and explain what was wrong."
 
 ---
 
-## 🔁 MID-SESSION: When Claude Code gets lost or confused
+## MID-SESSION: When Claude Code gets lost
 
 ### Reset prompt:
 ```
@@ -100,77 +96,89 @@ We are building [specific module]. The constraint is [constraint].
 Ignore everything from the last 5 messages. Start fresh from: [specific point].
 ```
 
-### When Claude drifts toward wrong tech:
+### When Claude uses wrong technology:
 ```
-REMINDER: We use Streamlit (not FastAPI/React for the UI).
-We use faiss-cpu (not Pinecone/ChromaDB).
-We use google-generativeai for Gemini (not LangChain).
+REMINDER — correct tech stack for this project:
+- UI: Streamlit (NOT FastAPI / React)
+- Vector store: faiss-cpu (NOT Pinecone / ChromaDB)
+- LLM API: google-genai SDK with from google import genai (NOT google-generativeai, NOT LangChain)
+- PDF: fpdf2 + uharfbuzz (NOT reportlab)
+- Embeddings: sentence-transformers paraphrase-multilingual-MiniLM-L6-v2
+- Mic recording: streamlit-mic-recorder (NOT st.audio_input — unreliable on HTTP)
+
 Redo the last step with the correct stack.
 ```
 
 ---
 
-## 📊 SESSION END (Last 5 minutes — MANDATORY)
+## SESSION END (Last 5 minutes — MANDATORY)
 
-### Step 1: Commit everything
+### Step 1: Run tests
 ```bash
-git add -A
-git status  # verify what's being committed
-git commit -m "[w1/d3] GradCAM++ implementation + coverage tests — all passing"
-git push origin main
+pytest tests/ -q
+# 310+ must pass. Investigate any new failures before committing.
 ```
 
-### Step 2: Prompt Claude Code to update PROGRESS.md
+### Step 2: Commit specific files (never git add -A blindly)
+```bash
+git status
+git add path/to/changed/file.py path/to/other/file.py
+git commit -m "[wX/dY] descriptive message"
+git push -u origin <branch>
+```
+
+### Step 3: Prompt Claude Code to update PROGRESS.md
 ```
 Update PROGRESS.md with:
-- What we completed today
-- Any blockers or TODOs
+- What we completed today (specific files and functions)
+- Any blockers or known issues
 - The exact line/function to start from next session
 - Check off completed modules in the checklist
 ```
 
-### Step 3: Prompt Claude Code to write next TASK.md
+### Step 4: Prompt Claude Code to write next TASK.md
 ```
 Write tomorrow's TASK.md based on PLAN.md Day [N+1].
 Be specific about file paths and function names.
+Include the current test count in STARTING STATE.
 ```
 
-### Step 4: Verify HF Spaces (every 3 days minimum)
+### Step 5: Verify HF Spaces (every 3 days minimum)
 ```bash
-curl -I https://huggingface.co/spaces/[username]/skinai-bangladesh
-# Should return 200 OK
+curl -I https://huggingface.co/spaces/rafilovestosuffer/skinai-bangladesh
+# Should return HTTP 200
 ```
 
 ---
 
-## 🚨 EMERGENCY PROTOCOLS
+## EMERGENCY PROTOCOLS
 
 ### "HF Space is sleeping":
 1. Visit the URL in browser — click anywhere to wake it
-2. Long-term: GitHub Actions keepalive (see scripts/keepalive.py)
+2. Long-term: GitHub Actions keepalive is active (scripts/keepalive.py + .github/workflows/keepalive.yml)
 
-### "Claude Code is writing something completely wrong":
-1. Stop it immediately (Ctrl+C)
-2. Type: "Stop. Read CLAUDE.md constraint [NUMBER] again. This violates it."
+### "Claude Code is writing something wrong":
+1. Stop immediately (Ctrl+C)
+2. "Stop. Read CLAUDE.md constraint [NUMBER] again. This violates it."
 3. Restate the constraint explicitly
-4. Ask it to start over for that function only
+4. "Start over for that function only."
 
 ### "I broke something that was working":
 ```bash
-git log --oneline -10  # find last good commit
-git stash              # save current broken work
-git checkout [hash]    # test old version
-git stash pop          # bring back current work
+git log --oneline -10         # find last good commit
+git stash                     # save current broken work
+git checkout [hash] -- path/to/file.py   # restore specific file
+git stash pop                 # bring back other current work
 ```
 
 ### "Running out of context / Claude Code getting confused":
-1. Start a NEW Claude Code session
+1. Start a new Claude Code session
 2. Open with: "Read CLAUDE.md, PROGRESS.md, and TASK.md."
 3. Fresh context = fresh performance
 
 ---
 
-## 📅 WEEKLY RHYTHM
+## WEEKLY RHYTHM
 
 | Day | Focus |
 |-----|-------|
@@ -180,36 +188,38 @@ git stash pop          # bring back current work
 | Thursday | Testing + bug fixing |
 | Friday | Deploy to HF Spaces + document |
 | Saturday | Review + write next week's PLAN |
-| Sunday | Light — only documentation or README updates |
+| Sunday | Light — documentation or README only |
 
 ---
 
-## 🎯 TOKEN OPTIMIZATION RULES
+## FILES CLAUDE CODE MUST KNOW ABOUT
 
-These rules keep Claude Code efficient and avoid wasted context:
+```
+Every session:        CLAUDE.md + PROGRESS.md + TASK.md
+Model work:           model/bd_skinnet.py + model/disease_labels.py + model/gradcam.py
+Severity/triage:      severity/engine.py + tests/test_severity.py
+RAG pipeline:         rag/retriever.py + rag/build_index.py + rag/knowledge/
+UI components:        app.py + ui/components.py + ui/styles.py
+Doctor booking:       ui/doctor_booking.py + ui/consultation_room.py
+PDF generation:       pdf_gen/referral.py + pdf_gen/consultation_summary.py
+Voice pipeline:       voice/pipeline.py
+Epidemiology map:     map/bd_heatmap.py
+Hospital finder:      map/hospital_finder.py
+Keepalive:            scripts/keepalive.py + .github/workflows/keepalive.yml
+```
+
+---
+
+## TOKEN OPTIMISATION RULES
 
 1. **CLAUDE.md is always loaded first** — no re-explaining the project
 2. **TASK.md is specific** — one module at a time, not "build everything"
 3. **One file per task** — "write severity/engine.py" not "write all the backend"
 4. **Always paste errors** — don't describe errors, paste the full traceback
 5. **Use function signatures** — tell Claude the exact function signature you want
-6. **Never ask for architecture decisions** in Claude Code — those are in DECISIONS.md already
+6. **Never ask for architecture decisions in-session** — those are in DECISIONS.md
 7. **Reference CLAUDE.md sections** — "per the severity engine spec in CLAUDE.md" is faster than repeating the spec
 
 ---
 
-## 📁 FILES CLAUDE CODE MUST KNOW ABOUT
-
-```
-Every session: CLAUDE.md + PROGRESS.md + TASK.md
-When working on model: model/bd_skinnet.py + model/disease_labels.py
-When working on severity: severity/engine.py + tests/test_severity.py
-When working on RAG: rag/retriever.py + rag/build_index.py
-When working on UI: app.py + ui/components.py
-When working on PDF: pdf_gen/referral.py
-When working on voice: voice/pipeline.py
-```
-
----
 *This protocol is how you ship a championship-grade product in 40 days.*
-*Read it. Follow it. Win.*

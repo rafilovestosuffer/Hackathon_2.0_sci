@@ -110,5 +110,97 @@ No architecture changes required.
 **Reason:** In rural Bangladesh, patients may only have one image. Blocking inference on a blurry image is worse than warning + proceeding. CONSTRAINT 3 (no medicine recommendation) is not violated — we only flag image quality.
 **Trade-off:** Inference on blurry images may produce less accurate results. Mitigated by the confidence-based triage escalation (Signal 2 in the severity engine).
 
+### [2026-06-06] Replace reportlab with fpdf2 + uharfbuzz for PDF generation
+**Decision:** Migrate pdf_gen/referral.py and pdf_gen/consultation_summary.py from reportlab to fpdf2 + uharfbuzz (HarfBuzz GSUB shaping).
+**Reason:** ReportLab does not apply OpenType GSUB ligature shaping to Bengali — characters render as disconnected boxes in Adobe Acrobat and most PDF readers. fpdf2 with uharfbuzz applies proper HarfBuzz GSUB shaping, producing correctly connected Bengali glyphs. This is a correctness issue, not a preference.
+**Trade-off:** uharfbuzz is a C extension — adds ~2 MB to the Docker image. Acceptable.
+
+---
+
+### [2026-06-06] Loading spinners for all 6 slow operations
+**Decision:** Wrap all 6 slow operations in st.spinner(): transcription, Gemini extraction, model inference, Overpass hospital query, Folium map render, PDF generation.
+**Reason:** HF Spaces free CPU is slow. Without spinners, judges see a frozen UI and assume the app is broken. Spinners communicate progress and set expectations. Demo Quality is 20% of rubric.
+**Trade-off:** Trivial — spinners are a Streamlit built-in with zero performance cost.
+
+---
+
+### [2026-06-06] Mobile-first CSS breakpoints
+**Decision:** Add @media (max-width: 480px) breakpoints in ui/styles.py for card padding, font sizes, tab label sizes, history table cell padding.
+**Reason:** Judges at the final day (July 10, CUET) may view the app on phones. Bangladesh rural health workers will primarily access via smartphones. Responsive layout is required for the real-world impact narrative.
+**Trade-off:** Streamlit's data-testid CSS selectors are version-sensitive. Pinned streamlit==1.54.0 to stabilise.
+
+---
+
+### [2026-06-07] Bengali TTS audio readout via gTTS
+**Decision:** Use gTTS (Google Text-to-Speech) to read the Bengali triage recommendation aloud after classification (F1 feature).
+**Reason:** A significant portion of rural Bangladesh patients are functionally illiterate. Audio delivery of the triage recommendation ("৪৮ ঘণ্টার মধ্যে উপজেলা স্বাস্থ্য কমপ্লেক্সে যান") directly serves the target demographic. gTTS requires no API key for standard use, is free, and produces clear Bengali audio.
+**Trade-off:** gTTS makes a network request to Google TTS. No offline fallback. Acceptable for HF Spaces (always online).
+
+---
+
+### [2026-06-07] Treatment cost estimate card (static data, zero medical risk)
+**Decision:** Show a static taka-range cost estimate card per tier (F2 feature): Tier 1 ৳50-200, Tier 2 ৳0-100 (govt), Tier 3 ৳0-500 (govt emergency).
+**Reason:** Cost is the primary reason rural Bangladeshi patients delay treatment. Showing approximate costs reduces a key barrier to seeking care. Data is from publicly known Bangladesh health system costs — not a medical recommendation.
+**Trade-off:** Costs are approximate and may change. Clearly labelled "approximate" in the UI.
+
+---
+
+### [2026-06-07] CHW / Shasthya Seboika simplified mode
+**Decision:** Sidebar toggle for "CHW Mode" (F3 feature) that shows a large-font, binary refer/no-refer card and generates a simplified 1-page referral slip (no jargon).
+**Reason:** Bangladesh's Shasthya Seboika (community health workers) are a primary access point in rural areas. They need a clear binary decision, not a clinical confidence score. CHW mode directly addresses the last-mile healthcare delivery gap. This is a strong differentiator for the Innovation (25%) and Real-world Impact (20%) rubric criteria.
+**Trade-off:** CHW mode is a UI layer only — no changes to underlying model or triage logic.
+
+---
+
+### [2026-06-07] Epidemiology tab with Bangladesh division-level disease map
+**Decision:** Add Tab 4 (মহামারী তথ্য) with a Folium circle-marker map of disease prevalence by Bangladesh division, plus a horizontal bar chart (F4 feature). Module: map/bd_heatmap.py.
+**Reason:** Division-level epidemiological data contextualises the clinical output for judges and health workers. It demonstrates domain knowledge of Bangladesh's health geography. DGHS/WHO data used (CONSTRAINT 5 compliant). Visual impact is high for Demo Quality (20% rubric).
+**Trade-off:** Data is static (no real-time updates). Clearly sourced to DGHS/WHO.
+
+---
+
+### [2026-06-07] Auto image enhancement (CLAHE + unsharp mask) before inference
+**Decision:** Apply CLAHE (contrast-limited adaptive histogram equalisation) + unsharp mask before BD-SkinNet inference when the image is detected as dark or blurry (F5 feature). Before/after preview shown.
+**Reason:** Rural Bangladesh patients take photos in low light with cheap phones. Without enhancement, dark/blurry images produce low-confidence outputs → unnecessary Tier 3 escalations. Enhancement improves model confidence on real-world input. This strengthens the clinical reliability narrative.
+**Trade-off:** Enhancement may alter colour-sensitive diagnostic features in edge cases (e.g., erythema). Mitigated by keeping the blur warning visible and always showing the original alongside the enhanced image.
+
+---
+
+### [2026-06-07] Symptom duration visual timeline
+**Decision:** Render a 3-node visual timeline (Onset → Today → Expected Recovery) parsed from the Bengali/English voice duration field in patient_history (F6 feature).
+**Reason:** Visual timelines communicate disease progression at a glance. Doctors scanning a referral letter benefit from a visual summary. Improves Demo Quality and shows clinical UX sophistication.
+**Trade-off:** Duration parsing is heuristic (regex on Bengali/English text). Edge cases fall back to a generic "Unknown" node without crashing.
+
+---
+
+### [2026-06-07] Impact comparison panel in sidebar
+**Decision:** Add a sidebar panel showing two cards side-by-side: "Without SkinAI" (wrong practitioner, delayed, worsened) vs "With SkinAI" (correct triage, right facility, right time) (F7 feature).
+**Reason:** Judges who skim the sidebar during a live demo need to immediately understand the value proposition. This panel delivers the core narrative in 5 seconds without any narration. Directly supports Real-world Impact (20%) and Demo Quality (20%).
+**Trade-off:** Static content, no interactivity. Acceptable — it is a narrative element, not a functional feature.
+
+---
+
+### [2026-05-23] Doctor booking tab completes the care loop (Tab 5)
+**Decision:** Add Tab 5 (ডাক্তার বুকিং) with a full doctor booking + video call flow. Module: ui/doctor_booking.py. DEMO_DOCTOR: Dr. Nusrat Jahan, MBBS DDV, Chittagong Medical College Hospital.
+**Reason:** The full care loop is: Screen → Diagnose → Triage → Book → Video Consult → PDF. Without booking, the app stops at triage — a referral letter without a reachable doctor. The booking tab closes the loop. Tier-aware behaviour (Tier 3 disables form, shows emergency hotline 16789) ensures medical responsibility.
+**Trade-off:** Demo doctor is hardcoded (Dr. Nusrat Jahan). Real deployment would require a doctor API. For competition scope, a convincing demo doctor is sufficient and judges understand this.
+
+---
+
+### [2026-05-23] Post-consultation AI care summary PDF
+**Decision:** Add pdf_gen/consultation_summary.py — a 6-section fpdf2 PDF generated after a video call ends, summarising the consultation with Gemini-extracted notes.
+**Reason:** Completes the paper trail: referral letter before the visit, care summary after. Demonstrates full clinical workflow coverage, not just screening. Strengthens Real-world Impact (20%) and Innovation (25%).
+**Trade-off:** Gemini extraction of "consultation notes" is simulated in demo mode (no real video call transcript available). Clearly marked as AI-assisted summary.
+
+---
+
+### [2026-05-23] streamlit-mic-recorder for cross-browser mic recording
+**Decision:** Use streamlit-mic-recorder instead of st.audio_input() for in-browser microphone recording.
+**Reason:** st.audio_input() was unreliable in Chrome over HTTP (browser security restriction). streamlit-mic-recorder uses the MediaRecorder API with a proper permission request flow and works on both HTTP and HTTPS. Judges and rural users should not need to upload pre-recorded files.
+**Trade-off:** Extra dependency (streamlit-mic-recorder). Minor.
+
+---
+
 ## PENDING DECISIONS (evaluate during build)
-- [ ] Should we support Bangla-English code-switching in voice?
+- [x] Should we support Bangla-English code-switching in voice? → Yes, handled automatically: Gemini extraction tolerates mixed input; RAG auto-detects Bengali unicode range.
+- [ ] Should we add more disease classes beyond the trained 7? → Post-competition only. Adding classes requires retraining.
