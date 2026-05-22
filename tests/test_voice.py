@@ -81,6 +81,7 @@ def _fake_model_returning(lang: str, prob: float, text: str = "hello"):
     fake = MagicMock()
     seg = MagicMock()
     seg.text = text
+    seg.no_speech_prob = 0.0   # must be a real float; MagicMock attr fails < comparison
     info = MagicMock()
     info.language = lang
     info.language_probability = prob
