@@ -11,6 +11,7 @@ from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
 from reportlab.lib.units import cm
 from reportlab.platypus import (
     Image,
+    KeepTogether,
     Paragraph,
     SimpleDocTemplate,
     Spacer,
@@ -81,11 +82,11 @@ def _build_styles():
         "SkinAISection",
         parent=base["Heading2"],
         fontName=_BENGALI_FONT,
-        fontSize=12,
+        fontSize=11,
         textColor=colors.HexColor("#1a5276"),
-        spaceBefore=12,
-        spaceAfter=4,
-        borderPad=4,
+        spaceBefore=6,
+        spaceAfter=3,
+        borderPad=2,
     )
     body = ParagraphStyle(
         "SkinAIBody",
@@ -141,15 +142,15 @@ def _kv_table(rows, body_style, bengali_style):
         label_cell = Paragraph(f"<b>{label_en}</b><br/>{label_bn}", bengali_style)
         val_cell = Paragraph(str(value) if value else "—", bengali_style)
         data.append([label_cell, val_cell])
-    t = Table(data, colWidths=[5 * cm, 12 * cm])
+    t = Table(data, colWidths=[5 * cm, 13 * cm])
     t.setStyle(TableStyle([
         ("BACKGROUND", (0, 0), (0, -1), colors.HexColor("#eaf4fb")),
         ("VALIGN", (0, 0), (-1, -1), "TOP"),
         ("GRID", (0, 0), (-1, -1), 0.5, colors.HexColor("#aed6f1")),
-        ("LEFTPADDING", (0, 0), (-1, -1), 6),
-        ("RIGHTPADDING", (0, 0), (-1, -1), 6),
-        ("TOPPADDING", (0, 0), (-1, -1), 4),
-        ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
+        ("LEFTPADDING", (0, 0), (-1, -1), 5),
+        ("RIGHTPADDING", (0, 0), (-1, -1), 5),
+        ("TOPPADDING", (0, 0), (-1, -1), 2),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 2),
     ]))
     return t
 
@@ -178,10 +179,10 @@ def generate_referral_pdf(session_data: dict) -> bytes:
     doc = SimpleDocTemplate(
         buf,
         pagesize=A4,
-        leftMargin=2 * cm,
-        rightMargin=2 * cm,
-        topMargin=2 * cm,
-        bottomMargin=2 * cm,
+        leftMargin=1.5 * cm,
+        rightMargin=1.5 * cm,
+        topMargin=1.5 * cm,
+        bottomMargin=1.5 * cm,
     )
 
     now = datetime.now().strftime("%Y-%m-%d %H:%M")
@@ -194,7 +195,7 @@ def generate_referral_pdf(session_data: dict) -> bytes:
         "AI-powered dermatological screening & triage | SciBlitz AI Challenge 2026",
         small_style,
     ))
-    story.append(Spacer(1, 0.4 * cm))
+    story.append(Spacer(1, 0.2 * cm))
 
     # ── Section 1 — Patient History ───────────────────────────────────────────
     _section_rule(story, "Section 1 — Patient History | রোগীর ইতিহাস", section_style)
@@ -280,12 +281,12 @@ def generate_referral_pdf(session_data: dict) -> bytes:
         ParagraphStyle("badge", fontName=_BENGALI_FONT, fontSize=13,
                        textColor=colors.white),
     )]]
-    badge = Table(badge_data, colWidths=[17 * cm])
+    badge = Table(badge_data, colWidths=[18 * cm])
     badge.setStyle(TableStyle([
         ("BACKGROUND", (0, 0), (-1, -1), tier_color),
         ("ALIGN", (0, 0), (-1, -1), "CENTER"),
-        ("TOPPADDING", (0, 0), (-1, -1), 8),
-        ("BOTTOMPADDING", (0, 0), (-1, -1), 8),
+        ("TOPPADDING", (0, 0), (-1, -1), 6),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 6),
         ("ROUNDEDCORNERS", [4, 4, 4, 4]),
     ]))
     story.append(badge)
@@ -303,12 +304,14 @@ def generate_referral_pdf(session_data: dict) -> bytes:
         ))
 
     # ── Footer ────────────────────────────────────────────────────────────────
-    story.append(Spacer(1, 0.6 * cm))
-    story.append(Paragraph(
-        "⚠ Not a medical device. Always consult a licensed physician. | "
-        "SkinAI Bangladesh © 2026",
-        disclaimer_style,
-    ))
+    story.append(KeepTogether([
+        Spacer(1, 0.3 * cm),
+        Paragraph(
+            "[!] Not a medical device. Always consult a licensed physician. | "
+            "SkinAI Bangladesh © 2026",
+            disclaimer_style,
+        ),
+    ]))
 
     doc.build(story)
     return buf.getvalue()
