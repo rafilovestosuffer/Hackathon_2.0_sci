@@ -1036,13 +1036,9 @@ with tab3:
                     try:
                         pdf_bytes = generate_referral_pdf(session_data)
                         st.session_state.pdf_bytes = pdf_bytes
-                        st.success("✅ Referral letter generated!")
-                        st.rerun()
+                        st.toast("✅ Referral letter ready — click Download below!", icon="📄")
                     except Exception as e:
-                        st.error(bn_en(
-                            f"পিডিএফ তৈরি ব্যর্থ হয়েছে। আবার চেষ্টা করুন।",
-                            f"PDF generation failed: {e}",
-                        ))
+                        st.error(f"PDF generation failed: {e}")
                         st.session_state.pdf_bytes = None
 
         # ── Download button ────────────────────────────────────────────────────
