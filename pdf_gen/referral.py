@@ -48,7 +48,17 @@ def _register_font():
                 "Bengali font download failed: %s — PDF will use Helvetica fallback", e
             )
     if os.path.exists(_FONT_PATH):
-        pdfmetrics.registerFont(TTFont(_BENGALI_FONT, _FONT_PATH))
+        pdfmetrics.registerFont(TTFont("NotoSansBengali", _FONT_PATH))
+        # Register same file as bold variant so <b> tags don't crash
+        pdfmetrics.registerFont(TTFont("NotoSansBengali-Bold", _FONT_PATH))
+        from reportlab.pdfbase.pdfmetrics import registerFontFamily
+        registerFontFamily(
+            "NotoSansBengali",
+            normal="NotoSansBengali",
+            bold="NotoSansBengali-Bold",
+            italic="NotoSansBengali",
+            boldItalic="NotoSansBengali-Bold",
+        )
     else:
         _BENGALI_FONT = "Helvetica"
     _FONT_REGISTERED = True
@@ -62,7 +72,7 @@ def _build_styles():
     heading = ParagraphStyle(
         "SkinAIHeading",
         parent=base["Heading1"],
-        fontName="Helvetica-Bold",
+        fontName=_BENGALI_FONT,
         fontSize=16,
         textColor=colors.HexColor("#1a5276"),
         spaceAfter=4,
@@ -70,7 +80,7 @@ def _build_styles():
     section = ParagraphStyle(
         "SkinAISection",
         parent=base["Heading2"],
-        fontName="Helvetica-Bold",
+        fontName=_BENGALI_FONT,
         fontSize=12,
         textColor=colors.HexColor("#1a5276"),
         spaceBefore=12,
@@ -80,7 +90,7 @@ def _build_styles():
     body = ParagraphStyle(
         "SkinAIBody",
         parent=base["Normal"],
-        fontName="Helvetica",
+        fontName=_BENGALI_FONT,
         fontSize=10,
         spaceAfter=4,
     )
@@ -94,7 +104,7 @@ def _build_styles():
     small = ParagraphStyle(
         "SkinAISmall",
         parent=base["Normal"],
-        fontName="Helvetica",
+        fontName=_BENGALI_FONT,
         fontSize=8,
         textColor=colors.grey,
         spaceAfter=2,
@@ -102,7 +112,7 @@ def _build_styles():
     disclaimer = ParagraphStyle(
         "SkinAIDisclaimer",
         parent=base["Normal"],
-        fontName="Helvetica-Oblique",
+        fontName=_BENGALI_FONT,
         fontSize=8,
         textColor=colors.HexColor("#922b21"),
         spaceAfter=2,
@@ -129,7 +139,7 @@ def _kv_table(rows, body_style, bengali_style):
     data = []
     for label_en, label_bn, value in rows:
         label_cell = Paragraph(f"<b>{label_en}</b><br/>{label_bn}", bengali_style)
-        val_cell = Paragraph(str(value) if value else "—", body_style)
+        val_cell = Paragraph(str(value) if value else "—", bengali_style)
         data.append([label_cell, val_cell])
     t = Table(data, colWidths=[5 * cm, 12 * cm])
     t.setStyle(TableStyle([
