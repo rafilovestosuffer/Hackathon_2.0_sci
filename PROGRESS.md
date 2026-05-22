@@ -49,6 +49,49 @@
 ## 📝 SESSION LOG
 <!-- Append to this after every session. Newest at top. -->
 
+### Session: May 23, 2026 — Day 23 — Doctor Booking Tab ✅
+**Done:**
+- F8: Doctor booking tab (Tab 5) — complete care loop: Screen → Diagnose → Triage → Book → Video Call → PDF
+- ui/doctor_booking.py: full booking module (350 lines)
+  - DEMO_DOCTOR: Dr. Nusrat Jahan, MBBS DDV, Chittagong Medical College Hospital
+  - get_available_slots(): Sun/Tue/Thu slots, Bengali numerals, Bengali date/time
+  - _time_to_bn(): "06:30 PM" → "সন্ধ্যা ৬:৩০" (12-hr PM threshold = 5)
+  - render_doctor_booking_tab(): full triage-aware UI
+  - Tier 1: "optional" badge + soft info message
+  - Tier 2: amber banner "বিশেষজ্ঞ ডাক্তারের পরামর্শ প্রয়োজন"
+  - Tier 3: emergency block only (no booking form, 16789 hotline shown)
+  - Tier None: preview mode (confirm button disabled)
+  - Section A: doctor profile card (avatar, stars, verified badge, specializations)
+  - Section B: 7-day calendar strip (available days highlighted, unavailable greyed)
+  - Section C: morning/evening slot grid (8 slots, 2×4 layout, selected = primary)
+  - Section D: patient name (pre-filled from voice history) + phone with BD validation
+  - Section E: confirm with full validation (date, slot, name ≥2 chars, phone 01+10 digits)
+  - Section F: confirmed card (green banner, booking summary, JOIN VIDEO CALL button, cancel)
+- tests/test_doctor_booking.py: 38 tests, all passing
+  - 7 spec tests + 31 bonus (slot structure, DEMO_DOCTOR integrity, time conversion edge cases)
+- app.py: Tab 5 "ডাক্তার বুকিং" wired
+  - 5 booking session state keys added to _DEFAULTS
+  - booking state reset when demo buttons clicked (prevents stale tier mismatch)
+  - booking_confirmed + booking_details passed into _session_data for PDF
+- pdf_gen/referral.py: Section 4 booking injection
+  - If booking_confirmed: adds "Scheduled Appointment / নির্ধারিত অ্যাপয়েন্টমেন্ট" subsection
+  - kv_table rows: doctor, hospital, date, time, mode (video), booking ID, join link, fee
+  - Bengali note: "অ্যাপয়েন্টমেন্টের সময় উপরের লিংকে প্রবেশ করুন।"
+  - No change when booking_confirmed = False
+- Full test suite: 310/312 passing (2 pre-existing voice mock failures, unrelated)
+- 38 new tests → total count: 283+
+
+**Blockers:**
+- BD-SkinNet checkpoint still pending — _run_model() placeholder active
+- 2 pre-existing test_voice.py MagicMock failures (unrelated to booking, pre-existed)
+
+**Next session start point:**
+- Day 23 continued: project report skeleton (8-page)
+- Demo video recording
+
+**Git commits this session:**
+- [w4/d23] doctor booking tab — demo doctor, video call, PDF injection, triage-aware
+
 ### Session: May 22, 2026 — Day 22 — 7 High-Value Feature Additions ✅
 **Done (hackathon judge score maximisation):**
 - F1: Bengali TTS — gTTS reads out triage recommendation in Bengali audio (requires gtts in req.txt)

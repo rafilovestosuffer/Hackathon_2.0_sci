@@ -35,6 +35,7 @@ from ui.components import (
     check_image_quality,
     bn_en,
 )
+from ui.doctor_booking import render_doctor_booking_tab
 from severity.engine import compute_tier
 from pdf_gen.referral import generate_referral_pdf
 from rag.retriever import load_index, answer_question
@@ -156,6 +157,13 @@ _DEFAULTS = {
     "chw_mode":          False,
     "_last_audio_hash":  "",   # prevents re-processing same audio on rerun
     "prevention_tips_cache": {},
+    # Doctor booking state
+    "booking_confirmed":  False,
+    "booking_details":    None,
+    "selected_date_idx":  None,
+    "selected_slot":      None,
+    "patient_name_input": "",
+    "patient_phone":      "",
 }
 for _k, _v in _DEFAULTS.items():
     st.session_state.setdefault(_k, _v)
@@ -314,6 +322,11 @@ with st.sidebar:
             st.session_state.nearest_hospital = None
             st.session_state.pdf_bytes        = None
             st.session_state.chat_history     = []
+            # Reset booking state when demo changes tier
+            st.session_state.booking_confirmed  = False
+            st.session_state.booking_details    = None
+            st.session_state.selected_date_idx  = None
+            st.session_state.selected_slot      = None
             _push_history_to_form(_dc["history"])
             st.rerun()
 
@@ -376,11 +389,12 @@ st.markdown(
 
 
 # ── Tabs ──────────────────────────────────────────────────────────────────────
-tab1, tab2, tab3, tab4 = st.tabs([
+tab1, tab2, tab3, tab4, tab5 = st.tabs([
     "🔬 রোগ নির্ণয়",
     "💬 প্রশ্ন করুন",
     "📄 রেফারেল পত্র",
     "📊 Disease Insights",
+    "📅 ডাক্তার বুকিং",
 ])
 
 
@@ -405,6 +419,10 @@ with tab1:
             st.session_state.history     = _DEMO_CASES["demo_tier1"]["history"]
             st.session_state.transcript  = _DEMO_CASES["demo_tier1"]["transcript"]
             st.session_state.pdf_bytes   = None
+            st.session_state.booking_confirmed = False
+            st.session_state.booking_details   = None
+            st.session_state.selected_date_idx = None
+            st.session_state.selected_slot     = None
             _push_history_to_form(_DEMO_CASES["demo_tier1"]["history"])
             st.rerun()
     with _dcol2:
@@ -415,6 +433,10 @@ with tab1:
             st.session_state.history     = _DEMO_CASES["demo_tier2"]["history"]
             st.session_state.transcript  = _DEMO_CASES["demo_tier2"]["transcript"]
             st.session_state.pdf_bytes   = None
+            st.session_state.booking_confirmed = False
+            st.session_state.booking_details   = None
+            st.session_state.selected_date_idx = None
+            st.session_state.selected_slot     = None
             _push_history_to_form(_DEMO_CASES["demo_tier2"]["history"])
             st.rerun()
     with _dcol3:
@@ -425,6 +447,10 @@ with tab1:
             st.session_state.history     = _DEMO_CASES["demo_tier3"]["history"]
             st.session_state.transcript  = _DEMO_CASES["demo_tier3"]["transcript"]
             st.session_state.pdf_bytes   = None
+            st.session_state.booking_confirmed = False
+            st.session_state.booking_details   = None
+            st.session_state.selected_date_idx = None
+            st.session_state.selected_slot     = None
             _push_history_to_form(_DEMO_CASES["demo_tier3"]["history"])
             st.rerun()
 
@@ -1134,6 +1160,9 @@ with tab3:
             "transcript":      st.session_state.transcript,
             "hospital_name":    (st.session_state.nearest_hospital or {}).get("name", ""),
             "hospital_address": (st.session_state.nearest_hospital or {}).get("address", ""),
+            # Doctor booking — injected into PDF Section 4 when confirmed
+            "booking_confirmed": st.session_state.get("booking_confirmed", False),
+            "booking_details":   st.session_state.get("booking_details"),
         }
 
         _pdf_col1, _pdf_col2 = st.columns(2)
@@ -1370,6 +1399,13 @@ with tab4:
             with st.spinner("Looking up answer…"):
                 _follow = answer_question(_qq, disease_context=_sel_display)
             st.markdown(_follow)
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# TAB 5 — Doctor Booking
+# ══════════════════════════════════════════════════════════════════════════════
+with tab5:
+    render_doctor_booking_tab()
 
 
 # ══════════════════════════════════════════════════════════════════════════════

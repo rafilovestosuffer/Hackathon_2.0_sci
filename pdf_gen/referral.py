@@ -328,6 +328,47 @@ def generate_referral_pdf(session_data: dict) -> bytes:
         pdf.cell(0, 5, f"Nearest Hospital: {hospital_name} — {hospital_addr}",
                  new_x=XPos.LMARGIN, new_y=YPos.NEXT)
 
+    # ── Scheduled Appointment (if booked via doctor booking tab) ─────────────
+    booking_confirmed = session_data.get("booking_confirmed", False)
+    booking_details   = session_data.get("booking_details") or {}
+    if booking_confirmed and booking_details:
+        pdf.ln(5)
+        pdf.section_heading(
+            "Scheduled Appointment",
+            "নির্ধারিত অ্যাপয়েন্টমেন্ট",
+        )
+        appt_rows = [
+            ("Doctor",    _norm("ডাক্তার"),
+             f"{booking_details.get('doctor_name', '')} | "
+             f"{booking_details.get('doctor_credentials', '')}"),
+            ("Hospital",  _norm("হাসপাতাল"),
+             booking_details.get("hospital", "")),
+            ("Date",      _norm("তারিখ"),
+             f"{booking_details.get('appointment_date', '')} "
+             f"({_norm(booking_details.get('appointment_date_bn', ''))})"),
+            ("Time",      _norm("সময়"),
+             f"{booking_details.get('appointment_time', '')} "
+             f"({_norm(booking_details.get('appointment_time_bn', ''))})"),
+            ("Mode",      _norm("মাধ্যম"),
+             _norm("Video Consultation (ভিডিও পরামর্শ)")),
+            ("Booking ID",_norm("বুকিং আইডি"),
+             booking_details.get("booking_id", "")),
+            ("Join Link", _norm("লিংক"),
+             booking_details.get("meet_link", "")),
+            ("Fee",       _norm("ফি"),
+             f"BDT {booking_details.get('consultation_fee', 500)} "
+             f"(payable at consultation)"),
+        ]
+        pdf.kv_table(appt_rows)
+        pdf.ln(3)
+        pdf.set_text_color(*_BLUE)
+        pdf.bn(9)
+        pdf.multi_cell(0, 5.5, _norm(
+            "অ্যাপয়েন্টমেন্টের সময় উপরের লিংকে প্রবেশ করুন। "
+            "ডাক্তার একই লিংকে যোগ দেবেন।"
+        ), new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+        pdf.set_text_color(0, 0, 0)
+
     # ── Footer ────────────────────────────────────────────────────────────────
     pdf.ln(5)
     pdf.set_text_color(*_RED)
