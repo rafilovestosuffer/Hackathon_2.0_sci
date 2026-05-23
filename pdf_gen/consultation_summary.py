@@ -206,7 +206,7 @@ def _extract_via_gemini(transcript: str, duration: int) -> dict | None:
         try:
             client = _get_gemini_client()
             response = client.models.generate_content(
-                model="gemini-2.5-flash",
+                model="gemini-1.5-flash",
                 contents=prompt,
             )
             data = json.loads(_strip_fences(response.text))
