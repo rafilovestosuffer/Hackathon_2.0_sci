@@ -13,9 +13,12 @@ RUN mkdir -p pdf_gen/fonts && \
     wget -q -O pdf_gen/fonts/NotoSansBengali-Regular.ttf \
     "https://fonts.gstatic.com/s/notosansbengali/v33/Cn-SJsCGWQxOjaGwMQ6fIiMywrNJIky6nvd8BjzVMvJx2mcSPVFpVEqE-6KmsolLudA.ttf"
 
-# Python dependencies
+# Python dependencies — install torch CPU-only wheel first (avoids 700 MB CUDA download)
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir \
+    torch==2.10.0 torchvision \
+    --index-url https://download.pytorch.org/whl/cpu && \
+    pip install --no-cache-dir -r requirements.txt
 
 # App code
 COPY . .

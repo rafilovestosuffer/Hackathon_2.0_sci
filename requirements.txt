@@ -1,8 +1,7 @@
 # Core app framework
 streamlit==1.54.0
 
-# ML / model
-torch==2.10.0
+# ML / model — torch installed separately in Dockerfile with CPU-only wheel
 timm==1.0.27
 albumentations==2.0.8
 grad-cam==1.5.5
