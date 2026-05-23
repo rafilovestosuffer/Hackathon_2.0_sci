@@ -378,7 +378,7 @@ def extract_patient_history(transcript: str) -> dict:
         try:
             client = _get_gemini_client()
             response = client.models.generate_content(
-                model="gemini-1.5-flash",
+                model="gemini-2.5-flash-lite",
                 contents=prompt,
             )
             text = _strip_fences(response.text)
