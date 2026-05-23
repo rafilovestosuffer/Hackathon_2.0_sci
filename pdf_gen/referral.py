@@ -380,6 +380,58 @@ def generate_referral_pdf(session_data: dict) -> bytes:
     return bytes(pdf.output())
 
 
+def generate_demo_consultation_pdf() -> bytes:
+    """
+    Generate a fully-populated demo consultation PDF (Rahim, Tier 3 Scabies case).
+    Used for the always-visible demo download button — no pipeline run required.
+    """
+    demo_data = {
+        # ── Patient history ───────────────────────────────────────────────────
+        "patient_name":        "রহিম মিয়া (Rahim Mia)",
+        "patient_age":         "৩৫ বছর (35 years)",
+        "chief_complaint":     "সারা শরীলে তীব্র চুলকানি ও ফুসকুড়ি · Intense itching and spreading rash all over body",
+        "symptoms":            ["intense itching", "spreading rash", "skin thickening", "redness"],
+        "affected_area":       "বাহু, পেট, উরু · Arms, abdomen, thighs",
+        "duration":            "১০ দিন (10 days)",
+        "progression":         "দ্রুত ছড়িয়ে পড়ছে · Spreading rapidly",
+        "previous_treatment":  "কোনো চিকিৎসা নেওয়া হয়নি · No prior treatment",
+        "associated_symptoms": ["জ্বর (fever)", "ব্যথা (pain)", "রাতে বেশি চুলকানি (worse at night)"],
+        # ── AI diagnosis ──────────────────────────────────────────────────────
+        "disease_class":   "Scabies",
+        "disease_bengali": "খুজলি (স্ক্যাবিস)",
+        "confidence":      0.38,
+        "top2": [
+            {"disease": "Scabies", "confidence": 0.38},
+            {"disease": "Eczema",  "confidence": 0.22},
+        ],
+        "heatmap":      None,
+        "coverage_pct": 45.0,
+        # ── Triage ───────────────────────────────────────────────────────────
+        "tier":          3,
+        "urgency_label": "URGENT",
+        "action":        "Seek emergency care TODAY at District Hospital",
+        "facility":      "District Hospital",
+        "bengali_text":  "আজই জেলা হাসপাতালে জরুরি চিকিৎসা নিন — জরুরি চিকিৎসা প্রয়োজন",
+        "hospital_name":    "Rangpur Medical College Hospital",
+        "hospital_address": "Rangpur Sadar, Rangpur District",
+        # ── Doctor booking (post-consultation) ────────────────────────────────
+        "booking_confirmed": True,
+        "booking_details": {
+            "doctor_name":        "Dr. Nusrat Jahan",
+            "doctor_credentials": "MBBS, DDV (Dermatology) — BCPS Fellow",
+            "hospital":           "Rangpur Medical College Hospital",
+            "appointment_date":   "2026-05-26",
+            "appointment_date_bn":"মঙ্গলবার, ২৬ মে ২০২৬",
+            "appointment_time":   "10:00 AM",
+            "appointment_time_bn":"সকাল ১০:০০ টা",
+            "booking_id":         "DEMO-RXS-2026-001",
+            "meet_link":          "https://meet.skinai.bd/demo-consultation-001",
+            "consultation_fee":   500,
+        },
+    }
+    return generate_referral_pdf(demo_data)
+
+
 def generate_chw_referral_slip(session_data: dict) -> bytes:
     """Generate simplified 1-page CHW referral slip. Returns raw PDF bytes."""
     pdf = _PDF(unit="mm", format="A4")

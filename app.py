@@ -175,6 +175,7 @@ _DEFAULTS = {
     "_generate_pdf_now":             False,
     "demo_video_url":                "",
     "manual_consultation_notes_text": "",
+    "_demo_pdf_bytes":               None,
 }
 for _k, _v in _DEFAULTS.items():
     st.session_state.setdefault(_k, _v)
@@ -1142,6 +1143,54 @@ with tab3:
         '</div>',
         unsafe_allow_html=True,
     )
+
+    # ── Demo PDF — always visible, no pipeline run required ───────────────────
+    st.markdown(
+        '<div style="background:#F0FDF4;border:1.5px solid #86EFAC;border-radius:10px;'
+        'padding:0.75rem 1rem;margin-bottom:0.9rem;">'
+        '<div style="font-weight:700;font-size:0.88rem;color:#15803D;margin-bottom:0.2rem;">'
+        '📋 Demo Consultation PDF — সম্পূর্ণ নমুনা দেখুন</div>'
+        '<div style="font-size:0.78rem;color:#166534;">'
+        'Download a fully-populated sample referral letter (Rahim, Scabies Tier 3 + doctor booking) '
+        '— no image or audio needed.</div>'
+        '</div>',
+        unsafe_allow_html=True,
+    )
+    _demo_col1, _demo_col2 = st.columns([2, 1])
+    with _demo_col1:
+        if st.button(
+            "📋 Generate Demo Consultation PDF",
+            use_container_width=True,
+            key="gen_demo_pdf_btn",
+        ):
+            with st.spinner("📄 Building demo PDF…"):
+                try:
+                    from pdf_gen.referral import generate_demo_consultation_pdf
+                    st.session_state["_demo_pdf_bytes"] = generate_demo_consultation_pdf()
+                    st.toast("✅ Demo PDF ready!", icon="📋")
+                except Exception as _e:
+                    st.error(f"Demo PDF failed: {_e}")
+    with _demo_col2:
+        _demo_pdf = st.session_state.get("_demo_pdf_bytes")
+        if _demo_pdf:
+            st.download_button(
+                label="📥 ডাউনলোড করুন · Download",
+                data=_demo_pdf,
+                file_name="skinai_demo_consultation.pdf",
+                mime="application/pdf",
+                use_container_width=True,
+                key="dl_demo_pdf_btn",
+                type="primary",
+            )
+        else:
+            st.button(
+                "📥 ডাউনলোড করুন · Download",
+                use_container_width=True,
+                disabled=True,
+                key="dl_demo_pdf_disabled",
+            )
+
+    st.markdown("---")
 
     pred    = st.session_state.prediction
     tier    = st.session_state.tier_result
