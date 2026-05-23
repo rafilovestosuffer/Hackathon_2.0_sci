@@ -1417,9 +1417,7 @@ with tab4:
 # ══════════════════════════════════════════════════════════════════════════════
 with tab5:
     render_doctor_booking_tab()
-
-    if st.session_state.get("booking_confirmed"):
-        render_consultation_room()
+    render_consultation_room()
 
 
 # ══════════════════════════════════════════════════════════════════════════════
