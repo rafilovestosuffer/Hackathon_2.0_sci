@@ -20,7 +20,7 @@ RUN pip install --no-cache-dir \
     --index-url https://download.pytorch.org/whl/cpu && \
     pip install --no-cache-dir -r requirements.txt
 
-# App code
+# App code — cache-bust: 2026-05-23
 COPY . .
 
 # Pre-cache the sentence-transformers embedding model so first-run load is instant
