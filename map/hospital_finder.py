@@ -151,6 +151,7 @@ def _query_overpass(lat: float, lon: float, radius_m: int) -> list[dict]:
             resp = requests.post(
                 OVERPASS_URL,
                 data={"data": query},
+                headers={"User-Agent": "SkinAI-BD/1.0 (https://huggingface.co/spaces/rafilovestosuffer/skinai-bangladesh)"},
                 timeout=REQUEST_TIMEOUT + 10,
             )
             resp.raise_for_status()
