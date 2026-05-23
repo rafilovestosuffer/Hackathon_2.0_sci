@@ -342,13 +342,6 @@ def _render_tier_context_banner(tier) -> None:
             '</div></div>',
             unsafe_allow_html=True,
         )
-    elif tier is None:
-        st.info(
-            "🩺 রোগ নির্ণয়ের পর অ্যাপয়েন্টমেন্ট নিশ্চিত করা যাবে।\n\n"
-            "Preview doctors and available slots. **Complete diagnosis in Tab 1** "
-            "to unlock appointment confirmation.",
-            icon="💡",
-        )
 
 
 def _render_emergency_block() -> None:
@@ -685,22 +678,10 @@ def _render_patient_info_fields(patient_history: dict) -> None:
 
 
 def _render_confirm_button(tier, available_slots: list, doc: dict) -> None:
-    is_disabled = (tier is None)
-
-    if is_disabled:
-        st.markdown(
-            '<div class="info-box" style="margin-bottom:0.5rem;">'
-            '🩺 রোগ নির্ণয়ের পর অ্যাপয়েন্টমেন্ট নিশ্চিত করা যাবে।<br>'
-            '<span style="font-size:0.78rem;color:#718096;">'
-            'Complete diagnosis in Tab 1 to enable booking.</span>'
-            '</div>',
-            unsafe_allow_html=True,
-        )
-
     clicked = st.button(
         "📅 অ্যাপয়েন্টমেন্ট নিশ্চিত করুন | Confirm Appointment",
         type="primary", use_container_width=True,
-        key="confirm_booking_btn", disabled=is_disabled,
+        key="confirm_booking_btn",
     )
     if not clicked:
         return
