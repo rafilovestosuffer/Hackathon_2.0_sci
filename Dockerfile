@@ -17,7 +17,7 @@ RUN mkdir -p pdf_gen/fonts && \
 COPY requirements.txt .
 RUN pip install --no-cache-dir \
     torch==2.10.0 torchvision \
-    --index-url https://download.pytorch.org/whl/cpu && \
+    --extra-index-url https://download.pytorch.org/whl/cpu && \
     pip install --no-cache-dir -r requirements.txt
 
 # App code — cache-bust: 2026-05-23
