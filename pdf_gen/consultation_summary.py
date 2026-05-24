@@ -439,7 +439,7 @@ def _render_medicines(pdf: _PDF, data: dict):
 
             # Draw cell text
             vals = [
-                (cols[0], name[:32],        name_bn[:22] if name_bn else ""),
+                (cols[0], name[:32], name_bn),   # no char-count cut — Bengali conjuncts break mid-slice
                 (cols[1], dose[:18],         ""),
                 (cols[2], frequency[:24],    ""),
                 (cols[3], duration[:18],     ""),
@@ -452,7 +452,7 @@ def _render_medicines(pdf: _PDF, data: dict):
                 pdf.cell(cw - 2, 4, en_val, new_x=XPos.LMARGIN, new_y=YPos.NEXT)
                 if bn_val:
                     pdf.set_xy(x + 1, row_y + 5)
-                    pdf.bn(7)
+                    pdf.bn(6)   # size 6 so full Bengali name fits within 44mm column
                     pdf.cell(cw - 2, 3.5, _norm(bn_val),
                              new_x=XPos.LMARGIN, new_y=YPos.NEXT)
                 x += cw
