@@ -130,12 +130,22 @@ class _PDF(FPDF):
             self.set_font("Bengali", size=size)
         else:
             self.set_font("Helvetica", "B" if bold else "", size)
+        # Disable shaping for Latin — no conjuncts needed
+        try:
+            self.set_text_shaping(False)
+        except Exception:
+            pass
 
     def bn(self, size: int = 10):
         if self._has_bn:
             self.set_font("Bengali", size=size)
         else:
             self.set_font("Helvetica", size=size)
+        # Enable HarfBuzz shaping for Bengali conjuncts
+        try:
+            self.set_text_shaping(True, script="Beng", language="BEN")
+        except Exception:
+            pass
 
     def section_heading(self, en: str, bn_text: str):
         self.ln(5)
