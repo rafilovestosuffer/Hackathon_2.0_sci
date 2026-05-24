@@ -11,10 +11,67 @@ PDF generation button beneath.
 """
 
 import logging
+import urllib.parse
 
 import streamlit as st
 
 logger = logging.getLogger(__name__)
+
+
+# ── MedEasy helpers ───────────────────────────────────────────────────────────
+
+def _medeasy_search_url(medicine_name: str) -> str:
+    query = urllib.parse.quote_plus(medicine_name.strip())
+    return f"https://medeasy.health/search?q={query}"
+
+
+def _render_medeasy_section(medicines: list) -> None:
+    if not medicines:
+        return
+
+    st.markdown("---")
+    st.markdown(
+        '<div style="background:#EBF5FB;border:1.5px solid #AED6F1;border-radius:10px;'
+        'padding:0.8rem 1rem 0.6rem 1rem;margin-bottom:0.5rem;">'
+        '<div style="font-weight:700;font-size:0.88rem;color:#1A5276;">'
+        '💊 ওষুধ অর্ডার করুন · Order Medicines from MedEasy</div>'
+        '<div style="font-size:0.77rem;color:#1F618D;margin-top:0.15rem;">'
+        'নিচের লিংকে ক্লিক করুন — MedEasy-তে সরাসরি সার্চ হবে</div>'
+        '</div>',
+        unsafe_allow_html=True,
+    )
+
+    with st.expander("ওষুধের তালিকা দেখুন ও অর্ডার করুন · View & Order", expanded=False):
+        for med in medicines:
+            name    = med.get("name", "")
+            name_bn = med.get("name_bn", "")
+            dose    = med.get("dose", "")
+            freq    = med.get("frequency", "")
+            dur     = med.get("duration", "")
+            url     = _medeasy_search_url(name)
+
+            st.markdown(
+                f'<div style="border:1px solid #AED6F1;border-radius:8px;'
+                f'padding:0.55rem 0.8rem;margin-bottom:0.5rem;background:#FDFEFE;">'
+                f'<div style="font-weight:600;font-size:0.9rem;">{name}</div>'
+                f'<div style="font-family:\'Noto Sans Bengali\',sans-serif;font-size:0.8rem;'
+                f'color:#4A5568;">{name_bn}</div>'
+                f'<div style="font-size:0.75rem;color:#718096;margin-top:0.2rem;">'
+                f'মাত্রা: {dose} · {freq} · {dur}</div>'
+                f'<a href="{url}" target="_blank" rel="noopener noreferrer" '
+                f'style="display:inline-block;margin-top:0.45rem;background:#1A6FA8;color:white;'
+                f'font-size:0.78rem;font-weight:600;padding:0.25rem 0.75rem;border-radius:6px;'
+                f'text-decoration:none;">🛒 MedEasy-তে খুঁজুন · Search on MedEasy</a>'
+                f'</div>',
+                unsafe_allow_html=True,
+            )
+
+        st.caption(
+            "এই লিংকগুলি MedEasy-র সার্চ পেজ খোলে। SkinAI কোনো ওষুধ সুপারিশ করে না। "
+            "শুধু ডাক্তারের পরামর্শকৃত ওষুধ কিনুন।\n\n"
+            "These links open MedEasy search pages. SkinAI does not recommend medicines. "
+            "Only purchase what your doctor prescribed."
+        )
 
 # ── Demo consultation transcript (Rahim — Tinea Corporis) ─────────────────────
 # Matches the demo_consultation_summary.pdf exactly so judges see end-to-end.
@@ -167,10 +224,12 @@ def _tab_demo_video() -> str | None:
 
     with col_c:
         # Always-visible demo summary PDF download — no pipeline run needed
-        if "_demo_summary_pdf" not in st.session_state:
+        if "_demo_summary_pdf" not in st.session_state or not st.session_state.get("prescribed_medicines_list"):
             try:
                 from pdf_gen.consultation_summary import generate_demo_summary_pdf
-                st.session_state["_demo_summary_pdf"] = generate_demo_summary_pdf()
+                _demo_pdf, _demo_meds = generate_demo_summary_pdf()
+                st.session_state["_demo_summary_pdf"] = _demo_pdf
+                st.session_state["prescribed_medicines_list"] = _demo_meds
             except Exception as _e:
                 logger.warning("Demo summary PDF pre-gen failed: %s", _e)
                 st.session_state["_demo_summary_pdf"] = None
@@ -193,6 +252,7 @@ def _tab_demo_video() -> str | None:
                 disabled=True,
                 key="dl_demo_summary_disabled",
             )
+        _render_medeasy_section(st.session_state.get("prescribed_medicines_list", []))
 
     if st.session_state.get("consultation_transcript") == DEMO_TRANSCRIPT:
         with st.expander("📄 View demo transcript", expanded=False):
@@ -345,12 +405,13 @@ def _render_transcript_and_pdf(transcript: str) -> None:
                 from pdf_gen.consultation_summary import generate_consultation_summary_pdf
                 from datetime import datetime
 
-                pdf_bytes = generate_consultation_summary_pdf(
+                pdf_bytes, medicines = generate_consultation_summary_pdf(
                     consultation_transcript=transcript,
                     session_state=dict(st.session_state),
                     consultation_duration_minutes=duration,
                 )
                 st.session_state["summary_pdf_bytes"] = pdf_bytes
+                st.session_state["prescribed_medicines_list"] = medicines
                 st.session_state["_generate_pdf_now"] = False
             except Exception as exc:
                 st.error(f"PDF generation failed: {exc}")
@@ -379,6 +440,8 @@ def _render_transcript_and_pdf(transcript: str) -> None:
         m2.metric("Language", "Bengali + English")
         m3.metric("Duration", f"{duration} min")
         m4.metric("Size", f"{size_kb:.0f} KB")
+
+        _render_medeasy_section(st.session_state.get("prescribed_medicines_list", []))
 
 
 # ── Public entry point ────────────────────────────────────────────────────────

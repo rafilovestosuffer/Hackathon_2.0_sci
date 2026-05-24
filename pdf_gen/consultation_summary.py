@@ -722,7 +722,7 @@ def generate_consultation_summary_pdf(
     consultation_transcript: str,
     session_state: dict,
     consultation_duration_minutes: int,
-) -> bytes:
+) -> tuple[bytes, list]:
     """
     Generate a bilingual Bengali+English post-consultation care summary PDF.
 
@@ -732,7 +732,7 @@ def generate_consultation_summary_pdf(
         consultation_duration_minutes: 30 or 60.
 
     Returns:
-        Raw PDF bytes suitable for st.download_button.
+        Tuple of (raw PDF bytes, list of prescribed medicine dicts).
     """
     # ── Step 1: Gemini extraction ─────────────────────────────────────────────
     data = None
@@ -741,7 +741,7 @@ def generate_consultation_summary_pdf(
 
     if data is None:
         logger.warning("Gemini extraction failed — returning fallback PDF")
-        return _fallback_pdf(session_state, consultation_duration_minutes)
+        return _fallback_pdf(session_state, consultation_duration_minutes), []
 
     # ── Step 2: Build PDF ─────────────────────────────────────────────────────
     pdf = _PDF(unit="mm", format="A4")
@@ -756,12 +756,12 @@ def generate_consultation_summary_pdf(
     _render_followup(pdf, data)
     _render_footer(pdf)
 
-    return bytes(pdf.output())
+    return bytes(pdf.output()), _safe_list(data, "prescribed_medicines")
 
 
 # ── Demo PDF (no Gemini, no session_state required) ───────────────────────────
 
-def generate_demo_summary_pdf() -> bytes:
+def generate_demo_summary_pdf() -> tuple[bytes, list]:
     """
     Hardcoded post-consultation care summary for Rahim Uddin — Tinea Corporis.
     Mirrors the DEMO_TRANSCRIPT in ui/consultation_room.py exactly.
@@ -855,4 +855,4 @@ def generate_demo_summary_pdf() -> bytes:
     _render_followup(pdf, _DEMO_DATA)
     _render_footer(pdf)
 
-    return bytes(pdf.output())
+    return bytes(pdf.output()), _DEMO_DATA["prescribed_medicines"]

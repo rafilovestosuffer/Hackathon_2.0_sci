@@ -172,6 +172,7 @@ _DEFAULTS = {
     "consultation_completed":        False,
     "consultation_duration_minutes": 30,
     "summary_pdf_bytes":             None,
+    "prescribed_medicines_list":     [],
     "_generate_pdf_now":             False,
     "demo_video_url":                "",
     "manual_consultation_notes_text": "",
