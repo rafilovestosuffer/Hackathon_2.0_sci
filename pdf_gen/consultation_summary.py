@@ -639,21 +639,14 @@ def _render_followup(pdf: _PDF, data: dict):
     if follow_date:
         pdf.set_x(pdf.l_margin)
         pdf.lat(10)
-        pdf.cell(pw, 6, f"Return date: {follow_date}", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
-        pdf.set_x(pdf.l_margin)
-        pdf.bn(9)
-        pdf.cell(pw, 5, _norm(f"তারিখ: {follow_date}"),
-                 new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+        pdf.cell(pw, 6, f"Follow-up date: {follow_date}", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
 
     if follow_cond:
         pdf.ln(2)
         pdf.set_x(pdf.l_margin)
-        pdf.lat(10)
-        pdf.multi_cell(pw, 6, f"Return if: {follow_cond}", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
-        pdf.set_x(pdf.l_margin)
-        pdf.bn(9)
-        pdf.multi_cell(pw, 5, _norm(f"যদি: {follow_cond}"),
-                       new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+        pdf.bn(10)
+        # Single bilingual block — avoids repeating English after "যদি:"
+        pdf.multi_cell(pw, 6, _norm(follow_cond), new_x=XPos.LMARGIN, new_y=YPos.NEXT)
 
     if not follow_date and not follow_cond:
         pdf.set_text_color(*_GREY)
@@ -771,7 +764,7 @@ def generate_demo_summary_pdf() -> bytes:
                 "name": "Clotrimazole 1% Cream",
                 "name_bn": "ক্লোট্রিমাজল ১% ক্রিম",
                 "dose": "Thin layer",
-                "frequency": "Twice daily (morning & night)",
+                "frequency": "2x daily (AM & PM)",
                 "duration": "14 days",
                 "instructions": "Wash & dry area first. Do NOT stop early.",
             },
@@ -779,7 +772,7 @@ def generate_demo_summary_pdf() -> bytes:
                 "name": "Cetirizine 10 mg Tablet",
                 "name_bn": "সেটিরিজিন ১০ মিগ্রা ট্যাবলেট",
                 "dose": "1 tablet",
-                "frequency": "Once daily (before bed)",
+                "frequency": "1x daily (bedtime)",
                 "duration": "7 days",
                 "instructions": "Reduces itching. May cause drowsiness.",
             },
@@ -800,10 +793,12 @@ def generate_demo_summary_pdf() -> bytes:
         ],
         "diet_instructions": [],
         "activity_restrictions": [],
-        "follow_up_date": "June 6, 2026",
+        "follow_up_date": "৬ জুন, ২০২৬  (June 6, 2026)",
         "follow_up_condition": (
-            "Return immediately if: no improvement after 7 days, rash spreads to "
-            "face or hands, blisters appear, or fever develops."
+            "৭ দিনে উন্নতি না হলে, দাগ ছড়িয়ে পড়লে, ফোসকা বা জ্বর হলে — "
+            "সঙ্গে সঙ্গে জেলা হাসপাতালে যান।\n"
+            "(Return immediately if: no improvement in 7 days, rash spreads, "
+            "blisters appear, or fever develops.)"
         ),
         "warning_signs": [
             "No improvement after 7 days of treatment",
