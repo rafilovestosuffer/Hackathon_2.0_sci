@@ -754,3 +754,100 @@ def generate_consultation_summary_pdf(
     _render_footer(pdf)
 
     return bytes(pdf.output())
+
+
+# ── Demo PDF (no Gemini, no session_state required) ───────────────────────────
+
+def generate_demo_summary_pdf() -> bytes:
+    """
+    Hardcoded post-consultation care summary for Rahim Uddin — Tinea Corporis.
+    Mirrors the DEMO_TRANSCRIPT in ui/consultation_room.py exactly.
+    No Gemini API call. Safe to call at app startup or on any deployment.
+    """
+    _DEMO_DATA = {
+        "diagnosis_confirmed": "Tinea Corporis (দাদ)",
+        "prescribed_medicines": [
+            {
+                "name": "Clotrimazole 1% Cream",
+                "name_bn": "ক্লোট্রিমাজল ১% ক্রিম",
+                "dose": "Thin layer",
+                "frequency": "Twice daily (morning & night)",
+                "duration": "14 days",
+                "instructions": "Wash & dry area first. Do NOT stop early.",
+            },
+            {
+                "name": "Cetirizine 10 mg Tablet",
+                "name_bn": "সেটিরিজিন ১০ মিগ্রা ট্যাবলেট",
+                "dose": "1 tablet",
+                "frequency": "Once daily (before bed)",
+                "duration": "7 days",
+                "instructions": "Reduces itching. May cause drowsiness.",
+            },
+        ],
+        "dos": [
+            "Keep the affected area clean and dry at all times",
+            "Wash all clothes and bedsheets in hot water",
+            "Wear loose, breathable cotton clothing",
+            "Complete the full 14-day cream course without stopping",
+            "Eat yogurt and drink plenty of water daily",
+        ],
+        "donts": [
+            "Do NOT share towels, clothing, or bedsheets with family members",
+            "Do NOT scratch the rash — it will spread",
+            "Do NOT stop the medicine on your own before 14 days",
+            "Do NOT apply any home remedy (coconut oil, turmeric, etc.)",
+            "Avoid excessive sugar in diet during treatment",
+        ],
+        "diet_instructions": [],
+        "activity_restrictions": [],
+        "follow_up_date": "June 6, 2026",
+        "follow_up_condition": (
+            "Return immediately if: no improvement after 7 days, rash spreads to "
+            "face or hands, blisters appear, or fever develops."
+        ),
+        "warning_signs": [
+            "No improvement after 7 days of treatment",
+            "Rash spreading to face, hands, or other body parts",
+            "Blisters or open sores appearing",
+            "Fever or chills",
+        ],
+        "warning_signs_bn": [
+            "৭ দিনেও কোনো উন্নতি না হলে",
+            "দাগ মুখে, হাতে বা অন্য স্থানে ছড়িয়ে পড়লে",
+            "ফোসকা বা ঘা দেখা দিলে",
+            "জ্বর বা ঠাণ্ডা লাগলে",
+        ],
+        "doctor_notes": (
+            "Dr. Nusrat Jahan — Chittagong Medical College Hospital (CMCH)\n"
+            "Consultation Date: 2026-05-23 | Duration: 30 minutes\n"
+            "SkinAI Bangladesh AI diagnosis confirmed by treating physician."
+        ),
+        "consultation_date": "2026-05-23",
+        "consultation_duration": "30 minutes",
+    }
+
+    _DEMO_SESSION = {
+        "prediction": {
+            "disease": "Tinea",
+            "confidence": 0.82,
+        },
+        "history": {
+            "patient_name": "রহিম উদ্দিন (Rahim Uddin)",
+            "patient_age": "৩৫",
+        },
+        "tier_result": {"tier": 1},
+    }
+
+    pdf = _PDF(unit="mm", format="A4")
+    pdf.bootstrap()
+    pdf.add_page()
+
+    _render_header(pdf, _DEMO_DATA, _DEMO_SESSION, 30)
+    _render_diagnosis(pdf, _DEMO_DATA, _DEMO_SESSION)
+    _render_medicines(pdf, _DEMO_DATA)
+    _render_dos_donts(pdf, _DEMO_DATA)
+    _render_warning_signs(pdf, _DEMO_DATA)
+    _render_followup(pdf, _DEMO_DATA)
+    _render_footer(pdf)
+
+    return bytes(pdf.output())

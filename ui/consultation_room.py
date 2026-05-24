@@ -130,8 +130,21 @@ def _tab_demo_video() -> str | None:
 
     st.markdown("---")
 
-    # Demo transcript loader
-    col_a, col_b = st.columns([2, 1])
+    # ── Demo transcript loader + instant PDF download ─────────────────────────
+    st.markdown(
+        '<div style="background:#EBF5FB;border:1.5px solid #AED6F1;border-radius:10px;'
+        'padding:0.8rem 1rem 0.6rem 1rem;margin-bottom:0.7rem;">'
+        '<div style="font-weight:700;font-size:0.88rem;color:#1A5276;margin-bottom:0.15rem;">'
+        '📋 Demo: AI Post-Consultation Care Summary</div>'
+        '<div style="font-size:0.77rem;color:#1F618D;">'
+        'Download a real AI-generated care summary extracted from a doctor–patient '
+        'conversation — medicines, dos &amp; don\'ts, warning signs, follow-up date. '
+        'No recording needed.</div>'
+        '</div>',
+        unsafe_allow_html=True,
+    )
+
+    col_a, col_b, col_c = st.columns([2, 1, 1])
     with col_a:
         st.markdown(
             "**Try the demo instantly** — load Rahim's pre-built consultation "
@@ -151,6 +164,35 @@ def _tab_demo_video() -> str | None:
             st.session_state["consultation_completed"]  = True
             st.session_state["consultation_duration_minutes"] = 30
             st.rerun()
+
+    with col_c:
+        # Always-visible demo summary PDF download — no pipeline run needed
+        if "_demo_summary_pdf" not in st.session_state:
+            try:
+                from pdf_gen.consultation_summary import generate_demo_summary_pdf
+                st.session_state["_demo_summary_pdf"] = generate_demo_summary_pdf()
+            except Exception as _e:
+                logger.warning("Demo summary PDF pre-gen failed: %s", _e)
+                st.session_state["_demo_summary_pdf"] = None
+
+        _dsb = st.session_state.get("_demo_summary_pdf")
+        if _dsb:
+            st.download_button(
+                label="📥 Demo Care Summary PDF",
+                data=_dsb,
+                file_name="skinai_rahim_care_summary.pdf",
+                mime="application/pdf",
+                use_container_width=True,
+                type="primary",
+                key="dl_demo_summary_always",
+            )
+        else:
+            st.button(
+                "📥 Demo Care Summary PDF",
+                use_container_width=True,
+                disabled=True,
+                key="dl_demo_summary_disabled",
+            )
 
     if st.session_state.get("consultation_transcript") == DEMO_TRANSCRIPT:
         with st.expander("📄 View demo transcript", expanded=False):
