@@ -30,14 +30,6 @@ def _epharma_search_url(medicine_name: str) -> str:
     return f"https://epharma.com.bd/en/medicines?search={query}"
 
 
-# Approximate BDT market prices for Rahim's demo medicines (local generic brands).
-# Shown in the demo price comparison; real consultations show "visit site" instead.
-_DEMO_PRICES: dict[str, dict] = {
-    "Clotrimazole 1% Cream":    {"medeasy": 80,  "epharma": 65},
-    "Cetirizine 10 mg Tablet":  {"medeasy": 35,  "epharma": 28},
-}
-
-
 def _render_medeasy_section(medicines: list) -> None:
     if not medicines:
         return
@@ -47,14 +39,14 @@ def _render_medeasy_section(medicines: list) -> None:
         '<div style="background:#EBF5FB;border:1.5px solid #AED6F1;border-radius:10px;'
         'padding:0.8rem 1rem 0.6rem 1rem;margin-bottom:0.5rem;">'
         '<div style="font-weight:700;font-size:0.88rem;color:#1A5276;">'
-        '💊 দাম তুলনা করুন ও অর্ডার করুন · Compare Prices & Order</div>'
+        '💊 ওষুধ অর্ডার করুন · Order Medicines Online</div>'
         '<div style="font-size:0.77rem;color:#1F618D;margin-top:0.15rem;">'
-        'দুটি ফার্মেসির মূল্য দেখুন এবং সেরা দামে কিনুন · Compare MedEasy vs ePharma</div>'
+        'আপনার পছন্দের ফার্মেসি বেছে নিন · Choose your pharmacy</div>'
         '</div>',
         unsafe_allow_html=True,
     )
 
-    with st.expander("মূল্য তুলনা ও অর্ডার · Price Comparison & Order", expanded=False):
+    with st.expander("ওষুধের তালিকা ও অর্ডার · View & Order", expanded=False):
         for med in medicines:
             name    = med.get("name", "")
             name_bn = med.get("name_bn", "")
@@ -63,18 +55,6 @@ def _render_medeasy_section(medicines: list) -> None:
             dur     = med.get("duration", "")
             url_me  = _medeasy_search_url(name)
             url_ep  = _epharma_search_url(name)
-            prices  = _DEMO_PRICES.get(name)
-
-            if prices:
-                me_p = prices["medeasy"]
-                ep_p = prices["epharma"]
-                me_badge = " 🏆 সেরা দাম" if me_p <= ep_p else ""
-                ep_badge = " 🏆 সেরা দাম" if ep_p < me_p else ""
-                me_price_html = f'<span style="font-size:1.1rem;font-weight:700;color:#1A5276;">৳{me_p}</span>{me_badge}'
-                ep_price_html = f'<span style="font-size:1.1rem;font-weight:700;color:#1A5276;">৳{ep_p}</span>{ep_badge}'
-            else:
-                me_price_html = '<span style="font-size:0.8rem;color:#718096;">সাইটে দেখুন</span>'
-                ep_price_html = '<span style="font-size:0.8rem;color:#718096;">সাইটে দেখুন</span>'
 
             st.markdown(
                 f'<div style="border:1px solid #AED6F1;border-radius:8px;'
@@ -84,33 +64,20 @@ def _render_medeasy_section(medicines: list) -> None:
                 f'<div style="font-size:0.73rem;color:#718096;margin:0.2rem 0 0.55rem 0;">'
                 f'মাত্রা: {dose} · {freq} · {dur}</div>'
                 f'<div style="display:flex;gap:0.7rem;flex-wrap:wrap;">'
-                f'<div style="flex:1;min-width:130px;border:1.5px solid #AED6F1;border-radius:7px;'
-                f'padding:0.45rem 0.6rem;background:#EBF5FB;">'
-                f'<div style="font-size:0.72rem;font-weight:700;color:#1A5276;margin-bottom:0.25rem;">🔵 MedEasy</div>'
-                f'<div style="margin-bottom:0.35rem;">{me_price_html}</div>'
                 f'<a href="{url_me}" target="_blank" rel="noopener noreferrer" '
-                f'style="display:block;text-align:center;background:#1A6FA8;color:white;'
-                f'font-size:0.74rem;font-weight:600;padding:0.2rem 0.5rem;border-radius:5px;'
-                f'text-decoration:none;">🛒 অর্ডার করুন</a>'
-                f'</div>'
-                f'<div style="flex:1;min-width:130px;border:1.5px solid #A9DFBF;border-radius:7px;'
-                f'padding:0.45rem 0.6rem;background:#EAFAF1;">'
-                f'<div style="font-size:0.72rem;font-weight:700;color:#1E8449;margin-bottom:0.25rem;">🟢 ePharma</div>'
-                f'<div style="margin-bottom:0.35rem;">{ep_price_html}</div>'
+                f'style="flex:1;min-width:130px;display:block;text-align:center;background:#1A6FA8;color:white;'
+                f'font-size:0.78rem;font-weight:600;padding:0.4rem 0.5rem;border-radius:6px;'
+                f'text-decoration:none;">🔵 MedEasy-তে অর্ডার করুন</a>'
                 f'<a href="{url_ep}" target="_blank" rel="noopener noreferrer" '
-                f'style="display:block;text-align:center;background:#27AE60;color:white;'
-                f'font-size:0.74rem;font-weight:600;padding:0.2rem 0.5rem;border-radius:5px;'
-                f'text-decoration:none;">🛒 অর্ডার করুন</a>'
-                f'</div>'
+                f'style="flex:1;min-width:130px;display:block;text-align:center;background:#27AE60;color:white;'
+                f'font-size:0.78rem;font-weight:600;padding:0.4rem 0.5rem;border-radius:6px;'
+                f'text-decoration:none;">🟢 ePharma-তে অর্ডার করুন</a>'
                 f'</div>'
                 f'</div>',
                 unsafe_allow_html=True,
             )
 
-        has_demo = any(m.get("name") in _DEMO_PRICES for m in medicines)
-        price_note = "* ডেমো মূল্য আনুমানিক — বর্তমান মূল্যের জন্য সাইট দেখুন।\n\n" if has_demo else ""
         st.caption(
-            f"{price_note}"
             "SkinAI কোনো ওষুধ সুপারিশ করে না — শুধু ডাক্তারের পরামর্শকৃত ওষুধ কিনুন।\n"
             "SkinAI does not recommend medicines. Only purchase what your doctor prescribed."
         )
