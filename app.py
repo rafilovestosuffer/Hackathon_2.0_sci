@@ -238,6 +238,7 @@ _DEFAULTS = {
     "rag_lang":          "en",
     "chat_history":      [],
     "chw_mode":          False,
+    "demo_image_path":   None,  # set by demo buttons; cleared by real upload
     "_last_audio_hash":  "",   # prevents re-processing same audio on rerun
     "prevention_tips_cache": {},
     # Doctor booking state
@@ -276,6 +277,7 @@ _DEMO_CASES = {
     "demo_tier1": {
         "label": "🟢 Demo — Tinea Tier 1",
         "help":  "Non-urgent pharmacist case",
+        "image": "assets/demo/tinea.jpg",
         "transcript": "সামান্য চুলকানি আছে, তেমন সমস্যা নেই",
         "pred": {
             "disease": "Tinea", "confidence": 0.85,
@@ -297,6 +299,7 @@ _DEMO_CASES = {
     "demo_tier2": {
         "label": "🟡 Demo — Eczema Tier 2",
         "help":  "Routine Upazila Health Complex case",
+        "image": "assets/demo/eczema.jpg",
         "transcript": "সারা বাহুতে চুলকানি ও লালচে দাগ, তিন সপ্তাহ ধরে",
         "pred": {
             "disease": "Eczema", "confidence": 0.72,
@@ -318,6 +321,7 @@ _DEMO_CASES = {
     "demo_tier3": {
         "label": "🔴 Demo — Scabies Tier 3",
         "help":  "Urgent — full pipeline with hospital map",
+        "image": "assets/demo/scabies.jpg",
         "transcript": "জ্বর আছে, চুলকানি ছড়িয়ে পড়ছে, ব্যথা হচ্ছে",
         "pred": {
             "disease": "Scabies", "confidence": 0.38,
@@ -433,7 +437,35 @@ with tab1:
                     help=_dc["help"],
                     key=f"tab_demo_{_dk}",
                 ):
-                    _dp = _dc["pred"]
+                    _dp = dict(_dc["pred"])
+
+                    # If this demo case has a bundled skin photo, load it,
+                    # run REAL BD-SkinNet, and use the resulting heatmap +
+                    # coverage. Disease label stays the demo-intended class
+                    # so the button labelled "Tinea · Tier 1" reliably shows
+                    # a Tinea/Tier-1 outcome end-to-end.
+                    _img_path = _dc.get("image")
+                    if _img_path:
+                        from pathlib import Path as _P
+                        _full = _P(__file__).parent / _img_path
+                        if _full.exists():
+                            st.session_state["demo_image_path"] = str(_full)
+                            try:
+                                _pil = Image.open(_full).convert("RGB")
+                                _real = _run_model(_pil)
+                                # Real heatmap + real coverage; keep demo
+                                # label/confidence for narrative consistency.
+                                _dp["heatmap"]      = _real.get("heatmap")
+                                _dp["coverage_pct"] = _real.get(
+                                    "coverage_pct", _dp["coverage_pct"]
+                                )
+                            except Exception as _e:
+                                logger.warning("Demo inference failed: %s", _e)
+                        else:
+                            st.session_state["demo_image_path"] = None
+                    else:
+                        st.session_state["demo_image_path"] = None
+
                     st.session_state.prediction  = _dp
                     st.session_state.tier_result = compute_tier(
                         _dp["disease"], _dp["confidence"],
@@ -776,6 +808,8 @@ with tab1:
         )
 
         if image_file is not None:
+            # A real upload always supersedes any demo image
+            st.session_state["demo_image_path"] = None
             try:
                 pil_img = Image.open(image_file).convert("RGB")
             except Exception:
@@ -837,17 +871,26 @@ with tab1:
             render_gradcam_overlay(pred["heatmap"], pred["coverage_pct"])
 
         else:
-            # No new upload — show cached results if available
+            # No new upload — show the demo photo + cached results if a demo
+            # button was clicked, or just cached results otherwise.
+            _demo_path = st.session_state.get("demo_image_path")
+            if _demo_path:
+                from pathlib import Path as _P
+                if _P(_demo_path).exists():
+                    st.image(_demo_path,
+                             use_container_width=True,
+                             caption="Demo skin image — loaded from sample case")
             if st.session_state.prediction:
                 pred = st.session_state.prediction
-                st.markdown(
-                    '<div class="info-box-teal" style="margin-bottom:0.75rem;">'
-                    '✓ Previous analysis loaded — upload a new image to re-analyse</div>',
-                    unsafe_allow_html=True,
-                )
+                if not _demo_path:
+                    st.markdown(
+                        '<div class="info-box-teal" style="margin-bottom:0.75rem;">'
+                        'Previous analysis loaded — upload a new image to re-analyse</div>',
+                        unsafe_allow_html=True,
+                    )
                 render_disease_card(pred["disease"], pred["confidence"], pred["top2"])
                 render_gradcam_overlay(pred["heatmap"], pred["coverage_pct"])
-            else:
+            elif not _demo_path:
                 st.markdown(
                     '<div style="background:#F8FAFC;border:1.5px dashed #E2E8F0;border-radius:10px;'
                     'padding:2.2rem 1.5rem;text-align:center;color:#64748B;font-size:0.88rem;">'
