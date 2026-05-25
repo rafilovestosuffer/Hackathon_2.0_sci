@@ -1,7 +1,7 @@
 # SkinAI Bangladesh — Infinity AI BuildFest Submission
 
 **Tagline:** সঠিক রোগী → সঠিক ডাক্তার → সঠিক সময় · *Right patient → Right doctor → Right time*
-**Live app (no login):** https://huggingface.co/spaces/rafilovestosuffer/skinai-bangladesh
+**Live app (no login):** https://huggingface.co/spaces/rafilovestosuffer/skinai-bd
 **GitHub:** https://github.com/rafilovestosuffer/Hackathon_2.0_sci · **Demo video:** _[YouTube link to be added on submission]_
 
 ---

@@ -14,9 +14,9 @@ pinned: false
 > **"সঠিক রোগী → সঠিক ডাক্তার → সঠিক সময়"**
 > *"Right patient → Right doctor → Right time"*
 
-[![Hugging Face Spaces](https://img.shields.io/badge/🤗%20Live%20Demo-HF%20Spaces-blue)](https://huggingface.co/spaces/rafilovestosuffer/skinai-bangladesh)
+[![Hugging Face Spaces](https://img.shields.io/badge/🤗%20Live%20Demo-HF%20Spaces-blue)](https://huggingface.co/spaces/rafilovestosuffer/skinai-bd)
 [![GitHub](https://img.shields.io/badge/GitHub-Repository-black)](https://github.com/rafilovestosuffer/Hackathon_2.0_sci)
-![Tests](https://img.shields.io/badge/tests-245%20passing-brightgreen)
+![Tests](https://img.shields.io/badge/tests-402%20passing-brightgreen)
 ![Python](https://img.shields.io/badge/python-3.10%2B-blue)
 
 **SciBlitz AI Challenge 2026 — IEEE SB CUET — Track A: Health & Society**
@@ -37,7 +37,7 @@ Bangladesh has approximately **1 dermatologist per 250,000 people**. In rural ar
 ## ✅ Live Demo
 
 **Public URL (no login required):**
-[https://huggingface.co/spaces/rafilovestosuffer/skinai-bangladesh](https://huggingface.co/spaces/rafilovestosuffer/skinai-bangladesh)
+[https://huggingface.co/spaces/rafilovestosuffer/skinai-bd](https://huggingface.co/spaces/rafilovestosuffer/skinai-bd)
 
 >Judges: use the **Demo Mode** buttons in the sidebar for instant pre-loaded cases:
 > - 🟢 **Demo Tier 1** — Tinea (pharmacist referral, mild)
@@ -218,7 +218,7 @@ streamlit run app.py
 
 ## ☁️ HF Spaces Deployment
 
-The live demo is hosted at [huggingface.co/spaces/rafilovestosuffer/skinai-bangladesh](https://huggingface.co/spaces/rafilovestosuffer/skinai-bangladesh).
+The live demo is hosted at [huggingface.co/spaces/rafilovestosuffer/skinai-bd](https://huggingface.co/spaces/rafilovestosuffer/skinai-bd).
 
 To deploy your own fork:
 
