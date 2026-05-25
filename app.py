@@ -22,7 +22,6 @@ from ui.components import (
     render_chat_message,
     render_suggested_questions,
     render_referral_preview,
-    render_cost_estimate,
     render_impact_comparison,
     render_audio_triage,
     enhance_skin_image,
@@ -940,9 +939,6 @@ with tab1:
         # F1 — Bengali TTS readout
         render_audio_triage(_tr.get("bengali_text", ""))
 
-        # F2 — Cost estimate card
-        render_cost_estimate(_tr["tier"])
-
         # F6 — Symptom timeline (only when history has duration)
         _dur = (st.session_state.history or {}).get("duration", "")
         if _dur:
@@ -1134,17 +1130,6 @@ with tab2:
 # TAB 3 — Referral Letter PDF
 # ══════════════════════════════════════════════════════════════════════════════
 with tab3:
-    st.markdown(
-        '<div class="card-section-header">'
-        '<span style="font-size:1.1rem;">📄</span>'
-        '<div>'
-        '<div class="card-section-title">রেফারেল পত্র · Referral Letter</div>'
-        '<div class="card-section-sub">AI-generated · Zero manual input required</div>'
-        '</div>'
-        '</div>',
-        unsafe_allow_html=True,
-    )
-
     # ── Demo PDF — always visible, no pipeline run required ───────────────────
     st.markdown(
         '<div style="background:#F0FDF4;border:1.5px solid #86EFAC;border-radius:10px;'
