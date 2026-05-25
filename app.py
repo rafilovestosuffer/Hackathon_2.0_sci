@@ -103,7 +103,7 @@ def _load_rag_index():
 
 # ── BD-SkinNet model loader + inference ──────────────────────────────────────
 
-_HF_REPO     = "rafiurrahman01/bd-skinnet"
+_HF_REPO     = "rafilovestosuffer/bd-skinnet"
 _HF_FILENAME = "bd_skinnet_int8.pth"
 
 
