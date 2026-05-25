@@ -940,6 +940,129 @@ div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
 .hospital-name { font-weight: 700; color: var(--c-t1); font-size: 0.9rem; }
 .hospital-meta { font-size: 0.78rem; color: var(--c-t2); margin-top: 0.15rem; }
 
+/* ─── Tab 1 — Diagnosis professional polish ─────────────────────────────────── */
+.dx-panel-head {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: -0.25rem 0 0.15rem 0;
+}
+.dx-step-badge {
+  flex-shrink: 0;
+  width: 34px; height: 34px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #1A6FA8 0%, #0D9E75 100%);
+  color: white;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 0.95rem;
+  box-shadow: 0 3px 10px rgba(26,111,168,0.28), inset 0 1px 0 rgba(255,255,255,0.25);
+  letter-spacing: -0.01em;
+}
+.dx-step-badge.dx-step-photo {
+  background: linear-gradient(135deg, #0D9E75 0%, #1A6FA8 100%);
+  box-shadow: 0 3px 10px rgba(13,158,117,0.28), inset 0 1px 0 rgba(255,255,255,0.25);
+}
+.dx-panel-titles { flex: 1; min-width: 0; }
+.dx-panel-title-en {
+  font-size: 1.05rem; font-weight: 700; color: #0F172A;
+  letter-spacing: -0.012em; line-height: 1.2;
+}
+.dx-panel-title-bn {
+  font-size: 0.76rem; color: #94A3B8; font-weight: 500;
+  font-family: 'Noto Sans Bengali', 'Inter', sans-serif !important;
+  margin-top: 0.1rem;
+}
+.dx-panel-pill {
+  flex-shrink: 0;
+  font-size: 0.58rem; font-weight: 800; letter-spacing: 0.1em;
+  padding: 0.22rem 0.6rem; border-radius: 99px;
+  text-transform: uppercase;
+  border: 1px solid transparent;
+}
+.dx-pill-required { background: #FEF2F2; color: #991B1B; border-color: #FECACA; }
+.dx-pill-optional { background: #ECFEFF; color: #155E75; border-color: #A5F3FC; }
+.dx-panel-desc {
+  font-size: 0.82rem; color: #64748B;
+  margin: 0.55rem 0 0.9rem 0; line-height: 1.55;
+}
+.dx-divider {
+  height: 1px;
+  background: linear-gradient(90deg,
+    transparent 0%, #E2E8F0 18%, #E2E8F0 82%, transparent 100%);
+  margin: 1.25rem 0 1.1rem 0;
+  border: none;
+}
+
+/* Quick-demo bar header — gold flash chip */
+.dx-quickbar-head {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  font-size: 0.84rem; font-weight: 700; color: #1A202C;
+  letter-spacing: -0.005em;
+}
+.dx-quickbar-flash {
+  width: 22px; height: 22px; border-radius: 50%;
+  background: linear-gradient(135deg, #FBBF24, #F59E0B);
+  color: white; display: inline-flex; align-items: center; justify-content: center;
+  font-size: 0.78rem; box-shadow: 0 2px 6px rgba(245,158,11,0.4);
+  font-weight: 800;
+}
+
+/* Empty-state upload prompt — inviting clinical card */
+.dx-upload-empty {
+  background:
+    radial-gradient(ellipse at top, rgba(26,111,168,0.06), transparent 70%),
+    linear-gradient(180deg, #F8FAFC 0%, #EEF6FF 100%);
+  border: 1.5px dashed #C7DBEF;
+  border-radius: 14px;
+  padding: 2.4rem 1.5rem;
+  text-align: center;
+  margin-top: 0.6rem;
+}
+.dx-upload-empty-icon {
+  width: 56px; height: 56px;
+  margin: 0 auto 0.55rem auto;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #EEF6FF, #DCEBFB);
+  border: 1px solid #C7DBEF;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.7rem;
+  box-shadow: 0 4px 12px rgba(26,111,168,0.10);
+}
+.dx-upload-empty-title {
+  font-size: 0.94rem; font-weight: 600; color: #334155;
+  letter-spacing: -0.005em;
+}
+.dx-upload-empty-bn {
+  font-size: 0.78rem; color: #94A3B8; margin-top: 0.3rem;
+  font-family: 'Noto Sans Bengali', sans-serif !important;
+}
+.dx-upload-tips {
+  display: flex; justify-content: center; gap: 1rem;
+  margin-top: 0.95rem; font-size: 0.7rem; color: #64748B;
+  flex-wrap: wrap;
+}
+.dx-upload-tips span {
+  display: inline-flex; align-items: center; gap: 0.28rem;
+  background: rgba(255,255,255,0.7);
+  padding: 0.2rem 0.55rem; border-radius: 99px;
+  border: 1px solid #E2E8F0;
+}
+
+/* Compact section sub-label for form groups */
+.dx-form-sublabel {
+  font-size: 0.64rem; font-weight: 800; color: #64748B;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  margin: 0 0 0.55rem 0;
+}
+
+/* Mic + audio language row spacing inside the voice panel */
+.dx-voice-hint {
+  font-size: 0.74rem; color: #64748B;
+  background: #F1F5F9; border: 1px solid #E2E8F0;
+  border-radius: 8px; padding: 0.45rem 0.7rem;
+  margin-top: 0.5rem; line-height: 1.5;
+}
+
 /* ─── Mobile ─────────────────────────────────────────────────────────────────── */
 @media (max-width: 600px) {
   .main .block-container { padding-left: 0.65rem; padding-right: 0.65rem; }

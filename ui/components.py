@@ -939,11 +939,14 @@ def render_business_model() -> None:
 
     streams = [
         {
-            "name": "Telemedicine revenue share",
-            "what": "15% of each video consultation booked through the in-app doctor booking flow",
-            "who":  "Partner doctors (currently demoed via Dr. Nusrat Jahan)",
-            "why":  "Doctors receive pre-triaged patients with a referral PDF already in hand — "
-                    "shorter consults, higher conversion, willing to share the fee",
+            "name": "Teleconsult service fee",
+            "what": "A small platform service fee is added on top of the doctor's fixed consultation "
+                    "fee at booking time (e.g., doctor charges ৳600, patient pays ৳700 as a single "
+                    "transparent price). The doctor always receives 100% of their fixed fee.",
+            "who":  "Patient (only if they opt into a teleconsult — screening, triage and the referral PDF stay free)",
+            "why":  "Doctors keep their full fee with no negotiation; patients see one clean price and "
+                    "receive a pre-triaged consult with a structured referral PDF already in hand — "
+                    "shorter consults, fewer cancellations, higher booking conversion",
             "color": "#1A6FA8",
         },
         {

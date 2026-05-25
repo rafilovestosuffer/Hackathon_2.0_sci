@@ -2,21 +2,27 @@
 
 ## Mission lock
 
-The product is free at the patient endpoint, forever. This is not a marketing line — it is encoded as a hard constraint in `CLAUDE.md` and surfaced in the in-app model card. Every sustainability decision below is designed around that constraint, not in spite of it.
+**Screening, triage and the referral PDF are free at the patient endpoint, forever.** This covers the entire core pipeline — voice intake, image analysis, severity tier decision, hospital map, and the downloadable referral letter addressed to a licensed doctor. This is not a marketing line; it is encoded as a hard constraint in `CLAUDE.md`.
+
+The only paid step in the product is the *optional* teleconsult booking (Tab 5). A patient who simply wants to know "what is this and where do I go?" pays nothing, ever.
 
 ---
 
 ## Three sustainability streams
 
-### 1. Telemedicine revenue share
+### 1. Teleconsult service fee
 
-**What.** 15% of each video consultation fee booked through the in-app doctor-booking flow (Tab 5).
+**What.** When a patient opts to book a video consultation through Tab 5, a small platform service fee is added on top of the doctor's fixed consultation fee at booking time. Example: if the doctor's fixed fee is ৳600, the patient pays a single transparent price of ৳700; the doctor receives 100% of their ৳600 fee, and the platform retains the ৳100 service fee.
 
-**Who pays.** Partner doctors. The pilot demoes Dr. Nusrat Jahan; Phase 2 onboards an initial roster of 8–12 licensed dermatologists and general physicians.
+**Who pays.** The patient — but only if they choose to book a teleconsult. The screening, triage, and downloadable referral PDF remain free.
 
-**Why it works.** A doctor receiving a SkinAI referral gets a patient who is (a) pre-triaged to the right urgency tier, (b) arrives with a structured 4-section referral PDF including patient history, AI assessment, and triage recommendation, and (c) is already filtered for cases worth a teleconsult. The consult is shorter, conversion is higher, and the doctor is willing to share fee because the funnel quality is higher than what they can buy elsewhere.
+**Why this is the right structure, not a revenue-share.**
 
-**Unit economics.** At a typical ₹500 (~$4.50) teleconsult fee, 15% = $0.68 per booking. Break-even at the projected $40/month Phase 2 infrastructure cost is ~60 bookings/month — comfortably under the Phase 2 capacity of 8 districts × 1 booking/district/day.
+- **Doctors keep their full fixed fee.** No negotiation, no "what cut do you take" friction. Onboarding a new doctor is a 30-second conversation.
+- **Patient sees one clean price.** The service fee is built into the booking total. There is no separate line item, no haggling, no upsell — the user experience matches what patients already expect from telemedicine apps like Doctime or Praava.
+- **Higher funnel quality justifies the fee.** A SkinAI-referred patient arrives with a structured 4-section referral PDF (patient history + AI assessment + triage tier + recommended action). The consult is shorter, the no-show rate is lower, and the diagnosis quality is higher because the doctor isn't starting from a blank slate.
+
+**Unit economics.** At a ৳100 service fee per booking (~$0.91 USD at current rates), break-even on the projected $40/month Phase 2 infrastructure cost is ~45 bookings per month — comfortably below the Phase 2 capacity of 8 districts × 1 booking/district/day. Even at conservative adoption, this stream alone covers operating cost; NRB and grants fund expansion, not survival.
 
 ### 2. NRB Sponsor-a-District
 

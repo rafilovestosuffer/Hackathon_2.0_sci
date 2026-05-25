@@ -401,10 +401,17 @@ tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
 # ══════════════════════════════════════════════════════════════════════════════
 with tab1:
     # ── Try-a-demo expander (collapsed by default so the real workflow leads) ──
-    with st.expander("Try a demo case (skip voice & image)", expanded=False):
+    with st.expander("⚡  Quick Start — try a pre-filled demo case", expanded=False):
+        st.markdown(
+            '<div class="dx-quickbar-head">'
+            '<span class="dx-quickbar-flash">⚡</span>'
+            'Skip voice &amp; image — load a real clinical scenario in one click'
+            '</div>',
+            unsafe_allow_html=True,
+        )
         st.caption(
-            "Instant pre-filled patient. Use these to see the full pipeline "
-            "without recording audio or uploading a photo."
+            "Each demo runs the full pipeline (BD-SkinNet inference, triage, "
+            "hospital map, referral). Ideal for judges in a silent room."
         )
         _demo_keys = list(_DEMO_CASES.keys())
         _demo_cols = st.columns(len(_demo_keys))
@@ -474,13 +481,19 @@ with tab1:
     # ── LEFT COLUMN: Voice Input + Patient Data ────────────────────────────────
     with col_left:
         st.markdown(
-            '<div class="sk-section-h2">Voice Input</div>'
-            '<div class="sk-meta-bn">ভয়েস ইনপুট · optional</div>',
+            '<div class="dx-panel-head">'
+            '  <div class="dx-step-badge">1</div>'
+            '  <div class="dx-panel-titles">'
+            '    <div class="dx-panel-title-en">🎙️ Voice Input</div>'
+            '    <div class="dx-panel-title-bn">ভয়েস ইনপুট</div>'
+            '  </div>'
+            '  <div class="dx-panel-pill dx-pill-optional">Optional</div>'
+            '</div>'
+            '<div class="dx-panel-desc">'
+            'Speak in Bengali or English. Whisper transcribes the audio and '
+            'Gemini extracts the patient history automatically.'
+            '</div>',
             unsafe_allow_html=True,
-        )
-        st.caption(
-            "Speak in Bengali or English. The AI will transcribe and "
-            "extract patient history automatically."
         )
 
         # ── Language selector ─────────────────────────────────────────────────
@@ -693,15 +706,23 @@ with tab1:
                 unsafe_allow_html=True,
             )
 
-        st.markdown("---")
+        st.markdown('<hr class="dx-divider">', unsafe_allow_html=True)
 
         # ── Patient Data Form — always visible, editable ──────────────────────
         st.markdown(
-            '<div class="sk-section-h2">Patient Data</div>'
-            '<div class="sk-meta">Auto-filled from voice · edit as needed</div>',
+            '<div class="dx-panel-head">'
+            '  <div class="dx-step-badge">2</div>'
+            '  <div class="dx-panel-titles">'
+            '    <div class="dx-panel-title-en">👤 Patient Data</div>'
+            '    <div class="dx-panel-title-bn">রোগীর তথ্য · auto-filled from voice</div>'
+            '  </div>'
+            '</div>'
+            '<div class="dx-panel-desc">'
+            'Review and edit the extracted history before saving. All fields '
+            'flow into the referral letter.'
+            '</div>',
             unsafe_allow_html=True,
         )
-        st.write("")  # small breathing room
 
         _h = st.session_state.history or {}
         _form_col1, _form_col2 = st.columns(2)
@@ -783,8 +804,18 @@ with tab1:
     # ── RIGHT COLUMN: Image Upload + Results ───────────────────────────────────
     with col_right:
         st.markdown(
-            '<div class="sk-section-h2">Skin Photo</div>'
-            '<div class="sk-meta-bn">ছবি আপলোড করুন · required</div>',
+            '<div class="dx-panel-head">'
+            '  <div class="dx-step-badge dx-step-photo">📷</div>'
+            '  <div class="dx-panel-titles">'
+            '    <div class="dx-panel-title-en">Skin Photo</div>'
+            '    <div class="dx-panel-title-bn">ছবি আপলোড করুন</div>'
+            '  </div>'
+            '  <div class="dx-panel-pill dx-pill-required">Required</div>'
+            '</div>'
+            '<div class="dx-panel-desc">'
+            'Upload a clear, well-lit close-up of the affected area. '
+            'BD-SkinNet (Swin+CBAM, INT8) analyses the image on-device.'
+            '</div>',
             unsafe_allow_html=True,
         )
 
@@ -793,6 +824,7 @@ with tab1:
             type=["jpg", "jpeg", "png", "webp"],
             key="image_upload",
             help="ত্বকের ছবি আপলোড করুন (JPG / PNG / WEBP)",
+            label_visibility="collapsed",
         )
 
         if image_file is not None:
@@ -878,11 +910,17 @@ with tab1:
                 render_fairness_disclosure()
             elif not _demo_path:
                 st.markdown(
-                    '<div style="background:#F8FAFC;border:1.5px dashed #E2E8F0;border-radius:10px;'
-                    'padding:2.2rem 1.5rem;text-align:center;color:#64748B;font-size:0.88rem;">'
-                    'Upload a clear photo of the affected skin area'
-                    '<div style="font-size:0.78rem;color:#94A3B8;margin-top:0.35rem;">'
+                    '<div class="dx-upload-empty">'
+                    '  <div class="dx-upload-empty-icon">📷</div>'
+                    '  <div class="dx-upload-empty-title">'
+                    'Waiting for a skin photo</div>'
+                    '  <div class="dx-upload-empty-bn">'
                     'আক্রান্ত ত্বকের একটি স্পষ্ট ছবি আপলোড করুন</div>'
+                    '  <div class="dx-upload-tips">'
+                    '    <span>☀️ Good lighting</span>'
+                    '    <span>🔍 Close-up</span>'
+                    '    <span>🖼️ JPG · PNG · WEBP</span>'
+                    '  </div>'
                     '</div>',
                     unsafe_allow_html=True,
                 )
