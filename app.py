@@ -389,12 +389,6 @@ st.markdown(
     '  <div class="hero-tagline">'
     '    সঠিক রোগী &nbsp;→&nbsp; সঠিক ডাক্তার &nbsp;→&nbsp; সঠিক সময়'
     '  </div>'
-    '  <div class="stat-bar">'
-    '    <span class="stat-chip stat-chip-blue">🔬 7 Disease Classes</span>'
-    '    <span class="stat-chip stat-chip-green">📊 F1 = 92.46%</span>'
-    '    <span class="stat-chip stat-chip-teal">🏥 BD Clinical Data</span>'
-    '    <span class="stat-chip stat-chip-dark">🔒 No Login Required</span>'
-    '  </div>'
     '</div>',
     unsafe_allow_html=True,
 )
