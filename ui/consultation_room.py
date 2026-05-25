@@ -36,17 +36,17 @@ def _render_medeasy_section(medicines: list) -> None:
 
     st.markdown("---")
     st.markdown(
-        '<div style="background:#EBF5FB;border:1.5px solid #AED6F1;border-radius:10px;'
-        'padding:0.8rem 1rem 0.6rem 1rem;margin-bottom:0.5rem;">'
-        '<div style="font-weight:700;font-size:0.88rem;color:#1A5276;">'
+        '<div style="background:#EBF5FB;border:2px solid #AED6F1;border-radius:14px;'
+        'padding:1.2rem 1.4rem 1rem 1.4rem;margin-bottom:0.8rem;">'
+        '<div style="font-weight:800;font-size:1.1rem;color:#1A5276;">'
         '💊 ওষুধ অর্ডার করুন · Order Medicines Online</div>'
-        '<div style="font-size:0.77rem;color:#1F618D;margin-top:0.15rem;">'
-        'আপনার পছন্দের ফার্মেসি বেছে নিন · Choose your pharmacy</div>'
+        '<div style="font-size:0.92rem;color:#1F618D;margin-top:0.25rem;">'
+        'আপনার পছন্দের ফার্মেসি বেছে নিন · Choose your pharmacy and order instantly</div>'
         '</div>',
         unsafe_allow_html=True,
     )
 
-    with st.expander("ওষুধের তালিকা ও অর্ডার · View & Order", expanded=False):
+    with st.expander("ওষুধের তালিকা ও অর্ডার · View Medicines & Order", expanded=True):
         for med in medicines:
             name    = med.get("name", "")
             name_bn = med.get("name_bn", "")
@@ -57,21 +57,22 @@ def _render_medeasy_section(medicines: list) -> None:
             url_ep  = _epharma_search_url(name)
 
             st.markdown(
-                f'<div style="border:1px solid #AED6F1;border-radius:8px;'
-                f'padding:0.7rem 0.9rem;margin-bottom:0.6rem;background:#FDFEFE;">'
-                f'<div style="font-weight:600;font-size:0.92rem;margin-bottom:0.1rem;">{name}</div>'
-                f'<div style="font-family:\'Noto Sans Bengali\',sans-serif;font-size:0.8rem;color:#4A5568;">{name_bn}</div>'
-                f'<div style="font-size:0.73rem;color:#718096;margin:0.2rem 0 0.55rem 0;">'
-                f'মাত্রা: {dose} · {freq} · {dur}</div>'
-                f'<div style="display:flex;gap:0.7rem;flex-wrap:wrap;">'
+                f'<div style="border:1.5px solid #AED6F1;border-radius:12px;'
+                f'padding:1.1rem 1.3rem;margin-bottom:1rem;background:#FDFEFE;'
+                f'box-shadow:0 1px 4px rgba(0,0,0,0.06);">'
+                f'<div style="font-weight:700;font-size:1.08rem;margin-bottom:0.2rem;">{name}</div>'
+                f'<div style="font-family:\'Noto Sans Bengali\',sans-serif;font-size:0.95rem;color:#4A5568;margin-bottom:0.15rem;">{name_bn}</div>'
+                f'<div style="font-size:0.85rem;color:#718096;margin-bottom:0.9rem;">'
+                f'মাত্রা: {dose} &nbsp;·&nbsp; {freq} &nbsp;·&nbsp; {dur}</div>'
+                f'<div style="display:flex;gap:1rem;flex-wrap:wrap;">'
                 f'<a href="{url_me}" target="_blank" rel="noopener noreferrer" '
-                f'style="flex:1;min-width:130px;display:block;text-align:center;background:#1A6FA8;color:white;'
-                f'font-size:0.78rem;font-weight:600;padding:0.4rem 0.5rem;border-radius:6px;'
-                f'text-decoration:none;">🔵 MedEasy-তে অর্ডার করুন</a>'
+                f'style="flex:1;min-width:160px;display:block;text-align:center;background:#1A6FA8;color:white;'
+                f'font-size:0.95rem;font-weight:700;padding:0.65rem 1rem;border-radius:8px;'
+                f'text-decoration:none;letter-spacing:0.01em;">🔵 MedEasy-তে অর্ডার করুন</a>'
                 f'<a href="{url_ep}" target="_blank" rel="noopener noreferrer" '
-                f'style="flex:1;min-width:130px;display:block;text-align:center;background:#27AE60;color:white;'
-                f'font-size:0.78rem;font-weight:600;padding:0.4rem 0.5rem;border-radius:6px;'
-                f'text-decoration:none;">🟢 ePharma-তে অর্ডার করুন</a>'
+                f'style="flex:1;min-width:160px;display:block;text-align:center;background:#27AE60;color:white;'
+                f'font-size:0.95rem;font-weight:700;padding:0.65rem 1rem;border-radius:8px;'
+                f'text-decoration:none;letter-spacing:0.01em;">🟢 ePharma-তে অর্ডার করুন</a>'
                 f'</div>'
                 f'</div>',
                 unsafe_allow_html=True,
