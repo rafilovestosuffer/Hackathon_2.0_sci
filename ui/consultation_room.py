@@ -419,7 +419,8 @@ def _render_transcript_and_pdf(transcript: str) -> None:
                     consultation_duration_minutes=duration,
                 )
                 st.session_state["summary_pdf_bytes"] = pdf_bytes
-                st.session_state["prescribed_medicines_list"] = medicines
+                if medicines:  # don't overwrite demo medicines if Gemini returns fallback
+                    st.session_state["prescribed_medicines_list"] = medicines
                 st.session_state["_generate_pdf_now"] = False
             except Exception as exc:
                 st.error(f"PDF generation failed: {exc}")
@@ -449,7 +450,7 @@ def _render_transcript_and_pdf(transcript: str) -> None:
         m3.metric("Duration", f"{duration} min")
         m4.metric("Size", f"{size_kb:.0f} KB")
 
-        _render_medeasy_section(st.session_state.get("prescribed_medicines_list", []))
+    _render_medeasy_section(st.session_state.get("prescribed_medicines_list", []))
 
 
 # ── Public entry point ────────────────────────────────────────────────────────
