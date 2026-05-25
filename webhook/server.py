@@ -95,6 +95,29 @@ def debug_telegram_getme() -> JSONResponse:
                             status_code=500)
 
 
+@app.get("/debug/connectivity")
+def debug_connectivity() -> JSONResponse:
+    """Probe outbound to several hosts to localise the network restriction."""
+    import httpx, socket
+    targets = [
+        ("api.telegram.org", "https://api.telegram.org/"),
+        ("google", "https://www.google.com/"),
+        ("httpbin", "https://httpbin.org/get"),
+        ("cloudflare", "https://1.1.1.1/"),
+    ]
+    out = {}
+    for label, url in targets:
+        try:
+            host = url.split("/")[2]
+            ip = socket.gethostbyname(host)
+            with httpx.Client(timeout=httpx.Timeout(connect=20.0, read=20.0, write=20.0, pool=5.0)) as c:
+                r = c.get(url)
+            out[label] = {"ip": ip, "status": r.status_code}
+        except Exception as e:
+            out[label] = {"error": repr(e)[:200], "type": type(e).__name__}
+    return JSONResponse(out)
+
+
 @app.get("/debug/send")
 def debug_send(chat_id: str = "", body: str = "hello from skinai") -> JSONResponse:
     """Try a direct send_text. Returns the actual exception if it fails."""

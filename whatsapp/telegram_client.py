@@ -21,7 +21,19 @@ import httpx
 
 logger = logging.getLogger(__name__)
 
-TIMEOUT_SEC = 30.0
+TIMEOUT_SEC = 60.0
+
+
+def _make_client() -> "httpx.Client":
+    """httpx client tuned for HF Spaces outbound (slow TLS, prefer IPv4)."""
+    import socket as _sk
+    # Force IPv4 (HF outbound sometimes fails on IPv6 dual-stack)
+    transport = httpx.HTTPTransport(retries=2, local_address="0.0.0.0")
+    return httpx.Client(
+        timeout=httpx.Timeout(connect=30.0, read=60.0, write=30.0, pool=10.0),
+        transport=transport,
+        http2=False,
+    )
 
 
 def _token() -> str:
@@ -44,7 +56,7 @@ def _file_base() -> str:
 def send_text(chat_id: int | str, body: str) -> dict:
     url = f"{_base()}/sendMessage"
     payload = {"chat_id": chat_id, "text": body[:4096]}
-    with httpx.Client(timeout=TIMEOUT_SEC) as client:
+    with _make_client() as client:
         r = client.post(url, json=payload)
     r.raise_for_status()
     return r.json()
@@ -58,7 +70,7 @@ def send_document(
     data = {"chat_id": chat_id}
     if caption:
         data["caption"] = caption[:1024]
-    with httpx.Client(timeout=TIMEOUT_SEC) as client:
+    with _make_client() as client:
         r = client.post(url, data=data, files=files)
     r.raise_for_status()
     return r.json()
@@ -66,7 +78,7 @@ def send_document(
 
 def download_file(file_id: str) -> bytes:
     """Two-step: getFile → download from file path."""
-    with httpx.Client(timeout=TIMEOUT_SEC) as client:
+    with _make_client() as client:
         r = client.get(f"{_base()}/getFile", params={"file_id": file_id})
         r.raise_for_status()
         file_path = r.json()["result"]["file_path"]
