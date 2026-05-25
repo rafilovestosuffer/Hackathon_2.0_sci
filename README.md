@@ -294,3 +294,5 @@ SkinAI Bangladesh is a **research prototype** developed for the SciBlitz AI Chal
 ---
 
 *Last updated: June 2026 | Submission deadline: July 1, 2026*
+
+<!-- Last redeploy: 2026-05-25T12:19Z -->
