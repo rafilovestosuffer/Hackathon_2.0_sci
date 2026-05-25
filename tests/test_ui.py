@@ -661,7 +661,7 @@ class TestBusinessModel:
             from ui.components import render_business_model
             render_business_model()
             html = _captured_html(mock_st.markdown)
-            assert "Telemedicine revenue share" in html
+            assert "Teleconsult service fee" in html
             assert "NRB Sponsor-a-District" in html
             assert "grants" in html.lower()
 
@@ -768,3 +768,158 @@ class TestNRBSponsor:
             html = _captured_html(mock_st.markdown)
             assert "BMANA" in html
             assert "Probashi Kallyan Bank" in html
+
+
+# ── Round 2: explainability, privacy, architecture, KPI strip ──────────────────
+
+class TestPrivacyBadge:
+    def test_renders_without_error(self):
+        with patch("ui.components.st") as mock_st:
+            from ui.components import render_privacy_badge
+            render_privacy_badge()
+            assert mock_st.markdown.called
+
+    def test_states_no_persistence(self):
+        with patch("ui.components.st") as mock_st:
+            from ui.components import render_privacy_badge
+            render_privacy_badge()
+            html = _captured_html(mock_st.markdown)
+            assert "Privacy by design" in html
+            assert "do not save it" in html
+
+    def test_bilingual(self):
+        with patch("ui.components.st") as mock_st:
+            from ui.components import render_privacy_badge
+            render_privacy_badge()
+            html = _captured_html(mock_st.markdown)
+            # Bengali text must be present
+            assert "ব্রাউজার সেশনে" in html
+
+
+class TestTechDecisions:
+    def test_renders_all_four_decisions(self):
+        with patch("ui.components.st") as mock_st:
+            from ui.components import render_tech_decisions
+            render_tech_decisions()
+            html = _captured_html(mock_st.markdown)
+            for needle in [
+                "Swin Transformer Base + CBAM",
+                "INT8 dynamic quantisation",
+                "4-signal severity engine",
+                "Gemini 1.5 Flash",
+                "FAISS",
+            ]:
+                assert needle in html, f"missing decision: {needle}"
+
+    def test_each_decision_has_metric(self):
+        with patch("ui.components.st") as mock_st:
+            from ui.components import render_tech_decisions
+            render_tech_decisions()
+            html = _captured_html(mock_st.markdown)
+            assert "92.46%" in html
+            assert "1.8 s" in html
+
+
+class TestArchitectureDiagram:
+    def test_renders_without_error(self):
+        with patch("ui.components.st") as mock_st:
+            from ui.components import render_architecture_diagram
+            render_architecture_diagram()
+            assert mock_st.markdown.called
+
+    def test_includes_three_columns(self):
+        with patch("ui.components.st") as mock_st:
+            from ui.components import render_architecture_diagram
+            render_architecture_diagram()
+            html = _captured_html(mock_st.markdown)
+            assert "Inputs" in html
+            assert "Processing" in html
+            assert "Outputs" in html
+
+    def test_includes_key_pipeline_components(self):
+        with patch("ui.components.st") as mock_st:
+            from ui.components import render_architecture_diagram
+            render_architecture_diagram()
+            html = _captured_html(mock_st.markdown)
+            for component in [
+                "faster-whisper",
+                "BD-SkinNet INT8",
+                "4-signal severity engine",
+                "FAISS-CPU",
+                "Overpass API",
+                "reportlab",
+            ]:
+                assert component in html, f"missing component: {component}"
+
+    def test_includes_modularity_statement(self):
+        with patch("ui.components.st") as mock_st:
+            from ui.components import render_architecture_diagram
+            render_architecture_diagram()
+            html = _captured_html(mock_st.markdown)
+            assert "Modularity" in html
+
+
+class TestImpactKPIStrip:
+    def _patched_st(self, mock_st, session=None):
+        if session is None:
+            session = {}
+        mock_st.session_state = session
+        return mock_st
+
+    def test_renders_with_no_prediction(self):
+        with patch("ui.components.st") as mock_st:
+            self._patched_st(mock_st)
+            from ui.components import render_impact_kpi_strip
+            render_impact_kpi_strip(prediction_id=None)
+            assert mock_st.markdown.called
+            html = _captured_html(mock_st.markdown)
+            # System metrics always present
+            assert "92.46%" in html
+            assert "402" in html
+
+    def test_session_counter_increments_on_new_prediction(self):
+        with patch("ui.components.st") as mock_st:
+            session = {}
+            self._patched_st(mock_st, session)
+            from ui.components import render_impact_kpi_strip
+            render_impact_kpi_strip(prediction_id="Tinea-0.85-22.5")
+            assert session.get("_kpi_session_screenings") == 1
+            # Same id again — no increment
+            render_impact_kpi_strip(prediction_id="Tinea-0.85-22.5")
+            assert session.get("_kpi_session_screenings") == 1
+            # New id — increments
+            render_impact_kpi_strip(prediction_id="Scabies-0.38-45.0")
+            assert session.get("_kpi_session_screenings") == 2
+
+    def test_phase_1_target_visible(self):
+        with patch("ui.components.st") as mock_st:
+            self._patched_st(mock_st)
+            from ui.components import render_impact_kpi_strip
+            render_impact_kpi_strip(prediction_id=None)
+            html = _captured_html(mock_st.markdown)
+            assert "Phase 1 pilot target" in html
+            assert "200 patients" in html
+
+
+class TestEthicsCardCompliance:
+    """Verifies the Item 4 compliance line was added to render_ethics_card."""
+
+    def test_compliance_section_present(self):
+        with patch("ui.components.st") as mock_st:
+            from ui.components import render_ethics_card
+            render_ethics_card()
+            html = _captured_html(mock_st.markdown)
+            assert "International standards alignment" in html
+
+    def test_compliance_mentions_named_standards(self):
+        with patch("ui.components.st") as mock_st:
+            from ui.components import render_ethics_card
+            render_ethics_card()
+            html = _captured_html(mock_st.markdown)
+            for standard in [
+                "Bangladesh Digital Security Act",
+                "WHO Ethics",
+                "GDPR Article 22",
+                "WHO South-East Asia",
+            ]:
+                assert standard in html, f"missing standard: {standard}"
