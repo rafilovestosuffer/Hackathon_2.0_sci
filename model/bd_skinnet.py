@@ -117,7 +117,7 @@ class BDSkinNet(nn.Module):
 
 def load_model(checkpoint_path: str, device: str = "cpu") -> BDSkinNet:
     """Loads FP32 or INT8 quantized checkpoint."""
-    ckpt = torch.load(checkpoint_path, map_location=device)
+    ckpt = torch.load(checkpoint_path, map_location=device, weights_only=False)
     is_quantized = ckpt.get("quantized", False)
 
     model = BDSkinNet()

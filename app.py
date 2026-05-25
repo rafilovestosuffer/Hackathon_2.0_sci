@@ -101,19 +101,68 @@ def _load_rag_index():
     return load_index()
 
 
-# ── Model inference placeholder ───────────────────────────────────────────────
-# ⚠️  CHECKPOINT NOT YET PROVIDED — plug in real inference here when ready.
+# ── BD-SkinNet model loader + inference ──────────────────────────────────────
+
+_HF_REPO     = "rafiurrahman01/bd-skinnet"
+_HF_FILENAME = "bd_skinnet_int8.pth"
+
+
+@st.cache_resource(show_spinner="Loading BD-SkinNet model…")
+def _load_bd_skinnet():
+    """Download INT8 checkpoint from HF Hub (cached for the session lifetime)."""
+    try:
+        from huggingface_hub import hf_hub_download
+        from model.bd_skinnet import load_model
+        ckpt_path = hf_hub_download(repo_id=_HF_REPO, filename=_HF_FILENAME)
+        return load_model(ckpt_path)
+    except Exception as exc:
+        logger.warning("BD-SkinNet load failed: %s", exc)
+        return None
+
 
 def _run_model(pil_img: Image.Image) -> dict:
+    from model.bd_skinnet import predict, inference_transform
+    from model.gradcam import compute_gradcam
+    from model.disease_labels import CLASS_NAMES
+
+    model = _load_bd_skinnet()
+    if model is None:
+        return {
+            "disease":      "Tinea",
+            "confidence":   0.82,
+            "top2": [
+                {"disease": "Tinea",              "confidence": 0.82},
+                {"disease": "Contact_Dermatitis", "confidence": 0.11},
+            ],
+            "heatmap":      None,
+            "coverage_pct": 22.5,
+        }
+
+    result = predict(model, pil_img)
+
+    # GradCAM++ — quantized INT8 models don't support backprop so this may
+    # gracefully fail; heatmap becomes None and the UI shows a placeholder.
+    heatmap_img  = None
+    coverage_pct = 0.0
+    try:
+        img_np      = np.array(pil_img.convert("RGB"))
+        tensor      = inference_transform(image=img_np)["image"].unsqueeze(0)
+        top_idx     = CLASS_NAMES.index(result["disease_class"])
+        cam_result  = compute_gradcam(model, tensor, target_class=top_idx)
+        heatmap_img  = cam_result["overlay"]   # (H,W,3) uint8 RGB
+        coverage_pct = cam_result["coverage_pct"]
+    except Exception as exc:
+        logger.warning("GradCAM failed (expected for INT8 model): %s", exc)
+
     return {
-        "disease":      "Tinea",
-        "confidence":   0.82,
+        "disease":      result["disease_class"],
+        "confidence":   result["confidence"],
         "top2": [
-            {"disease": "Tinea",              "confidence": 0.82},
-            {"disease": "Contact_Dermatitis", "confidence": 0.11},
+            {"disease": t["class"], "confidence": t["confidence"]}
+            for t in result["top2"]
         ],
-        "heatmap":      None,
-        "coverage_pct": 22.5,
+        "heatmap":      heatmap_img,
+        "coverage_pct": coverage_pct,
     }
 
 
