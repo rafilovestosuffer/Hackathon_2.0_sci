@@ -86,7 +86,7 @@ def _render_medeasy_section(medicines: list) -> None:
 # ── Demo consultation transcript (Rahim — Tinea Corporis) ─────────────────────
 # Matches the demo_consultation_summary.pdf exactly so judges see end-to-end.
 
-DEMO_TRANSCRIPT = """ডাক্তার: আসুন রহিম ভাই, বসুন। আজকের SkinAI রিপোর্ট দেখলাম — বাম হাতে টিনিয়া কর্পোরিস, ৮২% নিশ্চিত। আপনার সমস্যা কতদিন ধরে?
+DEMO_TRANSCRIPT = """ডাক্তার: আজকের SkinAI রিপোর্ট দেখলাম — বাম হাতে টিনিয়া কর্পোরিস, ৮২% নিশ্চিত। আপনার সমস্যা কতদিন ধরে?
 
 রহিম: ডাক্তার সাহেব, তিন সপ্তাহ হয়ে গেছে। গোলাকার লাল দাগ, চুলকানি অনেক। বাড়িতে নারকেল তেল দিয়েছিলাম কিন্তু কোনো কাজ হয়নি।
 
