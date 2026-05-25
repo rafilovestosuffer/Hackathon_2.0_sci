@@ -266,8 +266,6 @@ def _tab_demo_video() -> str | None:
         with st.expander("📄 View demo transcript", expanded=False):
             st.text(DEMO_TRANSCRIPT)
 
-    _render_medeasy_section(st.session_state.get("prescribed_medicines_list", []))
-
     return None
 
 
