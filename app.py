@@ -28,6 +28,11 @@ from ui.components import (
     render_referral_download_button,
     check_image_quality,
     bn_en,
+    render_fairness_disclosure,
+    render_business_model,
+    render_ethics_card,
+    render_scalability_roadmap,
+    render_nrb_sponsor,
 )
 from ui.doctor_booking import render_doctor_booking_tab
 from ui.consultation_room import render_consultation_room
@@ -381,12 +386,13 @@ st.markdown(
 
 
 # ── Tabs ──────────────────────────────────────────────────────────────────────
-tab1, tab2, tab3, tab4, tab5 = st.tabs([
+tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
     "Diagnosis · রোগ নির্ণয়",
     "Ask AI · প্রশ্ন করুন",
     "Referral · রেফারেল পত্র",
     "Disease Insights · রোগ-পরিচিতি",
     "Book Doctor · ডাক্তার বুকিং",
+    "Impact & Ethics · প্রভাব ও নীতি",
 ])
 
 
@@ -848,6 +854,7 @@ with tab1:
 
             # Disease result card
             render_disease_card(pred["disease"], pred["confidence"], pred["top2"])
+            render_fairness_disclosure()
 
         else:
             # No new upload — show the demo photo + cached results if a demo
@@ -868,6 +875,7 @@ with tab1:
                         unsafe_allow_html=True,
                     )
                 render_disease_card(pred["disease"], pred["confidence"], pred["top2"])
+                render_fairness_disclosure()
             elif not _demo_path:
                 st.markdown(
                     '<div style="background:#F8FAFC;border:1.5px dashed #E2E8F0;border-radius:10px;'
@@ -1423,11 +1431,44 @@ with tab5:
 
 
 # ══════════════════════════════════════════════════════════════════════════════
+# TAB 6 — Impact, Ethics & Roadmap (Infinity AI BuildFest submission content)
+# ══════════════════════════════════════════════════════════════════════════════
+with tab6:
+    st.markdown(
+        '<div style="background:linear-gradient(135deg,#1A6FA8 0%,#0D9E75 100%);'
+        'color:white;border-radius:14px;padding:1.1rem 1.4rem;margin-bottom:1rem;">'
+        '<div style="font-size:1.05rem;font-weight:800;letter-spacing:0.01em;">'
+        'Impact, Ethics &amp; Roadmap</div>'
+        '<div style="font-size:0.82rem;opacity:0.92;margin-top:0.3rem;line-height:1.55;">'
+        'How SkinAI Bangladesh sustains itself, the safeguards behind every prediction, '
+        'the 12-month plan to reach eight districts, and how the diaspora can fund it.'
+        '</div></div>',
+        unsafe_allow_html=True,
+    )
+
+    _t6a, _t6b, _t6c, _t6d = st.tabs([
+        "Business Model",
+        "Ethics & Model Card",
+        "Scalability",
+        "NRB Collaboration",
+    ])
+    with _t6a:
+        render_business_model()
+    with _t6b:
+        render_ethics_card()
+    with _t6c:
+        render_scalability_roadmap()
+    with _t6d:
+        render_nrb_sponsor()
+
+
+# ══════════════════════════════════════════════════════════════════════════════
 # APP FOOTER
 # ══════════════════════════════════════════════════════════════════════════════
 st.markdown(
     '<div class="app-footer">'
-    'SciBlitz AI Challenge 2026 · IEEE SB CUET · Track A: Health &amp; Society'
+    'SkinAI Bangladesh · Right patient → Right doctor → Right time · '
+    'Built for IEEE SB CUET SciBlitz &amp; Infinity AI BuildFest'
     '</div>',
     unsafe_allow_html=True,
 )

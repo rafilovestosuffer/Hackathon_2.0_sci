@@ -20,6 +20,7 @@ pinned: false
 ![Python](https://img.shields.io/badge/python-3.10%2B-blue)
 
 **SciBlitz AI Challenge 2026 — IEEE SB CUET — Track A: Health & Society**
+**Infinity AI BuildFest — Submission**
 
 🎬 **Demo Video:** _[To be recorded — use sidebar Demo Mode buttons for instant preview]_
 

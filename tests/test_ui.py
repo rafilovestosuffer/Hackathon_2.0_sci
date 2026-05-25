@@ -629,3 +629,142 @@ class TestRenderReferralPreview:
     def test_facility_shown(self):
         html = self._call()
         assert "Local Pharmacy" in html
+
+
+# ── Infinity AI BuildFest — Tab 6 helpers ─────────────────────────────────────
+
+class TestFairnessDisclosure:
+    def test_renders_without_error(self):
+        with patch("ui.components.st") as mock_st:
+            from ui.components import render_fairness_disclosure
+            render_fairness_disclosure()
+            assert mock_st.markdown.called
+
+    def test_mentions_fitzpatrick_scope(self):
+        with patch("ui.components.st") as mock_st:
+            from ui.components import render_fairness_disclosure
+            render_fairness_disclosure()
+            html = _captured_html(mock_st.markdown)
+            assert "Fitzpatrick" in html
+
+    def test_disclaims_final_diagnosis(self):
+        with patch("ui.components.st") as mock_st:
+            from ui.components import render_fairness_disclosure
+            render_fairness_disclosure()
+            html = _captured_html(mock_st.markdown)
+            assert "never a final diagnosis" in html
+
+
+class TestBusinessModel:
+    def test_renders_three_streams(self):
+        with patch("ui.components.st") as mock_st:
+            from ui.components import render_business_model
+            render_business_model()
+            html = _captured_html(mock_st.markdown)
+            assert "Telemedicine revenue share" in html
+            assert "NRB Sponsor-a-District" in html
+            assert "grants" in html.lower()
+
+    def test_includes_unit_economics(self):
+        with patch("ui.components.st") as mock_st:
+            from ui.components import render_business_model
+            render_business_model()
+            html = _captured_html(mock_st.markdown)
+            assert "Unit economics" in html
+            assert "Break-even" in html
+
+
+class TestEthicsCard:
+    def test_renders_all_sections(self):
+        with patch("ui.components.st") as mock_st:
+            from ui.components import render_ethics_card
+            render_ethics_card()
+            html = _captured_html(mock_st.markdown)
+            for needle in [
+                "Training data provenance",
+                "Demographic coverage",
+                "Known limitations",
+                "When NOT to use",
+                "Multi-signal safety",
+                "Human-in-the-loop",
+                "Data minimisation",
+            ]:
+                assert needle in html, f"missing section: {needle}"
+
+    def test_names_training_hospitals(self):
+        with patch("ui.components.st") as mock_st:
+            from ui.components import render_ethics_card
+            render_ethics_card()
+            html = _captured_html(mock_st.markdown)
+            assert "Faridpur" in html
+            assert "Rangpur" in html
+
+
+class TestScalabilityRoadmap:
+    def test_renders_three_phases(self):
+        with patch("ui.components.st") as mock_st:
+            from ui.components import render_scalability_roadmap
+            render_scalability_roadmap()
+            html = _captured_html(mock_st.markdown)
+            assert "Phase 1" in html
+            assert "Phase 2" in html
+            assert "Phase 3" in html
+
+    def test_mentions_infrastructure_path(self):
+        with patch("ui.components.st") as mock_st:
+            from ui.components import render_scalability_roadmap
+            render_scalability_roadmap()
+            html = _captured_html(mock_st.markdown)
+            assert "HF Spaces" in html
+            assert "AWS" in html
+
+
+class TestNRBSponsor:
+    def _fresh_state(self):
+        """Patch ui.components.st with a session_state-like dict that supports `in`."""
+        return patch.dict("sys.modules", {})  # no-op; we patch st directly
+
+    def test_seed_pledges_pre_populate_state(self):
+        with patch("ui.components.st") as mock_st:
+            mock_st.session_state = {}
+            mock_st.columns.return_value = [MagicMock(), MagicMock()]
+            mock_form = MagicMock()
+            mock_form.__enter__ = MagicMock(return_value=mock_form)
+            mock_form.__exit__ = MagicMock(return_value=False)
+            mock_st.form.return_value = mock_form
+            mock_st.form_submit_button.return_value = False
+            mock_st.text_input.return_value = ""
+            mock_st.selectbox.return_value = "USA"
+
+            from ui.components import render_nrb_sponsor, _NRB_SEED_PLEDGES
+            render_nrb_sponsor()
+
+            # After render, session_state should contain the seed pledges
+            assert "nrb_pledges" in mock_st.session_state
+            assert len(mock_st.session_state["nrb_pledges"]) >= len(_NRB_SEED_PLEDGES)
+
+    def test_seed_data_has_required_fields(self):
+        from ui.components import _NRB_SEED_PLEDGES
+        assert len(_NRB_SEED_PLEDGES) >= 8
+        for p in _NRB_SEED_PLEDGES:
+            assert {"name", "country", "district", "amount", "seed"}.issubset(p.keys())
+            assert p["seed"] is True
+            assert p["amount"] > 0
+
+    def test_renders_partnership_pathway(self):
+        with patch("ui.components.st") as mock_st:
+            mock_st.session_state = {}
+            mock_st.columns.return_value = [MagicMock(), MagicMock()]
+            mock_form = MagicMock()
+            mock_form.__enter__ = MagicMock(return_value=mock_form)
+            mock_form.__exit__ = MagicMock(return_value=False)
+            mock_st.form.return_value = mock_form
+            mock_st.form_submit_button.return_value = False
+            mock_st.text_input.return_value = ""
+            mock_st.selectbox.return_value = "USA"
+
+            from ui.components import render_nrb_sponsor
+            render_nrb_sponsor()
+            html = _captured_html(mock_st.markdown)
+            assert "BMANA" in html
+            assert "Probashi Kallyan Bank" in html
