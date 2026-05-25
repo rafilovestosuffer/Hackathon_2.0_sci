@@ -55,7 +55,10 @@ st.set_page_config(
 
 inject_css()
 
-# Hide the sidebar UI entirely + use the full viewport width like a real app
+# Hide the sidebar UI + restore the glass-morphism card at a wider max-width.
+# The clinical mesh background defined in ui/styles.py (.stApp) should peek
+# around the edges of a centered translucent white card — this is the design
+# intent. We override only the max-width so the card breathes on big screens.
 st.markdown(
     """
     <style>
@@ -63,18 +66,26 @@ st.markdown(
       div[data-testid="stSidebarCollapsedControl"] { display: none !important; }
       button[kind="header"] { display: none !important; }
 
-      /* Full-width content with comfortable side padding (no narrow cap) */
+      /* Wider card so wide monitors don't feel cramped, but still let the
+         clinical mesh background show at the edges (the glass design). */
       .block-container,
       [data-testid="stAppViewContainer"] .main .block-container {
-        max-width: 100% !important;
-        padding-top: 1rem !important;
-        padding-left: 3rem !important;
-        padding-right: 3rem !important;
+        max-width: 1500px !important;
+        padding-top: 1.4rem !important;
+        padding-left: 2.4rem !important;
+        padding-right: 2.4rem !important;
       }
-      @media (max-width: 900px) {
+      @media (max-width: 1100px) {
         .block-container {
-          padding-left: 1rem !important;
-          padding-right: 1rem !important;
+          max-width: 100% !important;
+          padding-left: 1.4rem !important;
+          padding-right: 1.4rem !important;
+        }
+      }
+      @media (max-width: 700px) {
+        .block-container {
+          padding-left: 0.9rem !important;
+          padding-right: 0.9rem !important;
         }
       }
     </style>
