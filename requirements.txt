@@ -37,6 +37,12 @@ numpy==2.2.6
 # HTTP
 requests==2.32.5
 
+# WhatsApp / Telegram webhook server (zero-cost bot integration)
+fastapi==0.118.0
+uvicorn[standard]==0.34.0
+httpx==0.28.1
+python-multipart==0.0.20
+
 # Text-to-speech (Bengali triage audio readout)
 gTTS>=2.5.0
 

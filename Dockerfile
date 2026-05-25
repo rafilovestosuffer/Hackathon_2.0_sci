@@ -2,10 +2,10 @@ FROM python:3.10-slim
 
 WORKDIR /app
 
-# System dependencies
+# System dependencies — packages.txt + nginx + supervisor for dual-service routing
 COPY packages.txt .
 RUN apt-get update && \
-    apt-get install -y $(cat packages.txt) wget && \
+    apt-get install -y $(cat packages.txt) wget nginx supervisor && \
     rm -rf /var/lib/apt/lists/*
 
 # Download Noto Sans Bengali font for PDF generation
@@ -29,12 +29,12 @@ RUN python -c "from sentence_transformers import SentenceTransformer; SentenceTr
 # Build FAISS index from knowledge base (index files are gitignored; must be built at deploy time)
 RUN python rag/build_index.py || true
 
-# HF Spaces requires port 7860
+# nginx needs to write to these dirs as non-root if HF runs us as non-root
+RUN mkdir -p /tmp/nginx_client_body /var/lib/nginx /var/log/nginx && \
+    chmod -R 777 /tmp /var/lib/nginx /var/log/nginx
+
+# HF Spaces requires port 7860 — nginx terminates here, routes to
+# uvicorn (webhook) on :8000 and streamlit (UI) on :8501 internally.
 EXPOSE 7860
 
-CMD ["streamlit", "run", "app.py", \
-     "--server.port=7860", \
-     "--server.address=0.0.0.0", \
-     "--server.headless=true", \
-     "--server.enableXsrfProtection=false", \
-     "--server.enableCORS=false"]
+CMD ["supervisord", "-c", "/app/deploy/supervisord.conf"]

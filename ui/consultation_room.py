@@ -2,7 +2,7 @@
 ui/consultation_room.py — Post-Booking Consultation Room
 
 Three-mode interface after a doctor appointment is confirmed:
-  Tab 1 — Demo Video:   embed a YouTube/local video + one-click demo transcript
+  Tab 1 — Quick Demo:   one-click demo transcript + pre-built Care Summary PDF
   Tab 2 — Live Audio:   record/upload consultation audio → Whisper → transcript
   Tab 3 — Manual Notes: typed notes fallback
 
@@ -122,81 +122,13 @@ DEMO_TRANSCRIPT = """ডাক্তার: আজকের SkinAI রিপো�
 [Consultation duration: 30 minutes | Date: 2026-05-23 | Dr. Nusrat Jahan — CMCH]"""
 
 
-# ── YouTube / video helpers ───────────────────────────────────────────────────
-
-def _extract_youtube_id(url: str) -> str | None:
-    """Return YouTube video ID from a watch or short URL, or None."""
-    import re
-    patterns = [
-        r"(?:youtube\.com/watch\?v=|youtu\.be/)([A-Za-z0-9_-]{11})",
-        r"youtube\.com/embed/([A-Za-z0-9_-]{11})",
-    ]
-    for pat in patterns:
-        m = re.search(pat, url)
-        if m:
-            return m.group(1)
-    return None
-
-
-def _embed_video(url: str) -> None:
-    """Embed video — YouTube via iframe, everything else via st.video."""
-    yt_id = _extract_youtube_id(url)
-    if yt_id:
-        st.markdown(
-            f'<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;">'
-            f'<iframe style="position:absolute;top:0;left:0;width:100%;height:100%;" '
-            f'src="https://www.youtube.com/embed/{yt_id}?rel=0" '
-            f'frameborder="0" allow="autoplay; encrypted-media" allowfullscreen>'
-            f'</iframe></div>',
-            unsafe_allow_html=True,
-        )
-    else:
-        try:
-            st.video(url)
-        except Exception:
-            st.info("Video could not be loaded. Paste a valid YouTube URL above.")
-
-
-# ── Tab 1 — Demo Video ────────────────────────────────────────────────────────
+# ── Tab 1 — Quick Demo (Care Summary PDF) ────────────────────────────────────
 
 def _tab_demo_video() -> str | None:
     """
-    Show video embed + one-click demo transcript loader.
+    One-click demo transcript loader + pre-built Care Summary PDF download.
     Returns transcript string if demo loaded, else None.
     """
-    st.markdown(
-        "#### 🎬 Demo Consultation Video\n"
-        "Paste your consultation demo video URL below (YouTube link or direct .mp4). "
-        "Then click **Load Demo Transcript** to see the AI-generated PDF instantly."
-    )
-
-    video_url = st.text_input(
-        "Video URL",
-        value=st.session_state.get("demo_video_url", ""),
-        placeholder="https://www.youtube.com/watch?v=YOUR_VIDEO_ID",
-        key="demo_video_url_input",
-        label_visibility="collapsed",
-    )
-
-    if video_url and video_url.strip():
-        st.session_state["demo_video_url"] = video_url.strip()
-        _embed_video(video_url.strip())
-    else:
-        # Placeholder art when no URL set
-        st.markdown(
-            '<div style="background:#f0f4f8;border:2px dashed #aec6cf;border-radius:8px;'
-            'height:220px;display:flex;align-items:center;justify-content:center;'
-            'flex-direction:column;color:#666;font-size:14px;text-align:center;padding:20px;">'
-            '<span style="font-size:40px;">🎥</span><br>'
-            '<b>Paste your YouTube demo video URL above</b><br>'
-            '<span style="font-size:12px;margin-top:6px;">Once you record the Rahim story demo, '
-            'paste the YouTube link here</span>'
-            '</div>',
-            unsafe_allow_html=True,
-        )
-
-    st.markdown("---")
-
     # ── Demo transcript loader + instant PDF download ─────────────────────────
     st.markdown(
         '<div style="background:#EBF5FB;border:1.5px solid #AED6F1;border-radius:10px;'
@@ -461,13 +393,13 @@ def render_consultation_room() -> None:
     st.markdown("## 🏥 পরামর্শ কক্ষ  |  Consultation Room")
     st.markdown(
         "Your appointment is confirmed. Choose how to capture your consultation — "
-        "watch the demo video, record live audio, or type notes. "
+        "try the quick demo, record live audio, or type notes. "
         "The AI will extract your doctor's instructions and generate a take-home PDF."
     )
 
     # Three input modes
     tab_video, tab_audio, tab_manual = st.tabs([
-        "🎬 Demo Video",
+        "📥 Quick Demo",
         "🎙️ Live Recording",
         "📝 Manual Notes",
     ])

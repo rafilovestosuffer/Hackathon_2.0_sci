@@ -173,7 +173,6 @@ _DEFAULTS = {
     "summary_pdf_bytes":             None,
     "prescribed_medicines_list":     [],
     "_generate_pdf_now":             False,
-    "demo_video_url":                "",
     "manual_consultation_notes_text": "",
     "_demo_pdf_bytes":               None,
 }
