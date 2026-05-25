@@ -79,6 +79,36 @@ def health() -> JSONResponse:
     })
 
 
+@app.get("/debug/telegram-getme")
+def debug_telegram_getme() -> JSONResponse:
+    """Confirm container can reach api.telegram.org with the configured token."""
+    import httpx
+    token = os.environ.get("TELEGRAM_BOT_TOKEN", "")
+    if not token:
+        return JSONResponse({"ok": False, "error": "no token"}, status_code=500)
+    try:
+        with httpx.Client(timeout=10.0) as c:
+            r = c.get(f"https://api.telegram.org/bot{token}/getMe")
+        return JSONResponse({"status": r.status_code, "body": r.json()})
+    except Exception as e:
+        return JSONResponse({"ok": False, "error": repr(e), "type": type(e).__name__},
+                            status_code=500)
+
+
+@app.get("/debug/send")
+def debug_send(chat_id: str = "", body: str = "hello from skinai") -> JSONResponse:
+    """Try a direct send_text. Returns the actual exception if it fails."""
+    if not chat_id:
+        return JSONResponse({"error": "pass ?chat_id=..."}, status_code=400)
+    try:
+        from whatsapp import telegram_client
+        result = telegram_client.send_text(chat_id, body)
+        return JSONResponse({"ok": True, "result": result})
+    except Exception as e:
+        return JSONResponse({"ok": False, "error": repr(e),
+                             "type": type(e).__name__}, status_code=500)
+
+
 @app.get("/")
 def root() -> JSONResponse:
     return JSONResponse({
