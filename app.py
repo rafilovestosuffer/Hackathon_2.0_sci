@@ -313,7 +313,7 @@ st.markdown(
     '<div class="hero-banner">'
     '  <div class="hero-glow"></div>'
     '  <div class="hero-glow-2"></div>'
-    '  <div class="hero-title">🩺 SkinAI Bangladesh</div>'
+    '  <div class="hero-title">SkinAI Bangladesh</div>'
     '  <div class="hero-subtitle">'
     '    AI-powered dermatological screening &amp; smart triage for rural Bangladesh'
     '  </div>'
@@ -324,11 +324,10 @@ st.markdown(
     '    <div class="hero-arrow">→</div>'
     '    <div class="hero-step">সঠিক সময়<small>Right Time</small></div>'
     '  </div>'
-    '  <div class="stat-bar">'
-    '    <span class="stat-chip stat-chip-green">🎯 92.46% F1 Score</span>'
-    '    <span class="stat-chip stat-chip-blue">🦠 8 Conditions Detected</span>'
-    '    <span class="stat-chip stat-chip-teal">🏥 BD Clinical Training Data</span>'
-    '    <span class="stat-chip stat-chip-dark">⚡ Real-time AI Triage</span>'
+    '  <div style="margin-top:1.1rem;font-size:0.86rem;color:rgba(226,232,240,0.78);'
+    '              font-weight:400;letter-spacing:0.01em;line-height:1.55;">'
+    '    Swin Transformer + CBAM &nbsp;·&nbsp; 92.46% F1 &nbsp;·&nbsp; '
+    '    trained on Bangladesh clinical data &nbsp;·&nbsp; 8 conditions'
     '  </div>'
     '</div>',
     unsafe_allow_html=True,
@@ -337,11 +336,11 @@ st.markdown(
 
 # ── Tabs ──────────────────────────────────────────────────────────────────────
 tab1, tab2, tab3, tab4, tab5 = st.tabs([
-    "🔬 রোগ নির্ণয়",
-    "💬 প্রশ্ন করুন",
-    "📄 রেফারেল পত্র",
-    "📊 Disease Insights",
-    "📅 ডাক্তার বুকিং",
+    "Diagnosis · রোগ নির্ণয়",
+    "Ask AI · প্রশ্ন করুন",
+    "Referral · রেফারেল পত্র",
+    "Disease Insights · রোগ-পরিচিতি",
+    "Book Doctor · ডাক্তার বুকিং",
 ])
 
 
@@ -349,113 +348,69 @@ tab1, tab2, tab3, tab4, tab5 = st.tabs([
 # TAB 1 — Diagnosis & Triage
 # ══════════════════════════════════════════════════════════════════════════════
 with tab1:
-    # ── Quick Demo Bar ────────────────────────────────────────────────────────
-    st.markdown(
-        '<div style="background:#F0F9FF;border:1px solid #BAE6FD;border-radius:8px;'
-        'padding:0.5rem 0.75rem;margin-bottom:0.75rem;font-size:0.82rem;color:#0369A1;">'
-        '🎬 <strong>No image?</strong> Try instant demo cases below:'
-        '</div>',
-        unsafe_allow_html=True,
-    )
-    _dcol1, _dcol2, _dcol3, _dcol4 = st.columns(4)
-    with _dcol1:
-        if st.button("🟢 Tinea (Tier 1)", use_container_width=True, key="tab_demo_t1"):
-            _dp = _DEMO_CASES["demo_tier1"]["pred"]
-            st.session_state.prediction  = _dp
-            st.session_state.tier_result = compute_tier(_dp["disease"], _dp["confidence"], _dp["coverage_pct"], _DEMO_CASES["demo_tier1"]["transcript"])
-            st.session_state.history     = _DEMO_CASES["demo_tier1"]["history"]
-            st.session_state.transcript  = _DEMO_CASES["demo_tier1"]["transcript"]
-            st.session_state.pdf_bytes   = None
-            st.session_state.booking_confirmed = False
-            st.session_state.booking_details   = None
-            st.session_state.selected_date_idx = None
-            st.session_state.selected_slot     = None
-            _push_history_to_form(_DEMO_CASES["demo_tier1"]["history"])
-            st.rerun()
-    with _dcol2:
-        if st.button("🟡 Eczema (Tier 2)", use_container_width=True, key="tab_demo_t2"):
-            _dp = _DEMO_CASES["demo_tier2"]["pred"]
-            st.session_state.prediction  = _dp
-            st.session_state.tier_result = compute_tier(_dp["disease"], _dp["confidence"], _dp["coverage_pct"], _DEMO_CASES["demo_tier2"]["transcript"])
-            st.session_state.history     = _DEMO_CASES["demo_tier2"]["history"]
-            st.session_state.transcript  = _DEMO_CASES["demo_tier2"]["transcript"]
-            st.session_state.pdf_bytes   = None
-            st.session_state.booking_confirmed = False
-            st.session_state.booking_details   = None
-            st.session_state.selected_date_idx = None
-            st.session_state.selected_slot     = None
-            _push_history_to_form(_DEMO_CASES["demo_tier2"]["history"])
-            st.rerun()
-    with _dcol3:
-        if st.button("🔴 Scabies (Tier 3)", use_container_width=True, key="tab_demo_t3"):
-            _dp = _DEMO_CASES["demo_tier3"]["pred"]
-            st.session_state.prediction  = _dp
-            st.session_state.tier_result = compute_tier(_dp["disease"], _dp["confidence"], _dp["coverage_pct"], _DEMO_CASES["demo_tier3"]["transcript"])
-            st.session_state.history     = _DEMO_CASES["demo_tier3"]["history"]
-            st.session_state.transcript  = _DEMO_CASES["demo_tier3"]["transcript"]
-            st.session_state.pdf_bytes   = None
-            st.session_state.booking_confirmed = False
-            st.session_state.booking_details   = None
-            st.session_state.selected_date_idx = None
-            st.session_state.selected_slot     = None
-            _push_history_to_form(_DEMO_CASES["demo_tier3"]["history"])
-            st.rerun()
-    with _dcol4:
-        if st.button("💚 Normal (Healthy)", use_container_width=True, key="tab_demo_normal"):
-            _dp = _DEMO_CASES["demo_normal"]["pred"]
-            st.session_state.prediction  = _dp
-            st.session_state.tier_result = compute_tier(_dp["disease"], _dp["confidence"], _dp["coverage_pct"], _DEMO_CASES["demo_normal"]["transcript"])
-            st.session_state.history     = _DEMO_CASES["demo_normal"]["history"]
-            st.session_state.transcript  = _DEMO_CASES["demo_normal"]["transcript"]
-            st.session_state.pdf_bytes   = None
-            st.session_state.booking_confirmed = False
-            st.session_state.booking_details   = None
-            st.session_state.selected_date_idx = None
-            st.session_state.selected_slot     = None
-            _push_history_to_form(_DEMO_CASES["demo_normal"]["history"])
-            st.rerun()
+    # ── Try-a-demo expander (collapsed by default so the real workflow leads) ──
+    with st.expander("Try a demo case (skip voice & image)", expanded=False):
+        st.caption(
+            "Instant pre-filled patient. Use these to see the full pipeline "
+            "without recording audio or uploading a photo."
+        )
+        _demo_keys = list(_DEMO_CASES.keys())
+        _demo_cols = st.columns(len(_demo_keys))
+        # Plain text labels — no leading emoji circles, the badge inside the
+        # demo dict already conveys tier/colour via styled cards downstream.
+        _CLEAN_LABELS = {
+            "demo_tier1":  "Tinea · Tier 1",
+            "demo_tier2":  "Eczema · Tier 2",
+            "demo_tier3":  "Scabies · Tier 3",
+            "demo_normal": "Normal · Healthy",
+        }
+        for _col, _dk in zip(_demo_cols, _demo_keys):
+            with _col:
+                _dc = _DEMO_CASES[_dk]
+                if st.button(
+                    _CLEAN_LABELS.get(_dk, _dc["label"]),
+                    use_container_width=True,
+                    help=_dc["help"],
+                    key=f"tab_demo_{_dk}",
+                ):
+                    _dp = _dc["pred"]
+                    st.session_state.prediction  = _dp
+                    st.session_state.tier_result = compute_tier(
+                        _dp["disease"], _dp["confidence"],
+                        _dp["coverage_pct"], _dc["transcript"],
+                    )
+                    st.session_state.history     = _dc["history"]
+                    st.session_state.transcript  = _dc["transcript"]
+                    st.session_state.pdf_bytes   = None
+                    st.session_state.booking_confirmed = False
+                    st.session_state.booking_details   = None
+                    st.session_state.selected_date_idx = None
+                    st.session_state.selected_slot     = None
+                    _push_history_to_form(_dc["history"])
+                    st.rerun()
 
-    st.markdown("---")
     col_left, col_right = st.columns([1, 1], gap="large")
 
     # ── LEFT COLUMN: Voice Input + Patient Data ────────────────────────────────
     with col_left:
         st.markdown(
-            '<div class="card-section-header">'
-            '<span style="font-size:1.1rem;">🎙️</span>'
-            '<div>'
-            '<div class="card-section-title">ভয়েস ইনপুট · Voice Input</div>'
-            '<div class="card-section-sub">(ঐচ্ছিক — optional)</div>'
-            '</div>'
-            '</div>',
+            '<div class="sk-section-h2">Voice Input</div>'
+            '<div class="sk-meta-bn">ভয়েস ইনপুট · optional</div>',
             unsafe_allow_html=True,
         )
-        st.markdown(
-            '<div class="info-box">'
-            '🤖 Speak in <strong>Bengali or English</strong> — AI auto-extracts patient history'
-            '</div>',
-            unsafe_allow_html=True,
+        st.caption(
+            "Speak in Bengali or English. The AI will transcribe and "
+            "extract patient history automatically."
         )
 
         # ── Language selector ─────────────────────────────────────────────────
-        _lang_col1, _lang_col2 = st.columns([1, 2])
-        with _lang_col1:
-            st.markdown(
-                '<div style="font-size:0.78rem;font-weight:600;color:#4A5568;'
-                'padding-top:0.4rem;">🌐 Language:</div>',
-                unsafe_allow_html=True,
-            )
-        with _lang_col2:
-            # Default to Bengali — single-pass, fastest, and matches the BD
-            # rural-clinic use case. Auto-detect is one click away for the
-            # bilingual showcase.
-            _audio_lang_choice = st.selectbox(
-                "Audio language",
-                options=["Bengali (বাংলা)", "English", "Auto-detect"],
-                index=0,
-                key="audio_lang_select",
-                label_visibility="collapsed",
-            )
+        _audio_lang_choice = st.selectbox(
+            "Audio language",
+            options=["Bengali (বাংলা)", "English", "Auto-detect"],
+            index=0,
+            key="audio_lang_select",
+            help="Default Bengali. Auto-detect picks the language for you.",
+        )
         _lang_map = {
             "Auto-detect":        None,
             "Bengali (বাংলা)":    "bn",
@@ -463,128 +418,104 @@ with tab1:
         }
         _selected_lang = _lang_map[_audio_lang_choice]
 
-        # ── Voice tabs: Live Mic (primary) | Upload (backup) | Text ──────────
-        _vtab_mic, _vtab_upload, _vtab_text = st.tabs([
-            "🎙️ Record Voice", "📁 Upload Audio", "✏️ Type Text",
-        ])
-
         audio_bytes = None
         audio_fmt   = "wav"
 
-        with _vtab_mic:
-            st.markdown(
-                '<div style="font-size:0.82rem;color:#4A5568;margin-bottom:0.5rem;">'
-                '🎙️ Click <strong>Start recording</strong>, speak in Bengali or English '
-                'for <strong>at least 3 seconds</strong>, then click <strong>Stop</strong>.</div>'
-                '<div style="font-size:0.72rem;color:#A0AEC0;margin-bottom:0.5rem;">'
-                '🔒 First use: your browser will ask for microphone permission — click <strong>Allow</strong>.<br>'
-                '💡 Tip: speak a full sentence (name, age, symptoms, duration) — '
-                'very short clips are hard to transcribe.</div>',
-                unsafe_allow_html=True,
+        # ── Primary: live microphone recording ───────────────────────────────
+        _mic_available = True
+        try:
+            from streamlit_mic_recorder import mic_recorder
+        except ImportError:
+            _mic_available = False
+            st.warning(
+                "Recorder component not installed. Use the upload/type "
+                "fallback below."
             )
 
-            _mic_available = True
-            try:
-                from streamlit_mic_recorder import mic_recorder
-            except ImportError:
-                _mic_available = False
-                st.warning(
-                    "🎙️ Recorder component not installed. "
-                    "Use **Upload Audio** or **Type Text**, or try the demo clip below."
-                )
-
-            if _mic_available:
-                _mic = mic_recorder(
-                    start_prompt="🔴 Start recording",
-                    stop_prompt="⏹️ Stop recording",
-                    just_once=False,
-                    use_container_width=True,
-                    format="wav",
-                    key="mic_recorder_v2",
-                )
-                if _mic and _mic.get("bytes"):
-                    _mic_bytes = _mic["bytes"]
-                    # 16 kHz mono 16-bit PCM ≈ 32 kB/s; ~50 kB ≈ 1.5 s of speech.
-                    # Shorter than that almost always fails Whisper + VAD.
-                    if len(_mic_bytes) >= 48_000:
-                        audio_bytes = _mic_bytes
-                        audio_fmt   = "wav"
-                        st.audio(audio_bytes, format="audio/wav")
-                        st.success("✅ রেকর্ডিং সম্পন্ন — Transcribing…")
-                    elif len(_mic_bytes) > 500:
-                        st.warning(
-                            "⚠️ Recording too short (<1.5s). Please speak for at "
-                            "least 3 seconds — say your name, age, and symptoms.\n\n"
-                            "রেকর্ডিং খুব ছোট — অন্তত ৩ সেকেন্ড বলুন: নাম, বয়স, লক্ষণ।"
-                        )
-
-            # Champion-mode: sample clip for judges with no mic / silent room
-            with st.expander("🎧 No mic? Try a sample Bengali clip"):
-                from pathlib import Path as _Path
-                _demo_path = _Path(__file__).parent / "assets" / "demo_bn_sample.wav"
-                if _demo_path.exists():
-                    if st.button(
-                        "▶️ Use demo clip (Rahim, 35, itchy rash for 5 days)",
-                        key="demo_clip_btn",
-                        use_container_width=True,
-                    ):
-                        audio_bytes = _demo_path.read_bytes()
-                        audio_fmt   = "wav"
-                        st.audio(audio_bytes, format="audio/wav")
-                        st.success("✅ Demo clip loaded — Transcribing…")
-                else:
-                    st.caption(
-                        "Demo clip not bundled in this build. Use Upload Audio with any "
-                        "Bengali or English WAV/MP3 file instead."
+        if _mic_available:
+            _mic = mic_recorder(
+                start_prompt="Start recording",
+                stop_prompt="Stop recording",
+                just_once=False,
+                use_container_width=True,
+                format="wav",
+                key="mic_recorder_v2",
+            )
+            st.caption(
+                "Speak a full sentence (name, age, symptoms, duration) for "
+                "at least 3 seconds. First use will prompt for mic permission."
+            )
+            if _mic and _mic.get("bytes"):
+                _mic_bytes = _mic["bytes"]
+                if len(_mic_bytes) >= 48_000:
+                    audio_bytes = _mic_bytes
+                    audio_fmt   = "wav"
+                    st.audio(audio_bytes, format="audio/wav")
+                    st.success("Recording captured — transcribing…")
+                elif len(_mic_bytes) > 500:
+                    st.warning(
+                        "Recording too short (<1.5s). Please speak for at "
+                        "least 3 seconds — say your name, age, and symptoms."
                     )
 
-        with _vtab_upload:
-            st.markdown(
-                '<div style="font-size:0.78rem;color:#718096;margin:0.3rem 0 0.4rem 0;">'
-                'Upload a voice recording (WAV / MP3 / OGG / M4A / WEBM)</div>',
-                unsafe_allow_html=True,
-            )
-            audio_file = st.file_uploader(
-                "Upload audio",
-                type=["wav", "mp3", "ogg", "webm", "m4a"],
-                key="audio_file",
-                label_visibility="collapsed",
-            )
-            if audio_file is not None:
-                audio_bytes = audio_file.read()
-                audio_fmt   = audio_file.name.rsplit(".", 1)[-1].lower()
-                if audio_bytes:
-                    st.audio(audio_bytes, format=f"audio/{audio_fmt}")
-                    st.success("✅ অডিও আপলোড সম্পন্ন — Audio received, transcribing…")
+        # ── Fallback options collapsed by default ────────────────────────────
+        with st.expander("Can't use a microphone?  Upload audio or type instead.", expanded=False):
+            _fb_upload, _fb_text = st.tabs(["Upload audio file", "Type the history"])
 
-        with _vtab_text:
-            st.markdown(
-                '<div style="font-size:0.78rem;color:#718096;margin:0.3rem 0 0.4rem 0;">'
-                'বাংলায় বা ইংরেজিতে লিখুন · Type in Bengali or English</div>',
-                unsafe_allow_html=True,
-            )
-            _manual = st.text_area(
-                "Patient history",
-                value=st.session_state.get("manual_transcript_val", ""),
-                placeholder=(
-                    "Bengali: যেমন — আমার নাম রহিম, বয়স ৩৫। সারা শরীলে চুলকানি হচ্ছে, জ্বর আছে, ৫ দিন ধরে...\n"
-                    "English: My name is Rahim, age 35. I have itching all over, fever, for 5 days..."
-                ),
-                key="manual_transcript",
-                label_visibility="collapsed",
-                height=110,
-            )
-            if st.button("✅ Extract history from text", key="use_manual_btn", use_container_width=True):
-                if _manual.strip():
-                    st.session_state["manual_transcript_val"] = _manual.strip()
-                    st.session_state.transcript = _manual.strip()
-                    with st.spinner("🧠 Extracting patient history…"):
-                        _history = _extract_history(_manual.strip())
-                        st.session_state.history = _history
-                        _push_history_to_form(_history)
-                    st.rerun()
-                else:
-                    st.warning("Please enter some text first.")
+            with _fb_upload:
+                audio_file = st.file_uploader(
+                    "Upload a voice recording",
+                    type=["wav", "mp3", "ogg", "webm", "m4a"],
+                    key="audio_file",
+                    help="Accepted: WAV · MP3 · OGG · M4A · WEBM",
+                )
+                if audio_file is not None:
+                    audio_bytes = audio_file.read()
+                    audio_fmt   = audio_file.name.rsplit(".", 1)[-1].lower()
+                    if audio_bytes:
+                        st.audio(audio_bytes, format=f"audio/{audio_fmt}")
+                        st.success("Audio received — transcribing…")
+
+            with _fb_text:
+                _manual = st.text_area(
+                    "Patient history",
+                    value=st.session_state.get("manual_transcript_val", ""),
+                    placeholder=(
+                        "e.g. My name is Rahim, age 35. Itching all over with "
+                        "fever for 5 days.\n"
+                        "যেমন — আমার নাম রহিম, বয়স ৩৫। সারা শরীরে চুলকানি, জ্বর, ৫ দিন ধরে।"
+                    ),
+                    key="manual_transcript",
+                    height=110,
+                    help="Bengali or English both work.",
+                )
+                if st.button("Extract history from text", key="use_manual_btn", use_container_width=True):
+                    if _manual.strip():
+                        st.session_state["manual_transcript_val"] = _manual.strip()
+                        st.session_state.transcript = _manual.strip()
+                        with st.spinner("Extracting patient history…"):
+                            _history = _extract_history(_manual.strip())
+                            st.session_state.history = _history
+                            _push_history_to_form(_history)
+                        st.rerun()
+                    else:
+                        st.warning("Please enter some text first.")
+
+            # Bundled sample clip for judges in a silent room
+            from pathlib import Path as _Path
+            _demo_path = _Path(__file__).parent / "assets" / "demo_bn_sample.wav"
+            if _demo_path.exists():
+                st.divider()
+                st.caption("No mic available? Use a pre-recorded Bengali sample:")
+                if st.button(
+                    "Use demo clip (Rahim, 35, itchy rash for 5 days)",
+                    key="demo_clip_btn",
+                    use_container_width=True,
+                ):
+                    audio_bytes = _demo_path.read_bytes()
+                    audio_fmt   = "wav"
+                    st.audio(audio_bytes, format="audio/wav")
+                    st.success("Demo clip loaded — transcribing…")
 
         # ── Process audio if captured (hash-guarded to prevent infinite rerun) ──
         if audio_bytes:
@@ -686,62 +617,66 @@ with tab1:
 
         # ── Patient Data Form — always visible, editable ──────────────────────
         st.markdown(
-            '<div class="card-section-header">'
-            '<span style="font-size:1rem;">👤</span>'
-            '<div>'
-            '<div class="card-section-title" style="font-size:0.95rem;">Patient Data</div>'
-            '<div class="card-section-sub">Auto-filled from voice · Edit as needed</div>'
-            '</div>'
-            '</div>',
+            '<div class="sk-section-h2">Patient Data</div>'
+            '<div class="sk-meta">Auto-filled from voice · edit as needed</div>',
             unsafe_allow_html=True,
         )
+        st.write("")  # small breathing room
 
         _h = st.session_state.history or {}
         _form_col1, _form_col2 = st.columns(2)
         with _form_col1:
             _f_name = st.text_input(
-                "Patient Name · রোগীর নাম",
+                "Patient Name",
                 key="form_patient_name",
-                placeholder="e.g. রহিম / Rahim",
+                placeholder="e.g. Rahim",
+                help="রোগীর নাম",
             )
             _f_complaint = st.text_input(
-                "Chief Complaint · প্রধান সমস্যা",
+                "Chief Complaint",
                 key="form_chief_complaint",
-                placeholder="e.g. চুলকানি / Itching rash",
+                placeholder="e.g. Itching rash",
+                help="প্রধান সমস্যা",
             )
             _f_area = st.text_input(
-                "Affected Area · আক্রান্ত স্থান",
+                "Affected Area",
                 key="form_affected_area",
-                placeholder="e.g. বাহু, পেট / Arm, abdomen",
+                placeholder="e.g. Arm, abdomen",
+                help="আক্রান্ত স্থান",
             )
             _f_duration = st.text_input(
-                "Duration · কতদিন ধরে",
+                "Duration",
                 key="form_duration",
-                placeholder="e.g. ৫ দিন / 5 days",
+                placeholder="e.g. 5 days",
+                help="কতদিন ধরে",
             )
         with _form_col2:
             _f_age = st.text_input(
-                "Patient Age · বয়স",
+                "Patient Age",
                 key="form_patient_age",
-                placeholder="e.g. ৩৫ / 35",
+                placeholder="e.g. 35",
+                help="বয়স",
             )
             _f_symptoms = st.text_input(
                 "Symptoms (comma-separated)",
                 key="form_symptoms",
                 placeholder="e.g. itching, redness, fever",
+                help="লক্ষণসমূহ — কমা দিয়ে আলাদা করুন",
             )
             _f_progression = st.text_input(
-                "Progression · অবস্থার পরিবর্তন",
+                "Progression",
                 key="form_progression",
-                placeholder="e.g. ছড়িয়ে পড়ছে / spreading",
+                placeholder="e.g. spreading",
+                help="অবস্থার পরিবর্তন",
             )
             _f_prev = st.text_input(
-                "Previous Treatment · পূর্ববর্তী চিকিৎসা",
+                "Previous Treatment",
                 key="form_prev_treatment",
-                placeholder="e.g. কোনো চিকিৎসা নেই / None",
+                placeholder="e.g. None",
+                help="পূর্ববর্তী চিকিৎসা",
             )
 
-        if st.button("💾 Save Patient Data", key="save_patient_btn", use_container_width=True):
+        if st.button("Save patient data", key="save_patient_btn", use_container_width=True, type="primary"):
             _syms_raw = st.session_state.get("form_symptoms", "")
             _syms = [s.strip() for s in _syms_raw.split(",") if s.strip()]
             st.session_state.history = {
@@ -768,21 +703,16 @@ with tab1:
     # ── RIGHT COLUMN: Image Upload + Results ───────────────────────────────────
     with col_right:
         st.markdown(
-            '<div class="card-section-header">'
-            '<span style="font-size:1.1rem;">📷</span>'
-            '<div>'
-            '<div class="card-section-title">ছবি আপলোড করুন</div>'
-            '<div class="card-section-sub" style="color:#E67E22;font-weight:600;">(প্রয়োজনীয় — required)</div>'
-            '</div>'
-            '</div>',
+            '<div class="sk-section-h2">Skin Photo</div>'
+            '<div class="sk-meta-bn">ছবি আপলোড করুন · required</div>',
             unsafe_allow_html=True,
         )
 
         image_file = st.file_uploader(
-            "ত্বকের ছবি আপলোড করুন (JPG / PNG)",
+            "Upload a clear photo of the affected skin area",
             type=["jpg", "jpeg", "png", "webp"],
             key="image_upload",
-            label_visibility="collapsed",
+            help="ত্বকের ছবি আপলোড করুন (JPG / PNG / WEBP)",
         )
 
         if image_file is not None:
@@ -860,10 +790,10 @@ with tab1:
             else:
                 st.markdown(
                     '<div style="background:#F8FAFC;border:1.5px dashed #E2E8F0;border-radius:10px;'
-                    'padding:2.5rem 1.5rem;text-align:center;color:#718096;font-size:0.88rem;">'
-                    '<div style="font-size:2.5rem;margin-bottom:0.6rem;">📷</div>'
-                    'আক্রান্ত ত্বকের একটি স্পষ্ট ছবি আপলোড করুন<br>'
-                    '<span style="font-size:0.78rem;">Upload a clear photo of the affected skin area</span>'
+                    'padding:2.2rem 1.5rem;text-align:center;color:#64748B;font-size:0.88rem;">'
+                    'Upload a clear photo of the affected skin area'
+                    '<div style="font-size:0.78rem;color:#94A3B8;margin-top:0.35rem;">'
+                    'আক্রান্ত ত্বকের একটি স্পষ্ট ছবি আপলোড করুন</div>'
                     '</div>',
                     unsafe_allow_html=True,
                 )
@@ -908,24 +838,21 @@ with tab1:
             )
         else:
             _map_config = {
-                1: ("🏪", "#27AE60", "Nearest Pharmacies · নিকটতম ফার্মেসি"),
-                2: ("🏥", "#D68910", "Nearest Upazila Health Complexes · নিকটতম উপজেলা স্বাস্থ্য কমপ্লেক্স"),
-                3: ("🚨", "#C0392B", "Nearest Emergency Hospitals · নিকটতম জরুরি হাসপাতাল"),
+                1: ("Nearest Pharmacies",                "নিকটতম ফার্মেসি"),
+                2: ("Nearest Upazila Health Complexes",  "নিকটতম উপজেলা স্বাস্থ্য কমপ্লেক্স"),
+                3: ("Nearest Emergency Hospitals",       "নিকটতম জরুরি হাসপাতাল"),
             }
-            _icon, _color, _title = _map_config.get(_tr["tier"], _map_config[1])
+            _title, _bn = _map_config.get(_tr["tier"], _map_config[1])
             st.markdown(
-                f'<div class="card-section-header" style="margin-top:0.25rem;">'
-                f'<span style="font-size:1.1rem;color:{_color};">{_icon}</span>'
-                f'<div>'
-                f'<div class="card-section-title" style="color:{_color};">{_title}</div>'
-                f'</div>'
-                f'</div>',
+                f'<div class="sk-section-h2" style="margin-top:0.6rem;">{_title}</div>'
+                f'<div class="sk-meta-bn">{_bn}</div>',
                 unsafe_allow_html=True,
             )
             district = st.text_input(
-                "Enter your district (e.g. Rangpur, Dhaka, Chittagong):",
+                "Your district",
                 key="district_input",
-                placeholder="Type district name…",
+                placeholder="e.g. Rangpur, Dhaka, Chittagong",
+                help="জেলার নাম লিখুন",
             )
             if district:
                 coords   = get_district_coords(district)
@@ -985,13 +912,13 @@ with tab2:
 
     st.markdown(
         '<div class="chat-outer-info">'
-        '<span>📚 Answers grounded in:</span>'
+        '<span>Answers grounded in:</span>'
         '<span class="info-source-pill">CDC</span>'
         '<span class="info-source-pill">NIH</span>'
         '<span class="info-source-pill">WHO</span>'
         '<span class="info-source-pill">DGHS Bangladesh</span>'
         '<span style="margin-left:auto;font-size:0.75rem;color:#4A5568;">'
-        'ওষুধের পরামর্শ দেওয়া হয় না · শুধু শিক্ষামূলক তথ্য</span>'
+        'Educational only — no medicine recommendations</span>'
         '</div>',
         unsafe_allow_html=True,
     )
@@ -1004,9 +931,8 @@ with tab2:
         _conf_pct           = int(_p["confidence"] * 100)
         _disease_context_str = f"{_disease_display} ({_conf_pct}% confidence)"
         st.success(
-            f"🩺 **Current diagnosis: {_disease_display}** ({_conf_pct}%) — "
+            f"**Current diagnosis: {_disease_display}** ({_conf_pct}%) — "
             "answering questions in this clinical context.",
-            icon="🩺",
         )
 
     # ── Chat history (native st.chat_message — auto-scroll, accessible) ─────────
@@ -1014,27 +940,25 @@ with tab2:
         with st.chat_message(_msg["role"]):
             st.markdown(_msg["content"])
             if _msg["role"] == "assistant":
-                st.caption("📚 CDC · NIH · WHO · DGHS Bangladesh")
+                st.caption("CDC · NIH · WHO · DGHS Bangladesh")
 
     if st.session_state.chat_history:
-        if st.button("🗑️ Clear Chat", key="clear_chat_btn"):
+        if st.button("Clear chat", key="clear_chat_btn"):
             st.session_state.chat_history = []
             st.session_state.rag_answer   = ""
             st.rerun()
     else:
         # Empty state
         st.markdown(
-            '<div class="chat-empty" style="text-align:center;padding:1.5rem 0;">'
-            '<div style="font-size:2rem;margin-bottom:0.4rem;">💬</div>'
-            '<div style="font-weight:600;color:#4A5568;">ত্বকের রোগ সম্পর্কে প্রশ্ন করুন</div>'
-            '<div style="font-size:0.78rem;color:#A0AEC0;">'
-            'Ask about skin conditions in Bengali or English</div>'
+            '<div class="chat-empty" style="text-align:center;padding:1.4rem 0 0.6rem 0;">'
+            '<div style="font-weight:600;color:#1A202C;font-size:1rem;">'
+            'Ask about skin conditions</div>'
+            '<div class="sk-meta-bn" style="color:#94A3B8;">ত্বকের রোগ সম্পর্কে প্রশ্ন করুন</div>'
             '</div>',
             unsafe_allow_html=True,
         )
         st.markdown(
-            '<div style="font-size:0.82rem;font-weight:600;color:#4A5568;'
-            'margin:0.5rem 0 0.35rem 0;">সাজেস্টেড প্রশ্ন · Suggested Questions</div>',
+            '<div class="sk-section-h3" style="margin-top:0.8rem;">Suggested questions</div>',
             unsafe_allow_html=True,
         )
         _suggested = render_suggested_questions([
@@ -1092,53 +1016,44 @@ with tab2:
 # TAB 3 — Referral Letter PDF
 # ══════════════════════════════════════════════════════════════════════════════
 with tab3:
-    # ── Demo PDF — always visible, no pipeline run required ───────────────────
-    st.markdown(
-        '<div style="background:#F0FDF4;border:1.5px solid #86EFAC;border-radius:10px;'
-        'padding:0.75rem 1rem;margin-bottom:0.9rem;">'
-        '<div style="font-weight:700;font-size:0.88rem;color:#15803D;margin-bottom:0.2rem;">'
-        '📋 Demo Consultation PDF — সম্পূর্ণ নমুনা দেখুন</div>'
-        '<div style="font-size:0.78rem;color:#166534;">'
-        'Download a fully-populated sample referral letter (Rahim, Scabies Tier 3 + doctor booking) '
-        '— no image or audio needed.</div>'
-        '</div>',
-        unsafe_allow_html=True,
-    )
-    _demo_col1, _demo_col2 = st.columns([2, 1])
-    with _demo_col1:
-        if st.button(
-            "📋 Generate Demo Consultation PDF",
-            use_container_width=True,
-            key="gen_demo_pdf_btn",
-        ):
-            with st.spinner("📄 Building demo PDF…"):
-                try:
-                    from pdf_gen.referral import generate_demo_consultation_pdf
-                    st.session_state["_demo_pdf_bytes"] = generate_demo_consultation_pdf()
-                    st.toast("✅ Demo PDF ready!", icon="📋")
-                except Exception as _e:
-                    st.error(f"Demo PDF failed: {_e}")
-    with _demo_col2:
-        _demo_pdf = st.session_state.get("_demo_pdf_bytes")
-        if _demo_pdf:
-            st.download_button(
-                label="📥 ডাউনলোড করুন · Download",
-                data=_demo_pdf,
-                file_name="skinai_demo_consultation.pdf",
-                mime="application/pdf",
+    # ── Sample PDF — collapsed, available without running the pipeline ───────
+    with st.expander("Download a sample referral letter (no diagnosis needed)", expanded=False):
+        st.caption(
+            "Fully-populated example: Rahim · Scabies Tier 3 · with doctor booking. "
+            "Generates instantly so judges can see the format."
+        )
+        _demo_col1, _demo_col2 = st.columns([2, 1])
+        with _demo_col1:
+            if st.button(
+                "Generate sample PDF",
                 use_container_width=True,
-                key="dl_demo_pdf_btn",
-                type="primary",
-            )
-        else:
-            st.button(
-                "📥 ডাউনলোড করুন · Download",
-                use_container_width=True,
-                disabled=True,
-                key="dl_demo_pdf_disabled",
-            )
-
-    st.markdown("---")
+                key="gen_demo_pdf_btn",
+            ):
+                with st.spinner("Building sample PDF…"):
+                    try:
+                        from pdf_gen.referral import generate_demo_consultation_pdf
+                        st.session_state["_demo_pdf_bytes"] = generate_demo_consultation_pdf()
+                    except Exception as _e:
+                        st.error(f"Sample PDF failed: {_e}")
+        with _demo_col2:
+            _demo_pdf = st.session_state.get("_demo_pdf_bytes")
+            if _demo_pdf:
+                st.download_button(
+                    label="Download sample",
+                    data=_demo_pdf,
+                    file_name="skinai_demo_consultation.pdf",
+                    mime="application/pdf",
+                    use_container_width=True,
+                    key="dl_demo_pdf_btn",
+                    type="primary",
+                )
+            else:
+                st.button(
+                    "Download sample",
+                    use_container_width=True,
+                    disabled=True,
+                    key="dl_demo_pdf_disabled",
+                )
 
     pred    = st.session_state.prediction
     tier    = st.session_state.tier_result
@@ -1147,15 +1062,13 @@ with tab3:
     if pred and tier and tier.get("tier") == 0:
         # ── Tier 0: Healthy skin — no referral needed ─────────────────────────
         st.markdown(
-            '<div style="background:#E8FDF1;border:2px solid #6FCFA5;border-radius:14px;'
-            'padding:2rem;text-align:center;margin:1rem 0;">'
-            '<div style="font-size:3.5rem;margin-bottom:0.6rem;">💚</div>'
-            '<div style="font-size:1.3rem;font-weight:800;color:#064E3B;margin-bottom:0.4rem;">'
-            'ত্বক স্বাভাবিক · Skin Appears Healthy</div>'
-            '<div style="font-size:0.9rem;color:#065F46;margin-bottom:0.3rem;">'
-            'আপনার ত্বকে কোনো রোগের লক্ষণ পাওয়া যায়নি।</div>'
-            '<div style="font-size:0.84rem;color:#047857;">'
-            'No skin disease detected. No referral letter is needed.<br>'
+            '<div style="background:#E8FDF1;border:1.5px solid #6FCFA5;border-radius:14px;'
+            'padding:1.6rem 2rem;text-align:center;margin:1rem 0;">'
+            '<div style="font-size:1.15rem;font-weight:700;color:#064E3B;margin-bottom:0.4rem;">'
+            'Skin appears healthy</div>'
+            '<div class="sk-meta-bn" style="color:#065F46;">ত্বক স্বাভাবিক</div>'
+            '<div style="font-size:0.86rem;color:#047857;margin-top:0.6rem;">'
+            'No skin disease detected — no referral letter is needed.<br>'
             'If symptoms develop or persist, please consult a doctor.</div>'
             '</div>',
             unsafe_allow_html=True,
@@ -1167,7 +1080,7 @@ with tab3:
 
         st.markdown("<br>", unsafe_allow_html=True)
 
-        # ── Generate buttons ───────────────────────────────────────────────────
+        # ── Single primary action: radio + Generate ───────────────────────────
         from model.disease_labels import get_bengali as _get_bn
         _session_data = {
             **history,
@@ -1185,42 +1098,30 @@ with tab3:
             "transcript":      st.session_state.transcript,
             "hospital_name":    (st.session_state.nearest_hospital or {}).get("name", ""),
             "hospital_address": (st.session_state.nearest_hospital or {}).get("address", ""),
-            # Doctor booking — injected into PDF Section 4 when confirmed
             "booking_confirmed": st.session_state.get("booking_confirmed", False),
             "booking_details":   st.session_state.get("booking_details"),
         }
 
-        _pdf_col1, _pdf_col2 = st.columns(2)
-        with _pdf_col1:
-            if st.button(
-                "📋 Full Referral Letter",
-                use_container_width=True,
-                type="primary",
-                key="gen_pdf_btn",
-            ):
-                with st.spinner("📄 Generating PDF…"):
-                    try:
+        _pdf_type = st.radio(
+            "Document type",
+            options=["Full referral letter", "CHW referral slip (1 page)"],
+            horizontal=True,
+            key="pdf_type_choice",
+            help="The CHW slip is a simplified one-pager for community health workers.",
+        )
+
+        if st.button("Generate PDF", use_container_width=True, type="primary", key="gen_pdf_btn"):
+            with st.spinner("Generating PDF…"):
+                try:
+                    if _pdf_type.startswith("Full"):
                         st.session_state.pdf_bytes     = generate_referral_pdf(_session_data)
                         st.session_state.chw_pdf_bytes = None
-                        st.toast("✅ Referral letter ready!", icon="📄")
-                    except Exception as e:
-                        st.error(f"PDF generation failed: {e}")
-
-        with _pdf_col2:
-            if st.button(
-                "👩‍⚕️ CHW Referral Slip",
-                use_container_width=True,
-                key="gen_chw_pdf_btn",
-                help="Simple 1-page slip for community health workers",
-            ):
-                with st.spinner("📄 Generating CHW slip…"):
-                    try:
+                    else:
                         from pdf_gen.referral import generate_chw_referral_slip
                         st.session_state.chw_pdf_bytes = generate_chw_referral_slip(_session_data)
                         st.session_state.pdf_bytes     = None
-                        st.toast("✅ CHW slip ready!", icon="👩‍⚕️")
-                    except Exception as e:
-                        st.error(f"CHW slip generation failed: {e}")
+                except Exception as e:
+                    st.error(f"PDF generation failed: {e}")
 
         # ── Download buttons ───────────────────────────────────────────────────
         render_referral_download_button(st.session_state.pdf_bytes)
@@ -1228,12 +1129,13 @@ with tab3:
         _chw_pdf = st.session_state.get("chw_pdf_bytes")
         if _chw_pdf is not None:
             st.download_button(
-                label="📥 CHW Referral Slip ডাউনলোড করুন · Download CHW Slip (PDF)",
+                label="Download CHW slip (PDF)",
                 data=_chw_pdf,
                 file_name="skinai_chw_slip.pdf",
                 mime="application/pdf",
                 use_container_width=True,
                 key="dl_chw_btn",
+                type="primary",
             )
 
     else:
@@ -1256,19 +1158,18 @@ with tab3:
 
         st.markdown(
             f'<div class="referral-empty">'
-            f'<div style="font-size:3rem;margin-bottom:0.75rem;">📋</div>'
-            f'<div style="font-weight:700;font-size:1.1rem;color:#1A202C;margin-bottom:0.3rem;">'
-            f'রেফারেল পত্র পেতে রোগ নির্ণয় সম্পন্ন করুন</div>'
-            f'<div style="font-size:0.84rem;color:#718096;margin-bottom:1.2rem;">'
-            f'Complete the steps below to generate your referral letter</div>'
+            f'<div style="font-weight:700;font-size:1.05rem;color:#1A202C;margin-bottom:0.2rem;">'
+            f'Complete a diagnosis to generate a referral letter</div>'
+            f'<div class="sk-meta-bn">রেফারেল পত্র পেতে রোগ নির্ণয় সম্পন্ন করুন</div>'
+            f'<div style="height:1rem;"></div>'
             f'<div class="referral-progress-row {_c1}">'
-            f'{_d1} 🎙️ Voice input <span style="font-size:0.78rem;color:#A0AEC0;">(optional)</span></div>'
+            f'{_d1} Voice input <span style="font-size:0.78rem;color:#A0AEC0;">(optional)</span></div>'
             f'<div class="referral-progress-row {_c2}">'
-            f'{_d2} 📷 Upload skin image &nbsp;<strong style="color:#1A6FA8;">← Start here</strong></div>'
+            f'{_d2} Upload skin image &nbsp;<strong style="color:#1A6FA8;">← start here</strong></div>'
             f'<div class="referral-progress-row {_c3}">'
-            f'{_d3} 🧠 AI analysis runs automatically</div>'
+            f'{_d3} AI analysis runs automatically</div>'
             f'<div class="referral-progress-row {_c4}">'
-            f'{_d4} 📄 Generate referral letter</div>'
+            f'{_d4} Generate referral letter</div>'
             f'</div>',
             unsafe_allow_html=True,
         )
@@ -1288,15 +1189,11 @@ with tab3:
 # ══════════════════════════════════════════════════════════════════════════════
 with tab4:
     st.markdown(
-        '<div class="card-section-header">'
-        '<span style="font-size:1.1rem;">📊</span>'
-        '<div>'
-        '<div class="card-section-title">Bangladesh Skin Disease Prevalence · Epidemiological Overview</div>'
-        '<div class="card-section-sub">Relative burden levels · WHO SEARO · peer-reviewed literature</div>'
-        '</div>'
-        '</div>',
+        '<div class="sk-section-h2">Bangladesh Skin Disease Prevalence</div>'
+        '<div class="sk-meta">Relative burden levels · WHO SEARO · peer-reviewed literature</div>',
         unsafe_allow_html=True,
     )
+    st.write("")
 
     from map.bd_heatmap import (
         get_all_diseases, get_division_stats, render_prevalence_map,
@@ -1306,12 +1203,22 @@ with tab4:
 
     _diseases = get_all_diseases()
     _disease_options = {d.replace("_", " "): d for d in _diseases}
+    _disease_option_keys = list(_disease_options.keys())
+
+    # Pre-select the most-recent diagnosis (if any) — saves clicks
+    _default_idx = 0
+    _current_pred = (st.session_state.get("prediction") or {}).get("disease", "")
+    if _current_pred:
+        _pretty = _current_pred.replace("_", " ")
+        if _pretty in _disease_option_keys:
+            _default_idx = _disease_option_keys.index(_pretty)
 
     _sel_display = st.selectbox(
-        "Select disease · রোগ বেছে নিন",
-        options=list(_disease_options.keys()),
-        index=0,
+        "Disease",
+        options=_disease_option_keys,
+        index=_default_idx,
         key="epi_disease_select",
+        help="রোগ বেছে নিন",
     )
     _sel_disease = _disease_options[_sel_display]
     _sel_bn      = DISEASE_LABELS_BN.get(_sel_disease, _sel_display)

@@ -239,11 +239,11 @@ section[data-testid="stSidebar"] [data-testid="stExpander"] summary {
 .stTabs [data-baseweb="tab"] {
   font-family: 'Inter', 'Noto Sans Bengali', sans-serif !important;
   font-weight: 500;
-  font-size: 0.88rem;
-  padding: 0.65rem 0;
+  font-size: 0.86rem;
+  padding: 0.55rem 0;
   color: #5B7080 !important;
   border: none !important;
-  border-radius: 10px;
+  border-radius: 8px;
   background: transparent !important;
   flex: 1;
   text-align: center;
@@ -267,9 +267,9 @@ section[data-testid="stSidebar"] [data-testid="stExpander"] summary {
 /* ─── Hero banner ───────────────────────────────────────────────────────────── */
 .hero-banner {
   background: linear-gradient(135deg, #0B1929 0%, #1A3A5C 52%, #0A2E22 100%);
-  border-radius: 22px;
-  padding: 3rem 3rem 2.6rem 3rem;
-  margin-bottom: 1.6rem;
+  border-radius: 18px;
+  padding: 2.2rem 2.6rem 2rem 2.6rem;
+  margin-bottom: 1.4rem;
   position: relative;
   overflow: hidden;
   text-align: center;
@@ -389,6 +389,38 @@ section[data-testid="stSidebar"] [data-testid="stExpander"] summary {
 }
 .card-section-title { font-size: 1.05rem; font-weight: 700; color: var(--c-t1); }
 .card-section-sub   { font-size: 0.75rem; color: var(--c-t3); font-weight: 400; }
+
+/* ─── Professional typography hierarchy (use these instead of inline styles) ─── */
+.sk-section-h2 {
+  font-size: 1.08rem;
+  font-weight: 700;
+  color: var(--c-t1);
+  letter-spacing: -0.005em;
+  margin: 0 0 0.25rem 0;
+  line-height: 1.3;
+}
+.sk-section-h3 {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #64748B;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin: 1rem 0 0.4rem 0;
+}
+.sk-meta {
+  font-size: 0.82rem;
+  color: #64748B;
+  font-weight: 400;
+  line-height: 1.5;
+}
+.sk-meta-bn {
+  font-size: 0.78rem;
+  color: #94A3B8;
+  font-weight: 400;
+  margin-top: 0.15rem;
+  display: block;
+  font-family: 'Noto Sans Bengali', 'Inter', sans-serif;
+}
 
 /* ─── Columns as cards (multiple selector variants for Streamlit compat) ────── */
 [data-testid="stHorizontalBlock"] > [data-testid="column"],

@@ -379,15 +379,12 @@ def _render_emergency_block() -> None:
 def _render_doctor_selection_grid(selected_id: str) -> None:
     """Doctor roster — 3-per-row selection cards."""
     st.markdown(
-        '<div class="card-section-header" style="margin-bottom:0.5rem;">'
-        '<span style="font-size:1.1rem;">🩺</span>'
-        '<div>'
-        '<div class="card-section-title">ডাক্তার বেছে নিন · Choose a Dermatologist</div>'
-        '<div class="card-section-sub">'
-        '৬ জন বিশেষজ্ঞ · Chittagong · Dhaka · Rajshahi · Sylhet · Mymensingh</div>'
-        '</div></div>',
+        '<div class="sk-section-h2">Choose a Dermatologist</div>'
+        '<div class="sk-meta">6 specialists across Chittagong, Dhaka, Rajshahi, Sylhet, Mymensingh</div>'
+        '<div class="sk-meta-bn">ডাক্তার বেছে নিন</div>',
         unsafe_allow_html=True,
     )
+    st.write("")
 
     for row_start in range(0, len(DEMO_DOCTORS), 3):
         row_docs = DEMO_DOCTORS[row_start:row_start + 3]
@@ -540,12 +537,8 @@ def _render_calendar_strip(available_slots: list, doc: dict) -> None:
     )
 
     st.markdown(
-        f'<div class="card-section-header" style="margin-top:0.5rem;">'
-        f'<span style="font-size:1.0rem;">📅</span>'
-        f'<div>'
-        f'<div class="card-section-title">তারিখ বেছে নিন · Select Date</div>'
-        f'<div class="card-section-sub">উপলব্ধ দিন: {avail_days_bn}</div>'
-        f'</div></div>',
+        f'<div class="sk-section-h2" style="margin-top:0.6rem;">Select Date</div>'
+        f'<div class="sk-meta">Available days: {avail_days_bn}</div>',
         unsafe_allow_html=True,
     )
 
@@ -601,13 +594,9 @@ def _render_time_slots(day_data: dict) -> None:
     evening = [s for s in slots if "PM" in s["time_en"]]
 
     st.markdown(
-        f'<div class="card-section-header" style="margin-top:0.75rem;">'
-        f'<span style="font-size:1.0rem;">🕐</span>'
-        f'<div>'
-        f'<div class="card-section-title">সময় বেছে নিন · Select Time</div>'
-        f'<div class="card-section-sub">{day_data["date_display_bn"]} · '
-        f'{day_data["date_display"]}</div>'
-        f'</div></div>',
+        f'<div class="sk-section-h2" style="margin-top:0.75rem;">Select Time</div>'
+        f'<div class="sk-meta">{day_data["date_display_bn"]} · '
+        f'{day_data["date_display"]}</div>',
         unsafe_allow_html=True,
     )
 
@@ -845,16 +834,12 @@ def render_doctor_booking_tab() -> None:
     # ── Tab header ─────────────────────────────────────────────────────────
     fee_range = f"৳{min(d['fee_bdt'] for d in DEMO_DOCTORS)}–{max(d['fee_bdt'] for d in DEMO_DOCTORS)}"
     st.markdown(
-        f'<div class="card-section-header">'
-        f'<span style="font-size:1.1rem;">📅</span>'
-        f'<div>'
-        f'<div class="card-section-title">ডাক্তার বুকিং · Doctor Booking</div>'
-        f'<div class="card-section-sub">'
-        f'সঠিক রোগী → সঠিক ডাক্তার → সঠিক সময় · '
-        f'৬ বিশেষজ্ঞ · Video consultation · {fee_range}</div>'
-        f'</div></div>',
+        f'<div class="sk-section-h2">Doctor Booking</div>'
+        f'<div class="sk-meta">6 specialists · video consultation · {fee_range}</div>'
+        f'<div class="sk-meta-bn">ডাক্তার বুকিং</div>',
         unsafe_allow_html=True,
     )
+    st.write("")
 
     _render_tier_context_banner(tier)
 
@@ -890,13 +875,8 @@ def render_doctor_booking_tab() -> None:
     # ── Patient info ───────────────────────────────────────────────────────
     st.markdown("---")
     st.markdown(
-        '<div class="card-section-header">'
-        '<span style="font-size:1.0rem;">👤</span>'
-        '<div>'
-        '<div class="card-section-title">রোগীর তথ্য · Patient Info</div>'
-        '<div class="card-section-sub">'
-        'শুধুমাত্র অ্যাপয়েন্টমেন্টের জন্য · For appointment only</div>'
-        '</div></div>',
+        '<div class="sk-section-h2">Patient Info</div>'
+        '<div class="sk-meta">For appointment booking only</div>',
         unsafe_allow_html=True,
     )
     _render_patient_info_fields(patient_history)

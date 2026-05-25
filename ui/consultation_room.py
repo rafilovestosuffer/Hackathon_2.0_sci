@@ -209,7 +209,7 @@ def _tab_live_recording() -> str | None:
     Returns transcript string on success, else None.
     """
     st.markdown(
-        "#### 🎙️ Record or Upload Consultation Audio\n"
+        "#### Record or upload consultation audio\n"
         "Record the patient-doctor conversation, or upload an existing audio file. "
         "The Bengali voice AI (Whisper) will transcribe it automatically."
     )
@@ -270,7 +270,7 @@ def _tab_live_recording() -> str | None:
 def _tab_manual_notes() -> str | None:
     """Type/paste consultation notes. Returns transcript string or None."""
     st.markdown(
-        "#### 📝 Type or Paste Consultation Notes\n"
+        "#### Type or paste consultation notes\n"
         "If you don't have a recording, type what the doctor said. "
         "Include medicines, instructions, and follow-up date."
     )
@@ -296,7 +296,8 @@ def _tab_manual_notes() -> str | None:
 def _render_transcript_and_pdf(transcript: str) -> None:
     """Show editable transcript and PDF generation button."""
     st.markdown("---")
-    st.markdown("### 📋 পরামর্শ ট্রান্সক্রিপ্ট | Consultation Transcript")
+    st.markdown("### Consultation Transcript")
+    st.caption("পরামর্শ ট্রান্সক্রিপ্ট")
 
     edited = st.text_area(
         "Review and edit transcript before generating PDF",
@@ -316,7 +317,8 @@ def _render_transcript_and_pdf(transcript: str) -> None:
     )
 
     st.markdown("---")
-    st.markdown("### 📥 পরামর্শ সারসংক্ষেপ PDF | Care Summary PDF")
+    st.markdown("### Care Summary PDF")
+    st.caption("পরামর্শ সারসংক্ষেপ PDF")
 
     info_col, btn_col = st.columns([3, 1])
     with info_col:
@@ -390,7 +392,8 @@ def _render_transcript_and_pdf(transcript: str) -> None:
 def render_consultation_room() -> None:
     """Render the full Consultation Room UI. Call this from app.py Tab 5."""
     st.markdown("---")
-    st.markdown("## 🏥 পরামর্শ কক্ষ  |  Consultation Room")
+    st.markdown("## Consultation Room")
+    st.caption("পরামর্শ কক্ষ")
     st.markdown(
         "Your appointment is confirmed. Choose how to capture your consultation — "
         "try the quick demo, record live audio, or type notes. "

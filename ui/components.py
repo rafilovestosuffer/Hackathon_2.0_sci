@@ -126,7 +126,7 @@ def render_tier_banner(
         f'    <div class="tier-urgency tier-urgency-{t}">{urgency_label}</div>'
         f'    <div class="tier-action">{action_text}</div>'
         f'    <div class="tier-action-bn tier-action-bn-{t}">{bn_text}</div>'
-        f'    <div class="tier-facility">🏥 {facility}</div>'
+        f'    <div class="tier-facility">{facility}</div>'
         f'  </div>'
         f'</div>',
         unsafe_allow_html=True,
@@ -333,7 +333,7 @@ def render_referral_preview(pred: dict, tier_result: dict, history: dict) -> Non
         f'             border-radius:99px;padding:0.15rem 0.65rem;">{tier_label}</span><br>'
         f'      <span style="margin-top:0.3rem;display:block;">{action_en}</span>'
         f'      <span style="font-family:\'Noto Sans Bengali\',sans-serif;color:{tier_color};font-weight:600;">{action_bn}</span><br>'
-        f'      <span style="font-size:0.75rem;color:#718096;">🏥 {facility}</span>'
+        f'      <span style="font-size:0.75rem;color:#718096;">{facility}</span>'
         f'    </div>'
         f'  </div>'
         f'</div>',
@@ -370,10 +370,7 @@ def render_triage_badge(tier_result: dict) -> None:
 def render_gradcam_overlay(heatmap_img, coverage_pct: float) -> None:
     """Render GradCAM heatmap image + coverage bar."""
     st.markdown(
-        '<div class="card-section-header">'
-        '<span style="font-size:1rem;">🔬</span>'
-        '<span class="card-section-title">AI Attention Map — GradCAM++</span>'
-        '</div>',
+        '<div class="sk-section-h2">AI Attention Map · GradCAM++</div>',
         unsafe_allow_html=True,
     )
 
@@ -394,7 +391,7 @@ def render_gradcam_overlay(heatmap_img, coverage_pct: float) -> None:
 
     cov       = max(0.0, min(100.0, coverage_pct))
     bar_color = "#27AE60" if cov <= 40 else "#C0392B"
-    note      = "⚠️ High coverage — escalates severity" if cov > 40 else "✓ Within normal range"
+    note      = "High coverage — escalates severity" if cov > 40 else "Within normal range"
     st.markdown(
         f'<div style="margin-top:0.55rem;">'
         f'  <div style="display:flex;justify-content:space-between;font-size:0.78rem;'
@@ -414,10 +411,8 @@ def render_gradcam_overlay(heatmap_img, coverage_pct: float) -> None:
 def render_patient_history_table(history: dict) -> None:
     """Render voice-extracted patient history as a bilingual chip grid."""
     st.markdown(
-        '<div class="card-section-header">'
-        '<span style="font-size:1rem;">🎙️</span>'
-        '<span class="card-section-title">Patient History · রোগীর ইতিহাস</span>'
-        '</div>',
+        '<div class="sk-section-h2">Patient History</div>'
+        '<div class="sk-meta-bn">রোগীর ইতিহাস</div>',
         unsafe_allow_html=True,
     )
 
@@ -569,18 +564,19 @@ def render_referral_download_button(pdf_bytes) -> None:
     """Native Streamlit download button when PDF available; muted placeholder otherwise."""
     if pdf_bytes is not None:
         st.download_button(
-            label="📥 রেফারেল পত্র ডাউনলোড করুন · Download Referral Letter (PDF)",
+            label="Download referral letter (PDF)",
             data=pdf_bytes,
             file_name="skinai_referral.pdf",
             mime="application/pdf",
             use_container_width=True,
             key="dl_referral_btn",
+            type="primary",
         )
     else:
         st.markdown(
             f'<div style="background:{BORDER_COLOR};border-radius:10px;padding:0.75rem 1rem;'
             f'text-align:center;color:{TEXT_LIGHT};font-size:0.86rem;border:1px solid #CBD5E1;">'
-            f'📄 Complete diagnosis in Tab 1 to generate the referral letter<br>'
+            f'Complete diagnosis in Tab 1 to generate the referral letter<br>'
             f'<span style="font-size:0.76rem;font-family:\'Noto Sans Bengali\',sans-serif;">'
             f'রেফারেল পত্র পেতে প্রথম ট্যাবে রোগ নির্ণয় সম্পন্ন করুন</span>'
             f'</div>',
