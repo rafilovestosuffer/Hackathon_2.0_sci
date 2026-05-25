@@ -227,31 +227,42 @@ section[data-testid="stSidebar"] [data-testid="stExpander"] summary {
 
 /* ─── Tab bar ───────────────────────────────────────────────────────────────── */
 .stTabs [data-baseweb="tab-list"] {
-  background: var(--c-card);
-  border-radius: 0;
-  border-bottom: 2px solid var(--c-border);
-  padding: 0;
-  gap: 0;
-  box-shadow: none;
+  background: #F4F7FB;
+  border-radius: 14px;
+  border: 1.5px solid var(--c-border);
+  padding: 5px;
+  gap: 4px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  display: flex;
+  width: 100%;
 }
 .stTabs [data-baseweb="tab"] {
   font-family: 'Inter', 'Noto Sans Bengali', sans-serif !important;
   font-weight: 500;
-  font-size: 0.92rem;
-  padding: 0.68rem 1.35rem;
-  color: var(--c-t3) !important;
-  border-bottom: 3px solid transparent;
-  border-radius: 0;
+  font-size: 0.88rem;
+  padding: 0.65rem 0;
+  color: #5B7080 !important;
+  border: none !important;
+  border-radius: 10px;
   background: transparent !important;
-  transition: color 0.15s;
+  flex: 1;
+  text-align: center;
+  transition: color 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.stTabs [data-baseweb="tab"]:hover:not([aria-selected="true"]) {
+  color: var(--c-primary) !important;
+  background: rgba(13,110,253,0.07) !important;
 }
 .stTabs [aria-selected="true"] {
   color: var(--c-primary) !important;
   font-weight: 700 !important;
-  border-bottom: 3px solid var(--c-teal) !important;
-  background: white !important;
+  background: #FFFFFF !important;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.10) !important;
+  border: none !important;
 }
-.stTabs [data-baseweb="tab-panel"] { padding-top: 1.2rem; }
+.stTabs [data-baseweb="tab-panel"] { padding-top: 1.4rem; }
 
 /* ─── Hero banner ───────────────────────────────────────────────────────────── */
 .hero-banner {
@@ -530,6 +541,12 @@ div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
   align-items: flex-start;
   gap: 1rem;
 }
+.tier-banner-0 {
+  background: #E8FDF1;
+  border-left: 6px solid #0D9E75;
+  border-top: 1px solid #6FCFA5; border-right: 1px solid #6FCFA5; border-bottom: 1px solid #6FCFA5;
+  box-shadow: 0 4px 20px rgba(13,158,117,0.15);
+}
 .tier-banner-1 {
   background: #F0FBF4;
   border-left: 5px solid #27AE60;
@@ -561,10 +578,12 @@ div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
   padding: 0.12rem 0.6rem;
   margin-bottom: 0.32rem;
 }
+.tier-badge-0 { background: #6FCFA5; color: #064E3B; }
 .tier-badge-1 { background: #A9DFBF; color: #1E8449; }
 .tier-badge-2 { background: #FAD7A0; color: #A04000; }
 .tier-badge-3 { background: #F1948A; color: #922B21; }
 .tier-urgency { font-size: 1.3rem; font-weight: 800; margin-bottom: 0.18rem; line-height: 1.2; }
+.tier-urgency-0 { color: #064E3B; }
 .tier-urgency-1 { color: #1E8449; }
 .tier-urgency-2 { color: #A04000; }
 .tier-urgency-3 { font-size: 1.45rem; color: #C0392B !important; }
@@ -573,6 +592,7 @@ div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
   font-size: 0.88rem; font-weight: 600; margin-top: 0.18rem;
   font-family: 'Noto Sans Bengali', sans-serif !important;
 }
+.tier-action-bn-0 { color: #064E3B; font-weight: 700; }
 .tier-action-bn-1 { color: #1E8449; }
 .tier-action-bn-2 { color: #A04000; }
 .tier-action-bn-3 { color: #922B21; font-weight: 700; }
@@ -862,7 +882,7 @@ div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
   .tier-action, .tier-action-bn { font-size: 0.82rem; }
   .disease-name-en { font-size: 1.15rem; }
   .disease-name-bn { font-size: 0.92rem; }
-  .stTabs [data-baseweb="tab"] { font-size: 0.8rem; padding: 0.5rem 0.6rem; }
+  .stTabs [data-baseweb="tab"] { font-size: 0.72rem; padding: 0.5rem 0.2rem; }
   .history-table td { font-size: 0.78rem; }
   .chat-container { height: 360px; }
   .chat-bubble-user, .chat-bubble-ai { max-width: 90%; font-size: 0.84rem; }
