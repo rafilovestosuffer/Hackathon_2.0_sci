@@ -266,45 +266,84 @@ section[data-testid="stSidebar"] [data-testid="stExpander"] summary {
 
 /* ─── Hero banner ───────────────────────────────────────────────────────────── */
 .hero-banner {
-  background: linear-gradient(135deg, #0B1929 0%, #1A3A5C 55%, #0A2E22 100%);
-  border-radius: 18px;
-  padding: 2.4rem 2.8rem 2rem 2.8rem;
+  background: linear-gradient(135deg, #0B1929 0%, #1A3A5C 52%, #0A2E22 100%);
+  border-radius: 22px;
+  padding: 3rem 3rem 2.6rem 3rem;
   margin-bottom: 1.6rem;
   position: relative;
   overflow: hidden;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.28), 0 2px 8px rgba(0,0,0,0.15);
+  text-align: center;
+  box-shadow:
+    0 12px 40px rgba(0,0,0,0.32),
+    0 2px 8px rgba(0,0,0,0.15),
+    inset 0 1px 0 rgba(255,255,255,0.06);
 }
 .hero-glow {
-  position: absolute; top: -40%; right: -8%;
-  width: 520px; height: 520px; border-radius: 50%;
-  background: radial-gradient(ellipse, rgba(13,158,117,0.22) 0%, transparent 68%);
+  position: absolute; top: -35%; right: -6%;
+  width: 560px; height: 560px; border-radius: 50%;
+  background: radial-gradient(ellipse, rgba(13,158,117,0.24) 0%, transparent 65%);
   pointer-events: none;
 }
 .hero-glow-2 {
-  position: absolute; bottom: -60%; left: 20%;
-  width: 340px; height: 340px; border-radius: 50%;
-  background: radial-gradient(ellipse, rgba(26,111,168,0.14) 0%, transparent 65%);
+  position: absolute; bottom: -55%; left: -5%;
+  width: 400px; height: 400px; border-radius: 50%;
+  background: radial-gradient(ellipse, rgba(26,111,168,0.18) 0%, transparent 62%);
   pointer-events: none;
 }
 .hero-title {
-  font-size: 2.65rem;
+  font-size: 2.85rem;
   font-weight: 800;
   color: #FFFFFF !important;
-  letter-spacing: -0.035em;
-  line-height: 1.1;
-  margin-bottom: 0.4rem;
+  letter-spacing: -0.04em;
+  line-height: 1.05;
+  margin-bottom: 0.55rem;
   border-bottom: none;
   padding-bottom: 0;
 }
-.hero-tagline {
-  font-family: 'Noto Sans Bengali', sans-serif !important;
-  font-size: 1.12rem;
-  font-weight: 500;
+.hero-subtitle {
+  font-size: 0.88rem;
   color: #94A3B8 !important;
-  margin-top: 0;
-  margin-bottom: 1.3rem;
+  max-width: 520px;
+  margin: 0 auto 1.8rem auto;
+  line-height: 1.55;
 }
-.stat-bar { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0; }
+.hero-tagline-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  flex-wrap: wrap;
+  margin-bottom: 1.9rem;
+}
+.hero-step {
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.11);
+  border-radius: 10px;
+  padding: 0.55rem 1.25rem;
+  min-width: 118px;
+  font-family: 'Noto Sans Bengali', sans-serif !important;
+  font-size: 0.98rem;
+  font-weight: 600;
+  color: #E2E8F0 !important;
+  line-height: 1.25;
+}
+.hero-step small {
+  display: block;
+  font-size: 0.62rem;
+  color: #64748B !important;
+  font-family: 'Inter', sans-serif !important;
+  font-weight: 400;
+  margin-top: 0.15rem;
+  letter-spacing: 0.02em;
+}
+.hero-arrow {
+  font-size: 1.2rem;
+  color: #34D399 !important;
+  margin: 0 0.55rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.stat-bar { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; margin-bottom: 0; }
 .stat-chip {
   border-radius: 99px;
   padding: 0.32rem 0.95rem;
@@ -872,9 +911,11 @@ div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
 /* ─── Mobile ─────────────────────────────────────────────────────────────────── */
 @media (max-width: 600px) {
   .main .block-container { padding-left: 0.65rem; padding-right: 0.65rem; }
-  .hero-banner { padding: 1.6rem 1.4rem 1.4rem 1.4rem; border-radius: 14px; }
-  .hero-title { font-size: 1.6rem; }
-  .hero-tagline { font-size: 0.9rem; }
+  .hero-banner { padding: 1.8rem 1.4rem 1.6rem 1.4rem; border-radius: 16px; }
+  .hero-title { font-size: 1.7rem; }
+  .hero-subtitle { font-size: 0.8rem; }
+  .hero-step { min-width: 90px; font-size: 0.85rem; padding: 0.45rem 0.8rem; }
+  .hero-arrow { margin: 0 0.3rem; font-size: 1rem; }
   .stat-chip { font-size: 0.7rem; padding: 0.22rem 0.6rem; }
   [data-testid="stHorizontalBlock"] > [data-testid="column"] { padding: 0.75rem 0.85rem !important; }
   .tier-banner { flex-direction: column; gap: 0.4rem; }

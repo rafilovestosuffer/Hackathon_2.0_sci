@@ -20,11 +20,12 @@ from ui.styles import (
 
 # ── Tier config ───────────────────────────────────────────────────────────────
 _TIER_CONFIG = {
+    0: {"badge_class": "badge-tier1", "icon": "💚", "label": "HEALTHY",     "label_bn": "সুস্থ"},
     1: {"badge_class": "badge-tier1", "icon": "🟢", "label": "NON-URGENT",  "label_bn": "জরুরি নয়"},
     2: {"badge_class": "badge-tier2", "icon": "🟡", "label": "ROUTINE",     "label_bn": "নিয়মিত"},
     3: {"badge_class": "badge-tier3", "icon": "🔴", "label": "URGENT",      "label_bn": "জরুরি"},
 }
-_TIER_ICONS = {1: "✅", 2: "⚠️", 3: "🚨"}
+_TIER_ICONS = {0: "💚", 1: "✅", 2: "⚠️", 3: "🚨"}
 
 def bn_en(bengali: str, english: str) -> str:
     """Return a bilingual message: Bengali line then italic English line."""
@@ -111,9 +112,9 @@ def render_tier_banner(
     facility: str,
 ) -> None:
     """Render the full-width colored severity tier banner."""
-    icons   = {1: "✅", 2: "⚠️", 3: "🚨"}
-    labels  = {1: "NON-URGENT",  2: "ROUTINE",  3: "URGENT · জরুরি"}
-    t       = tier if tier in (1, 2, 3) else 2
+    icons   = {0: "💚", 1: "✅", 2: "⚠️", 3: "🚨"}
+    labels  = {0: "HEALTHY · সুস্থ", 1: "NON-URGENT", 2: "ROUTINE", 3: "URGENT · জরুরি"}
+    t       = tier if tier in (0, 1, 2, 3) else 2
     icon    = icons[t]
     badge   = labels[t]
 
@@ -241,7 +242,7 @@ def render_referral_preview(pred: dict, tier_result: dict, history: dict) -> Non
     conf_pct   = pred.get("confidence", 0.0) * 100
     cov_pct    = pred.get("coverage_pct", 0.0)
     tier       = tier_result.get("tier", 2)
-    tier_colors = {1: "#27AE60", 2: "#E67E22", 3: "#C0392B"}
+    tier_colors = {0: "#0D9E75", 1: "#27AE60", 2: "#E67E22", 3: "#C0392B"}
     tier_color  = tier_colors.get(tier, "#4A5568")
     tier_label  = tier_result.get("urgency_label", f"Tier {tier}")
 
@@ -456,6 +457,29 @@ def render_disease_card(disease: str, confidence: float, top2: list) -> None:
     bengali_name = get_bengali(disease)
     display_en   = disease.replace("_", " ")
     conf_pct     = max(0.0, min(100.0, confidence * 100))
+
+    # Special healthy card for Normal class
+    if disease == "Normal":
+        bar_color = "#0D9E75"
+        cap_cls   = "conf-high"
+        cap_text  = "✓ ত্বক স্বাভাবিক &nbsp;·&nbsp; Skin appears healthy"
+        st.markdown(
+            f'<div class="sk-card" style="border-left:5px solid #0D9E75;background:#E8FDF1;">'
+            f'  <div class="sk-card-title" style="color:#064E3B;">AI Diagnosis — এআই রোগ নির্ণয়</div>'
+            f'  <div class="disease-name-en" style="color:#064E3B;">💚 {display_en}</div>'
+            f'  <div class="disease-name-bn" style="color:#064E3B;">{bengali_name}</div>'
+            f'  <div class="conf-label">'
+            f'    <span>Confidence</span>'
+            f'    <span class="conf-value-mono" style="color:{bar_color};">{conf_pct:.1f}%</span>'
+            f'  </div>'
+            f'  <div class="conf-bar-wrap">'
+            f'    <div class="conf-bar-fill" style="width:{conf_pct}%;background:{bar_color};"></div>'
+            f'  </div>'
+            f'  <span class="conf-caption {cap_cls}">{cap_text}</span>'
+            f'</div>',
+            unsafe_allow_html=True,
+        )
+        return
 
     # Bar colour: green ≥ CONF_TIER2, amber CONF_TIER3–CONF_TIER2, red < CONF_TIER3
     if confidence >= CONF_TIER2:
@@ -759,6 +783,8 @@ def render_symptom_timeline(duration_str: str, tier: int) -> None:
     today = date.today()
     onset = today - timedelta(days=days)
 
+    if tier == 0:
+        return  # healthy skin — no timeline needed
     tier_recovery = {1: 7, 2: 14, 3: None}
     recovery_days = tier_recovery.get(tier)
 
@@ -840,11 +866,11 @@ def render_chw_result(pred: dict, tier_result: dict) -> None:
     facility   = tier_result.get("facility", "")
     cost       = COST_ESTIMATE.get(tier, COST_ESTIMATE[2])
 
-    icons  = {1: "✅", 2: "⚠️", 3: "🚨"}
-    labels = {1: "রেফারেল নয়", 2: "রেফারেল করুন", 3: "এখনই পাঠান!"}
-    bgs    = {1: "#F0FFF4", 2: "#FFFBEB", 3: "#FFF5F5"}
-    colors_map = {1: "#22543D", 2: "#7B341E", 3: "#742A2A"}
-    borders = {1: "#68D391", 2: "#F6AD55", 3: "#FC8181"}
+    icons  = {0: "💚", 1: "✅", 2: "⚠️", 3: "🚨"}
+    labels = {0: "সুস্থ ত্বক!", 1: "রেফারেল নয়", 2: "রেফারেল করুন", 3: "এখনই পাঠান!"}
+    bgs    = {0: "#E8FDF1", 1: "#F0FFF4", 2: "#FFFBEB", 3: "#FFF5F5"}
+    colors_map = {0: "#064E3B", 1: "#22543D", 2: "#7B341E", 3: "#742A2A"}
+    borders = {0: "#6FCFA5", 1: "#68D391", 2: "#F6AD55", 3: "#FC8181"}
 
     icon     = icons.get(tier, "⚠️")
     label    = labels.get(tier, "রেফারেল করুন")

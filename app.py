@@ -234,7 +234,7 @@ with st.sidebar:
     # ── About BD-SkinNet (collapsed by default) ────────────────────────────────
     with st.expander("ℹ️ About BD-SkinNet", expanded=False):
         render_stat_card("Clinical Accuracy", "92.46%",  color="#27AE60")
-        render_stat_card("Conditions Covered", "7",      color="#1A6FA8")
+        render_stat_card("Conditions Covered", "8",      color="#1A6FA8")
         render_stat_card("Data Source",  "BD Hospitals", color="#0D9E75")
         st.markdown(
             '<div style="font-size:0.68rem;color:#4A6080 !important;margin-top:0.5rem;'
@@ -317,6 +317,27 @@ with st.sidebar:
                 "associated_symptoms": ["জ্বর", "ব্যথা"],
             },
         },
+        "demo_normal": {
+            "label": "💚 Demo — Normal Healthy Skin",
+            "help":  "No disease detected — healthy skin result",
+            "transcript": "ত্বকে কোনো সমস্যা নেই, পরীক্ষা করতে চাইছি",
+            "pred": {
+                "disease": "Normal", "confidence": 0.91,
+                "top2": [{"disease": "Normal",           "confidence": 0.91},
+                         {"disease": "Contact_Dermatitis","confidence": 0.05}],
+                "heatmap": None, "coverage_pct": 8.0,
+            },
+            "history": {
+                "patient_name": "নাসরিন (Demo)", "patient_age": "২৬",
+                "chief_complaint": "ত্বক পরীক্ষা করতে চাই",
+                "symptoms": ["no symptoms"],
+                "affected_area": "হাতের তালু",
+                "duration": "—",
+                "progression": "কোনো পরিবর্তন নেই",
+                "previous_treatment": "কোনো চিকিৎসা নেই",
+                "associated_symptoms": [],
+            },
+        },
     }
 
     for _dk, _dc in _DEMO_CASES.items():
@@ -386,8 +407,21 @@ st.markdown(
     '  <div class="hero-glow"></div>'
     '  <div class="hero-glow-2"></div>'
     '  <div class="hero-title">🩺 SkinAI Bangladesh</div>'
-    '  <div class="hero-tagline">'
-    '    সঠিক রোগী &nbsp;→&nbsp; সঠিক ডাক্তার &nbsp;→&nbsp; সঠিক সময়'
+    '  <div class="hero-subtitle">'
+    '    AI-powered dermatological screening &amp; smart triage for rural Bangladesh'
+    '  </div>'
+    '  <div class="hero-tagline-row">'
+    '    <div class="hero-step">সঠিক রোগী<small>Right Patient</small></div>'
+    '    <div class="hero-arrow">→</div>'
+    '    <div class="hero-step">সঠিক ডাক্তার<small>Right Doctor</small></div>'
+    '    <div class="hero-arrow">→</div>'
+    '    <div class="hero-step">সঠিক সময়<small>Right Time</small></div>'
+    '  </div>'
+    '  <div class="stat-bar">'
+    '    <span class="stat-chip stat-chip-green">🎯 92.46% F1 Score</span>'
+    '    <span class="stat-chip stat-chip-blue">🦠 8 Conditions Detected</span>'
+    '    <span class="stat-chip stat-chip-teal">🏥 BD Clinical Training Data</span>'
+    '    <span class="stat-chip stat-chip-dark">⚡ Real-time AI Triage</span>'
     '  </div>'
     '</div>',
     unsafe_allow_html=True,
@@ -416,9 +450,9 @@ with tab1:
         '</div>',
         unsafe_allow_html=True,
     )
-    _dcol1, _dcol2, _dcol3 = st.columns(3)
+    _dcol1, _dcol2, _dcol3, _dcol4 = st.columns(4)
     with _dcol1:
-        if st.button("🟢 Demo — Tinea (Tier 1)", use_container_width=True, key="tab_demo_t1"):
+        if st.button("🟢 Tinea (Tier 1)", use_container_width=True, key="tab_demo_t1"):
             _dp = _DEMO_CASES["demo_tier1"]["pred"]
             st.session_state.prediction  = _dp
             st.session_state.tier_result = compute_tier(_dp["disease"], _dp["confidence"], _dp["coverage_pct"], _DEMO_CASES["demo_tier1"]["transcript"])
@@ -432,7 +466,7 @@ with tab1:
             _push_history_to_form(_DEMO_CASES["demo_tier1"]["history"])
             st.rerun()
     with _dcol2:
-        if st.button("🟡 Demo — Eczema (Tier 2)", use_container_width=True, key="tab_demo_t2"):
+        if st.button("🟡 Eczema (Tier 2)", use_container_width=True, key="tab_demo_t2"):
             _dp = _DEMO_CASES["demo_tier2"]["pred"]
             st.session_state.prediction  = _dp
             st.session_state.tier_result = compute_tier(_dp["disease"], _dp["confidence"], _dp["coverage_pct"], _DEMO_CASES["demo_tier2"]["transcript"])
@@ -446,7 +480,7 @@ with tab1:
             _push_history_to_form(_DEMO_CASES["demo_tier2"]["history"])
             st.rerun()
     with _dcol3:
-        if st.button("🔴 Demo — Scabies (Tier 3 URGENT)", use_container_width=True, key="tab_demo_t3"):
+        if st.button("🔴 Scabies (Tier 3)", use_container_width=True, key="tab_demo_t3"):
             _dp = _DEMO_CASES["demo_tier3"]["pred"]
             st.session_state.prediction  = _dp
             st.session_state.tier_result = compute_tier(_dp["disease"], _dp["confidence"], _dp["coverage_pct"], _DEMO_CASES["demo_tier3"]["transcript"])
@@ -458,6 +492,20 @@ with tab1:
             st.session_state.selected_date_idx = None
             st.session_state.selected_slot     = None
             _push_history_to_form(_DEMO_CASES["demo_tier3"]["history"])
+            st.rerun()
+    with _dcol4:
+        if st.button("💚 Normal (Healthy)", use_container_width=True, key="tab_demo_normal"):
+            _dp = _DEMO_CASES["demo_normal"]["pred"]
+            st.session_state.prediction  = _dp
+            st.session_state.tier_result = compute_tier(_dp["disease"], _dp["confidence"], _dp["coverage_pct"], _DEMO_CASES["demo_normal"]["transcript"])
+            st.session_state.history     = _DEMO_CASES["demo_normal"]["history"]
+            st.session_state.transcript  = _DEMO_CASES["demo_normal"]["transcript"]
+            st.session_state.pdf_bytes   = None
+            st.session_state.booking_confirmed = False
+            st.session_state.booking_details   = None
+            st.session_state.selected_date_idx = None
+            st.session_state.selected_slot     = None
+            _push_history_to_form(_DEMO_CASES["demo_normal"]["history"])
             st.rerun()
 
     st.markdown("---")
@@ -938,70 +986,83 @@ with tab1:
         if _dur:
             render_symptom_timeline(_dur, _tr["tier"])
 
-        # ── All tiers: Nearest healthcare facility map ────────────────────────
-        _map_config = {
-            1: ("🏪", "#27AE60", "Nearest Pharmacies · নিকটতম ফার্মেসি"),
-            2: ("🏥", "#D68910", "Nearest Upazila Health Complexes · নিকটতম উপজেলা স্বাস্থ্য কমপ্লেক্স"),
-            3: ("🚨", "#C0392B", "Nearest Emergency Hospitals · নিকটতম জরুরি হাসপাতাল"),
-        }
-        _icon, _color, _title = _map_config.get(_tr["tier"], _map_config[1])
-        st.markdown(
-            f'<div class="card-section-header" style="margin-top:0.25rem;">'
-            f'<span style="font-size:1.1rem;color:{_color};">{_icon}</span>'
-            f'<div>'
-            f'<div class="card-section-title" style="color:{_color};">{_title}</div>'
-            f'</div>'
-            f'</div>',
-            unsafe_allow_html=True,
-        )
-        district = st.text_input(
-            "Enter your district (e.g. Rangpur, Dhaka, Chittagong):",
-            key="district_input",
-            placeholder="Type district name…",
-        )
-        if district:
-            coords   = get_district_coords(district)
-            user_lat = coords[0] if coords else _DEFAULT_LAT
-            user_lon = coords[1] if coords else _DEFAULT_LON
+        # ── All tiers: Nearest healthcare facility map (skip for tier 0) ────────
+        if _tr["tier"] == 0:
+            st.markdown(
+                '<div style="background:#E8FDF1;border:1.5px solid #6FCFA5;border-radius:10px;'
+                'padding:1rem 1.25rem;margin-top:0.5rem;text-align:center;">'
+                '<div style="font-size:2rem;">💚</div>'
+                '<div style="font-weight:700;font-size:1rem;color:#064E3B;margin:0.3rem 0;">'
+                'আপনার ত্বক সুস্থ — No Referral Needed</div>'
+                '<div style="font-size:0.84rem;color:#065F46;">কোনো হাসপাতাল বা ফার্মেসিতে যাওয়ার প্রয়োজন নেই।'
+                '<br>No facility visit required. Your skin appears healthy.</div>'
+                '</div>',
+                unsafe_allow_html=True,
+            )
+        else:
+            _map_config = {
+                1: ("🏪", "#27AE60", "Nearest Pharmacies · নিকটতম ফার্মেসি"),
+                2: ("🏥", "#D68910", "Nearest Upazila Health Complexes · নিকটতম উপজেলা স্বাস্থ্য কমপ্লেক্স"),
+                3: ("🚨", "#C0392B", "Nearest Emergency Hospitals · নিকটতম জরুরি হাসপাতাল"),
+            }
+            _icon, _color, _title = _map_config.get(_tr["tier"], _map_config[1])
+            st.markdown(
+                f'<div class="card-section-header" style="margin-top:0.25rem;">'
+                f'<span style="font-size:1.1rem;color:{_color};">{_icon}</span>'
+                f'<div>'
+                f'<div class="card-section-title" style="color:{_color};">{_title}</div>'
+                f'</div>'
+                f'</div>',
+                unsafe_allow_html=True,
+            )
+            district = st.text_input(
+                "Enter your district (e.g. Rangpur, Dhaka, Chittagong):",
+                key="district_input",
+                placeholder="Type district name…",
+            )
+            if district:
+                coords   = get_district_coords(district)
+                user_lat = coords[0] if coords else _DEFAULT_LAT
+                user_lon = coords[1] if coords else _DEFAULT_LON
 
-            _hcache = st.session_state.setdefault("hospital_cache", {})
-            _dk     = district.strip().lower()
-            if _dk not in _hcache:
-                with st.spinner("🔍 Finding nearest healthcare facilities…"):
-                    _hcache[_dk] = find_nearest_hospitals(user_lat, user_lon, n=5)
-            hospitals = _hcache[_dk]
+                _hcache = st.session_state.setdefault("hospital_cache", {})
+                _dk     = district.strip().lower()
+                if _dk not in _hcache:
+                    with st.spinner("🔍 Finding nearest healthcare facilities…"):
+                        _hcache[_dk] = find_nearest_hospitals(user_lat, user_lon, n=5)
+                hospitals = _hcache[_dk]
 
-            if hospitals:
-                st.session_state.nearest_hospital = hospitals[0]
-                for i, h in enumerate(hospitals):
-                    phone_html = (
-                        f' &nbsp;·&nbsp; 📞 {h["phone"]}' if h.get("phone") else ""
-                    )
-                    st.markdown(
-                        f'<div class="hospital-card">'
-                        f'  <div class="hospital-rank">#{i+1}</div>'
-                        f'  <div>'
-                        f'    <div class="hospital-name">{h["name"]}</div>'
-                        f'    <div class="hospital-meta">'
-                        f'      📍 {h["address"]} &nbsp;·&nbsp; 🚗 {h["dist_km"]} km{phone_html}'
-                        f'    </div>'
-                        f'  </div>'
-                        f'</div>',
-                        unsafe_allow_html=True,
-                    )
-                try:
-                    from streamlit_folium import st_folium
-                    with st.spinner("🗺️ Rendering map…"):
-                        fmap = render_hospital_map(hospitals, user_lat, user_lon)
-                    if fmap:
-                        st_folium(fmap, use_container_width=True, height=380)
-                except Exception:
-                    pass
-            else:
-                st.warning(bn_en(
-                    "নিকটে কোনো স্বাস্থ্যসেবা পাওয়া যায়নি। অন্য জেলার নাম দিয়ে চেষ্টা করুন।",
-                    "No facilities found nearby. Try a different district name.",
-                ))
+                if hospitals:
+                    st.session_state.nearest_hospital = hospitals[0]
+                    for i, h in enumerate(hospitals):
+                        phone_html = (
+                            f' &nbsp;·&nbsp; 📞 {h["phone"]}' if h.get("phone") else ""
+                        )
+                        st.markdown(
+                            f'<div class="hospital-card">'
+                            f'  <div class="hospital-rank">#{i+1}</div>'
+                            f'  <div>'
+                            f'    <div class="hospital-name">{h["name"]}</div>'
+                            f'    <div class="hospital-meta">'
+                            f'      📍 {h["address"]} &nbsp;·&nbsp; 🚗 {h["dist_km"]} km{phone_html}'
+                            f'    </div>'
+                            f'  </div>'
+                            f'</div>',
+                            unsafe_allow_html=True,
+                        )
+                    try:
+                        from streamlit_folium import st_folium
+                        with st.spinner("🗺️ Rendering map…"):
+                            fmap = render_hospital_map(hospitals, user_lat, user_lon)
+                        if fmap:
+                            st_folium(fmap, use_container_width=True, height=380)
+                    except Exception:
+                        pass
+                else:
+                    st.warning(bn_en(
+                        "নিকটে কোনো স্বাস্থ্যসেবা পাওয়া যায়নি। অন্য জেলার নাম দিয়ে চেষ্টা করুন।",
+                        "No facilities found nearby. Try a different district name.",
+                    ))
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -1176,7 +1237,24 @@ with tab3:
     tier    = st.session_state.tier_result
     history = st.session_state.history
 
-    if pred and tier:
+    if pred and tier and tier.get("tier") == 0:
+        # ── Tier 0: Healthy skin — no referral needed ─────────────────────────
+        st.markdown(
+            '<div style="background:#E8FDF1;border:2px solid #6FCFA5;border-radius:14px;'
+            'padding:2rem;text-align:center;margin:1rem 0;">'
+            '<div style="font-size:3.5rem;margin-bottom:0.6rem;">💚</div>'
+            '<div style="font-size:1.3rem;font-weight:800;color:#064E3B;margin-bottom:0.4rem;">'
+            'ত্বক স্বাভাবিক · Skin Appears Healthy</div>'
+            '<div style="font-size:0.9rem;color:#065F46;margin-bottom:0.3rem;">'
+            'আপনার ত্বকে কোনো রোগের লক্ষণ পাওয়া যায়নি।</div>'
+            '<div style="font-size:0.84rem;color:#047857;">'
+            'No skin disease detected. No referral letter is needed.<br>'
+            'If symptoms develop or persist, please consult a doctor.</div>'
+            '</div>',
+            unsafe_allow_html=True,
+        )
+
+    elif pred and tier:
         # ── PDF Preview cards ─────────────────────────────────────────────────
         render_referral_preview(pred, tier, history)
 

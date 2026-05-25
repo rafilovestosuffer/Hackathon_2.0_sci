@@ -1,14 +1,15 @@
-# 7 classes from BD-SkinNet training — Faridpur MCH + Rangpur MCH + SkinDisNet
+# 8 classes from BD-SkinNet training — Faridpur MCH + Rangpur MCH + SkinDisNet
 # Class index order matches CLASS_TO_IDX from notebook (alphabetical)
 
 CLASS_NAMES = [
     "Atopic_Dermatitis",       # 0
     "Contact_Dermatitis",      # 1
     "Eczema",                  # 2
-    "Scabies",                 # 3
-    "Seborrheic_Dermatitis",   # 4
-    "Tinea",                   # 5
-    "Vitiligo",                # 6
+    "Normal",                  # 3
+    "Scabies",                 # 4
+    "Seborrheic_Dermatitis",   # 5
+    "Tinea",                   # 6
+    "Vitiligo",                # 7
 ]
 
 NUM_CLASSES = len(CLASS_NAMES)
@@ -18,6 +19,7 @@ DISEASE_BENGALI = {
     "Atopic_Dermatitis":     "অ্যাটোপিক ডার্মাটাইটিস",
     "Contact_Dermatitis":    "কন্টাক্ট ডার্মাটাইটিস",
     "Eczema":                "একজিমা",
+    "Normal":                "স্বাভাবিক ত্বক",
     "Scabies":               "খোস-পাঁচড়া",
     "Seborrheic_Dermatitis": "সেবোরিক ডার্মাটাইটিস",
     "Tinea":                 "দাদ (টিনিয়া)",
@@ -25,11 +27,12 @@ DISEASE_BENGALI = {
 }
 
 # Severity tier per class — used by severity/engine.py
-# Tier 1: Pharmacist | Tier 2: Upazila Health Complex | Tier 3: District Hospital
+# Tier 0: Healthy (no disease) | Tier 1: Pharmacist | Tier 2: Upazila Health Complex | Tier 3: District Hospital
 DISEASE_TIER = {
     "Atopic_Dermatitis":     2,
     "Contact_Dermatitis":    1,
     "Eczema":                2,
+    "Normal":                0,
     "Scabies":               2,
     "Seborrheic_Dermatitis": 1,
     "Tinea":                 1,

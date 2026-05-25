@@ -8,6 +8,11 @@ CONF_TIER2: float = 0.60
 COVERAGE_THRESHOLD: float = 40.0
 
 COST_ESTIMATE = {
+    0: {
+        "range":   "৳0",
+        "note":    "No treatment needed — healthy skin",
+        "note_bn": "কোনো চিকিৎসার প্রয়োজন নেই — ত্বক সুস্থ",
+    },
     1: {
         "range":   "৳50–200",
         "note":    "OTC cream / antihistamine at local pharmacy",
@@ -26,6 +31,12 @@ COST_ESTIMATE = {
 }
 
 TIER_ACTIONS = {
+    0: {
+        "urgency_label": "HEALTHY",
+        "action": "No treatment needed. Your skin appears normal and healthy.",
+        "facility": "None",
+        "bengali_text": "আপনার ত্বক স্বাভাবিক দেখাচ্ছে। কোনো চিকিৎসার প্রয়োজন নেই।",
+    },
     1: {
         "urgency_label": "NON-URGENT",
         "action": "Consult local pharmacist within 3-5 days",
@@ -53,8 +64,15 @@ def compute_tier(
     coverage_pct: float,
     transcript: str,
 ) -> dict:
+    # Early return: confident Normal detection → tier 0 (healthy), no escalation
+    if disease_class == "Normal" and confidence >= CONF_TIER2:
+        return {"tier": 0, **TIER_ACTIONS[0]}
+
     # Signal 1: base tier from disease class
+    # Low-confidence Normal falls through as tier 1 (non-urgent) for patient safety
     tier = get_tier(disease_class)
+    if disease_class == "Normal":
+        tier = 1
 
     # Signal 2: confidence modifier
     if confidence < CONF_TIER3:
