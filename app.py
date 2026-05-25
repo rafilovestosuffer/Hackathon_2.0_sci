@@ -55,14 +55,28 @@ st.set_page_config(
 
 inject_css()
 
-# Hide the sidebar UI entirely (no collapse arrow, no chrome, full-width content)
+# Hide the sidebar UI entirely + use the full viewport width like a real app
 st.markdown(
     """
     <style>
       section[data-testid="stSidebar"] { display: none !important; }
       div[data-testid="stSidebarCollapsedControl"] { display: none !important; }
       button[kind="header"] { display: none !important; }
-      .block-container { max-width: 1280px; padding-top: 1rem; }
+
+      /* Full-width content with comfortable side padding (no narrow cap) */
+      .block-container,
+      [data-testid="stAppViewContainer"] .main .block-container {
+        max-width: 100% !important;
+        padding-top: 1rem !important;
+        padding-left: 3rem !important;
+        padding-right: 3rem !important;
+      }
+      @media (max-width: 900px) {
+        .block-container {
+          padding-left: 1rem !important;
+          padding-right: 1rem !important;
+        }
+      }
     </style>
     """,
     unsafe_allow_html=True,
