@@ -50,10 +50,23 @@ st.set_page_config(
     page_title="SkinAI Bangladesh",
     page_icon="🩺",
     layout="wide",
-    initial_sidebar_state="expanded",
+    initial_sidebar_state="collapsed",
 )
 
 inject_css()
+
+# Hide the sidebar UI entirely (no collapse arrow, no chrome, full-width content)
+st.markdown(
+    """
+    <style>
+      section[data-testid="stSidebar"] { display: none !important; }
+      div[data-testid="stSidebarCollapsedControl"] { display: none !important; }
+      button[kind="header"] { display: none !important; }
+      .block-container { max-width: 1280px; padding-top: 1rem; }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
 
 
 # ── Cached loaders ────────────────────────────────────────────────────────────
@@ -274,234 +287,9 @@ _DEMO_CASES = {
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-# SIDEBAR — Professional workspace pane
-#
-# Sections (top → bottom), every one is dynamic or actionable:
-#   1. Brand                — compact identity strip
-#   2. Current Patient      — active assessment context (visible from any tab)
-#   3. Quick Actions        — Reset · Download last PDF · Copy Session ID
-#   4. View Mode            — Patient · CHW · Doctor toggle
-#   5. System Status        — Model · Knowledge Base · Network · last-update
-#   6. What to do next      — context-aware coaching tip
-#   7. Disclaimer           — legal, always visible
+# (No sidebar — full-width single-column layout. All actions live in tabs.)
+# `chw_mode` keeps its default value (False) from _DEFAULTS for downstream code.
 # ══════════════════════════════════════════════════════════════════════════════
-
-# Tier badge → CSS color (matches existing tier palette)
-_TIER_BADGE = {
-    0: ("✅ Normal",      "#22C55E", "স্বাভাবিক"),
-    1: ("🟢 Tier 1",      "#10B981", "হালকা"),
-    2: ("🟡 Tier 2",      "#F59E0B", "মাঝারি"),
-    3: ("🔴 Tier 3",      "#EF4444", "জরুরি"),
-}
-
-
-def _sidebar_section_header(emoji: str, label_en: str, label_bn: str = "") -> None:
-    """Compact uppercase header for sidebar sections."""
-    bn = f' · <span style="text-transform:none;font-weight:500;opacity:.75;">{label_bn}</span>' if label_bn else ""
-    st.markdown(
-        f'<div style="font-size:0.7rem;font-weight:700;letter-spacing:0.08em;'
-        f'text-transform:uppercase;color:#94A3B8;margin:0.9rem 0 0.45rem 0;">'
-        f'{emoji}&nbsp; {label_en}{bn}</div>',
-        unsafe_allow_html=True,
-    )
-
-
-with st.sidebar:
-    # ── 1. Brand strip ────────────────────────────────────────────────────────
-    st.markdown(
-        '<div style="display:flex;align-items:center;gap:0.55rem;padding:0.25rem 0 0.1rem 0;">'
-        '<span style="font-size:1.45rem;">🩺</span>'
-        '<div>'
-        '<div style="font-size:1.02rem;font-weight:700;line-height:1.1;color:#E2E8F0;">SkinAI Bangladesh</div>'
-        '<div style="font-size:0.7rem;color:#94A3B8;line-height:1.2;">AI-Powered Dermatology Triage</div>'
-        '</div></div>',
-        unsafe_allow_html=True,
-    )
-
-    # ── 2. Current Patient ────────────────────────────────────────────────────
-    _sidebar_section_header("🩺", "Current Patient", "বর্তমান রোগী")
-
-    _hist = st.session_state.get("history") or {}
-    _pred = st.session_state.get("prediction")
-    _tier = st.session_state.get("tier_result")
-    _has_patient = bool(_hist or _pred)
-
-    if not _has_patient:
-        st.markdown(
-            '<div style="background:rgba(148,163,184,0.08);border:1px dashed rgba(148,163,184,0.25);'
-            'border-radius:8px;padding:0.7rem;text-align:center;font-size:0.78rem;color:#94A3B8;">'
-            'No active assessment.<br>'
-            '<span style="font-size:0.7rem;opacity:.75;">Start from the Diagnosis tab →</span>'
-            '</div>',
-            unsafe_allow_html=True,
-        )
-    else:
-        _name = _hist.get("patient_name") or "—"
-        _age  = _hist.get("patient_age")  or "—"
-        _dis  = (_pred or {}).get("disease", "—").replace("_", " ")
-        _conf = (_pred or {}).get("confidence", 0.0)
-        _t    = (_tier or {}).get("tier", -1)
-        _tlabel, _tcolor, _tbn = _TIER_BADGE.get(_t, ("—", "#64748B", ""))
-
-        st.markdown(
-            f'<div style="background:linear-gradient(180deg,rgba(13,158,117,0.10),rgba(26,111,168,0.08));'
-            f'border:1px solid rgba(13,158,117,0.35);border-radius:10px;padding:0.7rem 0.85rem;'
-            f'font-size:0.82rem;line-height:1.45;color:#E2E8F0;">'
-            f'<div style="font-weight:700;font-size:0.9rem;color:#F1F5F9;">{_name}</div>'
-            f'<div style="font-size:0.72rem;color:#94A3B8;margin-bottom:0.45rem;">Age {_age}</div>'
-            f'<div style="display:flex;justify-content:space-between;align-items:center;'
-            f'border-top:1px solid rgba(148,163,184,0.18);padding-top:0.45rem;margin-top:0.3rem;">'
-            f'<span style="color:#CBD5E1;">{_dis}</span>'
-            f'<span style="color:#94A3B8;font-size:0.72rem;">{int(_conf*100)}%</span>'
-            f'</div>'
-            f'<div style="margin-top:0.55rem;">'
-            f'<span style="background:{_tcolor};color:white;padding:0.18rem 0.55rem;'
-            f'border-radius:999px;font-size:0.7rem;font-weight:700;letter-spacing:0.02em;">{_tlabel}</span>'
-            f'</div>'
-            f'</div>',
-            unsafe_allow_html=True,
-        )
-
-    # ── 3. Quick Actions ──────────────────────────────────────────────────────
-    _sidebar_section_header("⚡", "Quick Actions", "দ্রুত কাজ")
-
-    _qa1, _qa2 = st.columns(2)
-    with _qa1:
-        if st.button("🔄 New Patient", use_container_width=True, key="sb_new_patient",
-                     help="Clear all session data and start over"):
-            for _k in ("transcript", "history", "prediction", "tier_result",
-                       "nearest_hospital", "pdf_bytes", "chw_pdf_bytes",
-                       "rag_answer", "chat_history"):
-                if _k in st.session_state:
-                    st.session_state[_k] = "" if isinstance(st.session_state[_k], str) else (
-                        [] if isinstance(st.session_state[_k], list) else (
-                            {} if isinstance(st.session_state[_k], dict) else None))
-            for _bk in ("booking_confirmed", "booking_details",
-                        "selected_date_idx", "selected_slot",
-                        "consultation_completed", "consultation_transcript",
-                        "summary_pdf_bytes"):
-                if _bk in st.session_state:
-                    st.session_state[_bk] = False if isinstance(st.session_state[_bk], bool) else None
-            st.rerun()
-
-    with _qa2:
-        _pdf_ready = st.session_state.get("pdf_bytes")
-        if _pdf_ready:
-            st.download_button(
-                "📥 Referral",
-                data=_pdf_ready,
-                file_name=f"skinai_referral_{datetime.now().strftime('%Y%m%d_%H%M')}.pdf",
-                mime="application/pdf",
-                use_container_width=True,
-                key="sb_dl_pdf",
-                help="Download the AI-generated referral letter",
-            )
-        else:
-            st.button("📥 Referral", use_container_width=True, disabled=True,
-                      key="sb_dl_pdf_disabled", help="Generate a diagnosis first")
-
-    # Demo loader — collapsed by default, useful for judges
-    with st.expander("🎬 Load a demo case", expanded=False):
-        st.caption("Instant pre-filled patient — no image/audio needed.")
-        for _dk, _dc in _DEMO_CASES.items():
-            if st.button(_dc["label"], use_container_width=True, help=_dc["help"], key=f"sb_{_dk}"):
-                _dp = _dc["pred"]
-                st.session_state.prediction = _dp
-                st.session_state.tier_result = compute_tier(
-                    disease_class=_dp["disease"],
-                    confidence=_dp["confidence"],
-                    coverage_pct=_dp["coverage_pct"],
-                    transcript=_dc["transcript"],
-                )
-                st.session_state.history          = _dc["history"]
-                st.session_state.transcript       = _dc["transcript"]
-                st.session_state.nearest_hospital = None
-                st.session_state.pdf_bytes        = None
-                st.session_state.chat_history     = []
-                st.session_state.booking_confirmed  = False
-                st.session_state.booking_details    = None
-                st.session_state.selected_date_idx  = None
-                st.session_state.selected_slot      = None
-                _push_history_to_form(_dc["history"])
-                st.rerun()
-
-    # ── 4. View Mode ──────────────────────────────────────────────────────────
-    _sidebar_section_header("👀", "View Mode", "ভিউ মোড")
-    st.session_state.setdefault("chw_mode", False)
-    _chw = st.toggle(
-        "🩺 CHW / সেবিকা mode",
-        key="chw_mode_toggle",
-        value=st.session_state.get("chw_mode", False),
-        help="Simplified single-screen view for community health workers",
-    )
-    st.session_state["chw_mode"] = _chw
-
-    # ── 5. System Status ──────────────────────────────────────────────────────
-    _sidebar_section_header("📡", "System Status", "সিস্টেম অবস্থা")
-
-    _rag_ok      = bool(_rag_ready)
-    _gemini_ok   = bool(os.environ.get("GEMINI_API_KEY") if "os" in dir() else True)
-    # Cheap, no network call — just whether the keys/modules are loaded
-    try:
-        import os as _os
-        _gemini_ok = bool(_os.environ.get("GEMINI_API_KEY"))
-    except Exception:
-        _gemini_ok = False
-
-    def _dot(ok: bool) -> str:
-        return "🟢" if ok else "🟡"
-
-    st.markdown(
-        f'<div style="font-size:0.78rem;line-height:1.7;color:#CBD5E1;'
-        f'background:rgba(15,23,42,0.35);border:1px solid rgba(148,163,184,0.15);'
-        f'border-radius:8px;padding:0.55rem 0.75rem;">'
-        f'<div style="display:flex;justify-content:space-between;">'
-        f'<span>{_dot(True)}&nbsp;BD-SkinNet (Swin+CBAM)</span>'
-        f'<span style="color:#94A3B8;font-size:0.72rem;">INT8</span></div>'
-        f'<div style="display:flex;justify-content:space-between;">'
-        f'<span>{_dot(_rag_ok)}&nbsp;Knowledge Base</span>'
-        f'<span style="color:#94A3B8;font-size:0.72rem;">CDC·NIH·WHO·DGHS</span></div>'
-        f'<div style="display:flex;justify-content:space-between;">'
-        f'<span>{_dot(_gemini_ok)}&nbsp;Gemini Flash</span>'
-        f'<span style="color:#94A3B8;font-size:0.72rem;">{"connected" if _gemini_ok else "no key"}</span></div>'
-        f'<div style="display:flex;justify-content:space-between;">'
-        f'<span>{_dot(True)}&nbsp;Whisper Bengali ASR</span>'
-        f'<span style="color:#94A3B8;font-size:0.72rem;">faster-whisper</span></div>'
-        f'</div>',
-        unsafe_allow_html=True,
-    )
-
-    # ── 6. Context-aware coaching tip ─────────────────────────────────────────
-    _sidebar_section_header("💡", "What to do next")
-
-    if not _has_patient:
-        _tip = ("Tap a tile in <b>Diagnosis</b> to load a demo, or upload your own skin photo. "
-                "You can also speak your symptoms in Bengali.")
-    elif _pred is None:
-        _tip = "Upload a skin image to get an AI diagnosis."
-    elif _tier is None:
-        _tip = "Diagnosis ready — open <b>Diagnosis</b> tab to see the triage tier."
-    elif not st.session_state.get("pdf_bytes"):
-        _tip = "Triage complete — generate the <b>Referral PDF</b> for the patient to take to the doctor."
-    else:
-        _tip = "Referral ready. You can also <b>book a doctor</b> or <b>ask AI questions</b> from the tabs above."
-
-    st.markdown(
-        f'<div style="background:rgba(56,189,248,0.08);border:1px solid rgba(56,189,248,0.25);'
-        f'border-radius:8px;padding:0.6rem 0.75rem;font-size:0.78rem;line-height:1.5;color:#CBD5E1;">'
-        f'{_tip}</div>',
-        unsafe_allow_html=True,
-    )
-
-    # ── 7. Disclaimer ─────────────────────────────────────────────────────────
-    st.markdown(
-        '<div style="margin-top:1.1rem;padding:0.6rem 0.7rem;border-top:1px solid rgba(148,163,184,0.18);'
-        'font-size:0.7rem;line-height:1.45;color:#94A3B8;text-align:center;">'
-        'এটি একটি চিকিৎসা যন্ত্র নয়।<br>'
-        'Not a medical device. Always consult a licensed physician.'
-        '</div>',
-        unsafe_allow_html=True,
-    )
 
 
 # ══════════════════════════════════════════════════════════════════════════════
