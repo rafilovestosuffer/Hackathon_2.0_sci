@@ -103,7 +103,7 @@ def debug_connectivity() -> JSONResponse:
         ("api.telegram.org", "https://api.telegram.org/"),
         ("google", "https://www.google.com/"),
         ("httpbin", "https://httpbin.org/get"),
-        ("cloudflare", "https://1.1.1.1/"),
+        ("public-dns", "https://1.1.1.1/"),
     ]
     out = {}
     for label, url in targets:
