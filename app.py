@@ -23,7 +23,6 @@ from ui.components import (
     enhance_skin_image,
     render_symptom_timeline,
     render_chw_result,
-    render_gradcam_overlay,
     render_patient_history_table,
     render_disease_card,
     render_referral_download_button,
@@ -121,9 +120,7 @@ def _load_bd_skinnet():
 
 
 def _run_model(pil_img: Image.Image) -> dict:
-    from model.bd_skinnet import predict, inference_transform
-    from model.gradcam import compute_gradcam
-    from model.disease_labels import CLASS_NAMES
+    from model.bd_skinnet import predict
 
     model = _load_bd_skinnet()
     if model is None:
@@ -139,21 +136,6 @@ def _run_model(pil_img: Image.Image) -> dict:
         }
 
     result = predict(model, pil_img)
-
-    # GradCAM++ — quantized INT8 models don't support backprop so this may
-    # gracefully fail; heatmap becomes None and the UI shows a placeholder.
-    heatmap_img  = None
-    coverage_pct = 0.0
-    try:
-        img_np      = np.array(pil_img.convert("RGB"))
-        tensor      = inference_transform(image=img_np)["image"].unsqueeze(0)
-        top_idx     = CLASS_NAMES.index(result["disease_class"])
-        cam_result  = compute_gradcam(model, tensor, target_class=top_idx)
-        heatmap_img  = cam_result["overlay"]   # (H,W,3) uint8 RGB
-        coverage_pct = cam_result["coverage_pct"]
-    except Exception as exc:
-        logger.warning("GradCAM failed (expected for INT8 model): %s", exc)
-
     return {
         "disease":      result["disease_class"],
         "confidence":   result["confidence"],
@@ -161,8 +143,8 @@ def _run_model(pil_img: Image.Image) -> dict:
             {"disease": t["class"], "confidence": t["confidence"]}
             for t in result["top2"]
         ],
-        "heatmap":      heatmap_img,
-        "coverage_pct": coverage_pct,
+        "heatmap":      None,
+        "coverage_pct": 0.0,
     }
 
 
@@ -867,9 +849,6 @@ with tab1:
             # Disease result card
             render_disease_card(pred["disease"], pred["confidence"], pred["top2"])
 
-            # GradCAM
-            render_gradcam_overlay(pred["heatmap"], pred["coverage_pct"])
-
         else:
             # No new upload — show the demo photo + cached results if a demo
             # button was clicked, or just cached results otherwise.
@@ -889,7 +868,6 @@ with tab1:
                         unsafe_allow_html=True,
                     )
                 render_disease_card(pred["disease"], pred["confidence"], pred["top2"])
-                render_gradcam_overlay(pred["heatmap"], pred["coverage_pct"])
             elif not _demo_path:
                 st.markdown(
                     '<div style="background:#F8FAFC;border:1.5px dashed #E2E8F0;border-radius:10px;'

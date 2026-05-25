@@ -273,21 +273,20 @@ def render_referral_preview(pred: dict, tier_result: dict, history: dict) -> Non
         unsafe_allow_html=True,
     )
 
-    # Section 2 — Clinical Observation (GradCAM)
-    cov_bar_color = "#27AE60" if cov_pct <= 40 else "#C0392B"
-    cov_note      = "⚠️ High coverage — severity escalated" if cov_pct > 40 else "✓ Within normal range"
+    # Section 2 — Examination Findings
+    duration   = history.get("duration", "—")
+    progression= history.get("progression", "—")
+    prev_tx    = history.get("previous_treatment", "—")
     st.markdown(
         f'<div class="referral-section-card">'
         f'  <div class="referral-section-num">2</div>'
         f'  <div style="flex:1">'
-        f'    <div class="referral-section-title">Clinical Observation · ক্লিনিক্যাল পর্যবেক্ষণ</div>'
+        f'    <div class="referral-section-title">Examination Findings · পরীক্ষার ফলাফল</div>'
         f'    <div class="referral-section-content">'
-        f'      GradCAM++ Heatmap · Affected region coverage: '
-        f'      <strong style="color:{cov_bar_color};">{cov_pct:.1f}%</strong><br>'
-        f'      <div style="background:#E2E8F0;border-radius:99px;height:8px;margin:0.35rem 0;overflow:hidden;">'
-        f'        <div style="width:{min(cov_pct,100):.0f}%;height:8px;background:{cov_bar_color};border-radius:99px;"></div>'
-        f'      </div>'
-        f'      <span style="font-size:0.75rem;color:#718096;">{cov_note}</span>'
+        f'      <strong>Affected area:</strong> {area}<br>'
+        f'      <strong>Duration:</strong> {duration}<br>'
+        f'      <strong>Progression:</strong> {progression}<br>'
+        f'      <strong>Previous treatment:</strong> {prev_tx}'
         f'    </div>'
         f'  </div>'
         f'</div>',

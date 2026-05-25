@@ -606,9 +606,11 @@ class TestRenderReferralPreview:
         html = self._call()
         assert "Rahim" in html
 
-    def test_coverage_pct_shown(self):
+    def test_examination_section_shown(self):
+        # Section 2 was repurposed from GradCAM coverage to Examination
+        # Findings (affected area / duration / progression / prev treatment).
         html = self._call()
-        assert "22.5" in html
+        assert "Examination Findings" in html
 
     def test_tier1_color_applied(self):
         html = self._call()
