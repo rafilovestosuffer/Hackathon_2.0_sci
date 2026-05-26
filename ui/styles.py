@@ -1052,8 +1052,57 @@ section[data-testid="stSidebar"] [data-testid="stExpander"] summary {
   filter: brightness(1.08);
   transform: translateY(-1px);
 }
-/* Audio input widget — minimal override only (waveform needs its own dark bg) */
-[data-testid="stAudioInput"] { border-radius: 12px !important; overflow: hidden; }
+/* ─── Audio recorder — premium gradient mic pill ──────────────────────────── */
+[data-testid="stAudioInput"] {
+  border-radius: 14px !important;
+  overflow: hidden;
+  background:
+    linear-gradient(#FFFFFF, #FFFFFF) padding-box,
+    linear-gradient(135deg, rgba(220,38,38,0.45), rgba(22,104,164,0.40)) border-box !important;
+  border: 1.5px solid transparent !important;
+  box-shadow: 0 2px 10px rgba(15,23,42,0.05);
+  transition: transform 0.15s ease, box-shadow 0.2s ease;
+}
+[data-testid="stAudioInput"]:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 26px rgba(220,38,38,0.10), 0 2px 6px rgba(15,23,42,0.06) !important;
+}
+/* The actual "Start recording" / "Stop" button inside */
+[data-testid="stAudioInput"] button {
+  background: linear-gradient(135deg, #DC2626 0%, #B91C1C 100%) !important;
+  color: #FFFFFF !important;
+  border: 1px solid rgba(185,28,28,0.55) !important;
+  border-radius: 10px !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.005em;
+  padding: 0.6rem 1.2rem !important;
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.22) inset,
+    0 3px 10px rgba(220,38,38,0.30),
+    0 1px 2px rgba(220,38,38,0.18) !important;
+  transition: filter 0.15s, transform 0.12s, box-shadow 0.18s !important;
+}
+[data-testid="stAudioInput"] button:hover {
+  filter: brightness(1.07);
+  transform: translateY(-1px);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.28) inset,
+    0 8px 22px rgba(220,38,38,0.40),
+    0 2px 6px rgba(220,38,38,0.22) !important;
+}
+/* Pulsing rec dot — uses ::before on the button label area */
+[data-testid="stAudioInput"] button > div::before {
+  content: ""; display: inline-block;
+  width: 9px; height: 9px; border-radius: 50%;
+  background: #FFFFFF; margin-right: 9px;
+  vertical-align: middle;
+  box-shadow: 0 0 0 0 rgba(255,255,255,0.7);
+  animation: rec-pulse 1.4s ease-in-out infinite;
+}
+@keyframes rec-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255,255,255,0.75); opacity: 1; }
+  50%      { box-shadow: 0 0 0 6px rgba(255,255,255,0);   opacity: 0.55; }
+}
 
 /* ─── Image quality warning ──────────────────────────────────────────────────── */
 .blur-warning {
@@ -1296,21 +1345,76 @@ section[data-testid="stSidebar"] [data-testid="stExpander"] summary {
   font-family: 'Noto Sans Bengali', sans-serif !important;
 }
 
-/* ─── Quick-Start expander — premium gold accent card ────────────────────────── */
+/* ─── Expanders — premium editorial cards with gradient accent stripe ─────── */
 [data-testid="stExpander"] {
   border: 1px solid var(--c-border) !important;
   border-radius: 14px !important;
   background:
-    linear-gradient(180deg, #FFFDF7 0%, #FFFFFF 100%) !important;
-  box-shadow: var(--shadow);
+    linear-gradient(180deg, #FFFFFF 0%, #FBFCFE 100%) !important;
+  box-shadow:
+    0 1px 0 rgba(255,255,255,1) inset,
+    0 2px 6px rgba(15,23,42,0.05),
+    0 1px 2px rgba(15,23,42,0.04) !important;
   overflow: hidden;
+  position: relative;
+  transition: box-shadow 0.2s ease, transform 0.15s ease, border-color 0.18s ease;
+}
+[data-testid="stExpander"]:hover {
+  border-color: rgba(22,104,164,0.30) !important;
+  box-shadow:
+    0 1px 0 rgba(255,255,255,1) inset,
+    0 8px 22px rgba(22,104,164,0.08),
+    0 2px 6px rgba(15,23,42,0.05) !important;
 }
 [data-testid="stExpander"] summary {
-  padding: 0.7rem 1rem !important;
-  font-weight: 600 !important;
+  padding: 0.85rem 1.1rem !important;
+  font-weight: 650 !important;
+  font-size: 0.92rem !important;
+  color: var(--c-t1) !important;
+  letter-spacing: -0.005em;
+  cursor: pointer;
+  position: relative;
+  transition: color 0.15s;
+}
+[data-testid="stExpander"] summary::before {
+  content: "";
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: var(--grad-primary);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+[data-testid="stExpander"][open] summary::before,
+[data-testid="stExpander"]:hover summary::before {
+  opacity: 1;
 }
 [data-testid="stExpander"] summary:hover {
-  background: rgba(245,158,11,0.04) !important;
+  background: linear-gradient(90deg, rgba(22,104,164,0.04), transparent 80%) !important;
+}
+/* Quick-Start specifically — gold/amber accent override (the only
+   expander with a lightning emoji in its summary label).            */
+[data-testid="stExpander"] summary:has(p:first-letter) {
+  /* fallback: applies to all */
+}
+[data-testid="stExpander"]:first-of-type {
+  background:
+    linear-gradient(180deg, #FFFDF7 0%, #FFFFFF 100%) !important;
+}
+[data-testid="stExpander"]:first-of-type summary::before {
+  background: linear-gradient(180deg, #FBBF24 0%, #F59E0B 100%);
+}
+[data-testid="stExpander"][open] {
+  border-color: rgba(22,104,164,0.25) !important;
+}
+
+/* Chevron arrow */
+[data-testid="stExpander"] summary svg {
+  color: var(--c-primary) !important;
+  transition: transform 0.25s ease;
+}
+[data-testid="stExpander"][open] summary svg {
+  transform: rotate(90deg);
 }
 
 /* Quick-Demo case buttons — distinct premium chips, not flat secondary
@@ -1349,18 +1453,79 @@ section[data-testid="stSidebar"] [data-testid="stExpander"] summary {
 
 /* ─── Selectbox / inputs — premium light theme ───────────────────────────────── */
 [data-baseweb="select"] > div {
-  background: #FFFFFF !important;
-  border: 1px solid var(--c-border) !important;
-  border-radius: 10px !important;
-  box-shadow: var(--shadow-xs) !important;
-  transition: border-color 0.15s, box-shadow 0.15s;
+  background:
+    linear-gradient(180deg, #FFFFFF 0%, #FBFCFE 100%) !important;
+  border: 1.5px solid var(--c-border) !important;
+  border-radius: 12px !important;
+  box-shadow:
+    0 1px 0 rgba(255,255,255,1) inset,
+    0 1px 3px rgba(15,23,42,0.05),
+    0 1px 2px rgba(15,23,42,0.03) !important;
+  transition: border-color 0.18s, box-shadow 0.18s, transform 0.12s;
+  min-height: 46px !important;
 }
 [data-baseweb="select"] > div:hover {
-  border-color: rgba(22,104,164,0.40) !important;
+  border-color: rgba(22,104,164,0.45) !important;
+  box-shadow:
+    0 1px 0 rgba(255,255,255,1) inset,
+    0 4px 12px rgba(22,104,164,0.08),
+    0 1px 3px rgba(15,23,42,0.05) !important;
 }
 [data-baseweb="select"] > div:focus-within {
   border-color: var(--c-primary) !important;
-  box-shadow: var(--ring-primary) !important;
+  box-shadow:
+    0 1px 0 rgba(255,255,255,1) inset,
+    var(--ring-primary),
+    0 4px 12px rgba(22,104,164,0.10) !important;
+}
+/* The dropdown chevron — make it brand-blue */
+[data-baseweb="select"] svg { color: var(--c-primary) !important; }
+
+/* Dropdown menu popover */
+[data-baseweb="popover"] ul[role="listbox"] {
+  background: #FFFFFF !important;
+  border: 1px solid var(--c-border) !important;
+  border-radius: 12px !important;
+  box-shadow: var(--shadow-lg) !important;
+  padding: 6px !important;
+  overflow: hidden;
+}
+[data-baseweb="popover"] li[role="option"] {
+  border-radius: 8px !important;
+  font-weight: 500 !important;
+  transition: background 0.12s;
+}
+[data-baseweb="popover"] li[role="option"][aria-selected="true"],
+[data-baseweb="popover"] li[role="option"]:hover {
+  background: linear-gradient(135deg, rgba(22,104,164,0.10), rgba(16,185,129,0.06)) !important;
+  color: var(--c-primary) !important;
+}
+
+/* ─── Streamlit form-label typography (clean section headers) ───────────────── */
+[data-testid="stWidgetLabel"] label,
+.stSelectbox label, .stTextInput label, .stTextArea label, .stNumberInput label {
+  font-size: 0.74rem !important;
+  font-weight: 700 !important;
+  color: #475569 !important;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* ─── Help tooltip "?" icon — premium round chip ─────────────────────────────── */
+[data-testid="stTooltipIcon"] svg,
+[data-baseweb="tooltip"] svg,
+.stTooltipIcon svg {
+  width: 16px !important; height: 16px !important;
+  color: var(--c-primary) !important;
+  background: linear-gradient(135deg, rgba(22,104,164,0.10), rgba(16,185,129,0.08));
+  border-radius: 50%;
+  padding: 2px;
+  border: 1px solid rgba(22,104,164,0.20);
+  transition: transform 0.15s, box-shadow 0.18s;
+}
+[data-testid="stTooltipIcon"]:hover svg {
+  transform: scale(1.08);
+  box-shadow: 0 0 0 4px rgba(22,104,164,0.10);
 }
 
 .stTextInput input, .stTextArea textarea, .stNumberInput input {
