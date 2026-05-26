@@ -41,22 +41,26 @@ def inject_css() -> None:
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 
 <style>
-/* ─── CSS Custom Properties ────────────────────────────────────────────────── */
+/* ─── CSS Custom Properties — refined clinical SaaS palette ────────────────── */
 :root {
-  --c-primary:  #1A6FA8;
-  --c-teal:     #0D9E75;
-  --c-red:      #C0392B;
-  --c-amber:    #E67E22;
-  --c-green:    #27AE60;
-  --c-bg:       #F8FAFC;
+  --c-primary:  #0B4F6C;   /* deep medical navy — anchors the brand */
+  --c-primary-2:#0F6E8C;   /* primary hover / lighter accent */
+  --c-teal:     #10B981;   /* single emerald accent */
+  --c-red:      #DC2626;
+  --c-amber:    #F59E0B;
+  --c-green:    #10B981;
+  --c-bg:       #F1F5F9;   /* refined slate canvas */
+  --c-bg-2:     #F8FAFC;
   --c-card:     #FFFFFF;
-  --c-border:   #E2E8F0;
-  --c-t1:       #1A202C;
-  --c-t2:       #4A5568;
-  --c-t3:       #718096;
-  --r-card:     12px;
-  --shadow:     0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.05);
-  --shadow-md:  0 4px 12px rgba(0,0,0,0.10);
+  --c-border:   #E5EAF0;   /* hairline, cooler */
+  --c-border-2: #EEF2F6;   /* even softer for inner separators */
+  --c-t1:       #0F172A;   /* slate-900 — premium ink */
+  --c-t2:       #475569;   /* slate-600 */
+  --c-t3:       #94A3B8;   /* slate-400 */
+  --r-card:     14px;
+  --shadow:     0 1px 2px rgba(15,23,42,0.04), 0 1px 1px rgba(15,23,42,0.03);
+  --shadow-md:  0 4px 14px rgba(15,23,42,0.06), 0 1px 3px rgba(15,23,42,0.04);
+  --shadow-lg:  0 10px 30px rgba(15,23,42,0.08), 0 2px 6px rgba(15,23,42,0.04);
 }
 
 /* ─── Global font & background ─────────────────────────────────────────────── */
@@ -65,35 +69,31 @@ html, body, [class*="css"] {
   color: var(--c-t1) !important;
 }
 
-/* Clinical gradient background — no pseudo-elements (iframe-safe). */
+/* Premium clinical canvas — restrained slate with a single navy wash on
+   the top edge and a hairline dot-grid for depth. No color blobs. */
 .stApp {
   background:
-    radial-gradient(ellipse at 12% 18%,  rgba(13,158,117,0.13) 0%, transparent 42%),
-    radial-gradient(ellipse at 88% 12%,  rgba(26,111,168,0.11) 0%, transparent 48%),
-    radial-gradient(ellipse at 78% 88%,  rgba(0,106,78,0.10)   0%, transparent 45%),
-    radial-gradient(ellipse at 18% 92%,  rgba(241,80,80,0.06)  0%, transparent 40%),
-    linear-gradient(135deg, #EEF4F9 0%, #F4F8FB 50%, #ECF3F0 100%) !important;
+    radial-gradient(ellipse 80% 50% at 50% -10%,
+      rgba(11,79,108,0.10) 0%, transparent 60%),
+    radial-gradient(circle at 1px 1px, rgba(15,23,42,0.045) 1px, transparent 0),
+    linear-gradient(180deg, #F1F5F9 0%, #F8FAFC 100%) !important;
+  background-size: auto, 22px 22px, auto !important;
   min-height: 100vh;
 }
 
-/* Main container — glass-morphism: translucent white over the mesh,
-   crisp border-radius, soft elevated shadow, sits above decorative layers. */
+/* Main container — clean elevated surface (not glass), tight radius,
+   single soft shadow. Pro SaaS, not decorative. */
 .main .block-container {
-  padding-top: 1.4rem;
+  padding-top: 1.6rem;
   padding-bottom: 3.5rem;
-  padding-left: 2.2rem;
-  padding-right: 2.2rem;
-  max-width: 1180px;
-  background: rgba(255,255,255,0.78) !important;
-  backdrop-filter: blur(14px) saturate(140%);
-  -webkit-backdrop-filter: blur(14px) saturate(140%);
-  border-radius: 22px;
-  border: 1px solid rgba(255,255,255,0.55);
-  box-shadow:
-    0 1px 0 rgba(255,255,255,0.9) inset,
-    0 20px 60px rgba(15,42,75,0.10),
-    0 4px 14px rgba(15,42,75,0.06);
-  margin-top: 1rem;
+  padding-left: 2.4rem;
+  padding-right: 2.4rem;
+  max-width: 1200px;
+  background: #FFFFFF !important;
+  border-radius: 18px;
+  border: 1px solid var(--c-border);
+  box-shadow: var(--shadow-lg);
+  margin-top: 1.2rem;
   margin-bottom: 1.5rem;
   position: relative;
   z-index: 1;
@@ -225,14 +225,14 @@ section[data-testid="stSidebar"] [data-testid="stExpander"] summary {
   line-height: 1.15;
 }
 
-/* ─── Tab bar ───────────────────────────────────────────────────────────────── */
+/* ─── Tab bar — segmented control, premium SaaS feel ────────────────────────── */
 .stTabs [data-baseweb="tab-list"] {
-  background: #F4F7FB;
-  border-radius: 14px;
-  border: 1.5px solid var(--c-border);
-  padding: 5px;
-  gap: 4px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  background: var(--c-bg);
+  border-radius: 12px;
+  border: 1px solid var(--c-border);
+  padding: 4px;
+  gap: 2px;
+  box-shadow: none;
   display: flex;
   width: 100%;
 }
@@ -240,26 +240,27 @@ section[data-testid="stSidebar"] [data-testid="stExpander"] summary {
   font-family: 'Inter', 'Noto Sans Bengali', sans-serif !important;
   font-weight: 500;
   font-size: 0.86rem;
-  padding: 0.55rem 0;
-  color: #5B7080 !important;
+  padding: 0.6rem 0;
+  color: var(--c-t2) !important;
   border: none !important;
   border-radius: 8px;
   background: transparent !important;
   flex: 1;
   text-align: center;
-  transition: color 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
+  transition: color 0.15s ease, background 0.15s ease;
   cursor: pointer;
   white-space: nowrap;
+  letter-spacing: -0.005em;
 }
 .stTabs [data-baseweb="tab"]:hover:not([aria-selected="true"]) {
   color: var(--c-primary) !important;
-  background: rgba(13,110,253,0.07) !important;
+  background: rgba(11,79,108,0.04) !important;
 }
 .stTabs [aria-selected="true"] {
   color: var(--c-primary) !important;
-  font-weight: 700 !important;
+  font-weight: 600 !important;
   background: #FFFFFF !important;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.10) !important;
+  box-shadow: 0 1px 3px rgba(15,23,42,0.06), 0 0 0 1px var(--c-border) !important;
   border: none !important;
 }
 .stTabs [data-baseweb="tab-panel"] { padding-top: 1.4rem; }
@@ -422,23 +423,28 @@ section[data-testid="stSidebar"] [data-testid="stExpander"] summary {
   font-family: 'Noto Sans Bengali', 'Inter', sans-serif;
 }
 
-/* ─── Columns as cards (multiple selector variants for Streamlit compat) ────── */
+/* ─── Columns as cards — flat clinical surface, no hover bounce ─────────────── */
 [data-testid="stHorizontalBlock"] > [data-testid="column"],
 [data-testid="stHorizontalBlock"] > div[data-testid="column"],
 div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
   background: #FFFFFF !important;
-  border: 1px solid #E2E8F0 !important;
-  border-top: 5px solid #0D9E75 !important;
-  border-radius: 16px !important;
-  padding: 1.5rem 1.6rem !important;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.10), 0 1px 4px rgba(0,0,0,0.06) !important;
-  transition: box-shadow 0.22s ease, transform 0.22s ease;
-  margin: 0 0.25rem !important;
+  border: 1px solid var(--c-border) !important;
+  border-radius: 14px !important;
+  padding: 1.5rem 1.7rem !important;
+  box-shadow: var(--shadow) !important;
+  margin: 0 0.3rem !important;
+  position: relative;
 }
-[data-testid="stHorizontalBlock"] > [data-testid="column"]:hover,
-[data-testid="stHorizontalBlock"] > div[data-testid="column"]:hover {
-  box-shadow: 0 10px 40px rgba(0,0,0,0.14), 0 2px 8px rgba(0,0,0,0.07) !important;
-  transform: translateY(-3px);
+/* Subtle top accent stripe — single hairline, not a slab */
+[data-testid="stHorizontalBlock"] > [data-testid="column"]::before,
+[data-testid="stHorizontalBlock"] > div[data-testid="column"]::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 14px; right: 14px;
+  height: 2px;
+  background: linear-gradient(90deg, var(--c-primary), var(--c-teal));
+  border-radius: 0 0 2px 2px;
+  opacity: 0.85;
 }
 
 /* ─── Info boxes ────────────────────────────────────────────────────────────── */
@@ -844,27 +850,40 @@ div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
 /* ─── Buttons ────────────────────────────────────────────────────────────────── */
 .stButton > button {
   font-family: 'Inter', 'Noto Sans Bengali', sans-serif !important;
-  font-weight: 600; border-radius: 8px;
-  background: var(--c-primary); color: white; border: none;
-  transition: all 0.15s;
+  font-weight: 600; border-radius: 9px;
+  background: var(--c-primary); color: white; border: 1px solid var(--c-primary);
+  transition: background 0.15s, box-shadow 0.15s, transform 0.05s;
+  letter-spacing: -0.005em;
+  box-shadow: 0 1px 2px rgba(11,79,108,0.18);
 }
-.stButton > button:hover { background: #15568A !important; box-shadow: 0 4px 12px rgba(26,111,168,0.28); }
+.stButton > button:hover {
+  background: var(--c-primary-2) !important;
+  border-color: var(--c-primary-2) !important;
+  box-shadow: 0 2px 8px rgba(11,79,108,0.22) !important;
+}
+.stButton > button:active { transform: translateY(0.5px); }
 .stDownloadButton > button {
   font-family: 'Inter', 'Noto Sans Bengali', sans-serif !important;
-  font-weight: 700 !important; border-radius: 10px !important;
+  font-weight: 600 !important; border-radius: 10px !important;
   background: var(--c-teal) !important; color: white !important;
-  border: none !important; font-size: 1rem !important;
-  padding: 0.8rem 1.5rem !important; transition: all 0.15s;
+  border: 1px solid var(--c-teal) !important; font-size: 0.95rem !important;
+  padding: 0.75rem 1.4rem !important; transition: all 0.15s;
+  box-shadow: 0 1px 2px rgba(16,185,129,0.20);
+  letter-spacing: -0.005em;
 }
-.stDownloadButton > button:hover { background: #0B8060 !important; box-shadow: 0 4px 12px rgba(13,158,117,0.3); }
+.stDownloadButton > button:hover {
+  background: #0EA371 !important;
+  border-color: #0EA371 !important;
+  box-shadow: 0 2px 8px rgba(16,185,129,0.28) !important;
+}
 
 /* ─── File uploader — force light theme ─────────────────────────────────────── */
 [data-testid="stFileUploaderDropzone"],
 [data-testid="stFileUploadDropzone"] {
-  background: #EEF6FF !important;
-  border: 2px dashed #1A6FA8 !important;
+  background: var(--c-bg-2) !important;
+  border: 1.5px dashed #BFD3DD !important;
   border-radius: 12px !important;
-  color: #4A5568 !important;
+  color: var(--c-t2) !important;
   transition: border-color 0.2s, background 0.2s;
 }
 [data-testid="stFileUploaderDropzone"] > div,
@@ -873,8 +892,8 @@ div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
 }
 [data-testid="stFileUploaderDropzone"]:hover,
 [data-testid="stFileUploadDropzone"]:hover {
-  background: #E3EFFF !important;
-  border-color: #0D9E75 !important;
+  background: #FFFFFF !important;
+  border-color: var(--c-primary) !important;
 }
 [data-testid="stFileUploaderDropzone"] span,
 [data-testid="stFileUploadDropzone"] span,
@@ -888,16 +907,16 @@ div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
 }
 [data-testid="stFileUploaderDropzone"] button,
 [data-testid="stFileUploadDropzone"] button {
-  background: #1A6FA8 !important;
+  background: var(--c-primary) !important;
   color: white !important;
   border: none !important;
   border-radius: 8px !important;
   font-weight: 600 !important;
-  padding: 0.35rem 0.9rem !important;
+  padding: 0.4rem 1rem !important;
 }
 [data-testid="stFileUploaderDropzone"] button:hover,
 [data-testid="stFileUploadDropzone"] button:hover {
-  background: #155d8e !important;
+  background: var(--c-primary-2) !important;
 }
 /* Audio input widget — minimal override only (waveform needs its own dark bg) */
 [data-testid="stAudioInput"] { border-radius: 12px !important; overflow: hidden; }
@@ -940,56 +959,61 @@ div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
 .hospital-name { font-weight: 700; color: var(--c-t1); font-size: 0.9rem; }
 .hospital-meta { font-size: 0.78rem; color: var(--c-t2); margin-top: 0.15rem; }
 
-/* ─── Tab 1 — Diagnosis professional polish ─────────────────────────────────── */
+/* ─── Tab 1 — Diagnosis: premium clinical panel head ────────────────────────── */
 .dx-panel-head {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  margin: -0.25rem 0 0.15rem 0;
+  gap: 0.85rem;
+  margin: -0.4rem 0 0.2rem 0;
+  padding-bottom: 0.8rem;
+  border-bottom: 1px solid var(--c-border-2);
 }
 .dx-step-badge {
   flex-shrink: 0;
-  width: 34px; height: 34px;
-  border-radius: 10px;
-  background: linear-gradient(135deg, #1A6FA8 0%, #0D9E75 100%);
-  color: white;
+  width: 32px; height: 32px;
+  border-radius: 9px;
+  background: #F0F7FA;
+  color: var(--c-primary);
+  border: 1px solid #D7E7EF;
   display: flex; align-items: center; justify-content: center;
-  font-weight: 800; font-size: 0.95rem;
-  box-shadow: 0 3px 10px rgba(26,111,168,0.28), inset 0 1px 0 rgba(255,255,255,0.25);
+  font-weight: 700; font-size: 0.92rem;
   letter-spacing: -0.01em;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.7);
 }
 .dx-step-badge.dx-step-photo {
-  background: linear-gradient(135deg, #0D9E75 0%, #1A6FA8 100%);
-  box-shadow: 0 3px 10px rgba(13,158,117,0.28), inset 0 1px 0 rgba(255,255,255,0.25);
+  background: #ECFDF5;
+  color: #047857;
+  border-color: #BBF7D0;
 }
 .dx-panel-titles { flex: 1; min-width: 0; }
 .dx-panel-title-en {
-  font-size: 1.05rem; font-weight: 700; color: #0F172A;
-  letter-spacing: -0.012em; line-height: 1.2;
+  font-size: 1.02rem; font-weight: 650; color: var(--c-t1);
+  letter-spacing: -0.015em; line-height: 1.25;
 }
 .dx-panel-title-bn {
-  font-size: 0.76rem; color: #94A3B8; font-weight: 500;
+  font-size: 0.74rem; color: var(--c-t3); font-weight: 500;
   font-family: 'Noto Sans Bengali', 'Inter', sans-serif !important;
-  margin-top: 0.1rem;
+  margin-top: 0.12rem;
+  letter-spacing: 0;
 }
 .dx-panel-pill {
   flex-shrink: 0;
-  font-size: 0.58rem; font-weight: 800; letter-spacing: 0.1em;
-  padding: 0.22rem 0.6rem; border-radius: 99px;
+  font-size: 0.58rem; font-weight: 700; letter-spacing: 0.09em;
+  padding: 0.24rem 0.65rem; border-radius: 6px;
   text-transform: uppercase;
   border: 1px solid transparent;
 }
-.dx-pill-required { background: #FEF2F2; color: #991B1B; border-color: #FECACA; }
-.dx-pill-optional { background: #ECFEFF; color: #155E75; border-color: #A5F3FC; }
+.dx-pill-required { background: #FEF2F2; color: #B91C1C; border-color: #FECACA; }
+.dx-pill-optional { background: var(--c-bg); color: var(--c-t2); border-color: var(--c-border); }
 .dx-panel-desc {
-  font-size: 0.82rem; color: #64748B;
-  margin: 0.55rem 0 0.9rem 0; line-height: 1.55;
+  font-size: 0.83rem; color: var(--c-t2);
+  margin: 0.85rem 0 1rem 0; line-height: 1.6;
+  letter-spacing: -0.005em;
 }
 .dx-divider {
   height: 1px;
-  background: linear-gradient(90deg,
-    transparent 0%, #E2E8F0 18%, #E2E8F0 82%, transparent 100%);
-  margin: 1.25rem 0 1.1rem 0;
+  background: var(--c-border-2);
+  margin: 1.4rem 0 1.2rem 0;
   border: none;
 }
 
@@ -1007,26 +1031,24 @@ div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
   font-weight: 800;
 }
 
-/* Empty-state upload prompt — inviting clinical card */
+/* Empty-state upload prompt — refined clinical card */
 .dx-upload-empty {
-  background:
-    radial-gradient(ellipse at top, rgba(26,111,168,0.06), transparent 70%),
-    linear-gradient(180deg, #F8FAFC 0%, #EEF6FF 100%);
-  border: 1.5px dashed #C7DBEF;
+  background: var(--c-bg-2);
+  border: 1.5px dashed var(--c-border);
   border-radius: 14px;
-  padding: 2.4rem 1.5rem;
+  padding: 2.6rem 1.5rem;
   text-align: center;
   margin-top: 0.6rem;
 }
 .dx-upload-empty-icon {
-  width: 56px; height: 56px;
-  margin: 0 auto 0.55rem auto;
-  border-radius: 14px;
-  background: linear-gradient(135deg, #EEF6FF, #DCEBFB);
-  border: 1px solid #C7DBEF;
+  width: 54px; height: 54px;
+  margin: 0 auto 0.7rem auto;
+  border-radius: 12px;
+  background: #FFFFFF;
+  border: 1px solid var(--c-border);
   display: flex; align-items: center; justify-content: center;
-  font-size: 1.7rem;
-  box-shadow: 0 4px 12px rgba(26,111,168,0.10);
+  font-size: 1.6rem;
+  box-shadow: var(--shadow);
 }
 .dx-upload-empty-title {
   font-size: 0.94rem; font-weight: 600; color: #334155;
