@@ -1095,36 +1095,54 @@ section[data-testid="stSidebar"] [data-testid="stExpander"] summary {
   transform: translateY(-1px);
   box-shadow: 0 10px 26px rgba(220,38,38,0.10), 0 2px 6px rgba(15,23,42,0.06) !important;
 }
-/* The actual "Start recording" / "Stop" button inside */
-[data-testid="stAudioInput"] button {
+/* The actual "Start recording" / "Stop" button inside — comprehensive
+   selectors covering Streamlit's nested wrappers (stAudioInput holds a
+   BaseWeb button wrapper which contains the real <button>).             */
+[data-testid="stAudioInput"] button,
+[data-testid="stAudioInput"] [data-baseweb="button"],
+[data-testid="stAudioInput"] [role="button"],
+[data-testid="stAudioInputActionButton"],
+[data-testid="stAudioInputStartButton"],
+[data-testid="stAudioInputStopButton"],
+[data-testid="stAudioInputDeleteButton"] {
   background: linear-gradient(135deg, #DC2626 0%, #B91C1C 100%) !important;
   color: #FFFFFF !important;
   border: 1px solid rgba(185,28,28,0.55) !important;
-  border-radius: 10px !important;
+  border-radius: 11px !important;
   font-weight: 700 !important;
   letter-spacing: -0.005em;
-  padding: 0.6rem 1.2rem !important;
+  padding: 0.65rem 1.3rem !important;
+  min-height: 42px !important;
   box-shadow:
     0 1px 0 rgba(255,255,255,0.22) inset,
-    0 3px 10px rgba(220,38,38,0.30),
+    0 4px 12px rgba(220,38,38,0.32),
     0 1px 2px rgba(220,38,38,0.18) !important;
   transition: filter 0.15s, transform 0.12s, box-shadow 0.18s !important;
+  width: 100% !important;
 }
-[data-testid="stAudioInput"] button:hover {
-  filter: brightness(1.07);
+[data-testid="stAudioInput"] button *,
+[data-testid="stAudioInput"] [data-baseweb="button"] * {
+  color: #FFFFFF !important;
+}
+[data-testid="stAudioInput"] button:hover,
+[data-testid="stAudioInput"] [data-baseweb="button"]:hover {
+  filter: brightness(1.08);
   transform: translateY(-1px);
   box-shadow:
     0 1px 0 rgba(255,255,255,0.28) inset,
-    0 8px 22px rgba(220,38,38,0.40),
+    0 10px 26px rgba(220,38,38,0.42),
     0 2px 6px rgba(220,38,38,0.22) !important;
 }
-/* Pulsing rec dot — uses ::before on the button label area */
-[data-testid="stAudioInput"] button > div::before {
-  content: ""; display: inline-block;
-  width: 9px; height: 9px; border-radius: 50%;
-  background: #FFFFFF; margin-right: 9px;
+/* Pulsing recording dot — prefixed to button label */
+[data-testid="stAudioInput"] button::before {
+  content: "";
+  display: inline-block;
+  width: 9px; height: 9px;
+  border-radius: 50%;
+  background: #FFFFFF;
+  margin-right: 10px;
   vertical-align: middle;
-  box-shadow: 0 0 0 0 rgba(255,255,255,0.7);
+  box-shadow: 0 0 0 0 rgba(255,255,255,0.75);
   animation: rec-pulse 1.4s ease-in-out infinite;
 }
 @keyframes rec-pulse {
@@ -1647,15 +1665,24 @@ section[data-testid="stSidebar"] [data-testid="stExpander"] summary {
   box-shadow: 0 2px 8px rgba(16,185,129,0.30);
 }
 
-/* Chat input bar — premium gradient border + focus ring */
+/* Chat input bar — premium gradient border + visible glow */
 [data-testid="stChatInput"] {
   background:
     linear-gradient(#FFFFFF, #FFFFFF) padding-box,
-    linear-gradient(135deg, rgba(22,104,164,0.40), rgba(16,185,129,0.40)) border-box !important;
-  border: 1.5px solid transparent !important;
-  border-radius: 14px !important;
-  box-shadow: 0 6px 18px rgba(15,23,42,0.08) !important;
-  transition: box-shadow 0.18s ease;
+    linear-gradient(135deg, #1668A4 0%, #10B981 50%, #6366F1 100%) border-box !important;
+  border: 2px solid transparent !important;
+  border-radius: 16px !important;
+  box-shadow:
+    0 4px 12px rgba(22,104,164,0.12),
+    0 1px 3px rgba(15,23,42,0.05) !important;
+  transition: box-shadow 0.18s ease, transform 0.15s ease;
+  padding: 0.25rem !important;
+}
+[data-testid="stChatInput"]:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    0 8px 22px rgba(22,104,164,0.18),
+    0 2px 6px rgba(15,23,42,0.06) !important;
 }
 [data-testid="stChatInput"]:focus-within {
   box-shadow:
@@ -2188,6 +2215,189 @@ html { scroll-behavior: smooth; }
 ::-webkit-scrollbar-thumb:hover {
   background: linear-gradient(180deg, rgba(22,104,164,0.55), rgba(16,185,129,0.55));
   background-clip: padding-box;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   ASK-AI HERO EMPTY STATE + SUGGESTED LABEL + APP FOOTER
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.ask-hero {
+  text-align: center;
+  padding: 2.2rem 1rem 1.2rem 1rem;
+  position: relative;
+}
+.ask-hero-orb {
+  width: 84px;
+  height: 84px;
+  margin: 0 auto 1.1rem auto;
+  border-radius: 50%;
+  position: relative;
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255,255,255,0.55) 0%, transparent 40%),
+    linear-gradient(135deg, #1668A4 0%, #10B981 70%, #6366F1 100%);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.30) inset,
+    0 14px 36px rgba(22,104,164,0.40),
+    0 6px 14px rgba(16,185,129,0.30),
+    0 0 0 6px rgba(22,104,164,0.06),
+    0 0 0 14px rgba(22,104,164,0.03);
+  display: flex; align-items: center; justify-content: center;
+  animation: orb-float 4.5s ease-in-out infinite;
+}
+.ask-hero-orb::before {
+  content: "";
+  position: absolute;
+  inset: -22px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle, rgba(99,102,241,0.18) 0%, transparent 65%);
+  z-index: -1;
+  animation: orb-glow 3s ease-in-out infinite alternate;
+}
+.ask-hero-orb-inner {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 800;
+  font-size: 1.15rem;
+  color: #FFFFFF;
+  letter-spacing: 0.02em;
+  text-shadow: 0 2px 6px rgba(0,0,0,0.18);
+}
+@keyframes orb-float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-5px); }
+}
+@keyframes orb-glow {
+  from { opacity: 0.6; transform: scale(0.95); }
+  to   { opacity: 1;   transform: scale(1.05); }
+}
+.ask-hero-title {
+  font-size: 1.45rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  background: linear-gradient(135deg, #0B1424 0%, #1668A4 60%, #0E4F7A 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 0.25rem;
+}
+.ask-hero-bn {
+  font-family: 'Noto Sans Bengali', sans-serif !important;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--c-primary);
+  margin-bottom: 0.7rem;
+}
+.ask-hero-sub {
+  font-size: 0.82rem;
+  color: #64748B;
+  max-width: 460px;
+  margin: 0 auto;
+  line-height: 1.55;
+}
+
+/* Section label "Suggested questions" — premium accent */
+.ask-suggested-label {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--c-primary);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin: 1.4rem 0 0.7rem 0;
+}
+.ask-suggested-bar {
+  display: inline-block;
+  width: 24px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--grad-primary);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   APP FOOTER — premium signature card
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.sk-footer {
+  margin-top: 2.4rem;
+  padding: 1.4rem 1.6rem;
+  background:
+    linear-gradient(180deg, transparent 0%, rgba(22,104,164,0.03) 100%);
+  border-top: 1px solid var(--c-border);
+  border-radius: 0 0 16px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.7rem;
+}
+.sk-footer-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+.sk-footer-logo {
+  font-size: 1.2rem;
+  width: 34px; height: 34px;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--grad-primary);
+  border-radius: 9px;
+  color: #FFFFFF;
+  box-shadow: 0 3px 10px rgba(22,104,164,0.30);
+}
+.sk-footer-name {
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--c-t1);
+}
+.sk-footer-name strong {
+  background: var(--grad-primary);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.sk-footer-tagline {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.sk-footer-step {
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--c-primary);
+  background: rgba(22,104,164,0.08);
+  border: 1px solid rgba(22,104,164,0.20);
+  padding: 0.22rem 0.65rem;
+  border-radius: 99px;
+}
+.sk-footer-arrow {
+  color: var(--c-accent);
+  font-weight: 800;
+}
+.sk-footer-meta {
+  font-size: 0.72rem;
+  color: #94A3B8;
+  text-align: center;
+}
+.sk-footer-meta strong {
+  color: var(--c-t2);
+  font-weight: 600;
+}
+
+/* Source pill banner — more compact and balanced */
+.chat-outer-info {
+  padding: 0.55rem 1rem !important;
+  font-size: 0.82rem !important;
+}
+.chat-outer-info > span:last-child {
+  font-size: 0.74rem !important;
+  color: #64748B !important;
+  font-style: italic;
 }
 
 /* ─── Mobile ─────────────────────────────────────────────────────────────────── */

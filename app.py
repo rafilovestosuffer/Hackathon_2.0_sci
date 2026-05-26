@@ -1083,17 +1083,25 @@ with tab2:
             st.session_state.rag_answer   = ""
             st.rerun()
     else:
-        # Empty state
+        # Empty state — premium hero card with animated AI orb
         st.markdown(
-            '<div class="chat-empty" style="text-align:center;padding:1.4rem 0 0.6rem 0;">'
-            '<div style="font-weight:600;color:#1A202C;font-size:1rem;">'
-            'Ask about skin conditions</div>'
-            '<div class="sk-meta-bn" style="color:#94A3B8;">ত্বকের রোগ সম্পর্কে প্রশ্ন করুন</div>'
+            '<div class="ask-hero">'
+            '  <div class="ask-hero-orb">'
+            '    <div class="ask-hero-orb-inner">AI</div>'
+            '  </div>'
+            '  <div class="ask-hero-title">Ask about skin conditions</div>'
+            '  <div class="ask-hero-bn">ত্বকের রোগ সম্পর্কে প্রশ্ন করুন</div>'
+            '  <div class="ask-hero-sub">'
+            '    Grounded in CDC · NIH · WHO · DGHS Bangladesh — '
+            'ask in Bengali or English'
+            '  </div>'
             '</div>',
             unsafe_allow_html=True,
         )
         st.markdown(
-            '<div class="sk-section-h3" style="margin-top:0.8rem;">Suggested questions</div>',
+            '<div class="ask-suggested-label">'
+            '<span class="ask-suggested-bar"></span>Suggested questions'
+            '</div>',
             unsafe_allow_html=True,
         )
         _suggested = render_suggested_questions([
@@ -1596,9 +1604,22 @@ with tab7:
 # APP FOOTER
 # ══════════════════════════════════════════════════════════════════════════════
 st.markdown(
-    '<div class="app-footer">'
-    'SkinAI Bangladesh · Right patient → Right doctor → Right time · '
-    'Built for IEEE SB CUET SciBlitz &amp; Infinity AI BuildFest'
+    '<div class="sk-footer">'
+    '  <div class="sk-footer-brand">'
+    '    <span class="sk-footer-logo">🩺</span>'
+    '    <span class="sk-footer-name">SkinAI <strong>Bangladesh</strong></span>'
+    '  </div>'
+    '  <div class="sk-footer-tagline">'
+    '    <span class="sk-footer-step">Right patient</span>'
+    '    <span class="sk-footer-arrow">→</span>'
+    '    <span class="sk-footer-step">Right doctor</span>'
+    '    <span class="sk-footer-arrow">→</span>'
+    '    <span class="sk-footer-step">Right time</span>'
+    '  </div>'
+    '  <div class="sk-footer-meta">'
+    '    Built for <strong>IEEE SB CUET SciBlitz</strong> &amp; '
+    '<strong>Infinity AI BuildFest</strong>'
+    '  </div>'
     '</div>',
     unsafe_allow_html=True,
 )
