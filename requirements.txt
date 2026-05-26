@@ -52,5 +52,8 @@ gTTS>=2.5.0
 # QR code (DocTime telemedicine handoff — Tab 5)
 qrcode[pil]>=7.4
 
+# MCP server (Model Context Protocol — exposes triage/RAG/hospital as MCP tools)
+mcp>=1.0.0
+
 # Testing
 pytest>=7.0.0
