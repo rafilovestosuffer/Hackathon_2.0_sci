@@ -49,5 +49,8 @@ python-multipart==0.0.20
 # Text-to-speech (Bengali triage audio readout)
 gTTS>=2.5.0
 
+# QR code (DocTime telemedicine handoff — Tab 5)
+qrcode[pil]>=7.4
+
 # Testing
 pytest>=7.0.0

@@ -39,6 +39,8 @@ from ui.components import (
 )
 from ui.doctor_booking import render_doctor_booking_tab
 from ui.consultation_room import render_consultation_room
+from ui.doctime_handoff import render_doctime_handoff_tab
+from ui.phase2_preview import render_phase2_preview_tab
 from severity.engine import compute_tier
 from pdf_gen.referral import generate_referral_pdf
 from rag.retriever import load_index, answer_question
@@ -389,12 +391,13 @@ st.markdown(
 
 
 # ── Tabs ──────────────────────────────────────────────────────────────────────
-tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
+tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
     "Diagnosis · রোগ নির্ণয়",
     "Ask AI · প্রশ্ন করুন",
     "Referral · রেফারেল পত্র",
     "Disease Insights · রোগ-পরিচিতি",
-    "Book Doctor · ডাক্তার বুকিং",
+    "DocTime · ডকটাইম পরামর্শ",
+    "Phase 2 Network · নিজস্ব নেটওয়ার্ক",
     "Impact & Ethics · প্রভাব ও নীতি",
 ])
 
@@ -1466,17 +1469,23 @@ with tab4:
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-# TAB 5 — Doctor Booking
+# TAB 5 — DocTime Telemedicine Handoff (Phase 1 launch partner)
 # ══════════════════════════════════════════════════════════════════════════════
 with tab5:
-    render_doctor_booking_tab()
-    render_consultation_room()
+    render_doctime_handoff_tab()
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-# TAB 6 — Impact, Ethics & Roadmap (Infinity AI BuildFest submission content)
+# TAB 6 — Phase 2 Preview: our own dermatologist network
 # ══════════════════════════════════════════════════════════════════════════════
 with tab6:
+    render_phase2_preview_tab()
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# TAB 7 — Impact, Ethics & Roadmap (Infinity AI BuildFest submission content)
+# ══════════════════════════════════════════════════════════════════════════════
+with tab7:
     st.markdown(
         '<div style="background:linear-gradient(135deg,#1A6FA8 0%,#0D9E75 100%);'
         'color:white;border-radius:14px;padding:1.1rem 1.4rem;margin-bottom:1rem;">'
@@ -1498,6 +1507,79 @@ with tab6:
     ])
     with _t6a:
         render_business_model()
+        st.markdown(
+            """
+            <div style="background:white;border:1px solid #E2E8F0;border-radius:14px;
+                        padding:1.2rem 1.4rem;margin-top:1.2rem;
+                        box-shadow:0 2px 10px rgba(11,42,82,0.04);">
+              <div style="font-size:1.0rem;font-weight:800;color:#1A202C;
+                          margin-bottom:0.2rem;">
+                Telemedicine Integration Roadmap
+              </div>
+              <div style="font-size:0.82rem;color:#4A5568;margin-bottom:0.9rem;
+                          font-family:'Noto Sans Bengali',sans-serif;">
+                টেলিমেডিসিন একীকরণ — তিন ধাপের পরিকল্পনা
+              </div>
+              <table style="width:100%;border-collapse:collapse;font-size:0.86rem;">
+                <thead>
+                  <tr style="background:#F8FAFC;text-align:left;">
+                    <th style="padding:0.55rem 0.8rem;color:#4A5568;font-weight:700;">Phase</th>
+                    <th style="padding:0.55rem 0.8rem;color:#4A5568;font-weight:700;">Status</th>
+                    <th style="padding:0.55rem 0.8rem;color:#4A5568;font-weight:700;">Partner</th>
+                    <th style="padding:0.55rem 0.8rem;color:#4A5568;font-weight:700;">Mechanism</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr style="border-top:1px solid #E2E8F0;">
+                    <td style="padding:0.55rem 0.8rem;font-weight:700;">1</td>
+                    <td style="padding:0.55rem 0.8rem;">
+                      <span style="background:#D5F5E3;color:#1E8449;font-weight:700;
+                                   font-size:0.74rem;padding:2px 9px;border-radius:999px;">
+                        LIVE
+                      </span>
+                    </td>
+                    <td style="padding:0.55rem 0.8rem;font-weight:700;color:#0B2A52;">DocTime</td>
+                    <td style="padding:0.55rem 0.8rem;color:#4A5568;">
+                      Deep-link + QR + WhatsApp + referral PDF handoff
+                    </td>
+                  </tr>
+                  <tr style="border-top:1px solid #E2E8F0;">
+                    <td style="padding:0.55rem 0.8rem;font-weight:700;">2</td>
+                    <td style="padding:0.55rem 0.8rem;">
+                      <span style="background:#FDEBD0;color:#A04000;font-weight:700;
+                                   font-size:0.74rem;padding:2px 9px;border-radius:999px;">
+                        BETA
+                      </span>
+                    </td>
+                    <td style="padding:0.55rem 0.8rem;">Faridpur MCH + Rangpur MCH (own network)</td>
+                    <td style="padding:0.55rem 0.8rem;color:#4A5568;">
+                      In-app booking with our dermatologists
+                    </td>
+                  </tr>
+                  <tr style="border-top:1px solid #E2E8F0;">
+                    <td style="padding:0.55rem 0.8rem;font-weight:700;">3</td>
+                    <td style="padding:0.55rem 0.8rem;">
+                      <span style="background:#F1F5F9;color:#64748B;font-weight:700;
+                                   font-size:0.74rem;padding:2px 9px;border-radius:999px;">
+                        PLANNED
+                      </span>
+                    </td>
+                    <td style="padding:0.55rem 0.8rem;">Praava Health · MediCal · Maya</td>
+                    <td style="padding:0.55rem 0.8rem;color:#4A5568;">
+                      Same handoff layer — pluggable provider interface
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+              <div style="font-size:0.76rem;color:#718096;margin-top:0.8rem;
+                          line-height:1.5;">
+                Architecture: <code>telemedicine/providers.py</code> defines the
+                provider contract. Adding a new partner is one Python file.
+              </div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
     with _t6b:
         render_ethics_card()
     with _t6c:
