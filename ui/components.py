@@ -929,13 +929,109 @@ def render_fairness_disclosure() -> None:
 
 
 def render_business_model() -> None:
-    """Three sustainability streams + live unit economics. Pure rendering."""
+    """Freemium subscription + three institutional streams + live unit economics."""
     st.markdown(
         '<div class="sk-section-h2">Business Model &amp; Sustainability</div>'
-        '<div class="sk-meta">Free at the patient endpoint forever · three streams keep the lights on</div>',
+        '<div class="sk-meta">Freemium for patients · 5 free screenings, then ৳150/month unlimited · '
+        'three institutional streams keep the floor below the patient price</div>',
         unsafe_allow_html=True,
     )
     st.write("")
+
+    # ── Freemium subscription — primary patient-facing stream ─────────────────
+    st.markdown(
+        '<div style="background:linear-gradient(135deg,#0B2A52 0%,#1A6FA8 60%,#0D9E75 100%);'
+        'color:white;border-radius:14px;padding:1.15rem 1.35rem;margin-bottom:0.9rem;'
+        'box-shadow:0 6px 22px rgba(11,42,82,0.18);">'
+        '  <div style="display:flex;justify-content:space-between;align-items:baseline;'
+        '              flex-wrap:wrap;gap:0.5rem;">'
+        '    <div style="font-size:1.0rem;font-weight:800;letter-spacing:0.01em;">'
+        '      Patient subscription · Freemium'
+        '    </div>'
+        '    <div style="font-size:0.74rem;font-weight:700;background:rgba(255,255,255,0.18);'
+        '                border:1px solid rgba(255,255,255,0.35);border-radius:999px;'
+        '                padding:3px 10px;letter-spacing:0.04em;text-transform:uppercase;">'
+        '      Primary stream'
+        '    </div>'
+        '  </div>'
+        '  <div style="font-size:0.82rem;opacity:0.94;margin-top:0.35rem;line-height:1.55;">'
+        '    Every new user gets <strong>5 free AI screenings</strong> — enough to evaluate the system '
+        '    on real lesions and walk a family member through it. After the free quota, a single '
+        '    <strong>৳150 / month</strong> subscription unlocks <strong>unlimited screenings</strong>, '
+        '    severity triage, referral PDFs and the Bengali RAG chatbot. Cancel anytime; the free '
+        '    tier never expires for emergency (Tier 3) cases — those are always free, even if the '
+        '    quota is exhausted, so cost can never be a barrier to urgent care.'
+        '  </div>'
+        '  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));'
+        '              gap:0.55rem;margin-top:0.85rem;">'
+        '    <div style="background:rgba(255,255,255,0.10);border:1px solid rgba(255,255,255,0.22);'
+        '                border-radius:10px;padding:0.55rem 0.7rem;">'
+        '      <div style="font-size:0.68rem;text-transform:uppercase;letter-spacing:0.06em;'
+        '                  opacity:0.85;font-weight:700;">Free tier</div>'
+        '      <div style="font-size:1.05rem;font-weight:800;margin-top:0.15rem;">৳0</div>'
+        '      <div style="font-size:0.74rem;opacity:0.9;margin-top:0.1rem;">'
+        '        5 screenings · lifetime'
+        '      </div>'
+        '    </div>'
+        '    <div style="background:rgba(255,255,255,0.10);border:1px solid rgba(255,255,255,0.22);'
+        '                border-radius:10px;padding:0.55rem 0.7rem;">'
+        '      <div style="font-size:0.68rem;text-transform:uppercase;letter-spacing:0.06em;'
+        '                  opacity:0.85;font-weight:700;">Pro · Monthly</div>'
+        '      <div style="font-size:1.05rem;font-weight:800;margin-top:0.15rem;">৳150 / mo</div>'
+        '      <div style="font-size:0.74rem;opacity:0.9;margin-top:0.1rem;">'
+        '        ≈ $1.25 · unlimited screenings'
+        '      </div>'
+        '    </div>'
+        '    <div style="background:rgba(255,255,255,0.10);border:1px solid rgba(255,255,255,0.22);'
+        '                border-radius:10px;padding:0.55rem 0.7rem;">'
+        '      <div style="font-size:0.68rem;text-transform:uppercase;letter-spacing:0.06em;'
+        '                  opacity:0.85;font-weight:700;">Effective unit</div>'
+        '      <div style="font-size:1.05rem;font-weight:800;margin-top:0.15rem;">≤ ৳5</div>'
+        '      <div style="font-size:0.74rem;opacity:0.9;margin-top:0.1rem;">'
+        '        per screening at 30+ uses/mo'
+        '      </div>'
+        '    </div>'
+        '    <div style="background:rgba(255,255,255,0.10);border:1px solid rgba(255,255,255,0.22);'
+        '                border-radius:10px;padding:0.55rem 0.7rem;">'
+        '      <div style="font-size:0.68rem;text-transform:uppercase;letter-spacing:0.06em;'
+        '                  opacity:0.85;font-weight:700;">Emergency</div>'
+        '      <div style="font-size:1.05rem;font-weight:800;margin-top:0.15rem;">Always free</div>'
+        '      <div style="font-size:0.74rem;opacity:0.9;margin-top:0.1rem;">'
+        '        Tier 3 bypasses paywall'
+        '      </div>'
+        '    </div>'
+        '  </div>'
+        '</div>',
+        unsafe_allow_html=True,
+    )
+
+    # ── Why this price point — quantitative justification ─────────────────────
+    st.markdown(
+        '<div style="background:#FFFFFF;border:1px solid #E2E8F0;border-radius:10px;'
+        'padding:0.85rem 1.1rem;margin-bottom:0.9rem;">'
+        '  <div style="font-size:0.86rem;font-weight:800;color:#1A202C;margin-bottom:0.4rem;">'
+        '    Why ৳150 / month — and why 5 free screenings'
+        '  </div>'
+        '  <ul style="margin:0;padding-left:1.15rem;font-size:0.81rem;color:#2D3748;line-height:1.6;">'
+        '    <li><strong>Anchored to a single rickshaw fare in district towns (৳120–180).</strong> '
+        '        Rural household monthly health spend in Bangladesh averages '
+        '        <strong>~৳450</strong> (BBS HIES 2022) — ৳150 is one-third of that, well below the '
+        '        catastrophic-health-expenditure threshold.</li>'
+        '    <li><strong>One-eighth of a single dermatologist visit.</strong> A private '
+        '        consultation in Dhaka or Chattogram costs ৳1,200–1,500. The subscription pays for '
+        '        itself if it prevents <em>one</em> unnecessary trip in a year.</li>'
+        '    <li><strong>5 free screenings is calibrated to a household</strong> — the average '
+        '        rural household has 4.06 members (BBS 2022). Five screenings lets every member '
+        '        be evaluated once before the paywall, removing the trust barrier.</li>'
+        '    <li><strong>Tier 3 (urgent) is never paywalled.</strong> The 4-signal severity engine '
+        '        bypasses the quota when confidence is low, GradCAM coverage is high, or Bengali '
+        '        escalation keywords are detected — preserving the public-health mission.</li>'
+        '    <li><strong>Conversion target: 6–8%</strong> of monthly active free users, in line '
+        '        with bKash-style micro-subscription benchmarks for South Asian fintech-health.</li>'
+        '  </ul>'
+        '</div>',
+        unsafe_allow_html=True,
+    )
 
     streams = [
         {
@@ -988,10 +1084,12 @@ def render_business_model() -> None:
         unsafe_allow_html=True,
     )
     econ = [
-        ("Marginal inference cost",  "≈ $0.0003 per screening (INT8 CPU, HF Spaces tier)"),
-        ("Hosting at 10k MAU",        "≈ $40 / month on AWS ap-south-1 (Mumbai)"),
-        ("Break-even",                "~1,200 paid teleconsult shares per month (achievable in Phase 2)"),
-        ("Patient-side cost",         "$0 — locked as a hard constraint in CLAUDE.md and the model card"),
+        ("Marginal inference cost",   "≈ $0.0003 per screening (INT8 CPU, HF Spaces tier)"),
+        ("Hosting at 10k MAU",         "≈ $40 / month on AWS ap-south-1 (Mumbai)"),
+        ("Subscription ARPU",          "৳150 / mo ≈ $1.25 — gross margin ≥ 92% at 30 screenings/sub"),
+        ("Break-even (subscription)",  "~32 paid subscribers / month covers hosting at 10k MAU"),
+        ("Break-even (blended)",       "Subscription + teleconsult share clears ops by Phase 2"),
+        ("Emergency &amp; free tier",  "Tier 3 + first 5 screenings — operationally cross-subsidised"),
     ]
     rows = "".join(
         f'<tr><td style="padding:0.35rem 0.7rem;font-weight:600;color:#2D3748;font-size:0.82rem;'
