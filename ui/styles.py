@@ -78,24 +78,63 @@ html, body, [class*="css"] {
   color: var(--c-t1) !important;
 }
 
-/* Premium clinical canvas — layered mesh gradient with subtle aurora
-   washes (sapphire top, emerald bottom-right) over a fine dot-grid.    */
+/* ─── Premium editorial canvas — rich midnight navy with two saturated
+       aurora corners (sapphire top-left, emerald bottom-right) and a
+       film-grain SVG noise overlay. The white glass card floats above
+       this dark, expensive-feeling backdrop.                          ─── */
 .stApp {
   background:
-    radial-gradient(ellipse 70% 55% at 12% -8%,
-      rgba(22,104,164,0.18) 0%, transparent 55%),
-    radial-gradient(ellipse 60% 50% at 92% 18%,
-      rgba(16,185,129,0.14) 0%, transparent 60%),
-    radial-gradient(ellipse 65% 50% at 80% 100%,
-      rgba(99,102,241,0.10) 0%, transparent 60%),
-    radial-gradient(circle at 1px 1px, rgba(15,23,42,0.05) 1px, transparent 0),
-    linear-gradient(180deg, #EEF2F7 0%, #F6F8FB 60%, #EEF2F7 100%) !important;
-  background-size: auto, auto, auto, 24px 24px, auto !important;
+    /* film grain noise — premium texture */
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.045 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>"),
+    /* sapphire aurora — top-left */
+    radial-gradient(ellipse 60% 55% at 0% 0%,
+      rgba(56,148,222,0.30) 0%,
+      rgba(22,104,164,0.18) 35%,
+      transparent 70%),
+    /* emerald aurora — bottom-right */
+    radial-gradient(ellipse 65% 55% at 100% 100%,
+      rgba(16,185,129,0.32) 0%,
+      rgba(5,150,105,0.18) 38%,
+      transparent 72%),
+    /* indigo whisper — center depth */
+    radial-gradient(ellipse 70% 60% at 50% 50%,
+      rgba(99,102,241,0.10) 0%, transparent 65%),
+    /* deep editorial gradient base */
+    linear-gradient(135deg,
+      #08111F  0%,
+      #0E1B30 32%,
+      #122544 60%,
+      #0B1A2E 100%) !important;
+  background-attachment: fixed, fixed, fixed, fixed, fixed !important;
+  background-size: 180px 180px, auto, auto, auto, auto !important;
   min-height: 100vh;
 }
 
-/* Main container — premium translucent glass surface, elevated above the
-   aurora canvas, with a hairline gradient ring at the top edge.         */
+/* Soft conic vignette over the canvas — subtle prismatic shimmer that
+   reads as "premium product" rather than flat color. Sits behind the
+   card via z-index 0 / pointer-events none.                            */
+.stApp::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    conic-gradient(from 220deg at 78% 22%,
+      transparent 0deg,
+      rgba(56,148,222,0.10) 40deg,
+      transparent 110deg,
+      rgba(16,185,129,0.08) 200deg,
+      transparent 270deg,
+      rgba(99,102,241,0.07) 320deg,
+      transparent 360deg);
+  filter: blur(38px);
+  mix-blend-mode: screen;
+}
+
+/* Main container — bright translucent glass surface that DRAMATICALLY
+   floats above the dark canvas. Wider radius, deeper shadow, hairline
+   gradient ring on the top edge for the editorial finish.              */
 .main .block-container,
 [data-testid="stAppViewContainer"] .main .block-container,
 [data-testid="stAppViewContainer"] section.main .block-container {
@@ -103,19 +142,24 @@ html, body, [class*="css"] {
   padding-bottom: 3.5rem !important;
   padding-left: 2.6rem !important;
   padding-right: 2.6rem !important;
-  background: rgba(255,255,255,0.86) !important;
-  backdrop-filter: blur(14px) saturate(140%);
-  -webkit-backdrop-filter: blur(14px) saturate(140%);
-  border-radius: 22px !important;
-  border: 1px solid rgba(226,232,240,0.85) !important;
+  background:
+    linear-gradient(180deg,
+      rgba(255,255,255,0.97) 0%,
+      rgba(252,253,255,0.96) 100%) !important;
+  backdrop-filter: blur(18px) saturate(150%);
+  -webkit-backdrop-filter: blur(18px) saturate(150%);
+  border-radius: 24px !important;
+  border: 1px solid rgba(255,255,255,0.65) !important;
   box-shadow:
-    0 1px 0 rgba(255,255,255,0.9) inset,
-    0 1px 3px rgba(15,23,42,0.04),
-    0 24px 60px rgba(15,23,42,0.10) !important;
-  margin-top: 1.4rem !important;
-  margin-bottom: 1.6rem !important;
+    0 1px 0 rgba(255,255,255,1) inset,
+    0 0 0 1px rgba(15,23,42,0.06),
+    0 30px 90px -10px rgba(0,0,0,0.55),
+    0 18px 40px -12px rgba(11,79,108,0.35),
+    0 4px 12px rgba(0,0,0,0.18) !important;
+  margin-top: 1.6rem !important;
+  margin-bottom: 1.8rem !important;
   position: relative;
-  z-index: 1;
+  z-index: 2;
   overflow: hidden;
 }
 .main .block-container::before {
@@ -125,12 +169,23 @@ html, body, [class*="css"] {
   height: 3px;
   background: linear-gradient(90deg,
     transparent 0%,
-    rgba(22,104,164,0.55) 18%,
-    rgba(16,185,129,0.65) 50%,
-    rgba(99,102,241,0.55) 82%,
+    rgba(56,148,222,0.75) 18%,
+    rgba(16,185,129,0.85) 50%,
+    rgba(99,102,241,0.70) 82%,
     transparent 100%);
   z-index: 5;
   pointer-events: none;
+}
+/* Soft inner glow on the card so the edges fade into the glass        */
+.main .block-container::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: 24px;
+  box-shadow:
+    inset 0 0 60px rgba(22,104,164,0.04),
+    inset 0 0 120px rgba(16,185,129,0.03);
 }
 
 /* ─── Hide Streamlit chrome ─────────────────────────────────────────────────── */
