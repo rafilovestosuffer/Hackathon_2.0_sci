@@ -81,18 +81,18 @@ html, body, [class*="css"] {
   min-height: 100vh;
 }
 
-/* Main container — slate canvas so white cards visibly elevate.
+/* Main container — clean white surface, elevated above the slate canvas.
    High specificity to defeat the override in app.py. */
 .main .block-container,
 [data-testid="stAppViewContainer"] .main .block-container,
 [data-testid="stAppViewContainer"] section.main .block-container {
   padding-top: 1.8rem !important;
   padding-bottom: 3.5rem !important;
-  padding-left: 2rem !important;
-  padding-right: 2rem !important;
-  background: #EEF2F7 !important;          /* DISTINCT slate — cards must POP */
+  padding-left: 2.4rem !important;
+  padding-right: 2.4rem !important;
+  background: #FFFFFF !important;
   border-radius: 18px !important;
-  border: 1px solid #D9E0E8 !important;
+  border: 1px solid var(--c-border) !important;
   box-shadow:
     0 1px 2px rgba(15,23,42,0.04),
     0 12px 36px rgba(15,23,42,0.08) !important;
@@ -426,43 +426,30 @@ section[data-testid="stSidebar"] [data-testid="stExpander"] summary {
   font-family: 'Noto Sans Bengali', 'Inter', sans-serif;
 }
 
-/* ─── Columns as cards — premium white cards on slate canvas ───────────────── */
+/* ─── Columns: NO global card treatment (broke demo buttons, recorder, etc.).
+       Use the .dx-panel-head section header for visual hierarchy instead.   ── */
 [data-testid="stHorizontalBlock"] > [data-testid="column"],
-[data-testid="stHorizontalBlock"] > div[data-testid="column"],
-div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
-  background: #FFFFFF !important;
-  border: 1px solid #DDE3EB !important;
-  border-radius: 14px !important;
-  padding: 1.7rem 1.8rem 1.5rem 1.8rem !important;
-  box-shadow:
-    0 1px 3px rgba(15,23,42,0.06),
-    0 10px 28px rgba(15,23,42,0.08) !important;
-  margin: 0 0.4rem !important;
-  position: relative;
-  overflow: hidden;
-}
-/* Top brand accent stripe — full-bleed 4px gradient, clearly visible */
-[data-testid="stHorizontalBlock"] > [data-testid="column"]::before,
-[data-testid="stHorizontalBlock"] > div[data-testid="column"]::before {
-  content: "";
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 4px;
-  background: linear-gradient(90deg, #0B4F6C 0%, #0F6E8C 45%, #10B981 100%);
-  z-index: 2;
-}
-/* Nested columns (e.g. the form's 2-col layout inside a card) — strip the
-   card styling so we don't get cards-inside-cards. */
-[data-testid="column"] [data-testid="stHorizontalBlock"] > [data-testid="column"] {
+[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;
-  padding: 0 0.4rem !important;
+  padding: 0 1rem !important;
   margin: 0 !important;
   border-radius: 0 !important;
+  position: relative;
 }
-[data-testid="column"] [data-testid="stHorizontalBlock"] > [data-testid="column"]::before {
+[data-testid="stHorizontalBlock"] > [data-testid="column"]::before {
   display: none !important;
+}
+/* Subtle vertical divider between the two main columns in Tab 1.
+   Only applied to the FIRST column of a 2-col horizontal block, drawn on its
+   right edge, so it visually separates Voice Input from Skin Photo. */
+[data-testid="stHorizontalBlock"] > [data-testid="column"]:first-child:not(:last-child) {
+  border-right: 1px solid var(--c-border-2) !important;
+  padding-right: 1.6rem !important;
+}
+[data-testid="stHorizontalBlock"] > [data-testid="column"]:first-child:not(:last-child) + [data-testid="column"] {
+  padding-left: 1.6rem !important;
 }
 
 /* ─── Info boxes ────────────────────────────────────────────────────────────── */
