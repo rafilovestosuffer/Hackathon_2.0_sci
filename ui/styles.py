@@ -81,20 +81,23 @@ html, body, [class*="css"] {
   min-height: 100vh;
 }
 
-/* Main container — clean elevated surface (not glass), tight radius,
-   single soft shadow. Pro SaaS, not decorative. */
-.main .block-container {
-  padding-top: 1.6rem;
-  padding-bottom: 3.5rem;
-  padding-left: 2rem;
-  padding-right: 2rem;
-  max-width: 1200px;
-  background: #F6F8FB !important;     /* slate canvas — makes white cards POP */
-  border-radius: 18px;
-  border: 1px solid var(--c-border);
-  box-shadow: var(--shadow-lg);
-  margin-top: 1.2rem;
-  margin-bottom: 1.5rem;
+/* Main container — slate canvas so white cards visibly elevate.
+   High specificity to defeat the override in app.py. */
+.main .block-container,
+[data-testid="stAppViewContainer"] .main .block-container,
+[data-testid="stAppViewContainer"] section.main .block-container {
+  padding-top: 1.8rem !important;
+  padding-bottom: 3.5rem !important;
+  padding-left: 2rem !important;
+  padding-right: 2rem !important;
+  background: #EEF2F7 !important;          /* DISTINCT slate — cards must POP */
+  border-radius: 18px !important;
+  border: 1px solid #D9E0E8 !important;
+  box-shadow:
+    0 1px 2px rgba(15,23,42,0.04),
+    0 12px 36px rgba(15,23,42,0.08) !important;
+  margin-top: 1.2rem !important;
+  margin-bottom: 1.5rem !important;
   position: relative;
   z-index: 1;
 }
@@ -423,29 +426,43 @@ section[data-testid="stSidebar"] [data-testid="stExpander"] summary {
   font-family: 'Noto Sans Bengali', 'Inter', sans-serif;
 }
 
-/* ─── Columns as cards — pure white cards floating on slate canvas ──────────── */
+/* ─── Columns as cards — premium white cards on slate canvas ───────────────── */
 [data-testid="stHorizontalBlock"] > [data-testid="column"],
 [data-testid="stHorizontalBlock"] > div[data-testid="column"],
 div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
   background: #FFFFFF !important;
-  border: 1px solid var(--c-border) !important;
+  border: 1px solid #DDE3EB !important;
   border-radius: 14px !important;
-  padding: 1.6rem 1.8rem !important;
+  padding: 1.7rem 1.8rem 1.5rem 1.8rem !important;
   box-shadow:
-    0 1px 2px rgba(15,23,42,0.04),
-    0 8px 24px rgba(15,23,42,0.06) !important;
-  margin: 0 0.35rem !important;
+    0 1px 3px rgba(15,23,42,0.06),
+    0 10px 28px rgba(15,23,42,0.08) !important;
+  margin: 0 0.4rem !important;
   position: relative;
   overflow: hidden;
 }
-/* Top brand accent stripe — full-bleed hairline gradient that's actually visible */
+/* Top brand accent stripe — full-bleed 4px gradient, clearly visible */
 [data-testid="stHorizontalBlock"] > [data-testid="column"]::before,
 [data-testid="stHorizontalBlock"] > div[data-testid="column"]::before {
   content: "";
   position: absolute;
   top: 0; left: 0; right: 0;
-  height: 3px;
-  background: linear-gradient(90deg, var(--c-primary) 0%, var(--c-teal) 100%);
+  height: 4px;
+  background: linear-gradient(90deg, #0B4F6C 0%, #0F6E8C 45%, #10B981 100%);
+  z-index: 2;
+}
+/* Nested columns (e.g. the form's 2-col layout inside a card) — strip the
+   card styling so we don't get cards-inside-cards. */
+[data-testid="column"] [data-testid="stHorizontalBlock"] > [data-testid="column"] {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 0.4rem !important;
+  margin: 0 !important;
+  border-radius: 0 !important;
+}
+[data-testid="column"] [data-testid="stHorizontalBlock"] > [data-testid="column"]::before {
+  display: none !important;
 }
 
 /* ─── Info boxes ────────────────────────────────────────────────────────────── */
