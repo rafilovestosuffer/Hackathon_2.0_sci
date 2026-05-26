@@ -133,19 +133,26 @@ html, body, [class*="css"] {
 }
 
 /* Main container — bright translucent glass surface that DRAMATICALLY
-   floats above the dark canvas. Wider radius, deeper shadow, hairline
-   gradient ring on the top edge for the editorial finish.              */
+   floats above the dark canvas. Comprehensive selectors cover every
+   Streamlit DOM variant (old .main, new [data-testid="stMain"], and
+   the bare .block-container).                                          */
+.block-container,
 .main .block-container,
+section[data-testid="stMain"] .block-container,
+[data-testid="stMain"] .block-container,
+[data-testid="stAppViewContainer"] .block-container,
 [data-testid="stAppViewContainer"] .main .block-container,
-[data-testid="stAppViewContainer"] section.main .block-container {
+[data-testid="stAppViewContainer"] section.main .block-container,
+[data-testid="stMainBlockContainer"],
+[data-testid="stAppViewBlockContainer"] {
   padding-top: 2rem !important;
   padding-bottom: 3.5rem !important;
   padding-left: 2.6rem !important;
   padding-right: 2.6rem !important;
   background:
     linear-gradient(180deg,
-      rgba(255,255,255,0.97) 0%,
-      rgba(252,253,255,0.96) 100%) !important;
+      rgba(255,255,255,0.98) 0%,
+      rgba(252,253,255,0.97) 100%) !important;
   backdrop-filter: blur(18px) saturate(150%);
   -webkit-backdrop-filter: blur(18px) saturate(150%);
   border-radius: 24px !important;
@@ -160,9 +167,12 @@ html, body, [class*="css"] {
   margin-bottom: 1.8rem !important;
   position: relative;
   z-index: 2;
-  overflow: hidden;
 }
-.main .block-container::before {
+/* Top edge prism — works on whichever container actually rendered.    */
+.block-container::before,
+section[data-testid="stMain"] .block-container::before,
+[data-testid="stMainBlockContainer"]::before,
+[data-testid="stAppViewBlockContainer"]::before {
   content: "";
   position: absolute;
   top: 0; left: 0; right: 0;
@@ -175,17 +185,17 @@ html, body, [class*="css"] {
     transparent 100%);
   z-index: 5;
   pointer-events: none;
+  border-top-left-radius: 24px;
+  border-top-right-radius: 24px;
 }
-/* Soft inner glow on the card so the edges fade into the glass        */
-.main .block-container::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  border-radius: 24px;
-  box-shadow:
-    inset 0 0 60px rgba(22,104,164,0.04),
-    inset 0 0 120px rgba(16,185,129,0.03);
+
+/* Make sure tab panels are TRANSPARENT — otherwise they paint over the
+   white card and we lose the glass. Also: vertical-block wrappers must
+   stay transparent so the card's white surface shows through.          */
+.stTabs [data-baseweb="tab-panel"],
+[data-testid="stVerticalBlock"],
+[data-testid="stHorizontalBlock"] {
+  background: transparent !important;
 }
 
 /* ─── Hide Streamlit chrome ─────────────────────────────────────────────────── */
