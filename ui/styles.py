@@ -374,19 +374,47 @@ section[data-testid="stSidebar"] [data-testid="stExpander"] summary {
 }
 .stTabs [data-baseweb="tab-panel"] { padding-top: 1.6rem; }
 
-/* ─── Hero banner ───────────────────────────────────────────────────────────── */
+/* ─── Hero banner — editorial mesh with depth ──────────────────────────────── */
 .hero-banner {
-  background: linear-gradient(135deg, #0B1929 0%, #1A3A5C 52%, #0A2E22 100%);
-  border-radius: 18px;
-  padding: 2.2rem 2.6rem 2rem 2.6rem;
-  margin-bottom: 1.4rem;
+  background:
+    /* aurora highlights */
+    radial-gradient(ellipse 55% 70% at 12% 0%,
+      rgba(56,148,222,0.45) 0%, transparent 55%),
+    radial-gradient(ellipse 55% 70% at 92% 100%,
+      rgba(16,185,129,0.40) 0%, transparent 55%),
+    radial-gradient(ellipse 40% 60% at 60% 50%,
+      rgba(99,102,241,0.20) 0%, transparent 60%),
+    /* base editorial gradient */
+    linear-gradient(135deg, #050C18 0%, #0A1A2E 35%, #0E2A40 65%, #062018 100%);
+  border-radius: 22px;
+  padding: 2.4rem 2.6rem 2.2rem 2.6rem;
+  margin-bottom: 1.6rem;
   position: relative;
   overflow: hidden;
   text-align: center;
+  border: 1px solid rgba(255,255,255,0.08);
   box-shadow:
-    0 12px 40px rgba(0,0,0,0.32),
-    0 2px 8px rgba(0,0,0,0.15),
-    inset 0 1px 0 rgba(255,255,255,0.06);
+    0 1px 0 rgba(255,255,255,0.10) inset,
+    0 18px 56px rgba(0,0,0,0.45),
+    0 4px 14px rgba(0,0,0,0.22);
+}
+.hero-banner::before {
+  content: "";
+  position: absolute; inset: 0;
+  background:
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.05 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  pointer-events: none;
+  opacity: 0.65;
+}
+.hero-banner::after {
+  content: "";
+  position: absolute;
+  bottom: 0; left: 12%; right: 12%;
+  height: 1px;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(16,185,129,0.50) 50%,
+    transparent 100%);
 }
 .hero-glow {
   position: absolute; top: -35%; right: -6%;
@@ -1894,6 +1922,272 @@ iframe[title="streamlit_folium.st_folium"],
   font-size: 0.7rem !important;
   margin-top: 0.35rem;
   letter-spacing: 0.04em;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   GLOBAL POLISH PASS — final detail layer
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Nested st.tabs inside an outer tab (used in Tab 7 Impact & Ethics).
+   The default Streamlit DOM nests stTabs inside stTabs[data-baseweb=tab-panel].
+   Give those an underline-style sub-tab look so they're visually distinct
+   from the top-level segmented tabs.                                       */
+.stTabs [data-baseweb="tab-panel"] .stTabs [data-baseweb="tab-list"] {
+  background: transparent !important;
+  border: none !important;
+  border-bottom: 1px solid var(--c-border) !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+  gap: 0.4rem !important;
+  box-shadow: none !important;
+  margin-bottom: 0.4rem !important;
+}
+.stTabs [data-baseweb="tab-panel"] .stTabs [data-baseweb="tab"] {
+  font-size: 0.84rem !important;
+  font-weight: 600 !important;
+  padding: 0.65rem 1.1rem !important;
+  background: transparent !important;
+  color: var(--c-t2) !important;
+  border-radius: 0 !important;
+  border-bottom: 2px solid transparent !important;
+  flex: 0 0 auto !important;
+}
+.stTabs [data-baseweb="tab-panel"] .stTabs [data-baseweb="tab"]:hover {
+  background: transparent !important;
+  color: var(--c-primary) !important;
+}
+.stTabs [data-baseweb="tab-panel"] .stTabs [aria-selected="true"] {
+  background: transparent !important;
+  color: var(--c-primary) !important;
+  border-bottom-color: var(--c-primary) !important;
+  box-shadow: none !important;
+}
+.stTabs [data-baseweb="tab-panel"] .stTabs [aria-selected="true"]::after {
+  display: none;
+}
+
+/* Entrance animations — content fades up on first paint, no layout shift */
+@keyframes sk-fade-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes sk-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.block-container > div,
+.stTabs [data-baseweb="tab-panel"] > div,
+[data-testid="stMainBlockContainer"] > div,
+[data-testid="stAppViewBlockContainer"] > div {
+  animation: sk-fade-up 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.hero-banner {
+  animation: sk-fade-in 0.6s ease-out both;
+}
+
+/* Honour reduced-motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .block-container > div,
+  .stTabs [data-baseweb="tab-panel"] > div,
+  [data-testid="stMainBlockContainer"] > div,
+  [data-testid="stAppViewBlockContainer"] > div,
+  .hero-banner,
+  .stTabs [data-baseweb="tab"],
+  .stButton > button,
+  .stDownloadButton > button {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* Global focus-visible ring — accessibility + premium polish */
+:focus-visible {
+  outline: 2px solid rgba(22,104,164,0.55) !important;
+  outline-offset: 2px !important;
+  border-radius: 4px;
+}
+.stButton > button:focus-visible,
+.stDownloadButton > button:focus-visible,
+[data-testid="stExpander"] summary:focus-visible {
+  outline: none !important;
+  box-shadow: var(--ring-primary), 0 6px 18px rgba(11,79,108,0.22) !important;
+}
+
+/* Selection color — brand sapphire */
+::selection {
+  background: rgba(22,104,164,0.25);
+  color: var(--c-t1);
+}
+
+/* Links — refined underline */
+a, a:visited {
+  color: var(--c-primary);
+  text-decoration: none;
+  background-image: linear-gradient(var(--c-primary), var(--c-primary));
+  background-size: 0% 1px;
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  transition: background-size 0.25s ease, color 0.15s ease;
+}
+a:hover {
+  color: var(--c-primary-2);
+  background-size: 100% 1px;
+}
+
+/* Caption / small / disclaimer text */
+.stCaption, [data-testid="stCaptionContainer"] {
+  color: #64748B !important;
+  font-size: 0.78rem !important;
+  letter-spacing: 0.005em;
+}
+
+/* st.container(border=True) — premium bordered surface */
+[data-testid="stContainerWithBorder"] {
+  background:
+    linear-gradient(180deg, #FFFFFF 0%, #FBFCFE 100%) !important;
+  border: 1px solid var(--c-border) !important;
+  border-radius: 14px !important;
+  padding: 1.1rem 1.3rem !important;
+  box-shadow:
+    0 1px 0 rgba(255,255,255,1) inset,
+    0 2px 8px rgba(15,23,42,0.04) !important;
+}
+
+/* st.toast — premium floating toast */
+[data-testid="stToast"] {
+  background:
+    linear-gradient(180deg, #FFFFFF 0%, #FBFCFE 100%) !important;
+  border: 1px solid var(--c-border) !important;
+  border-left: 4px solid var(--c-primary) !important;
+  border-radius: 12px !important;
+  box-shadow: var(--shadow-lg) !important;
+  font-weight: 500;
+}
+
+/* Code blocks — premium dark editorial */
+.stCodeBlock, code, pre {
+  font-family: 'JetBrains Mono', 'Fira Code', monospace !important;
+  font-size: 0.84rem;
+}
+.stCodeBlock {
+  background:
+    linear-gradient(180deg, #0E1B2D 0%, #122544 100%) !important;
+  border: 1px solid rgba(255,255,255,0.08) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.20) !important;
+}
+:not(pre) > code {
+  background: rgba(22,104,164,0.10);
+  color: var(--c-primary);
+  padding: 1px 6px;
+  border-radius: 5px;
+  font-size: 0.85em;
+  border: 1px solid rgba(22,104,164,0.18);
+}
+
+/* Slider — branded */
+.stSlider [data-baseweb="slider"] [role="slider"] {
+  background: var(--grad-primary) !important;
+  border: 2px solid #FFFFFF !important;
+  box-shadow: 0 2px 8px rgba(22,104,164,0.35) !important;
+}
+.stSlider [data-baseweb="slider"] > div > div > div {
+  background: var(--grad-primary) !important;
+  height: 5px !important;
+}
+
+/* Spinner — branded blue */
+[data-testid="stSpinner"] > div {
+  border-top-color: var(--c-primary) !important;
+  border-right-color: var(--c-accent) !important;
+}
+
+/* Progress bar — gradient */
+.stProgress > div > div > div {
+  background: var(--grad-primary) !important;
+  border-radius: 99px;
+}
+.stProgress > div > div {
+  background: var(--c-bg) !important;
+  border-radius: 99px !important;
+  overflow: hidden;
+}
+
+/* Refined disclaimer + footer */
+.sk-disclaimer, .app-footer {
+  font-size: 0.72rem !important;
+  color: #94A3B8 !important;
+  text-align: center;
+  margin-top: 1.8rem;
+  padding: 0.9rem 1.2rem;
+  background: linear-gradient(180deg, transparent 0%, rgba(22,104,164,0.03) 100%);
+  border-top: 1px solid var(--c-border);
+  border-radius: 0 0 12px 12px;
+  letter-spacing: 0.01em;
+}
+
+/* Hero stats line at the bottom — make it more refined */
+.hero-banner > div:last-child:not(.hero-glow):not(.hero-glow-2):not(.hero-tagline-row) {
+  position: relative;
+  z-index: 2;
+}
+
+/* Image / GradCAM preview — frame with subtle ring */
+.stImage img, [data-testid="stImage"] img {
+  border-radius: 12px !important;
+  box-shadow:
+    0 1px 0 rgba(255,255,255,1) inset,
+    0 8px 20px rgba(15,23,42,0.08),
+    0 1px 3px rgba(15,23,42,0.06) !important;
+  border: 1px solid var(--c-border);
+}
+
+/* Camera input — refined to match file uploader */
+[data-testid="stCameraInput"] button {
+  background: var(--grad-primary) !important;
+  color: white !important;
+  border: none !important;
+  border-radius: 11px !important;
+  font-weight: 600 !important;
+  box-shadow: 0 2px 8px rgba(22,104,164,0.25) !important;
+}
+
+/* Number input — match selectbox style */
+.stNumberInput button {
+  background: #F1F5F9 !important;
+  border: 1px solid var(--c-border) !important;
+  color: var(--c-primary) !important;
+  border-radius: 6px !important;
+}
+
+/* Checkbox / Radio — branded */
+.stCheckbox [data-baseweb="checkbox"] div[role="checkbox"][aria-checked="true"] {
+  background: var(--grad-primary) !important;
+  border-color: transparent !important;
+  box-shadow: 0 2px 6px rgba(22,104,164,0.30) !important;
+}
+
+/* Smooth scrolling for jumps */
+html { scroll-behavior: smooth; }
+
+/* Larger custom scrollbar with brand colors */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(15,23,42,0.04);
+  border-radius: 99px;
+}
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, rgba(22,104,164,0.35), rgba(16,185,129,0.35));
+  border-radius: 99px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, rgba(22,104,164,0.55), rgba(16,185,129,0.55));
+  background-clip: padding-box;
 }
 
 /* ─── Mobile ─────────────────────────────────────────────────────────────────── */
