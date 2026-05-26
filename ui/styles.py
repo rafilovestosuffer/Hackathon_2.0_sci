@@ -86,10 +86,10 @@ html, body, [class*="css"] {
 .main .block-container {
   padding-top: 1.6rem;
   padding-bottom: 3.5rem;
-  padding-left: 2.4rem;
-  padding-right: 2.4rem;
+  padding-left: 2rem;
+  padding-right: 2rem;
   max-width: 1200px;
-  background: #FFFFFF !important;
+  background: #F6F8FB !important;     /* slate canvas — makes white cards POP */
   border-radius: 18px;
   border: 1px solid var(--c-border);
   box-shadow: var(--shadow-lg);
@@ -423,28 +423,29 @@ section[data-testid="stSidebar"] [data-testid="stExpander"] summary {
   font-family: 'Noto Sans Bengali', 'Inter', sans-serif;
 }
 
-/* ─── Columns as cards — flat clinical surface, no hover bounce ─────────────── */
+/* ─── Columns as cards — pure white cards floating on slate canvas ──────────── */
 [data-testid="stHorizontalBlock"] > [data-testid="column"],
 [data-testid="stHorizontalBlock"] > div[data-testid="column"],
 div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
   background: #FFFFFF !important;
   border: 1px solid var(--c-border) !important;
   border-radius: 14px !important;
-  padding: 1.5rem 1.7rem !important;
-  box-shadow: var(--shadow) !important;
-  margin: 0 0.3rem !important;
+  padding: 1.6rem 1.8rem !important;
+  box-shadow:
+    0 1px 2px rgba(15,23,42,0.04),
+    0 8px 24px rgba(15,23,42,0.06) !important;
+  margin: 0 0.35rem !important;
   position: relative;
+  overflow: hidden;
 }
-/* Subtle top accent stripe — single hairline, not a slab */
+/* Top brand accent stripe — full-bleed hairline gradient that's actually visible */
 [data-testid="stHorizontalBlock"] > [data-testid="column"]::before,
 [data-testid="stHorizontalBlock"] > div[data-testid="column"]::before {
   content: "";
   position: absolute;
-  top: 0; left: 14px; right: 14px;
-  height: 2px;
-  background: linear-gradient(90deg, var(--c-primary), var(--c-teal));
-  border-radius: 0 0 2px 2px;
-  opacity: 0.85;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--c-primary) 0%, var(--c-teal) 100%);
 }
 
 /* ─── Info boxes ────────────────────────────────────────────────────────────── */
