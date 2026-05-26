@@ -1540,6 +1540,362 @@ section[data-testid="stSidebar"] [data-testid="stExpander"] summary {
   outline: none !important;
 }
 
+/* ═══════════════════════════════════════════════════════════════════════════
+   TAB 2 — Ask AI (RAG chat) polish
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Source-pill banner — premium gradient surface */
+.chat-outer-info {
+  background:
+    linear-gradient(135deg, rgba(22,104,164,0.08) 0%, rgba(16,185,129,0.06) 100%),
+    #FFFFFF !important;
+  border: 1px solid rgba(22,104,164,0.20) !important;
+  border-radius: 12px !important;
+  padding: 0.7rem 1rem !important;
+  color: var(--c-t1) !important;
+  font-weight: 500;
+  box-shadow: 0 2px 8px rgba(22,104,164,0.06);
+}
+.chat-outer-info > span:first-child {
+  font-weight: 700; color: var(--c-primary); font-size: 0.82rem;
+}
+.info-source-pill {
+  background: linear-gradient(135deg, #FFFFFF, #F1F8FD) !important;
+  color: var(--c-primary) !important;
+  border: 1px solid rgba(22,104,164,0.30);
+  font-size: 0.66rem !important;
+  font-weight: 700 !important;
+  border-radius: 99px !important;
+  padding: 0.18rem 0.6rem !important;
+  letter-spacing: 0.07em;
+  box-shadow: 0 1px 2px rgba(22,104,164,0.10);
+}
+
+/* Streamlit native chat messages — premium bubbles */
+[data-testid="stChatMessage"] {
+  background: transparent !important;
+  border: none !important;
+  padding: 0.4rem 0 !important;
+}
+[data-testid="stChatMessage"][data-testid*="user"],
+[data-testid="stChatMessage"]:has([data-testid="chatAvatarIcon-user"]) {
+  flex-direction: row-reverse;
+}
+[data-testid="stChatMessage"] [data-testid="stChatMessageContent"],
+[data-testid="stChatMessage"] [data-testid="stMarkdownContainer"] {
+  background: var(--c-card) !important;
+  border: 1px solid var(--c-border) !important;
+  border-radius: 4px 16px 16px 16px;
+  padding: 0.7rem 1rem !important;
+  box-shadow: var(--shadow) !important;
+  max-width: 78%;
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+[data-testid="stChatMessage"]:has([data-testid="chatAvatarIcon-user"])
+  [data-testid="stChatMessageContent"],
+[data-testid="stChatMessage"]:has([data-testid="chatAvatarIcon-user"])
+  [data-testid="stMarkdownContainer"] {
+  background: var(--grad-primary) !important;
+  color: #FFFFFF !important;
+  border-color: rgba(11,79,108,0.45) !important;
+  border-radius: 16px 16px 4px 16px;
+  box-shadow: 0 4px 14px rgba(22,104,164,0.22) !important;
+}
+[data-testid="stChatMessage"]:has([data-testid="chatAvatarIcon-user"])
+  [data-testid="stMarkdownContainer"] * {
+  color: #FFFFFF !important;
+}
+/* Chat avatar */
+[data-testid="stChatMessage"] [data-testid="chatAvatarIcon-assistant"],
+[data-testid="stChatMessage"] [data-testid="chatAvatarIcon-user"] {
+  background: var(--grad-primary) !important;
+  color: white !important;
+  box-shadow: 0 2px 8px rgba(22,104,164,0.30);
+  border: 1px solid rgba(255,255,255,0.20);
+}
+[data-testid="stChatMessage"] [data-testid="chatAvatarIcon-assistant"] {
+  background: var(--grad-accent) !important;
+  box-shadow: 0 2px 8px rgba(16,185,129,0.30);
+}
+
+/* Chat input bar — premium gradient border + focus ring */
+[data-testid="stChatInput"] {
+  background:
+    linear-gradient(#FFFFFF, #FFFFFF) padding-box,
+    linear-gradient(135deg, rgba(22,104,164,0.40), rgba(16,185,129,0.40)) border-box !important;
+  border: 1.5px solid transparent !important;
+  border-radius: 14px !important;
+  box-shadow: 0 6px 18px rgba(15,23,42,0.08) !important;
+  transition: box-shadow 0.18s ease;
+}
+[data-testid="stChatInput"]:focus-within {
+  box-shadow:
+    var(--ring-primary),
+    0 10px 28px rgba(22,104,164,0.14) !important;
+}
+[data-testid="stChatInput"] textarea {
+  background: transparent !important;
+  color: var(--c-t1) !important;
+  font-family: 'Inter', 'Noto Sans Bengali', sans-serif !important;
+  font-size: 0.92rem !important;
+}
+[data-testid="stChatInput"] button {
+  background: var(--grad-primary) !important;
+  border: none !important;
+  border-radius: 10px !important;
+  color: white !important;
+  box-shadow: 0 3px 10px rgba(22,104,164,0.30) !important;
+}
+[data-testid="stChatInput"] button:hover {
+  filter: brightness(1.08);
+}
+
+/* Suggested-question pill buttons row */
+.stButton > button[kind="secondary"],
+[data-testid*="sq_"] {
+  background: #FFFFFF !important;
+  color: var(--c-primary) !important;
+  border: 1.5px solid rgba(22,104,164,0.35) !important;
+  border-radius: 99px !important;
+  font-weight: 600 !important;
+  padding: 0.5rem 1rem !important;
+  box-shadow: 0 1px 2px rgba(22,104,164,0.06) !important;
+  transition: transform 0.15s, box-shadow 0.18s, background 0.18s !important;
+}
+.stButton > button[kind="secondary"]:hover,
+[data-testid*="sq_"]:hover {
+  transform: translateY(-1px);
+  background: linear-gradient(135deg, rgba(22,104,164,0.06), rgba(16,185,129,0.04)) !important;
+  box-shadow: 0 6px 16px rgba(22,104,164,0.12) !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   TAB 3 — Referral Letter polish
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Referral preview section cards — richer accent + section-number chip */
+.referral-section-card {
+  background:
+    linear-gradient(180deg, #FFFFFF 0%, #FBFCFE 100%) !important;
+  border-left: 4px solid transparent !important;
+  border-image: var(--grad-primary) 1;
+  border-top: 1px solid var(--c-border);
+  border-right: 1px solid var(--c-border);
+  border-bottom: 1px solid var(--c-border);
+  border-radius: 0 14px 14px 0 !important;
+  padding: 1.1rem 1.4rem !important;
+  margin-bottom: 0.75rem !important;
+  box-shadow:
+    0 1px 0 rgba(255,255,255,1) inset,
+    0 4px 14px rgba(15,23,42,0.05),
+    0 1px 3px rgba(15,23,42,0.04) !important;
+  transition: transform 0.15s ease, box-shadow 0.2s ease;
+}
+.referral-section-card:hover {
+  transform: translateX(2px);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,1) inset,
+    0 10px 24px rgba(22,104,164,0.10),
+    0 2px 6px rgba(15,23,42,0.05) !important;
+}
+.referral-section-num {
+  background: var(--grad-primary) !important;
+  width: 30px !important; height: 30px !important;
+  font-size: 0.84rem !important;
+  box-shadow: 0 3px 10px rgba(22,104,164,0.30);
+  border: 1px solid rgba(255,255,255,0.20);
+}
+
+/* Empty-state referral progress card */
+.referral-empty {
+  background:
+    radial-gradient(ellipse 60% 40% at 50% 0%, rgba(22,104,164,0.05), transparent 70%),
+    linear-gradient(180deg, #FFFFFF 0%, #F8FAFC 100%) !important;
+  border: 1.5px dashed rgba(22,104,164,0.30) !important;
+  border-radius: 16px !important;
+  padding: 2.4rem 2rem !important;
+  box-shadow: var(--shadow-md) !important;
+}
+.referral-progress-row {
+  background: #FFFFFF !important;
+  border: 1px solid var(--c-border) !important;
+  transition: transform 0.15s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
+.referral-progress-row:hover {
+  transform: translateX(2px);
+  border-color: rgba(22,104,164,0.30) !important;
+  box-shadow: 0 4px 12px rgba(22,104,164,0.08);
+}
+.referral-progress-row.done-row {
+  background: linear-gradient(135deg, #ECFDF5, #FFFFFF) !important;
+  border-color: rgba(16,185,129,0.35) !important;
+}
+.referral-progress-row.next-row {
+  background: linear-gradient(135deg, rgba(22,104,164,0.08), #FFFFFF) !important;
+  border-color: rgba(22,104,164,0.40) !important;
+  box-shadow: 0 4px 12px rgba(22,104,164,0.10);
+}
+
+/* Radio group — Document type, etc. */
+.stRadio > div {
+  background: #F8FAFC;
+  border: 1px solid var(--c-border);
+  border-radius: 12px;
+  padding: 0.45rem;
+  display: flex;
+  gap: 0.3rem;
+}
+.stRadio label {
+  background: transparent !important;
+  border-radius: 9px;
+  padding: 0.4rem 0.9rem !important;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  font-weight: 550 !important;
+  flex: 1;
+  justify-content: center;
+}
+.stRadio label:hover {
+  background: rgba(22,104,164,0.06) !important;
+}
+.stRadio label[data-checked="true"],
+.stRadio label:has(input:checked) {
+  background: #FFFFFF !important;
+  color: var(--c-primary) !important;
+  box-shadow: 0 2px 6px rgba(15,23,42,0.06), 0 0 0 1px rgba(22,104,164,0.18);
+  font-weight: 700 !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   TAB 4 — Disease Insights polish
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Folium / Plotly map iframe — premium card frame */
+iframe[title="streamlit_folium.st_folium"],
+.stPlotlyChart,
+[data-testid="stPlotlyChart"] {
+  border-radius: 16px !important;
+  overflow: hidden !important;
+  border: 1px solid var(--c-border) !important;
+  box-shadow:
+    0 1px 0 rgba(255,255,255,1) inset,
+    0 12px 32px rgba(15,23,42,0.10),
+    0 2px 6px rgba(15,23,42,0.06) !important;
+  background: #FFFFFF !important;
+}
+
+/* Dataframe / table styling */
+[data-testid="stDataFrame"],
+[data-testid="stTable"] {
+  border-radius: 12px !important;
+  overflow: hidden !important;
+  border: 1px solid var(--c-border) !important;
+  box-shadow: var(--shadow) !important;
+}
+
+/* Stat / metric cards (used in insights tab) */
+[data-testid="metric-container"] {
+  background:
+    linear-gradient(180deg, #FFFFFF 0%, #F8FAFC 100%) !important;
+  border: 1px solid var(--c-border) !important;
+  border-radius: 14px !important;
+  padding: 1rem 1.2rem !important;
+  box-shadow:
+    0 1px 0 rgba(255,255,255,1) inset,
+    0 4px 12px rgba(15,23,42,0.05) !important;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.15s, box-shadow 0.2s;
+}
+[data-testid="metric-container"]::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--grad-primary);
+  opacity: 0.7;
+}
+[data-testid="metric-container"]:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,1) inset,
+    0 12px 24px rgba(22,104,164,0.10),
+    0 2px 6px rgba(15,23,42,0.05) !important;
+}
+[data-testid="stMetricLabel"] {
+  font-size: 0.7rem !important;
+  font-weight: 700 !important;
+  color: #64748B !important;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+[data-testid="stMetricValue"] {
+  font-size: 1.7rem !important;
+  font-weight: 800 !important;
+  color: var(--c-t1) !important;
+  letter-spacing: -0.02em;
+}
+
+/* Tier-0 "Skin appears healthy" card — keep cleaner */
+.skin-healthy-card {
+  background:
+    linear-gradient(135deg, #ECFDF5 0%, #FFFFFF 100%) !important;
+  border: 1.5px solid rgba(16,185,129,0.45) !important;
+  border-radius: 16px;
+  box-shadow: 0 6px 18px rgba(16,185,129,0.12);
+}
+
+/* Streamlit st.success / st.warning / st.info alerts — premium tints */
+.stAlert {
+  border-radius: 12px !important;
+  border-left-width: 4px !important;
+  box-shadow: 0 2px 8px rgba(15,23,42,0.05) !important;
+  font-weight: 500;
+}
+[data-testid="stAlert"][data-baseweb*="success"],
+.stSuccess {
+  background: linear-gradient(135deg, rgba(16,185,129,0.10), #FFFFFF) !important;
+  border-color: rgba(16,185,129,0.40) !important;
+}
+[data-testid="stAlert"][data-baseweb*="warning"],
+.stWarning {
+  background: linear-gradient(135deg, rgba(245,158,11,0.10), #FFFFFF) !important;
+  border-color: rgba(245,158,11,0.40) !important;
+}
+[data-testid="stAlert"][data-baseweb*="error"],
+.stError {
+  background: linear-gradient(135deg, rgba(220,38,38,0.08), #FFFFFF) !important;
+  border-color: rgba(220,38,38,0.40) !important;
+}
+[data-testid="stAlert"][data-baseweb*="info"],
+.stInfo {
+  background: linear-gradient(135deg, rgba(22,104,164,0.08), #FFFFFF) !important;
+  border-color: rgba(22,104,164,0.35) !important;
+}
+
+/* Section h2/h3 used across tabs */
+.sk-section-h2 {
+  font-size: 1.25rem !important;
+  font-weight: 800 !important;
+  background: var(--grad-primary);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: -0.015em;
+  margin: 0 0 0.3rem 0;
+}
+
+/* Section-of-tab "AI" mini-bot avatar bar (assistant captions) */
+[data-testid="stChatMessage"] [data-testid="stCaptionContainer"],
+[data-testid="stChatMessage"] small,
+[data-testid="stChatMessage"] .stCaption {
+  color: #94A3B8 !important;
+  font-size: 0.7rem !important;
+  margin-top: 0.35rem;
+  letter-spacing: 0.04em;
+}
+
 /* ─── Mobile ─────────────────────────────────────────────────────────────────── */
 @media (max-width: 600px) {
   .main .block-container { padding-left: 0.65rem; padding-right: 0.65rem; }
