@@ -1303,15 +1303,19 @@ def render_privacy_badge() -> None:
     buried in a policy page.
     """
     st.markdown(
-        '<div style="background:#E6FFFA;border:1px solid #38B2AC;border-left:4px solid #0D9E75;'
-        'border-radius:8px;padding:0.5rem 0.8rem;margin-bottom:0.5rem;font-size:0.76rem;'
-        'color:#234E52;line-height:1.5;">'
-        '🔒 <strong>Privacy by design.</strong> Your image stays in your browser session only — '
-        'we do not save it, log it, or send it to third parties. No account required, no '
-        'tracking, no database. '
-        '<span style="font-family:\'Noto Sans Bengali\',sans-serif;display:block;margin-top:0.2rem;'
-        'color:#2C5282;">আপনার ছবি কেবল ব্রাউজার সেশনে থাকে — সংরক্ষণ বা লগ করা হয় না।</span>'
-        '</div>',
+        '<div class="sk-privacy-badge">'
+        '<div class="sk-privacy-icon">🔒</div>'
+        '<div class="sk-privacy-body">'
+        '<div class="sk-privacy-title">Privacy by design — '
+        '<span class="sk-privacy-chips">'
+        '<span class="sk-privacy-chip">No storage</span>'
+        '<span class="sk-privacy-chip">No tracking</span>'
+        '<span class="sk-privacy-chip">No account</span>'
+        '</span></div>'
+        '<div class="sk-privacy-text">Your image stays in your browser session only — '
+        'never saved, logged, or sent to third parties.</div>'
+        '<div class="sk-privacy-bn">আপনার ছবি কেবল ব্রাউজার সেশনে থাকে — সংরক্ষণ বা লগ করা হয় না।</div>'
+        '</div></div>',
         unsafe_allow_html=True,
     )
 

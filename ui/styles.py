@@ -41,26 +41,35 @@ def inject_css() -> None:
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 
 <style>
-/* ─── CSS Custom Properties — refined clinical SaaS palette ────────────────── */
+/* ─── CSS Custom Properties — premium clinical SaaS palette ────────────────── */
 :root {
-  --c-primary:  #0B4F6C;   /* deep medical navy — anchors the brand */
-  --c-primary-2:#0F6E8C;   /* primary hover / lighter accent */
-  --c-teal:     #10B981;   /* single emerald accent */
+  --c-primary:  #0E4F7A;          /* deep medical sapphire */
+  --c-primary-2:#1668A4;          /* lighter sapphire hover */
+  --c-primary-3:#0A3A5C;          /* darker sapphire press */
+  --c-accent:   #10B981;          /* emerald — health/success */
+  --c-accent-2: #059669;          /* deeper emerald */
+  --c-violet:   #6366F1;          /* indigo accent for AI moments */
+  --c-teal:     #10B981;          /* legacy alias */
   --c-red:      #DC2626;
   --c-amber:    #F59E0B;
   --c-green:    #10B981;
-  --c-bg:       #F1F5F9;   /* refined slate canvas */
-  --c-bg-2:     #F8FAFC;
+  --c-bg:       #EEF2F7;          /* cooler slate canvas */
+  --c-bg-2:     #F6F8FB;
   --c-card:     #FFFFFF;
-  --c-border:   #E5EAF0;   /* hairline, cooler */
-  --c-border-2: #EEF2F6;   /* even softer for inner separators */
-  --c-t1:       #0F172A;   /* slate-900 — premium ink */
-  --c-t2:       #475569;   /* slate-600 */
-  --c-t3:       #94A3B8;   /* slate-400 */
-  --r-card:     14px;
-  --shadow:     0 1px 2px rgba(15,23,42,0.04), 0 1px 1px rgba(15,23,42,0.03);
-  --shadow-md:  0 4px 14px rgba(15,23,42,0.06), 0 1px 3px rgba(15,23,42,0.04);
-  --shadow-lg:  0 10px 30px rgba(15,23,42,0.08), 0 2px 6px rgba(15,23,42,0.04);
+  --c-border:   #E2E8F0;
+  --c-border-2: #EEF2F6;
+  --c-t1:       #0B1424;          /* near-black premium ink */
+  --c-t2:       #475569;
+  --c-t3:       #94A3B8;
+  --r-card:     16px;
+  --grad-primary: linear-gradient(135deg, #0E4F7A 0%, #1668A4 100%);
+  --grad-accent:  linear-gradient(135deg, #10B981 0%, #059669 100%);
+  --grad-hero:    linear-gradient(120deg, #0A1F33 0%, #0E4F7A 45%, #047857 100%);
+  --shadow-xs:    0 1px 2px rgba(15,23,42,0.05);
+  --shadow:       0 1px 3px rgba(15,23,42,0.06), 0 1px 2px rgba(15,23,42,0.04);
+  --shadow-md:    0 6px 18px rgba(15,23,42,0.07), 0 2px 4px rgba(15,23,42,0.04);
+  --shadow-lg:    0 18px 48px rgba(15,23,42,0.10), 0 4px 12px rgba(15,23,42,0.05);
+  --ring-primary: 0 0 0 3px rgba(22,104,164,0.18);
 }
 
 /* ─── Global font & background ─────────────────────────────────────────────── */
@@ -69,37 +78,59 @@ html, body, [class*="css"] {
   color: var(--c-t1) !important;
 }
 
-/* Premium clinical canvas — restrained slate with a single navy wash on
-   the top edge and a hairline dot-grid for depth. No color blobs. */
+/* Premium clinical canvas — layered mesh gradient with subtle aurora
+   washes (sapphire top, emerald bottom-right) over a fine dot-grid.    */
 .stApp {
   background:
-    radial-gradient(ellipse 80% 50% at 50% -10%,
-      rgba(11,79,108,0.10) 0%, transparent 60%),
-    radial-gradient(circle at 1px 1px, rgba(15,23,42,0.045) 1px, transparent 0),
-    linear-gradient(180deg, #F1F5F9 0%, #F8FAFC 100%) !important;
-  background-size: auto, 22px 22px, auto !important;
+    radial-gradient(ellipse 70% 55% at 12% -8%,
+      rgba(22,104,164,0.18) 0%, transparent 55%),
+    radial-gradient(ellipse 60% 50% at 92% 18%,
+      rgba(16,185,129,0.14) 0%, transparent 60%),
+    radial-gradient(ellipse 65% 50% at 80% 100%,
+      rgba(99,102,241,0.10) 0%, transparent 60%),
+    radial-gradient(circle at 1px 1px, rgba(15,23,42,0.05) 1px, transparent 0),
+    linear-gradient(180deg, #EEF2F7 0%, #F6F8FB 60%, #EEF2F7 100%) !important;
+  background-size: auto, auto, auto, 24px 24px, auto !important;
   min-height: 100vh;
 }
 
-/* Main container — clean white surface, elevated above the slate canvas.
-   High specificity to defeat the override in app.py. */
+/* Main container — premium translucent glass surface, elevated above the
+   aurora canvas, with a hairline gradient ring at the top edge.         */
 .main .block-container,
 [data-testid="stAppViewContainer"] .main .block-container,
 [data-testid="stAppViewContainer"] section.main .block-container {
-  padding-top: 1.8rem !important;
+  padding-top: 2rem !important;
   padding-bottom: 3.5rem !important;
-  padding-left: 2.4rem !important;
-  padding-right: 2.4rem !important;
-  background: #FFFFFF !important;
-  border-radius: 18px !important;
-  border: 1px solid var(--c-border) !important;
+  padding-left: 2.6rem !important;
+  padding-right: 2.6rem !important;
+  background: rgba(255,255,255,0.86) !important;
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  border-radius: 22px !important;
+  border: 1px solid rgba(226,232,240,0.85) !important;
   box-shadow:
-    0 1px 2px rgba(15,23,42,0.04),
-    0 12px 36px rgba(15,23,42,0.08) !important;
-  margin-top: 1.2rem !important;
-  margin-bottom: 1.5rem !important;
+    0 1px 0 rgba(255,255,255,0.9) inset,
+    0 1px 3px rgba(15,23,42,0.04),
+    0 24px 60px rgba(15,23,42,0.10) !important;
+  margin-top: 1.4rem !important;
+  margin-bottom: 1.6rem !important;
   position: relative;
   z-index: 1;
+  overflow: hidden;
+}
+.main .block-container::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(22,104,164,0.55) 18%,
+    rgba(16,185,129,0.65) 50%,
+    rgba(99,102,241,0.55) 82%,
+    transparent 100%);
+  z-index: 5;
+  pointer-events: none;
 }
 
 /* ─── Hide Streamlit chrome ─────────────────────────────────────────────────── */
@@ -230,43 +261,53 @@ section[data-testid="stSidebar"] [data-testid="stExpander"] summary {
 
 /* ─── Tab bar — segmented control, premium SaaS feel ────────────────────────── */
 .stTabs [data-baseweb="tab-list"] {
-  background: var(--c-bg);
-  border-radius: 12px;
-  border: 1px solid var(--c-border);
-  padding: 4px;
-  gap: 2px;
-  box-shadow: none;
+  background: linear-gradient(180deg, #EEF2F7 0%, #E5EAF2 100%);
+  border-radius: 14px;
+  border: 1px solid #DCE3EC;
+  padding: 5px;
+  gap: 3px;
+  box-shadow: inset 0 1px 2px rgba(15,23,42,0.04);
   display: flex;
   width: 100%;
 }
 .stTabs [data-baseweb="tab"] {
   font-family: 'Inter', 'Noto Sans Bengali', sans-serif !important;
-  font-weight: 500;
-  font-size: 0.86rem;
-  padding: 0.6rem 0;
+  font-weight: 550;
+  font-size: 0.88rem;
+  padding: 0.7rem 0;
   color: var(--c-t2) !important;
   border: none !important;
-  border-radius: 8px;
+  border-radius: 10px;
   background: transparent !important;
   flex: 1;
   text-align: center;
-  transition: color 0.15s ease, background 0.15s ease;
+  transition: color 0.18s ease, background 0.18s ease, transform 0.15s ease;
   cursor: pointer;
   white-space: nowrap;
   letter-spacing: -0.005em;
+  position: relative;
 }
 .stTabs [data-baseweb="tab"]:hover:not([aria-selected="true"]) {
   color: var(--c-primary) !important;
-  background: rgba(11,79,108,0.04) !important;
+  background: rgba(22,104,164,0.06) !important;
 }
 .stTabs [aria-selected="true"] {
   color: var(--c-primary) !important;
-  font-weight: 600 !important;
+  font-weight: 700 !important;
   background: #FFFFFF !important;
-  box-shadow: 0 1px 3px rgba(15,23,42,0.06), 0 0 0 1px var(--c-border) !important;
+  box-shadow:
+    0 2px 6px rgba(15,23,42,0.08),
+    0 0 0 1px rgba(22,104,164,0.18) !important;
   border: none !important;
 }
-.stTabs [data-baseweb="tab-panel"] { padding-top: 1.4rem; }
+.stTabs [aria-selected="true"]::after {
+  content: "";
+  position: absolute;
+  left: 22%; right: 22%; bottom: 4px;
+  height: 2px; border-radius: 2px;
+  background: var(--grad-primary);
+}
+.stTabs [data-baseweb="tab-panel"] { padding-top: 1.6rem; }
 
 /* ─── Hero banner ───────────────────────────────────────────────────────────── */
 .hero-banner {
@@ -855,41 +896,61 @@ section[data-testid="stSidebar"] [data-testid="stExpander"] summary {
 /* ─── Buttons ────────────────────────────────────────────────────────────────── */
 .stButton > button {
   font-family: 'Inter', 'Noto Sans Bengali', sans-serif !important;
-  font-weight: 600; border-radius: 9px;
-  background: var(--c-primary); color: white; border: 1px solid var(--c-primary);
-  transition: background 0.15s, box-shadow 0.15s, transform 0.05s;
+  font-weight: 600; border-radius: 11px;
+  padding: 0.55rem 1.2rem;
+  background: var(--grad-primary) !important;
+  color: white !important;
+  border: 1px solid rgba(11,79,108,0.55) !important;
+  transition: transform 0.12s ease, box-shadow 0.18s ease, filter 0.18s ease;
   letter-spacing: -0.005em;
-  box-shadow: 0 1px 2px rgba(11,79,108,0.18);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.18) inset,
+    0 2px 6px rgba(11,79,108,0.22),
+    0 1px 2px rgba(11,79,108,0.16);
 }
 .stButton > button:hover {
-  background: var(--c-primary-2) !important;
-  border-color: var(--c-primary-2) !important;
-  box-shadow: 0 2px 8px rgba(11,79,108,0.22) !important;
+  filter: brightness(1.06);
+  transform: translateY(-1px);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.22) inset,
+    0 6px 18px rgba(11,79,108,0.28),
+    0 2px 4px rgba(11,79,108,0.18) !important;
 }
-.stButton > button:active { transform: translateY(0.5px); }
+.stButton > button:active { transform: translateY(0.5px); filter: brightness(0.96); }
+.stButton > button:focus-visible { outline: none !important; box-shadow: var(--ring-primary), 0 6px 18px rgba(11,79,108,0.22) !important; }
+
 .stDownloadButton > button {
   font-family: 'Inter', 'Noto Sans Bengali', sans-serif !important;
-  font-weight: 600 !important; border-radius: 10px !important;
-  background: var(--c-teal) !important; color: white !important;
-  border: 1px solid var(--c-teal) !important; font-size: 0.95rem !important;
-  padding: 0.75rem 1.4rem !important; transition: all 0.15s;
-  box-shadow: 0 1px 2px rgba(16,185,129,0.20);
+  font-weight: 700 !important; border-radius: 12px !important;
+  background: var(--grad-accent) !important; color: white !important;
+  border: 1px solid rgba(5,150,105,0.45) !important; font-size: 0.95rem !important;
+  padding: 0.78rem 1.5rem !important; transition: all 0.18s ease;
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.22) inset,
+    0 4px 14px rgba(16,185,129,0.30),
+    0 1px 3px rgba(16,185,129,0.22);
   letter-spacing: -0.005em;
 }
 .stDownloadButton > button:hover {
-  background: #0EA371 !important;
-  border-color: #0EA371 !important;
-  box-shadow: 0 2px 8px rgba(16,185,129,0.28) !important;
+  filter: brightness(1.05);
+  transform: translateY(-1px);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.25) inset,
+    0 8px 22px rgba(16,185,129,0.38),
+    0 2px 6px rgba(16,185,129,0.22) !important;
 }
 
-/* ─── File uploader — force light theme ─────────────────────────────────────── */
+/* ─── File uploader — premium dashed gradient frame ─────────────────────────── */
 [data-testid="stFileUploaderDropzone"],
 [data-testid="stFileUploadDropzone"] {
-  background: var(--c-bg-2) !important;
-  border: 1.5px dashed #BFD3DD !important;
-  border-radius: 12px !important;
+  background:
+    linear-gradient(#FFFFFF, #FFFFFF) padding-box,
+    linear-gradient(135deg, rgba(22,104,164,0.45), rgba(16,185,129,0.40)) border-box !important;
+  border: 1.5px dashed transparent !important;
+  border-radius: 14px !important;
   color: var(--c-t2) !important;
-  transition: border-color 0.2s, background 0.2s;
+  transition: border-color 0.2s, background 0.2s, transform 0.15s, box-shadow 0.2s;
+  box-shadow: 0 1px 3px rgba(15,23,42,0.04);
 }
 [data-testid="stFileUploaderDropzone"] > div,
 [data-testid="stFileUploadDropzone"] > div {
@@ -897,8 +958,8 @@ section[data-testid="stSidebar"] [data-testid="stExpander"] summary {
 }
 [data-testid="stFileUploaderDropzone"]:hover,
 [data-testid="stFileUploadDropzone"]:hover {
-  background: #FFFFFF !important;
-  border-color: var(--c-primary) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 10px 28px rgba(22,104,164,0.10), 0 2px 6px rgba(15,23,42,0.05) !important;
 }
 [data-testid="stFileUploaderDropzone"] span,
 [data-testid="stFileUploadDropzone"] span,
@@ -912,16 +973,19 @@ section[data-testid="stSidebar"] [data-testid="stExpander"] summary {
 }
 [data-testid="stFileUploaderDropzone"] button,
 [data-testid="stFileUploadDropzone"] button {
-  background: var(--c-primary) !important;
+  background: var(--grad-primary) !important;
   color: white !important;
   border: none !important;
-  border-radius: 8px !important;
+  border-radius: 10px !important;
   font-weight: 600 !important;
-  padding: 0.4rem 1rem !important;
+  padding: 0.5rem 1.1rem !important;
+  box-shadow: 0 2px 8px rgba(22,104,164,0.30) !important;
+  transition: filter 0.15s, transform 0.12s;
 }
 [data-testid="stFileUploaderDropzone"] button:hover,
 [data-testid="stFileUploadDropzone"] button:hover {
-  background: var(--c-primary-2) !important;
+  filter: brightness(1.08);
+  transform: translateY(-1px);
 }
 /* Audio input widget — minimal override only (waveform needs its own dark bg) */
 [data-testid="stAudioInput"] { border-radius: 12px !important; overflow: hidden; }
@@ -975,20 +1039,27 @@ section[data-testid="stSidebar"] [data-testid="stExpander"] summary {
 }
 .dx-step-badge {
   flex-shrink: 0;
-  width: 32px; height: 32px;
-  border-radius: 9px;
-  background: #F0F7FA;
-  color: var(--c-primary);
-  border: 1px solid #D7E7EF;
+  width: 36px; height: 36px;
+  border-radius: 11px;
+  background: var(--grad-primary);
+  color: #FFFFFF;
+  border: 1px solid rgba(11,79,108,0.4);
   display: flex; align-items: center; justify-content: center;
-  font-weight: 700; font-size: 0.92rem;
+  font-weight: 800; font-size: 0.98rem;
   letter-spacing: -0.01em;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.7);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.25) inset,
+    0 3px 10px rgba(22,104,164,0.30),
+    0 1px 2px rgba(15,23,42,0.10);
 }
 .dx-step-badge.dx-step-photo {
-  background: #ECFDF5;
-  color: #047857;
-  border-color: #BBF7D0;
+  background: var(--grad-accent);
+  color: #FFFFFF;
+  border-color: rgba(5,150,105,0.40);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.25) inset,
+    0 3px 10px rgba(16,185,129,0.32),
+    0 1px 2px rgba(15,23,42,0.10);
 }
 .dx-panel-titles { flex: 1; min-width: 0; }
 .dx-panel-title-en {
@@ -1008,8 +1079,28 @@ section[data-testid="stSidebar"] [data-testid="stExpander"] summary {
   text-transform: uppercase;
   border: 1px solid transparent;
 }
-.dx-pill-required { background: #FEF2F2; color: #B91C1C; border-color: #FECACA; }
-.dx-pill-optional { background: var(--c-bg); color: var(--c-t2); border-color: var(--c-border); }
+.dx-pill-required {
+  background: linear-gradient(135deg, #FEF2F2, #FFE4E6);
+  color: #B91C1C;
+  border-color: #FECACA;
+  box-shadow: 0 1px 2px rgba(220,38,38,0.10);
+}
+.dx-pill-required::before {
+  content: ""; display: inline-block; width: 6px; height: 6px;
+  border-radius: 50%; background: #DC2626; margin-right: 6px;
+  vertical-align: middle;
+  box-shadow: 0 0 0 0 rgba(220,38,38,0.45);
+  animation: pulse-required 2s ease-in-out infinite;
+}
+@keyframes pulse-required {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(220,38,38,0.55); }
+  50%      { box-shadow: 0 0 0 6px rgba(220,38,38,0); }
+}
+.dx-pill-optional {
+  background: var(--c-bg);
+  color: var(--c-t2);
+  border-color: var(--c-border);
+}
 .dx-panel-desc {
   font-size: 0.83rem; color: var(--c-t2);
   margin: 0.85rem 0 1rem 0; line-height: 1.6;
@@ -1088,6 +1179,135 @@ section[data-testid="stSidebar"] [data-testid="stExpander"] summary {
   background: #F1F5F9; border: 1px solid #E2E8F0;
   border-radius: 8px; padding: 0.45rem 0.7rem;
   margin-top: 0.5rem; line-height: 1.5;
+}
+
+/* ─── Privacy badge — premium emerald glass ──────────────────────────────────── */
+.sk-privacy-badge {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+  background:
+    linear-gradient(135deg, rgba(16,185,129,0.10) 0%, rgba(22,104,164,0.06) 100%),
+    #FFFFFF;
+  border: 1px solid rgba(16,185,129,0.30);
+  border-left: 4px solid #10B981;
+  border-radius: 12px;
+  padding: 0.75rem 1rem;
+  margin: 0.4rem 0 0.6rem 0;
+  box-shadow: 0 2px 10px rgba(16,185,129,0.08);
+}
+.sk-privacy-icon {
+  font-size: 1.15rem; line-height: 1;
+  background: var(--grad-accent);
+  color: white;
+  width: 30px; height: 30px;
+  border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 3px 8px rgba(16,185,129,0.32);
+}
+.sk-privacy-body { flex: 1; min-width: 0; }
+.sk-privacy-title {
+  font-size: 0.84rem; font-weight: 700; color: #064E3B;
+  letter-spacing: -0.005em; margin-bottom: 0.25rem;
+  display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap;
+}
+.sk-privacy-chips { display: inline-flex; gap: 0.3rem; flex-wrap: wrap; }
+.sk-privacy-chip {
+  font-size: 0.62rem; font-weight: 700;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  color: #047857;
+  background: rgba(16,185,129,0.14);
+  border: 1px solid rgba(16,185,129,0.32);
+  padding: 0.12rem 0.5rem;
+  border-radius: 99px;
+}
+.sk-privacy-text {
+  font-size: 0.78rem; color: #115E59; line-height: 1.5;
+}
+.sk-privacy-bn {
+  font-size: 0.74rem; color: #0F766E;
+  margin-top: 0.18rem; line-height: 1.5;
+  font-family: 'Noto Sans Bengali', sans-serif !important;
+}
+
+/* ─── Quick-Start expander — premium gold accent card ────────────────────────── */
+[data-testid="stExpander"] {
+  border: 1px solid var(--c-border) !important;
+  border-radius: 14px !important;
+  background:
+    linear-gradient(180deg, #FFFDF7 0%, #FFFFFF 100%) !important;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+[data-testid="stExpander"] summary {
+  padding: 0.7rem 1rem !important;
+  font-weight: 600 !important;
+}
+[data-testid="stExpander"] summary:hover {
+  background: rgba(245,158,11,0.04) !important;
+}
+
+/* Quick-Demo case buttons — distinct premium chips, not flat secondary
+   buttons. Targets the four demo buttons inside the Quick Start expander
+   row that immediately follows the .dx-quickbar-head label.              */
+[data-testid="stExpander"] [data-testid="stHorizontalBlock"] .stButton > button {
+  background: #FFFFFF !important;
+  color: var(--c-t1) !important;
+  border: 1px solid var(--c-border) !important;
+  border-radius: 12px !important;
+  font-weight: 600 !important;
+  font-size: 0.86rem !important;
+  padding: 0.65rem 0.9rem !important;
+  box-shadow: 0 1px 2px rgba(15,23,42,0.05) !important;
+  transition: transform 0.15s ease, box-shadow 0.18s ease, border-color 0.18s ease !important;
+  position: relative;
+  overflow: hidden;
+}
+[data-testid="stExpander"] [data-testid="stHorizontalBlock"] .stButton > button::before {
+  content: "";
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: var(--grad-primary);
+  opacity: 0.85;
+}
+[data-testid="stExpander"] [data-testid="stHorizontalBlock"] .stButton > button:hover {
+  background: #FFFFFF !important;
+  border-color: rgba(22,104,164,0.40) !important;
+  transform: translateY(-2px);
+  box-shadow:
+    0 10px 24px rgba(22,104,164,0.12),
+    0 2px 6px rgba(15,23,42,0.06) !important;
+  filter: none;
+}
+
+/* ─── Selectbox / inputs — premium light theme ───────────────────────────────── */
+[data-baseweb="select"] > div {
+  background: #FFFFFF !important;
+  border: 1px solid var(--c-border) !important;
+  border-radius: 10px !important;
+  box-shadow: var(--shadow-xs) !important;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+[data-baseweb="select"] > div:hover {
+  border-color: rgba(22,104,164,0.40) !important;
+}
+[data-baseweb="select"] > div:focus-within {
+  border-color: var(--c-primary) !important;
+  box-shadow: var(--ring-primary) !important;
+}
+
+.stTextInput input, .stTextArea textarea, .stNumberInput input {
+  border-radius: 10px !important;
+  border: 1px solid var(--c-border) !important;
+  background: #FFFFFF !important;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.stTextInput input:focus, .stTextArea textarea:focus, .stNumberInput input:focus {
+  border-color: var(--c-primary) !important;
+  box-shadow: var(--ring-primary) !important;
+  outline: none !important;
 }
 
 /* ─── Mobile ─────────────────────────────────────────────────────────────────── */
