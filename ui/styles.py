@@ -822,15 +822,6 @@ section[data-testid="stSidebar"] [data-testid="stExpander"] summary {
 .badge-urgency { font-size:1.35rem; font-weight:700; margin:0.2rem 0; }
 .badge-action, .badge-action-bn { font-size:0.9rem; margin-top:0.25rem; font-weight:500; }
 
-/* ─── GradCAM ────────────────────────────────────────────────────────────────── */
-.gradcam-caption {
-  font-size: 0.73rem; color: var(--c-t3); text-align: center;
-  margin-top: 0.35rem; font-style: italic;
-  font-family: 'Noto Sans Bengali', sans-serif !important;
-}
-.coverage-wrap { background: var(--c-border); border-radius: 99px; height: 8px; overflow: hidden; }
-.coverage-fill { height: 8px; border-radius: 99px; }
-
 /* ─── Chat interface ─────────────────────────────────────────────────────────── */
 .chat-outer-info {
   background: #EBF5FB;
@@ -2159,7 +2150,7 @@ a:hover {
   z-index: 2;
 }
 
-/* Image / GradCAM preview — frame with subtle ring */
+/* Image preview — frame with subtle ring */
 .stImage img, [data-testid="stImage"] img {
   border-radius: 12px !important;
   box-shadow:

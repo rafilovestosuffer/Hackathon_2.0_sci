@@ -20,8 +20,6 @@ MODEL_OUTPUT = {
         {"disease": "Tinea",              "confidence": 0.82},
         {"disease": "Contact_Dermatitis", "confidence": 0.11},
     ],
-    "heatmap":      None,
-    "coverage_pct": 22.5,
 }
 
 TIER1_RESULT = {
@@ -75,15 +73,6 @@ class TestModelOutputStructure:
             assert "disease" in entry
             assert "confidence" in entry
 
-    def test_has_heatmap_key(self):
-        assert "heatmap" in MODEL_OUTPUT
-
-    def test_has_coverage_pct_key(self):
-        assert "coverage_pct" in MODEL_OUTPUT
-
-    def test_coverage_pct_non_negative(self):
-        assert MODEL_OUTPUT["coverage_pct"] >= 0.0
-
 
 # ══════════════════════════════════════════════════════════════════════════════
 # Model output → severity engine
@@ -92,10 +81,9 @@ class TestModelOutputStructure:
 class TestSeverityIntegration:
     """compute_tier() accepts model output and returns valid tier result."""
 
-    def _tier(self, disease="Tinea", confidence=0.82, coverage_pct=22.5,
-               transcript=""):
+    def _tier(self, disease="Tinea", confidence=0.82, transcript=""):
         from severity.engine import compute_tier
-        return compute_tier(disease, confidence, coverage_pct, transcript)
+        return compute_tier(disease, confidence, transcript)
 
     def test_returns_dict(self):
         assert isinstance(self._tier(), dict)
@@ -113,35 +101,28 @@ class TestSeverityIntegration:
         assert result["tier"] in (1, 2, 3)
 
     def test_pharmacist_disease_high_confidence_stays_tier1(self):
-        result = self._tier(disease="Tinea", confidence=0.82, coverage_pct=20.0)
+        result = self._tier(disease="Tinea", confidence=0.82)
         assert result["tier"] == 1
 
     def test_low_confidence_escalates_to_tier3(self):
         result = self._tier(confidence=0.35)
         assert result["tier"] == 3
 
-    def test_high_coverage_escalates_tier(self):
-        # Tinea base = Tier 1, coverage > 40 → escalates to Tier 2
-        result = self._tier(disease="Tinea", confidence=0.82, coverage_pct=45.0)
-        assert result["tier"] >= 2
-
     def test_voice_keyword_escalates_tier(self):
-        # Tinea base = Tier 1, "জ্বর" in transcript → escalates
         result = self._tier(
-            disease="Tinea", confidence=0.82,
-            coverage_pct=10.0, transcript="জ্বর আছে"
+            disease="Tinea", confidence=0.82, transcript="জ্বর আছে"
         )
         assert result["tier"] >= 2
 
     def test_tier_never_exceeds_3(self):
         result = self._tier(
             disease="Scabies", confidence=0.30,
-            coverage_pct=50.0, transcript="জ্বর ছড়িয়ে ব্যথা রক্ত"
+            transcript="জ্বর ছড়িয়ে ব্যথা রক্ত"
         )
         assert result["tier"] == 3
 
     def test_tier_never_below_1(self):
-        result = self._tier(disease="Tinea", confidence=0.99, coverage_pct=0.0)
+        result = self._tier(disease="Tinea", confidence=0.99)
         assert result["tier"] >= 1
 
     def test_urgency_label_is_string(self):
@@ -154,7 +135,6 @@ class TestSeverityIntegration:
         result = compute_tier(
             disease_class=MODEL_OUTPUT["disease"],
             confidence=MODEL_OUTPUT["confidence"],
-            coverage_pct=MODEL_OUTPUT["coverage_pct"],
             transcript="",
         )
         assert isinstance(result["tier"], int)
@@ -170,8 +150,6 @@ class TestPDFPipeline:
     def _session_data(self, **overrides):
         data = {
             **HISTORY,
-            "heatmap":         None,
-            "coverage_pct":    MODEL_OUTPUT["coverage_pct"],
             "disease_class":   MODEL_OUTPUT["disease"],
             "disease_bengali": "দাদ (টিনিয়া)",
             "confidence":      MODEL_OUTPUT["confidence"],
@@ -266,22 +244,16 @@ class TestFullPipeline:
         from pdf_gen.referral import generate_referral_pdf
         from model.disease_labels import get_bengali
 
-        # Step 1: model output (stub)
         pred = MODEL_OUTPUT.copy()
 
-        # Step 2: triage
         tier_result = compute_tier(
             disease_class=pred["disease"],
             confidence=pred["confidence"],
-            coverage_pct=pred["coverage_pct"],
             transcript="",
         )
 
-        # Step 3: assemble session_data exactly as app.py does
         session_data = {
             **HISTORY,
-            "heatmap":         pred.get("heatmap"),
-            "coverage_pct":    pred.get("coverage_pct", 0.0),
             "disease_class":   pred["disease"],
             "disease_bengali": get_bengali(pred["disease"]),
             "confidence":      pred["confidence"],
@@ -296,7 +268,6 @@ class TestFullPipeline:
             "hospital_address": "",
         }
 
-        # Step 4: PDF generation
         pdf_bytes = generate_referral_pdf(session_data)
 
         assert isinstance(pdf_bytes, bytes)
@@ -311,28 +282,23 @@ class TestFullPipeline:
 
         pred = {
             "disease":      "Scabies",
-            "confidence":   0.38,   # Signal 2 → Tier 3
-            "coverage_pct": 45.0,   # Signal 3 → confirms Tier 3
+            "confidence":   0.38,
             "top2": [
                 {"disease": "Scabies", "confidence": 0.38},
                 {"disease": "Eczema",  "confidence": 0.22},
             ],
-            "heatmap": None,
         }
-        transcript = "জ্বর আছে ছড়িয়ে পড়ছে"  # Signal 4
+        transcript = "জ্বর আছে ছড়িয়ে পড়ছে"
 
         tier_result = compute_tier(
             disease_class=pred["disease"],
             confidence=pred["confidence"],
-            coverage_pct=pred["coverage_pct"],
             transcript=transcript,
         )
         assert tier_result["tier"] == 3
 
         session_data = {
             **HISTORY,
-            "heatmap":         None,
-            "coverage_pct":    pred["coverage_pct"],
             "disease_class":   pred["disease"],
             "disease_bengali": get_bengali(pred["disease"]),
             "confidence":      pred["confidence"],
@@ -362,7 +328,7 @@ class TestFullPipeline:
     def test_tier_result_keys_match_pdf_expected_keys(self):
         """Keys produced by compute_tier() match what generate_referral_pdf() reads."""
         from severity.engine import compute_tier
-        tier_result = compute_tier("Tinea", 0.82, 20.0, "")
+        tier_result = compute_tier("Tinea", 0.82, "")
         required_by_pdf = ("tier", "urgency_label", "action", "facility", "bengali_text")
         for key in required_by_pdf:
             assert key in tier_result, f"compute_tier() missing key needed by PDF: {key}"

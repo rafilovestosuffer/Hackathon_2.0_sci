@@ -14,7 +14,7 @@ import numpy as np
 KNOWLEDGE_DIR = os.path.join(os.path.dirname(__file__), "knowledge")
 INDEX_PATH = os.path.join(os.path.dirname(__file__), "faiss_index.bin")
 METADATA_PATH = os.path.join(os.path.dirname(__file__), "chunks_metadata.json")
-EMBED_MODEL = "sentence-transformers/paraphrase-multilingual-MiniLM-L6-v2"
+EMBED_MODEL = "intfloat/multilingual-e5-small"
 
 
 def _embed_with_sentence_transformers(texts: list[str]) -> np.ndarray:

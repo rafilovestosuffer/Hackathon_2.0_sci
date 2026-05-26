@@ -255,13 +255,13 @@ with c1:
     </div>""", unsafe_allow_html=True)
 with c2:
     st.markdown("""<div class="card">
-    <h3>🔬 4-Signal Triage Engine</h3>
-    <p>Disease class + model confidence + GradCAM++ lesion coverage + Bengali voice keywords → urgency tier 1/2/3 with bilingual action text.</p>
+    <h3>🔬 3-Signal Triage Engine</h3>
+    <p>Disease class + model confidence + Bengali voice keywords → urgency tier 1/2/3 with bilingual action text.</p>
     </div>""", unsafe_allow_html=True)
     st.markdown("<br>", unsafe_allow_html=True)
     st.markdown("""<div class="card">
     <h3>📄 PDF Referral Letter</h3>
-    <p>4-section professional referral: patient history, clinical observation (heatmap), AI diagnosis, triage recommendation. Single button. Zero manual input.</p>
+    <p>4-section professional referral: patient history, clinical observation, AI diagnosis, triage recommendation. Single button. Zero manual input.</p>
     </div>""", unsafe_allow_html=True)
 
 st.markdown('<hr class="divider">', unsafe_allow_html=True)
@@ -316,10 +316,9 @@ graph TB
         C[faster-whisper ASR<br/>INT8 · language=bn]
         D[Gemini 1.5 Flash<br/>JSON Extraction]
         E[BD-SkinNet<br/>Swin-B + CBAM · INT8]
-        F[GradCAM++<br/>Coverage %]
     end
     subgraph TRIAGE["🎯 Triage Engine"]
-        G[4-Signal Engine<br/>Disease + Confidence<br/>+ Coverage + Keywords]
+        G[3-Signal Engine<br/>Disease + Confidence<br/>+ Bengali Keywords]
     end
     subgraph OUTPUT["📤 Output Layer"]
         H[Tier 1: Pharmacy]
@@ -330,7 +329,6 @@ graph TB
     end
     A --> C --> D --> G
     B --> E --> G
-    B --> F --> G
     G --> H & I & J & K
     L -.->|FAISS + Gemini| K
 """, height=480)
@@ -356,10 +354,9 @@ sequenceDiagram
 
     U->>M: skin_image (224×224)
     M->>M: Swin-B + CBAM inference
-    M->>M: GradCAM++ heatmap
-    M-->>T: {disease, confidence, coverage_pct}
+    M-->>T: {disease, confidence}
 
-    T->>T: 4-signal fusion
+    T->>T: 3-signal fusion
     T-->>U: tier + bilingual action
 
     U->>R: Bengali/English question
@@ -410,17 +407,6 @@ with c3:
 
 st.markdown("<br>", unsafe_allow_html=True)
 
-st.markdown("""
-<div class="card">
-<h3>Explainability — GradCAM++</h3>
-<p>Gradient-weighted Class Activation Mapping applied to the last Swin stage
-(<code>model.cbam_modules[-1].spatial_attn.conv</code>). Generates a heatmap overlay showing which skin regions
-influenced the diagnosis. Coverage percentage (% of image with activation > 0.5 threshold) acts as
-<strong style="color:#e2e8f0">Signal 3 in the triage engine</strong> — high coverage escalates urgency tier.
-Embedded as PNG in PDF referral Section 2.</p>
-</div>
-""", unsafe_allow_html=True)
-
 st.markdown('<hr class="divider">', unsafe_allow_html=True)
 
 
@@ -429,8 +415,8 @@ section("✅ Feature Matrix", "features")
 
 features = [
     ("Bengali Voice Input", "faster-whisper + Gemini JSON", "live"),
-    ("Skin Image Analysis", "BD-SkinNet INT8 + GradCAM++", "live"),
-    ("4-Signal Triage Engine", "Disease + Confidence + Coverage + Keywords", "live"),
+    ("Skin Image Analysis", "BD-SkinNet INT8 (Swin+CBAM)", "live"),
+    ("3-Signal Triage Engine", "Disease + Confidence + Bengali Keywords", "live"),
     ("Emergency Hospital Map", "Overpass API + Folium, 64 districts", "live"),
     ("PDF Referral Letter", "4-section bilingual, single click", "live"),
     ("RAG Medical Chatbot", "BM25+FAISS+Gemini, CDC/NIH/WHO/DGHS", "live"),
@@ -471,11 +457,10 @@ stack_left = [
     ("Frontend", "Streamlit 1.54 · Custom Bengali CSS · Noto Sans Bengali"),
     ("Vision Model", "Swin Transformer Base · CBAM · timm 1.0.27"),
     ("Quantization", "torch.quantization.quantize_dynamic (INT8)"),
-    ("Explainability", "GradCAM++ · opencv-python-headless"),
     ("ASR", "faster-whisper (Whisper Base) · CTranslate2 INT8"),
     ("LLM / API", "Gemini 2.5 Flash · google-genai 1.63.0"),
     ("RAG Retrieval", "FAISS IndexFlatIP · BM25 keyword fallback"),
-    ("Embeddings", "paraphrase-multilingual-MiniLM-L6-v2"),
+    ("Embeddings", "intfloat/multilingual-e5-small"),
 ]
 stack_right = [
     ("PDF", "fpdf2 + uharfbuzz (HarfBuzz Bengali shaping)"),
@@ -527,7 +512,7 @@ with c2:
 with c3:
     st.markdown("""<div class="card" style="border-top:3px solid #f87171">
     <h3 style="color:#f87171">Tier 3 — URGENT</h3>
-    <p>Low confidence · High GradCAM coverage · Escalation keywords<br/><br/>
+    <p>Low confidence · Bengali escalation keywords<br/><br/>
     <strong style="color:#f87171">Action:</strong> Emergency care TODAY<br/>
     <strong style="color:#f87171">Cost:</strong> ৳0–500 (emergency)<br/>
     <strong style="color:#f87171">Facility:</strong> District Hospital + Map</p>

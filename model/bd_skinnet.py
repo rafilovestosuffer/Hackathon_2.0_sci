@@ -72,7 +72,6 @@ class BDSkinNet(nn.Module):
     """
     Swin Transformer Base + CBAM attention on all 4 stages.
     Stage dims: [128, 256, 512, 1024] → concat 1920-d → classification head.
-    GradCAM++ target: model.cbam_modules[-1].spatial_attn.conv
     """
     STAGE_DIMS = [128, 256, 512, 1024]
 

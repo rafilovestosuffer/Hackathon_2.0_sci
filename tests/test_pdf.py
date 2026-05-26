@@ -1,4 +1,3 @@
-import numpy as np
 import pytest
 from pdf_gen.referral import generate_referral_pdf
 
@@ -14,8 +13,6 @@ def _base_session(**overrides):
         "duration": "2 weeks",
         "progression": "Slowly spreading",
         "previous_treatment": "None",
-        "heatmap": np.random.randint(0, 255, (224, 224, 3), dtype=np.uint8),
-        "coverage_pct": 22.5,
         "disease_class": "Tinea",
         "disease_bengali": "দাদ (টিনিয়া)",
         "confidence": 0.87,
@@ -76,11 +73,6 @@ class TestPdfGeneration:
             hospital_name="Rangpur Medical College Hospital",
             hospital_address="Rangpur Sadar, Rangpur",
         )
-        result = generate_referral_pdf(data)
-        assert isinstance(result, bytes) and len(result) > 0
-
-    def test_heatmap_none_no_crash(self):
-        data = _base_session(heatmap=None)
         result = generate_referral_pdf(data)
         assert isinstance(result, bytes) and len(result) > 0
 

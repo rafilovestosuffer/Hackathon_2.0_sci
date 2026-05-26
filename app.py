@@ -141,8 +141,6 @@ def _run_model(pil_img: Image.Image) -> dict:
                 {"disease": "Tinea",              "confidence": 0.82},
                 {"disease": "Contact_Dermatitis", "confidence": 0.11},
             ],
-            "heatmap":      None,
-            "coverage_pct": 22.5,
         }
 
     result = predict(model, pil_img)
@@ -153,8 +151,6 @@ def _run_model(pil_img: Image.Image) -> dict:
             {"disease": t["class"], "confidence": t["confidence"]}
             for t in result["top2"]
         ],
-        "heatmap":      None,
-        "coverage_pct": 0.0,
     }
 
 
@@ -275,7 +271,6 @@ _DEMO_CASES = {
             "disease": "Tinea", "confidence": 0.85,
             "top2": [{"disease": "Tinea", "confidence": 0.85},
                      {"disease": "Contact_Dermatitis", "confidence": 0.09}],
-            "heatmap": None, "coverage_pct": 18.0,
         },
         "history": {
             "patient_name": "করিম (Demo)", "patient_age": "২৮",
@@ -297,7 +292,6 @@ _DEMO_CASES = {
             "disease": "Eczema", "confidence": 0.72,
             "top2": [{"disease": "Eczema", "confidence": 0.72},
                      {"disease": "Atopic_Dermatitis", "confidence": 0.18}],
-            "heatmap": None, "coverage_pct": 32.0,
         },
         "history": {
             "patient_name": "সুমাইয়া (Demo)", "patient_age": "২২",
@@ -319,7 +313,6 @@ _DEMO_CASES = {
             "disease": "Scabies", "confidence": 0.38,
             "top2": [{"disease": "Scabies", "confidence": 0.38},
                      {"disease": "Eczema",  "confidence": 0.22}],
-            "heatmap": None, "coverage_pct": 45.0,
         },
         "history": {
             "patient_name": "রহিম (Demo)", "patient_age": "৩৫",
@@ -340,7 +333,6 @@ _DEMO_CASES = {
             "disease": "Normal", "confidence": 0.91,
             "top2": [{"disease": "Normal",           "confidence": 0.91},
                      {"disease": "Contact_Dermatitis","confidence": 0.05}],
-            "heatmap": None, "coverage_pct": 8.0,
         },
         "history": {
             "patient_name": "নাসরিন (Demo)", "patient_age": "২৬",
@@ -440,11 +432,11 @@ with tab1:
                 ):
                     _dp = dict(_dc["pred"])
 
-                    # If this demo case has a bundled skin photo, load it,
-                    # run REAL BD-SkinNet, and use the resulting heatmap +
-                    # coverage. Disease label stays the demo-intended class
-                    # so the button labelled "Tinea · Tier 1" reliably shows
-                    # a Tinea/Tier-1 outcome end-to-end.
+                    # If this demo case has a bundled skin photo, load it
+                    # and run REAL BD-SkinNet. Disease label stays the
+                    # demo-intended class so the button labelled
+                    # "Tinea · Tier 1" reliably shows a Tinea/Tier-1
+                    # outcome end-to-end.
                     _img_path = _dc.get("image")
                     if _img_path:
                         from pathlib import Path as _P
@@ -453,13 +445,7 @@ with tab1:
                             st.session_state["demo_image_path"] = str(_full)
                             try:
                                 _pil = Image.open(_full).convert("RGB")
-                                _real = _run_model(_pil)
-                                # Real heatmap + real coverage; keep demo
-                                # label/confidence for narrative consistency.
-                                _dp["heatmap"]      = _real.get("heatmap")
-                                _dp["coverage_pct"] = _real.get(
-                                    "coverage_pct", _dp["coverage_pct"]
-                                )
+                                _run_model(_pil)
                             except Exception as _e:
                                 logger.warning("Demo inference failed: %s", _e)
                         else:
@@ -469,8 +455,7 @@ with tab1:
 
                     st.session_state.prediction  = _dp
                     st.session_state.tier_result = compute_tier(
-                        _dp["disease"], _dp["confidence"],
-                        _dp["coverage_pct"], _dc["transcript"],
+                        _dp["disease"], _dp["confidence"], _dc["transcript"],
                     )
                     st.session_state.history     = _dc["history"]
                     st.session_state.transcript  = _dc["transcript"]
@@ -887,7 +872,6 @@ with tab1:
             tier_result = compute_tier(
                 disease_class=pred["disease"],
                 confidence=pred["confidence"],
-                coverage_pct=pred["coverage_pct"],
                 transcript=st.session_state.transcript,
             )
             st.session_state.tier_result = tier_result
@@ -1227,8 +1211,6 @@ with tab3:
         from model.disease_labels import get_bengali as _get_bn
         _session_data = {
             **history,
-            "heatmap":         pred.get("heatmap"),
-            "coverage_pct":    pred.get("coverage_pct", 0.0),
             "disease_class":   pred["disease"],
             "disease_bengali": _get_bn(pred["disease"]),
             "confidence":      pred["confidence"],

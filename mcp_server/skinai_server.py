@@ -55,17 +55,15 @@ load_index()
 def triage_skin_condition(
     disease_class: str,
     confidence: float,
-    coverage_pct: float,
     transcript: str = "",
 ) -> dict:
     """
-    Run the SkinAI 4-signal clinical triage engine.
+    Run the SkinAI 3-signal clinical triage engine.
 
-    Combines four independent signals to compute an urgency tier:
+    Combines three independent signals to compute an urgency tier:
       Signal 1 — Disease class base tier (hardcoded clinical lookup)
       Signal 2 — Model confidence modifier  (<0.40 → Tier 3 regardless)
-      Signal 3 — GradCAM++ lesion coverage  (>40 % → escalate one tier)
-      Signal 4 — Bengali voice keywords     (জ্বর/ছড়িয়ে/ব্যথা/রক্ত → escalate)
+      Signal 3 — Bengali voice keywords     (জ্বর/ছড়িয়ে/ব্যথা/রক্ত → escalate)
 
     Returns
     -------
@@ -81,10 +79,9 @@ def triage_skin_condition(
     disease_class : One of Atopic_Dermatitis, Contact_Dermatitis, Eczema, Scabies,
                     Seborrheic_Dermatitis, Tinea, Vitiligo, Normal
     confidence    : BD-SkinNet softmax confidence score  (0.0 – 1.0)
-    coverage_pct  : GradCAM++ lesion coverage percentage (0.0 – 100.0)
     transcript    : Optional Bengali voice transcript for keyword escalation
     """
-    return compute_tier(disease_class, confidence, coverage_pct, transcript)
+    return compute_tier(disease_class, confidence, transcript)
 
 
 # ── Tool 2: RAG chatbot ───────────────────────────────────────────────────────

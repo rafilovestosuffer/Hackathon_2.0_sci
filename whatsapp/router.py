@@ -96,10 +96,10 @@ def _laplacian_variance(img_bytes: bytes) -> float:
 # Mirrors app.py::_run_model — when the real checkpoint lands, swap here too.
 
 def _run_model(image_bytes: bytes) -> dict:
-    """Return {disease, confidence, top2, coverage_pct} from image bytes."""
+    """Return {disease, confidence, top2} from image bytes."""
     # Placeholder identical to app.py:_run_model — keeps demo deterministic
     # while real checkpoint is unavailable. When checkpoint arrives, replace
-    # body with real BD-SkinNet + GradCAM inference.
+    # body with real BD-SkinNet inference.
     return {
         "disease": "Tinea",
         "confidence": 0.82,
@@ -107,7 +107,6 @@ def _run_model(image_bytes: bytes) -> dict:
             {"disease": "Tinea", "confidence": 0.82},
             {"disease": "Contact_Dermatitis", "confidence": 0.11},
         ],
-        "coverage_pct": 22.5,
     }
 
 
@@ -130,7 +129,6 @@ def _run_pipeline(sess) -> tuple[dict, dict, Optional[dict], bytes]:
     tier_result = compute_tier(
         disease_class=prediction["disease"],
         confidence=prediction["confidence"],
-        coverage_pct=prediction.get("coverage_pct", 0.0),
         transcript=sess.voice_transcript or "",
     )
 
@@ -160,7 +158,6 @@ def _run_pipeline(sess) -> tuple[dict, dict, Optional[dict], bytes]:
         "disease_bn": get_bengali(prediction["disease"]),
         "confidence": prediction["confidence"],
         "top2": prediction.get("top2", []),
-        "coverage_pct": prediction.get("coverage_pct", 0.0),
         "tier": tier_result["tier"],
         "tier_label": tier_result.get("urgency_label", ""),
         "tier_action": tier_result.get("action", ""),

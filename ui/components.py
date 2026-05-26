@@ -240,7 +240,6 @@ def render_referral_preview(pred: dict, tier_result: dict, history: dict) -> Non
     disease_en = pred.get("disease", "—").replace("_", " ")
     disease_bn = _gb(pred.get("disease", ""))
     conf_pct   = pred.get("confidence", 0.0) * 100
-    cov_pct    = pred.get("coverage_pct", 0.0)
     tier       = tier_result.get("tier", 2)
     tier_colors = {0: "#0D9E75", 1: "#27AE60", 2: "#E67E22", 3: "#C0392B"}
     tier_color  = tier_colors.get(tier, "#4A5568")
@@ -362,47 +361,6 @@ def render_triage_badge(tier_result: dict) -> None:
         + (f'  <div class="badge-action-bn">{action_bn}</div>' if action_bn else '')
         + (f'  <div style="margin-top:0.4rem;font-size:0.78rem;opacity:0.75;">Facility: {facility}</div>' if facility else '')
         + f'</div>',
-        unsafe_allow_html=True,
-    )
-
-
-def render_gradcam_overlay(heatmap_img, coverage_pct: float) -> None:
-    """Render GradCAM heatmap image + coverage bar."""
-    st.markdown(
-        '<div class="sk-section-h2">AI Attention Map · GradCAM++</div>',
-        unsafe_allow_html=True,
-    )
-
-    if heatmap_img is not None:
-        st.image(heatmap_img, use_container_width=True)
-        st.markdown(
-            '<div class="gradcam-caption">লাল এলাকা মডেলের মনোযোগের কেন্দ্র · '
-            'Red region = model focus area</div>',
-            unsafe_allow_html=True,
-        )
-    else:
-        st.markdown(
-            f'<div style="background:{TIER1_BG};border:1px dashed {BORDER_COLOR};'
-            f'border-radius:10px;padding:1.25rem;text-align:center;color:{TEXT_LIGHT};'
-            f'font-size:0.85rem;">GradCAM heatmap will appear here when checkpoint is loaded.</div>',
-            unsafe_allow_html=True,
-        )
-
-    cov       = max(0.0, min(100.0, coverage_pct))
-    bar_color = "#27AE60" if cov <= 40 else "#C0392B"
-    note      = "High coverage — escalates severity" if cov > 40 else "Within normal range"
-    st.markdown(
-        f'<div style="margin-top:0.55rem;">'
-        f'  <div style="display:flex;justify-content:space-between;font-size:0.78rem;'
-        f'              color:{TEXT_MID};margin-bottom:0.22rem;">'
-        f'    <span>Affected region coverage</span>'
-        f'    <span style="font-weight:700;font-family:\'JetBrains Mono\',monospace;color:{bar_color};">{cov:.1f}%</span>'
-        f'  </div>'
-        f'  <div class="coverage-wrap">'
-        f'    <div class="coverage-fill" style="width:{cov}%;background:{bar_color};"></div>'
-        f'  </div>'
-        f'  <div style="font-size:0.72rem;color:{TEXT_LIGHT};margin-top:0.18rem;">{note}</div>'
-        f'</div>',
         unsafe_allow_html=True,
     )
 
@@ -1023,8 +981,8 @@ def render_business_model() -> None:
         '    <li><strong>5 free screenings is calibrated to a household</strong> — the average '
         '        rural household has 4.06 members (BBS 2022). Five screenings lets every member '
         '        be evaluated once before the paywall, removing the trust barrier.</li>'
-        '    <li><strong>Tier 3 (urgent) is never paywalled.</strong> The 4-signal severity engine '
-        '        bypasses the quota when confidence is low, GradCAM coverage is high, or Bengali '
+        '    <li><strong>Tier 3 (urgent) is never paywalled.</strong> The 3-signal severity engine '
+        '        bypasses the quota when confidence is low or Bengali '
         '        escalation keywords are detected — preserving the public-health mission.</li>'
         '    <li><strong>Conversion target: 6–8%</strong> of monthly active free users, in line '
         '        with bKash-style micro-subscription benchmarks for South Asian fintech-health.</li>'

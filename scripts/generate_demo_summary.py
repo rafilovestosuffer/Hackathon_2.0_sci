@@ -100,8 +100,6 @@ _DEMO_SESSION_STATE = {
             {"disease": "Tinea", "confidence": 0.82},
             {"disease": "Contact_Dermatitis", "confidence": 0.09},
         ],
-        "heatmap": None,
-        "coverage_pct": 22.5,
     },
     "history": {
         "chief_complaint": "Ring-shaped itchy rash on left forearm",

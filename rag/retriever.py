@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 KNOWLEDGE_DIR = os.path.join(os.path.dirname(__file__), "knowledge")
 INDEX_PATH = os.path.join(os.path.dirname(__file__), "faiss_index.bin")
 METADATA_PATH = os.path.join(os.path.dirname(__file__), "chunks_metadata.json")
-EMBED_MODEL = "sentence-transformers/paraphrase-multilingual-MiniLM-L6-v2"
+EMBED_MODEL = "intfloat/multilingual-e5-small"
 TOP_K = 5
 
 _BENGALI_FALLBACK = "দুঃখিত, এই প্রশ্নের উত্তর দিতে পারছি না।"

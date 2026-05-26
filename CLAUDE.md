@@ -71,7 +71,7 @@ Narrative: **"Right patient → Right doctor → Right time"**
 | Criterion | Weight | How we win it |
 |-----------|--------|---------------|
 | Innovation & Originality | 25% | BD-specific clinical data, multi-signal triage, Bengali voice, local hospital map |
-| Technical Implementation | 25% | Swin+CBAM+GradCAM++, RAG, quantized CPU inference, all integrated |
+| Technical Implementation | 25% | Swin+CBAM, RAG, quantized CPU inference, all integrated |
 | Real-world Impact | 20% | 1 derm per 250k people stat, Rahim story, no quacks narrative |
 | Demo Quality | 20% | Zero-click public URL, instant load, Bengali UI, PDF output |
 | Presentation | 10% | 5-min slot + 3-min Q&A — Rahim story opens, data closes |
@@ -112,7 +112,6 @@ skinai-bangladesh/
 │
 ├── model/
 │   ├── bd_skinnet.py      ← Swin+CBAM INT8 inference wrapper
-│   ├── gradcam.py         ← GradCAM++ on Swin last stage
 │   ├── disease_labels.py  ← English + Bengali disease name map
 │   ├── export_int8.py     ← One-time INT8 export script
 │   └── checkpoints/       ← .pt files (gitignore if >100MB, use HF Hub)
@@ -139,8 +138,7 @@ skinai-bangladesh/
 │   └── styles.py          ← Bengali Noto Sans font + CSS injection
 │
 ├── tests/
-│   ├── test_severity.py   ← Unit tests for all 4 signals
-│   ├── test_gradcam.py    ← GradCAM shape + coverage tests
+│   ├── test_severity.py   ← Unit tests for all 3 signals
 │   ├── test_pdf.py        ← PDF generation smoke test
 │   └── test_pipeline.py   ← End-to-end integration test
 │
@@ -171,10 +169,9 @@ VOICE INPUT:
 
 IMAGE INPUT:
   skin_image → BD-SkinNet (INT8) → {disease_class: str, confidence: float, top2: list}
-  skin_image → GradCAM++ → {heatmap: np.ndarray, coverage_pct: float}
 
 TRIAGE:
-  [disease_class, confidence, coverage_pct, transcript] → severity_engine()
+  [disease_class, confidence, transcript] → severity_engine()
   → {tier: int(1|2|3), urgency_label: str, action: str, facility_type: str}
 
 EMERGENCY BRANCH (tier == 3 only):
@@ -201,7 +198,6 @@ RAG CHATBOT:
 | Performance | F1 = 92.46% on Bangladeshi clinical test set |
 | Training data | Faridpur Medical College Hospital + Rangpur Medical College Hospital |
 | Deployment | INT8 quantized (torch.quantization.quantize_dynamic or ONNX) |
-| GradCAM++ target | Last Swin stage (features before classification head) |
 | Input size | 224×224 RGB |
 | Output | softmax probabilities over N disease classes |
 
@@ -209,7 +205,7 @@ RAG CHATBOT:
 
 ---
 
-## ⚖️ SEVERITY ENGINE — 4 SIGNALS
+## ⚖️ SEVERITY ENGINE — 3 SIGNALS
 
 ```python
 # Signal 1: Disease class base tier (hardcoded lookup)
@@ -225,17 +221,14 @@ DISEASE_TIER = {
     "Seborrheic_Dermatitis": 1,  # OTC antifungal shampoo/cream
     "Tinea":                 1,  # OTC antifungal (clotrimazole)
 }
-# Note: No Tier 3 base class — Tier 3 is reached only via Signal 2/3/4 escalation
-# (low confidence, high GradCAM coverage, or urgent voice keywords)
+# Note: No Tier 3 base class — Tier 3 is reached only via Signal 2/3 escalation
+# (low confidence or urgent voice keywords)
 
 # Signal 2: Confidence modifier
 if confidence < 0.40: tier = 3
 elif confidence < 0.60: tier = max(tier, 2)
 
-# Signal 3: GradCAM coverage modifier
-if coverage_pct > 40.0: tier = min(tier + 1, 3)
-
-# Signal 4: Bengali voice keyword modifier
+# Signal 3: Bengali voice keyword modifier
 ESCALATION_KEYWORDS = ["জ্বর", "ছড়িয়ে", "ব্যথা", "রক্ত"]
 if any(kw in transcript for kw in ESCALATION_KEYWORDS): tier = min(tier + 1, 3)
 
@@ -257,7 +250,7 @@ TIER_ACTIONS = {
 | Section | Source | Key Content |
 |---------|--------|-------------|
 | 1. Patient History | Gemini JSON from voice | chief_complaint, symptoms, area, duration, progression, previous treatment |
-| 2. Clinical Observation | GradCAM++ output | Heatmap image embedded, coverage%, assessment datetime |
+| 2. Clinical Observation | BD-SkinNet pipeline | Notes that image was analysed by BD-SkinNet (Swin+CBAM); assessment datetime |
 | 3. AI Diagnostic Assessment | BD-SkinNet output | Disease (English+Bengali), confidence, differential if top2>15%, model name, disclaimer |
 | 4. Triage Recommendation | Severity engine | Tier, urgency label, action, facility type+name, English+Bengali instructions |
 

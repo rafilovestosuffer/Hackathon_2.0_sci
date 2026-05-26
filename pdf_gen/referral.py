@@ -9,14 +9,11 @@ still worked because the Unicode data itself was correct).
 
 Requires: fpdf2>=2.7.6  uharfbuzz>=0.30.0
 """
-import io
 import logging
 import os
 import unicodedata
 from datetime import datetime
 
-import numpy as np
-from PIL import Image as PILImage
 from fpdf import FPDF
 from fpdf.enums import Align, XPos, YPos
 
@@ -247,29 +244,13 @@ def generate_referral_pdf(session_data: dict) -> bytes:
     pdf.section_heading("Section 2 — Clinical Observation",
                         "ক্লিনিক্যাল পর্যবক্ষণ")
 
-    heatmap  = session_data.get("heatmap")
-    coverage = session_data.get("coverage_pct", 0.0)
-
-    if heatmap is not None:
-        try:
-            pil = PILImage.fromarray(heatmap.astype(np.uint8))
-            buf = io.BytesIO()
-            pil.save(buf, format="PNG")
-            buf.seek(0)
-            pdf.image(buf, w=80)
-            pdf.bn(9)
-            pdf.cell(0, 5, _norm("লাল এলাকা মডেলের মনোযোগের কেন্দ্র"),
-                         new_x=XPos.LMARGIN, new_y=YPos.NEXT)
-        except Exception as e:
-            logger.warning("Heatmap embed failed: %s", e)
-            pdf.lat(9)
-            pdf.cell(0, 5, "Image not provided", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
-    else:
-        pdf.lat(9)
-        pdf.cell(0, 5, "Image not provided", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
-
     pdf.lat(9)
-    pdf.cell(0, 5, f"Lesion coverage: {coverage:.1f}%", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+    pdf.multi_cell(0, 5,
+        "Skin image analysed by BD-SkinNet (Swin+CBAM). "
+        "Patient was instructed to consult the recommended facility "
+        "for in-person clinical examination.",
+        new_x=XPos.LMARGIN, new_y=YPos.NEXT,
+    )
     pdf.set_text_color(*_GREY)
     pdf.lat(8)
     pdf.cell(0, 5, f"Assessment datetime: {now}", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
@@ -412,8 +393,6 @@ def generate_demo_consultation_pdf() -> bytes:
             {"disease": "Scabies", "confidence": 0.38},
             {"disease": "Eczema",  "confidence": 0.22},
         ],
-        "heatmap":      None,
-        "coverage_pct": 45.0,
         # ── Triage ───────────────────────────────────────────────────────────
         "tier":          3,
         "urgency_label": "URGENT",

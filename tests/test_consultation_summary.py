@@ -52,8 +52,6 @@ _FULL_SESSION = {
             {"disease": "Tinea", "confidence": 0.82},
             {"disease": "Contact_Dermatitis", "confidence": 0.11},
         ],
-        "heatmap": None,
-        "coverage_pct": 22.5,
     },
     "history": {
         "chief_complaint": "Itching and ring-shaped rash",
@@ -92,28 +90,30 @@ class TestFullTranscript:
             "pdf_gen.consultation_summary._get_gemini_client",
             return_value=_make_gemini_mock(_FULL_DATA),
         ):
-            result = generate_consultation_summary_pdf(
+            pdf_bytes, medicines = generate_consultation_summary_pdf(
                 consultation_transcript=transcript,
                 session_state=_FULL_SESSION,
                 consultation_duration_minutes=30,
             )
 
-        assert isinstance(result, bytes), "Output should be bytes"
-        assert len(result) > 1000, "PDF too small — likely empty"
-        assert result[:4] == b"%PDF", "Output is not a valid PDF"
+        assert isinstance(pdf_bytes, bytes), "Output should be bytes"
+        assert len(pdf_bytes) > 1000, "PDF too small — likely empty"
+        assert pdf_bytes[:4] == b"%PDF", "Output is not a valid PDF"
+        assert isinstance(medicines, list)
 
 
 class TestEmptyTranscriptFallback:
     def test_empty_transcript_returns_fallback_pdf(self):
         """Empty transcript skips Gemini and returns a safe fallback PDF."""
-        result = generate_consultation_summary_pdf(
+        pdf_bytes, medicines = generate_consultation_summary_pdf(
             consultation_transcript="",
             session_state=_FULL_SESSION,
             consultation_duration_minutes=30,
         )
-        assert isinstance(result, bytes)
-        assert result[:4] == b"%PDF", "Fallback output is not a valid PDF"
-        assert len(result) > 500
+        assert isinstance(pdf_bytes, bytes)
+        assert pdf_bytes[:4] == b"%PDF", "Fallback output is not a valid PDF"
+        assert len(pdf_bytes) > 500
+        assert medicines == []
 
     def test_gemini_all_retries_fail_returns_fallback(self):
         """When Gemini fails 3 times, a fallback PDF is returned without raising."""
@@ -124,14 +124,15 @@ class TestEmptyTranscriptFallback:
             "pdf_gen.consultation_summary._get_gemini_client",
             return_value=failing_client,
         ):
-            result = generate_consultation_summary_pdf(
+            pdf_bytes, medicines = generate_consultation_summary_pdf(
                 consultation_transcript="Doctor said something",
                 session_state=_FULL_SESSION,
                 consultation_duration_minutes=60,
             )
 
-        assert isinstance(result, bytes)
-        assert result[:4] == b"%PDF"
+        assert isinstance(pdf_bytes, bytes)
+        assert pdf_bytes[:4] == b"%PDF"
+        assert medicines == []
 
 
 class TestNullMedicinesHandled:
@@ -144,14 +145,14 @@ class TestNullMedicinesHandled:
             "pdf_gen.consultation_summary._get_gemini_client",
             return_value=_make_gemini_mock(data_no_meds),
         ):
-            result = generate_consultation_summary_pdf(
+            pdf_bytes, _ = generate_consultation_summary_pdf(
                 consultation_transcript="Doctor said: rest and drink water.",
                 session_state=_FULL_SESSION,
                 consultation_duration_minutes=30,
             )
 
-        assert isinstance(result, bytes)
-        assert result[:4] == b"%PDF"
+        assert isinstance(pdf_bytes, bytes)
+        assert pdf_bytes[:4] == b"%PDF"
 
     def test_none_medicines_field_does_not_crash(self):
         """Gemini response with prescribed_medicines: null generates PDF without KeyError."""
@@ -162,14 +163,14 @@ class TestNullMedicinesHandled:
             "pdf_gen.consultation_summary._get_gemini_client",
             return_value=_make_gemini_mock(data_null_meds),
         ):
-            result = generate_consultation_summary_pdf(
+            pdf_bytes, _ = generate_consultation_summary_pdf(
                 consultation_transcript="No medicines prescribed.",
                 session_state=_FULL_SESSION,
                 consultation_duration_minutes=30,
             )
 
-        assert isinstance(result, bytes)
-        assert result[:4] == b"%PDF"
+        assert isinstance(pdf_bytes, bytes)
+        assert pdf_bytes[:4] == b"%PDF"
 
 
 class TestMissingSessionStateFields:
@@ -182,14 +183,14 @@ class TestMissingSessionStateFields:
             "pdf_gen.consultation_summary._get_gemini_client",
             return_value=_make_gemini_mock(_FULL_DATA),
         ):
-            result = generate_consultation_summary_pdf(
+            pdf_bytes, _ = generate_consultation_summary_pdf(
                 consultation_transcript="Doctor: apply cream twice daily.",
                 session_state=minimal_state,
                 consultation_duration_minutes=30,
             )
 
-        assert isinstance(result, bytes)
-        assert result[:4] == b"%PDF"
+        assert isinstance(pdf_bytes, bytes)
+        assert pdf_bytes[:4] == b"%PDF"
 
     def test_completely_empty_session_state_does_not_crash(self):
         """Completely empty session_state — every field uses fallback without crashing."""
@@ -197,11 +198,11 @@ class TestMissingSessionStateFields:
             "pdf_gen.consultation_summary._get_gemini_client",
             return_value=_make_gemini_mock(_FULL_DATA),
         ):
-            result = generate_consultation_summary_pdf(
+            pdf_bytes, _ = generate_consultation_summary_pdf(
                 consultation_transcript="Doctor: take rest.",
                 session_state={},
                 consultation_duration_minutes=30,
             )
 
-        assert isinstance(result, bytes)
-        assert result[:4] == b"%PDF"
+        assert isinstance(pdf_bytes, bytes)
+        assert pdf_bytes[:4] == b"%PDF"

@@ -193,30 +193,6 @@ class TestRenderReferralButton:
             assert "diagnosis" in html.lower() or "referral" in html.lower()
 
 
-# ── TestRenderGradcamOverlay ──────────────────────────────────────────────────
-
-class TestRenderGradcamOverlay:
-    def test_renders_without_error_with_image(self):
-        with patch("ui.components.st") as mock_st:
-            from ui.components import render_gradcam_overlay
-            fake_img = np.zeros((224, 224, 3), dtype=np.uint8)
-            render_gradcam_overlay(fake_img, 25.0)
-            mock_st.image.assert_called_once()
-
-    def test_renders_without_error_no_image(self):
-        with patch("ui.components.st") as mock_st:
-            from ui.components import render_gradcam_overlay
-            render_gradcam_overlay(None, 0.0)
-            mock_st.image.assert_not_called()
-
-    def test_coverage_pct_shown_in_html(self):
-        with patch("ui.components.st") as mock_st:
-            from ui.components import render_gradcam_overlay
-            render_gradcam_overlay(None, 38.5)
-            html = _captured_html(mock_st.markdown)
-            assert "38.5" in html
-
-
 # ── TestRenderRAGAnswer ───────────────────────────────────────────────────────
 
 class TestRenderRAGAnswer:
@@ -563,7 +539,7 @@ class TestRenderSuggestedQuestions:
 
 class TestRenderReferralPreview:
     _PRED = {
-        "disease": "Tinea", "confidence": 0.82, "coverage_pct": 22.5,
+        "disease": "Tinea", "confidence": 0.82,
         "top2": [
             {"disease": "Tinea", "confidence": 0.82},
             {"disease": "Contact_Dermatitis", "confidence": 0.11},
@@ -607,8 +583,8 @@ class TestRenderReferralPreview:
         assert "Rahim" in html
 
     def test_examination_section_shown(self):
-        # Section 2 was repurposed from GradCAM coverage to Examination
-        # Findings (affected area / duration / progression / prev treatment).
+        # Section 2 lists Examination Findings (affected area / duration /
+        # progression / previous treatment).
         html = self._call()
         assert "Examination Findings" in html
 
@@ -785,7 +761,7 @@ class TestPrivacyBadge:
             render_privacy_badge()
             html = _captured_html(mock_st.markdown)
             assert "Privacy by design" in html
-            assert "do not save it" in html
+            assert "never saved" in html
 
     def test_bilingual(self):
         with patch("ui.components.st") as mock_st:
