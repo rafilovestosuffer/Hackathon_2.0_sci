@@ -36,7 +36,6 @@ from ui.components import (
     render_privacy_badge,
     render_tech_decisions,
     render_architecture_diagram,
-    render_impact_kpi_strip,
 )
 from ui.doctor_booking import render_doctor_booking_tab
 from ui.consultation_room import render_consultation_room
@@ -390,18 +389,6 @@ st.markdown(
 
 
 # ── Tabs ──────────────────────────────────────────────────────────────────────
-# ── Live impact KPI strip (visible on every tab) ──────────────────────────────
-# Builds a stable prediction id so the session counter increments once per
-# new diagnosis, not on every Streamlit rerun.
-_pred_for_kpi = st.session_state.get("prediction")
-_pred_id = (
-    f"{_pred_for_kpi.get('disease','')}-{_pred_for_kpi.get('confidence',0):.4f}-"
-    f"{_pred_for_kpi.get('coverage_pct',0):.2f}"
-    if _pred_for_kpi else None
-)
-render_impact_kpi_strip(prediction_id=_pred_id)
-
-
 tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
     "Diagnosis · রোগ নির্ণয়",
     "Ask AI · প্রশ্ন করুন",
