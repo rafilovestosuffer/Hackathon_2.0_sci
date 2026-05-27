@@ -20,21 +20,60 @@ st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+Bengali:wght@400;600;700&display=swap');
 
-html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
+/* ── Universal dark theme override ── */
+html, body { background-color: #0B1929 !important; color: #e2e8f0 !important; }
+html, body, [class*="css"], * { font-family: 'Inter', sans-serif; }
 
-/* Force dark background — docs page overrides the global light theme */
 [data-testid="stApp"],
 [data-testid="stAppViewContainer"],
 [data-testid="stMain"],
 [data-testid="stMainBlockContainer"],
-.main, .block-container {
+[data-testid="stHeader"],
+section[data-testid="stSidebar"],
+.main, .block-container,
+.stApp, .appview-container {
     background-color: #0B1929 !important;
     color: #e2e8f0 !important;
 }
-[data-testid="stMarkdown"] { color: #e2e8f0; }
-[data-testid="stVerticalBlock"] { background-color: transparent; }
-/* Streamlit default table/dataframe backgrounds */
-[data-testid="column"] { background-color: transparent !important; }
+
+/* Force ALL Streamlit text elements dark */
+[data-testid="stMarkdown"],
+[data-testid="stMarkdown"] p,
+[data-testid="stMarkdown"] span,
+[data-testid="stMarkdown"] strong,
+[data-testid="stMarkdown"] em,
+[data-testid="stMarkdown"] li,
+[data-testid="stMarkdown"] a,
+p, span, label, div {
+    color: #e2e8f0 !important;
+}
+
+/* Preserve explicit inline colors */
+[style*="color:"] { color: unset; }
+.card h3, .card p, .metric-value, .metric-label,
+.team-name, .team-role, .team-email, .team-avatar,
+.stack-layer, .stack-value, .badge, .nav-link,
+.tier-1, .tier-2, .tier-3,
+.pill-live, .pill-planned { color: inherit !important; }
+
+[data-testid="stVerticalBlock"],
+[data-testid="column"],
+[data-testid="stHorizontalBlock"],
+[data-testid="stColumns"] { background-color: transparent !important; }
+
+/* Streamlit link buttons */
+[data-testid="stLinkButton"] button,
+[data-testid="stButton"] button {
+    background: #1e3a5f !important;
+    color: #00d4ff !important;
+    border: 1px solid #0088ff44 !important;
+    transition: all 0.2s;
+}
+[data-testid="stLinkButton"] button:hover,
+[data-testid="stButton"] button:hover {
+    background: #0088ff !important;
+    color: #fff !important;
+}
 
 .docs-hero {
     background: linear-gradient(135deg, #0B1929 0%, #0f2744 50%, #0B1929 100%);
@@ -74,11 +113,13 @@ html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
     border: 1px solid #0088ff44;
 }
 .section-header {
-    font-size: 1.6rem;
+    font-size: 1.5rem;
     font-weight: 700;
-    color: #e2e8f0;
+    color: #e2e8f0 !important;
+    background: linear-gradient(90deg, #0f2744 0%, transparent 100%);
     border-left: 4px solid #00d4ff;
-    padding-left: 16px;
+    padding: 10px 16px;
+    border-radius: 0 8px 8px 0;
     margin: 40px 0 20px 0;
 }
 .card {
@@ -87,9 +128,16 @@ html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
     border-radius: 12px;
     padding: 24px;
     height: 100%;
+    transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
 }
-.card h3 { color: #00d4ff; font-size: 1rem; font-weight: 600; margin-bottom: 8px; }
-.card p  { color: #94a3b8; font-size: 0.9rem; line-height: 1.6; margin: 0; }
+.card:hover {
+    border-color: #00d4ff55;
+    box-shadow: 0 4px 24px #00d4ff18;
+    transform: translateY(-2px);
+}
+.card h3 { color: #00d4ff !important; font-size: 1rem; font-weight: 600; margin-bottom: 8px; }
+.card p  { color: #94a3b8 !important; font-size: 0.9rem; line-height: 1.6; margin: 0; }
+.card strong { color: #e2e8f0 !important; }
 .metric-card {
     background: linear-gradient(135deg, #0f1f35, #0f2744);
     border: 1px solid #1e3a5f;
@@ -447,9 +495,9 @@ features = [
 ]
 
 header_cols = st.columns([3, 3, 1])
-header_cols[0].markdown("**Feature**")
-header_cols[1].markdown("**Implementation**")
-header_cols[2].markdown("**Status**")
+header_cols[0].markdown('<span style="color:#e2e8f0;font-weight:700;font-size:0.9rem;letter-spacing:0.03em">Feature</span>', unsafe_allow_html=True)
+header_cols[1].markdown('<span style="color:#e2e8f0;font-weight:700;font-size:0.9rem;letter-spacing:0.03em">Implementation</span>', unsafe_allow_html=True)
+header_cols[2].markdown('<span style="color:#e2e8f0;font-weight:700;font-size:0.9rem;letter-spacing:0.03em">Status</span>', unsafe_allow_html=True)
 st.markdown('<div style="border-top:1px solid #1e3a5f;margin:4px 0 8px 0"></div>', unsafe_allow_html=True)
 
 for name, impl, status in features:
