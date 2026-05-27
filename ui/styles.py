@@ -43,12 +43,14 @@ def inject_css() -> None:
 <style>
 /* ─── CSS Custom Properties — premium clinical SaaS palette ────────────────── */
 :root {
-  --c-primary:  #0E4F7A;          /* deep medical sapphire */
-  --c-primary-2:#1668A4;          /* lighter sapphire hover */
-  --c-primary-3:#0A3A5C;          /* darker sapphire press */
+  --c-primary:  #1668A4;          /* brighter medical sapphire */
+  --c-primary-2:#2E86C1;          /* livelier sapphire hover */
+  --c-primary-3:#0E4F7A;          /* deeper sapphire press */
   --c-accent:   #10B981;          /* emerald — health/success */
   --c-accent-2: #059669;          /* deeper emerald */
+  --c-accent-bright: #14C98C;     /* brighter emerald for hover */
   --c-violet:   #6366F1;          /* indigo accent for AI moments */
+  --c-coral:    #FB7185;          /* warm coral highlight */
   --c-teal:     #10B981;          /* legacy alias */
   --c-red:      #DC2626;
   --c-amber:    #F59E0B;
@@ -62,14 +64,19 @@ def inject_css() -> None:
   --c-t2:       #475569;
   --c-t3:       #94A3B8;
   --r-card:     16px;
-  --grad-primary: linear-gradient(135deg, #0E4F7A 0%, #1668A4 100%);
-  --grad-accent:  linear-gradient(135deg, #10B981 0%, #059669 100%);
+  --grad-primary: linear-gradient(135deg, #1668A4 0%, #2E86C1 55%, #10B981 100%);
+  --grad-primary-solid: linear-gradient(135deg, #1668A4 0%, #0E4F7A 100%);
+  --grad-accent:  linear-gradient(135deg, #14C98C 0%, #10B981 50%, #059669 100%);
+  --grad-accent-bright: linear-gradient(135deg, #34D9A2 0%, #14C98C 50%, #10B981 100%);
   --grad-hero:    linear-gradient(120deg, #0A1F33 0%, #0E4F7A 45%, #047857 100%);
+  --grad-hero-v2: linear-gradient(120deg, #061629 0%, #0E4F7A 35%, #1668A4 65%, #047857 100%);
+  --grad-coral:   linear-gradient(135deg, #FB7185 0%, #F43F5E 100%);
   --shadow-xs:    0 1px 2px rgba(15,23,42,0.05);
   --shadow:       0 1px 3px rgba(15,23,42,0.06), 0 1px 2px rgba(15,23,42,0.04);
   --shadow-md:    0 6px 18px rgba(15,23,42,0.07), 0 2px 4px rgba(15,23,42,0.04);
   --shadow-lg:    0 18px 48px rgba(15,23,42,0.10), 0 4px 12px rgba(15,23,42,0.05);
-  --ring-primary: 0 0 0 3px rgba(22,104,164,0.18);
+  --ring-primary: 0 0 0 3px rgba(22,104,164,0.25);
+  --ring-accent:  0 0 0 3px rgba(16,185,129,0.25);
 }
 
 /* ─── Global font & background ─────────────────────────────────────────────── */
@@ -354,23 +361,27 @@ section[data-testid="stSidebar"] [data-testid="stExpander"] summary {
 }
 .stTabs [data-baseweb="tab"]:hover:not([aria-selected="true"]) {
   color: var(--c-primary) !important;
-  background: rgba(22,104,164,0.06) !important;
+  background: linear-gradient(180deg, rgba(22,104,164,0.10), rgba(16,185,129,0.05)) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(22,104,164,0.08);
 }
 .stTabs [aria-selected="true"] {
   color: var(--c-primary) !important;
   font-weight: 700 !important;
-  background: #FFFFFF !important;
+  background: linear-gradient(180deg, #FFFFFF 0%, #F1F8FD 100%) !important;
   box-shadow:
-    0 2px 6px rgba(15,23,42,0.08),
-    0 0 0 1px rgba(22,104,164,0.18) !important;
+    0 3px 10px rgba(22,104,164,0.15),
+    0 1px 2px rgba(15,23,42,0.06),
+    0 0 0 1px rgba(22,104,164,0.25) !important;
   border: none !important;
 }
 .stTabs [aria-selected="true"]::after {
   content: "";
   position: absolute;
-  left: 22%; right: 22%; bottom: 4px;
-  height: 2px; border-radius: 2px;
+  left: 14%; right: 14%; bottom: 3px;
+  height: 3px; border-radius: 3px;
   background: var(--grad-primary);
+  box-shadow: 0 1px 4px rgba(22,104,164,0.40);
 }
 .stTabs [data-baseweb="tab-panel"] { padding-top: 1.6rem; }
 
@@ -454,8 +465,8 @@ section[data-testid="stSidebar"] [data-testid="stExpander"] summary {
   margin-bottom: 1.9rem;
 }
 .hero-step {
-  background: rgba(255,255,255,0.07);
-  border: 1px solid rgba(255,255,255,0.11);
+  background: linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.04));
+  border: 1px solid rgba(255,255,255,0.13);
   border-radius: 10px;
   padding: 0.55rem 1.25rem;
   min-width: 118px;
@@ -464,6 +475,13 @@ section[data-testid="stSidebar"] [data-testid="stExpander"] summary {
   font-weight: 600;
   color: #E2E8F0 !important;
   line-height: 1.25;
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+.hero-step:hover {
+  transform: translateY(-2px);
+  border-color: rgba(56,148,222,0.45);
+  background: linear-gradient(180deg, rgba(56,148,222,0.18), rgba(16,185,129,0.08));
+  box-shadow: 0 8px 20px rgba(56,148,222,0.18), 0 2px 6px rgba(16,185,129,0.10);
 }
 .hero-step small {
   display: block;
@@ -489,6 +507,13 @@ section[data-testid="stSidebar"] [data-testid="stExpander"] summary {
   font-weight: 700;
   letter-spacing: 0.01em;
   display: inline-flex; align-items: center; gap: 0.3rem;
+  box-shadow: 0 1px 0 rgba(255,255,255,0.20) inset, 0 2px 6px rgba(0,0,0,0.18);
+  transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
+}
+.stat-chip:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.08);
+  box-shadow: 0 1px 0 rgba(255,255,255,0.25) inset, 0 6px 14px rgba(0,0,0,0.25);
 }
 .stat-chip-blue  { background: rgba(26,111,168,0.88);  color: #fff !important; border: 1px solid rgba(96,184,232,0.4); }
 .stat-chip-green { background: rgba(39,174,96,0.88);   color: #fff !important; border: 1px solid rgba(52,211,153,0.4); }
@@ -756,6 +781,10 @@ section[data-testid="stSidebar"] [data-testid="stExpander"] summary {
   display: flex;
   align-items: flex-start;
   gap: 1rem;
+  transition: transform 0.2s ease, box-shadow 0.22s ease;
+}
+.tier-banner:hover {
+  transform: translateY(-2px);
 }
 .tier-banner-0 {
   background: #E8FDF1;
@@ -983,24 +1012,47 @@ section[data-testid="stSidebar"] [data-testid="stExpander"] summary {
   font-weight: 600; border-radius: 11px;
   padding: 0.55rem 1.2rem;
   background: var(--grad-primary) !important;
+  background-size: 200% 200% !important;
+  background-position: 0% 50% !important;
   color: white !important;
   border: 1px solid rgba(11,79,108,0.55) !important;
-  transition: transform 0.12s ease, box-shadow 0.18s ease, filter 0.18s ease;
+  transition: transform 0.14s ease, box-shadow 0.2s ease, filter 0.18s ease, background-position 0.5s ease;
   letter-spacing: -0.005em;
+  position: relative;
+  overflow: hidden;
   box-shadow:
-    0 1px 0 rgba(255,255,255,0.18) inset,
-    0 2px 6px rgba(11,79,108,0.22),
-    0 1px 2px rgba(11,79,108,0.16);
+    0 1px 0 rgba(255,255,255,0.20) inset,
+    0 2px 6px rgba(22,104,164,0.28),
+    0 1px 2px rgba(11,79,108,0.18);
+}
+.stButton > button::after {
+  content: "";
+  position: absolute;
+  top: 0; bottom: 0;
+  left: -60%;
+  width: 50%;
+  background: linear-gradient(120deg, transparent 0%, rgba(255,255,255,0.22) 50%, transparent 100%);
+  transform: skewX(-18deg);
+  transition: left 0.65s ease;
+  pointer-events: none;
 }
 .stButton > button:hover {
-  filter: brightness(1.06);
+  filter: brightness(1.07);
   transform: translateY(-1px);
+  background-position: 100% 50% !important;
   box-shadow:
-    0 1px 0 rgba(255,255,255,0.22) inset,
-    0 6px 18px rgba(11,79,108,0.28),
-    0 2px 4px rgba(11,79,108,0.18) !important;
+    0 1px 0 rgba(255,255,255,0.26) inset,
+    0 8px 22px rgba(22,104,164,0.34),
+    0 2px 6px rgba(16,185,129,0.20) !important;
 }
-.stButton > button:active { transform: translateY(0.5px); filter: brightness(0.96); }
+.stButton > button:hover::after { left: 130%; }
+.stButton > button:active {
+  transform: translateY(1px);
+  filter: brightness(0.95);
+  box-shadow:
+    0 2px 4px rgba(11,79,108,0.30) inset,
+    0 1px 2px rgba(11,79,108,0.18) !important;
+}
 .stButton > button:focus-visible { outline: none !important; box-shadow: var(--ring-primary), 0 6px 18px rgba(11,79,108,0.22) !important; }
 
 .stDownloadButton > button {
@@ -1096,7 +1148,7 @@ section[data-testid="stSidebar"] [data-testid="stExpander"] summary {
 [data-testid="stAudioInputStartButton"],
 [data-testid="stAudioInputStopButton"],
 [data-testid="stAudioInputDeleteButton"] {
-  background: linear-gradient(135deg, #DC2626 0%, #B91C1C 100%) !important;
+  background: linear-gradient(135deg, #EF4444 0%, #DC2626 55%, #B91C1C 100%) !important;
   color: #FFFFFF !important;
   border: 1px solid rgba(185,28,28,0.55) !important;
   border-radius: 11px !important;
@@ -1338,14 +1390,20 @@ section[data-testid="stSidebar"] [data-testid="stExpander"] summary {
   align-items: flex-start;
   gap: 0.85rem;
   background:
-    linear-gradient(135deg, rgba(16,185,129,0.10) 0%, rgba(22,104,164,0.06) 100%),
+    linear-gradient(135deg, rgba(20,201,140,0.14) 0%, rgba(22,104,164,0.07) 100%),
     #FFFFFF;
-  border: 1px solid rgba(16,185,129,0.30);
+  border: 1px solid rgba(16,185,129,0.35);
   border-left: 4px solid #10B981;
   border-radius: 12px;
   padding: 0.75rem 1rem;
   margin: 0.4rem 0 0.6rem 0;
-  box-shadow: 0 2px 10px rgba(16,185,129,0.08);
+  box-shadow: 0 2px 10px rgba(16,185,129,0.10);
+  transition: transform 0.18s ease, box-shadow 0.22s ease, border-color 0.18s ease;
+}
+.sk-privacy-badge:hover {
+  transform: translateY(-1px);
+  border-color: rgba(16,185,129,0.55);
+  box-shadow: 0 10px 24px rgba(16,185,129,0.18), 0 2px 6px rgba(16,185,129,0.10);
 }
 .sk-privacy-icon {
   font-size: 1.15rem; line-height: 1;
@@ -1368,10 +1426,16 @@ section[data-testid="stSidebar"] [data-testid="stExpander"] summary {
   font-size: 0.62rem; font-weight: 700;
   letter-spacing: 0.06em; text-transform: uppercase;
   color: #047857;
-  background: rgba(16,185,129,0.14);
-  border: 1px solid rgba(16,185,129,0.32);
+  background: linear-gradient(135deg, rgba(20,201,140,0.20), rgba(16,185,129,0.10));
+  border: 1px solid rgba(16,185,129,0.38);
   padding: 0.12rem 0.5rem;
   border-radius: 99px;
+  box-shadow: 0 1px 2px rgba(16,185,129,0.10);
+  transition: transform 0.15s ease, box-shadow 0.18s ease;
+}
+.sk-privacy-chip:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(16,185,129,0.20);
 }
 .sk-privacy-text {
   font-size: 0.78rem; color: #115E59; line-height: 1.5;
@@ -1442,7 +1506,22 @@ section[data-testid="stSidebar"] [data-testid="stExpander"] summary {
   background: linear-gradient(180deg, #FBBF24 0%, #F59E0B 100%);
 }
 [data-testid="stExpander"][open] {
-  border-color: rgba(22,104,164,0.25) !important;
+  border-color: rgba(22,104,164,0.40) !important;
+  box-shadow:
+    0 1px 0 rgba(255,255,255,1) inset,
+    0 10px 26px rgba(22,104,164,0.10),
+    0 2px 6px rgba(15,23,42,0.05) !important;
+}
+[data-testid="stExpander"][open]::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--grad-primary);
+  border-top-left-radius: 14px;
+  border-top-right-radius: 14px;
+  z-index: 3;
+  pointer-events: none;
 }
 
 /* Chevron arrow */
@@ -1458,15 +1537,17 @@ section[data-testid="stSidebar"] [data-testid="stExpander"] summary {
    buttons. Targets the four demo buttons inside the Quick Start expander
    row that immediately follows the .dx-quickbar-head label.              */
 [data-testid="stExpander"] [data-testid="stHorizontalBlock"] .stButton > button {
-  background: #FFFFFF !important;
+  background: linear-gradient(180deg, #FFFFFF 0%, #F8FBFE 100%) !important;
   color: var(--c-t1) !important;
   border: 1px solid var(--c-border) !important;
   border-radius: 12px !important;
-  font-weight: 600 !important;
+  font-weight: 650 !important;
   font-size: 0.86rem !important;
-  padding: 0.65rem 0.9rem !important;
-  box-shadow: 0 1px 2px rgba(15,23,42,0.05) !important;
-  transition: transform 0.15s ease, box-shadow 0.18s ease, border-color 0.18s ease !important;
+  padding: 0.75rem 0.95rem !important;
+  box-shadow:
+    0 1px 0 rgba(255,255,255,1) inset,
+    0 1px 3px rgba(15,23,42,0.06) !important;
+  transition: transform 0.18s ease, box-shadow 0.22s ease, border-color 0.18s ease, background 0.2s ease !important;
   position: relative;
   overflow: hidden;
 }
@@ -1476,16 +1557,43 @@ section[data-testid="stSidebar"] [data-testid="stExpander"] summary {
   left: 0; top: 0; bottom: 0;
   width: 3px;
   background: var(--grad-primary);
-  opacity: 0.85;
+  opacity: 0.90;
+  box-shadow: 0 0 12px rgba(22,104,164,0.35);
+  transition: width 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+}
+[data-testid="stExpander"] [data-testid="stHorizontalBlock"] .stButton > button::after {
+  content: "";
+  position: absolute;
+  right: -50px; bottom: -50px;
+  width: 120px; height: 120px;
+  background: radial-gradient(circle, rgba(16,185,129,0.18) 0%, transparent 65%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
 }
 [data-testid="stExpander"] [data-testid="stHorizontalBlock"] .stButton > button:hover {
-  background: #FFFFFF !important;
-  border-color: rgba(22,104,164,0.40) !important;
-  transform: translateY(-2px);
+  background: linear-gradient(180deg, #FFFFFF 0%, #F1F8FD 100%) !important;
+  border-color: rgba(22,104,164,0.45) !important;
+  transform: translateY(-3px);
   box-shadow:
-    0 10px 24px rgba(22,104,164,0.12),
-    0 2px 6px rgba(15,23,42,0.06) !important;
+    0 1px 0 rgba(255,255,255,1) inset,
+    0 14px 28px rgba(22,104,164,0.15),
+    0 4px 10px rgba(16,185,129,0.10) !important;
   filter: none;
+}
+[data-testid="stExpander"] [data-testid="stHorizontalBlock"] .stButton > button:hover::before {
+  width: 5px;
+  opacity: 1;
+  box-shadow: 0 0 18px rgba(22,104,164,0.55);
+}
+[data-testid="stExpander"] [data-testid="stHorizontalBlock"] .stButton > button:hover::after {
+  opacity: 1;
+}
+[data-testid="stExpander"] [data-testid="stHorizontalBlock"] .stButton > button:active {
+  transform: translateY(-1px);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,1) inset,
+    0 6px 14px rgba(22,104,164,0.12) !important;
 }
 
 /* ─── Selectbox / inputs — premium light theme ───────────────────────────────── */
