@@ -22,6 +22,20 @@ st.markdown("""
 
 html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
 
+/* Force dark background — docs page overrides the global light theme */
+[data-testid="stApp"],
+[data-testid="stAppViewContainer"],
+[data-testid="stMain"],
+[data-testid="stMainBlockContainer"],
+.main, .block-container {
+    background-color: #0B1929 !important;
+    color: #e2e8f0 !important;
+}
+[data-testid="stMarkdown"] { color: #e2e8f0; }
+[data-testid="stVerticalBlock"] { background-color: transparent; }
+/* Streamlit default table/dataframe backgrounds */
+[data-testid="column"] { background-color: transparent !important; }
+
 .docs-hero {
     background: linear-gradient(135deg, #0B1929 0%, #0f2744 50%, #0B1929 100%);
     border: 1px solid #1e3a5f;
@@ -181,12 +195,12 @@ st.markdown("""
         "সঠিক রোগী → সঠিক ডাক্তার → সঠিক সময়"
     </div>
     <div class="badge-row">
-        <span class="badge">🏆 SciBlitz AI Challenge 2026</span>
-        <span class="badge">Track A: Health & Society</span>
-        <span class="badge">IEEE SB CUET</span>
         <span class="badge">F1 = 92.46%</span>
+        <span class="badge">AUC = 0.9937</span>
         <span class="badge">310+ Tests</span>
         <span class="badge">Live on HF Spaces</span>
+        <span class="badge">7 Disease Classes</span>
+        <span class="badge">64 Districts</span>
     </div>
 </div>
 """, unsafe_allow_html=True)
@@ -459,10 +473,14 @@ stack_left = [
     ("Quantization", "torch.quantization.quantize_dynamic (INT8)"),
     ("ASR", "faster-whisper (Whisper Base) · CTranslate2 INT8"),
     ("LLM / API", "Gemini 2.5 Flash · google-genai 1.63.0"),
-    ("RAG Retrieval", "FAISS IndexFlatIP · BM25 keyword fallback"),
+    ("RAG Retrieval", "ChromaDB HNSW · FAISS · BM25 fallback chain"),
     ("Embeddings", "intfloat/multilingual-e5-small"),
+    ("Vector DB", "ChromaDB 0.5 — 100 knowledge chunk collection"),
+    ("Graph DB", "Kuzu 0.11 — disease-symptom property graph"),
 ]
 stack_right = [
+    ("Relational DB", "SQLite — anonymised usage analytics"),
+    ("KV Cache", "SHA-256 JSON disk cache — RAG response store"),
     ("PDF", "fpdf2 + uharfbuzz (HarfBuzz Bengali shaping)"),
     ("Hospital Map", "Overpass API · Folium · streamlit-folium"),
     ("TTS", "gTTS (Bengali audio readout)"),
@@ -649,12 +667,12 @@ with c2:
 with c3:
     st.link_button("🤗 HF Space", "https://huggingface.co/spaces/rafilovestosuffer/skinai-bangladesh", use_container_width=True)
 with c4:
-    st.link_button("📋 Competition", "https://sciblitz.ieee-sbcuet.org", use_container_width=True)
+    st.link_button("🩺 /docs Page", "https://rafilovestosuffer-skinai-bd.hf.space/docs", use_container_width=True)
 
 # ── FOOTER ────────────────────────────────────────────────────────────────────
 st.markdown("""
-<div style="text-align:center;padding:32px 0 16px;color:#334155;font-size:0.8rem">
-    SkinAI Bangladesh · SciBlitz AI Challenge 2026 · IEEE SB CUET · Track A: Health & Society<br/>
+<div style="text-align:center;padding:32px 0 16px;color:#64748b;font-size:0.8rem">
+    SkinAI Bangladesh · AI-powered dermatological screening for rural Bangladesh<br/>
     <span style="font-family:'Noto Sans Bengali',sans-serif">⚕️ এই সিস্টেম রোগ নির্ণয় বা চিকিৎসার বিকল্প নয় — শুধুমাত্র ট্রাইয়েজ ও রেফারেল নির্দেশিকা।</span>
 </div>
 """, unsafe_allow_html=True)
