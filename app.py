@@ -45,6 +45,7 @@ from severity.engine import compute_tier
 from pdf_gen.referral import generate_referral_pdf
 from rag.retriever import load_index, answer_question
 from analytics.db import log_event as _log_event
+from graph.store import build_graph as _build_graph, get_symptoms as _graph_symptoms, get_body_parts as _graph_parts
 from map.hospital_finder import (
     find_nearest_hospitals,
     render_hospital_map,
@@ -109,6 +110,11 @@ st.markdown(
 @st.cache_resource(show_spinner="Loading RAG knowledge base…")
 def _load_rag_index():
     return load_index()
+
+
+@st.cache_resource(show_spinner=False)
+def _load_graph():
+    return _build_graph()
 
 
 # ── BD-SkinNet model loader + inference ──────────────────────────────────────
@@ -256,6 +262,7 @@ def _warm_rag() -> bool:
     return _load_rag_index()
 
 _rag_ready = _warm_rag()
+_load_graph()   # build disease-symptom knowledge graph (non-blocking)
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -891,6 +898,31 @@ with tab1:
             # Disease result card
             render_disease_card(pred["disease"], pred["confidence"], pred["top2"])
             render_fairness_disclosure()
+
+            # Graph-derived clinical context (non-blocking — skipped if graph unavailable)
+            _g_syms  = _graph_symptoms(pred["disease"])
+            _g_parts = _graph_parts(pred["disease"])
+            if _g_syms or _g_parts:
+                with st.expander("🔗 Clinical Knowledge Graph — Signs to Monitor", expanded=False):
+                    if _g_syms:
+                        _warn = [s["name_bn"] for s in _g_syms if s["is_escalation"]]
+                        _norm = [s["name_bn"] for s in _g_syms if not s["is_escalation"]]
+                        if _norm:
+                            st.markdown(
+                                "**সাধারণ লক্ষণ:** " + " · ".join(_norm),
+                                unsafe_allow_html=False,
+                            )
+                        if _warn:
+                            st.warning(
+                                "⚠️ **জরুরি লক্ষণ** — এগুলো দেখা দিলে অবিলম্বে ডাক্তার দেখান: "
+                                + " · ".join(_warn)
+                            )
+                    if _g_parts:
+                        st.markdown(
+                            "**সাধারণত আক্রান্ত অংশ:** "
+                            + " · ".join(p["name_bn"] for p in _g_parts)
+                        )
+                    st.caption("Source: SkinAI knowledge graph — CDC · NIH · WHO · DGHS Bangladesh")
 
         else:
             # No new upload — show the demo photo + cached results if a demo

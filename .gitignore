@@ -35,6 +35,10 @@ rag/rag_cache.json
 # Anonymised usage analytics SQLite DB (no patient data, runtime only)
 analytics/skinai_analytics.db
 
+# Kuzu graph DB (runtime — built at startup from hardcoded seed data)
+graph/skinai_knowledge.kuzu
+graph/.graph_seeded
+
 # Fonts (downloaded at build/runtime)
 pdf_gen/fonts/*.ttf
 
