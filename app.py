@@ -44,6 +44,7 @@ from ui.phase2_preview import render_phase2_preview_tab
 from severity.engine import compute_tier
 from pdf_gen.referral import generate_referral_pdf
 from rag.retriever import load_index, answer_question
+from analytics.db import log_event as _log_event
 from map.hospital_finder import (
     find_nearest_hospitals,
     render_hospital_map,
@@ -618,6 +619,8 @@ with tab1:
                         audio_bytes, language=_selected_lang
                     )
                     st.session_state.transcript = _transcript
+                    if _transcript:
+                        _log_event("voice", lang=_detected or _selected_lang or "bn")
 
                 # Show RMS energy level — helps diagnose silent mic issues
                 if _rms >= 0:
@@ -876,6 +879,15 @@ with tab1:
             )
             st.session_state.tier_result = tier_result
 
+            # Anonymised analytics — no patient data, aggregate only
+            _conf = pred["confidence"]
+            _log_event(
+                "triage",
+                disease_class=pred["disease"],
+                tier=tier_result["tier"],
+                conf_bucket="high" if _conf >= 0.60 else ("medium" if _conf >= 0.40 else "low"),
+            )
+
             # Disease result card
             render_disease_card(pred["disease"], pred["confidence"], pred["top2"])
             render_fairness_disclosure()
@@ -1129,6 +1141,8 @@ with tab2:
         })
         st.session_state.rag_answer = _answer
         st.session_state.rag_lang   = _lang
+        # Anonymised analytics — question hash only, no content stored
+        _log_event("rag", lang=_lang)
         st.rerun()
 
     st.markdown(

@@ -26,6 +26,15 @@ env/
 rag/faiss_index.bin
 rag/chunks_metadata.json
 
+# ChromaDB persistent vector store (built at runtime from knowledge .txt files)
+rag/chroma_db/
+
+# RAG response disk cache (SHA-256 keyed, no patient data)
+rag/rag_cache.json
+
+# Anonymised usage analytics SQLite DB (no patient data, runtime only)
+analytics/skinai_analytics.db
+
 # Fonts (downloaded at build/runtime)
 pdf_gen/fonts/*.ttf
 

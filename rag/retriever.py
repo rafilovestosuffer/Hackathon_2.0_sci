@@ -1,8 +1,11 @@
 """
 RAG retriever: keyword search + Gemini answer.
 
-Primary path: BM25-lite keyword retrieval directly from .txt files (no downloads needed).
-Optional upgrade: FAISS semantic search if faiss_index.bin exists.
+Retrieval hierarchy (fastest → most semantic):
+  1. Disk cache  — SHA-256 keyed JSON (rag/rag_cache.json); instant repeat answers
+  2. ChromaDB    — persistent HNSW vector store (rag/chroma_db/); best semantic match
+  3. FAISS       — flat binary index (rag/faiss_index.bin); fallback vector search
+  4. BM25        — TF-IDF keyword search over .txt files; always available, no downloads
 
 Provides: load_index(), retrieve(), answer_question()
 """
@@ -16,6 +19,9 @@ from collections import Counter
 
 from dotenv import load_dotenv
 from google import genai
+
+from rag.cache import get as _cache_get, put as _cache_put, make_key as _cache_key
+from rag.chroma_store import build_from_chunks as _chroma_build, query as _chroma_query, is_available as _chroma_available
 
 load_dotenv()
 
@@ -224,7 +230,10 @@ def load_index() -> bool:
         logger.error("Failed to load knowledge files: %s", exc)
         return False
 
-    # Try to upgrade to FAISS (best-effort, non-blocking)
+    # Try ChromaDB persistent vector store (best-effort, non-blocking)
+    _chroma_build(_chunks)
+
+    # Try FAISS as secondary vector upgrade (best-effort, non-blocking)
     _try_load_faiss()
     return True
 
@@ -248,7 +257,13 @@ def retrieve(question: str, top_k: int = TOP_K) -> list[dict]:
     if not question.strip():
         return []
 
-    # FAISS path
+    # ChromaDB path (persistent HNSW vector store — preferred semantic path)
+    if _chroma_available():
+        chroma_results = _chroma_query(question, top_k=top_k)
+        if chroma_results:
+            return chroma_results
+
+    # FAISS path (flat binary fallback)
     if _index is not None and _metadata is not None and _embed_model is not None:
         try:
             import numpy as np
@@ -290,6 +305,13 @@ def answer_question(
     fallback = _BENGALI_FALLBACK if lang == "bn" else _ENGLISH_FALLBACK
     lang_label = "Bengali (বাংলা)" if lang == "bn" else "English"
 
+    # Disk cache — return instantly if already answered
+    _ck = _cache_key(question, disease_context or "", lang)
+    _cached = _cache_get(_ck)
+    if _cached:
+        logger.info("answer_question: cache hit (key=%s…)", _ck[:12])
+        return _cached
+
     if not _chunks:
         logger.warning("answer_question called before load_index().")
         return fallback
@@ -321,7 +343,10 @@ def answer_question(
                 model="gemini-2.5-flash-lite",
                 contents=prompt,
             )
-            return _redact_medicine_names(response.text.strip(), lang=lang)
+            answer = _redact_medicine_names(response.text.strip(), lang=lang)
+            # Persist to disk cache — avoids repeat Gemini calls for same question
+            _cache_put(_ck, answer)
+            return answer
         except Exception as exc:
             logger.warning("Gemini attempt %d failed: %s", attempt + 1, exc)
 
