@@ -23,6 +23,20 @@ from google import genai
 from rag.cache import get as _cache_get, put as _cache_put, make_key as _cache_key
 from rag.chroma_store import build_from_chunks as _chroma_build, query as _chroma_query, is_available as _chroma_available
 
+# Graph RAG — lazy import; graceful fallback if kuzu not installed / graph not built
+try:
+    from graph.store import (
+        get_symptoms as _graph_symptoms,
+        get_related as _graph_related,
+        is_available as _graph_available,
+    )
+    _GRAPH_IMPORT_OK = True
+except ImportError:
+    _GRAPH_IMPORT_OK = False
+    def _graph_symptoms(_): return []   # type: ignore[misc]
+    def _graph_related(_): return []    # type: ignore[misc]
+    def _graph_available(): return False  # type: ignore[misc]
+
 load_dotenv()
 
 logger = logging.getLogger(__name__)
@@ -62,6 +76,29 @@ def _redact_medicine_names(answer: str, lang: str = "en") -> str:
         return _MEDICINE_SAFE_BN if lang == "bn" else _MEDICINE_SAFE_EN
     return answer
 
+# Canonical disease name map: lowercase-underscore key → Kuzu graph key
+_DISEASE_CLASSES: dict[str, str] = {
+    "atopic_dermatitis":     "Atopic_Dermatitis",
+    "contact_dermatitis":    "Contact_Dermatitis",
+    "eczema":                "Eczema",
+    "scabies":               "Scabies",
+    "seborrheic_dermatitis": "Seborrheic_Dermatitis",
+    "tinea":                 "Tinea",
+    "vitiligo":              "Vitiligo",
+}
+
+
+def _extract_disease_class(disease_context: str) -> str | None:
+    """Normalize any disease_context string to a Kuzu graph disease key, or None."""
+    normalized = disease_context.strip().lower().replace(" ", "_").replace("-", "_")
+    if normalized in _DISEASE_CLASSES:
+        return _DISEASE_CLASSES[normalized]
+    for key, graph_name in _DISEASE_CLASSES.items():
+        if key in normalized:
+            return graph_name
+    return None
+
+
 _PROMPT_TEMPLATE = """\
 You are SkinAI Bangladesh — a helpful medical information assistant for rural Bangladesh.
 A patient has asked: "{question}"
@@ -73,8 +110,7 @@ Your task:
 4. Do NOT recommend specific medication names. Do NOT make a diagnosis.
 5. Keep the answer concise — 3 to 5 sentences.
 
-{disease_note}
-Medical context (CDC · NIH · WHO · DGHS Bangladesh):
+{disease_note}{graph_note}Medical context (CDC · NIH · WHO · DGHS Bangladesh):
 {context}
 
 Answer in {lang_label}:\
@@ -329,11 +365,35 @@ def answer_question(
         if disease_context
         else ""
     )
+
+    # Graph RAG — traverse Kuzu knowledge graph to inject structured clinical context
+    graph_note = ""
+    if disease_context and _GRAPH_IMPORT_OK and _graph_available():
+        disease_key = _extract_disease_class(disease_context)
+        if disease_key:
+            try:
+                syms = _graph_symptoms(disease_key)
+                related = _graph_related(disease_key)
+                parts: list[str] = []
+                if syms:
+                    sym_labels = [
+                        f"{s['name_bn']} ({s['name']})" + (" ⚠" if s.get("is_escalation") else "")
+                        for s in syms[:6]
+                    ]
+                    parts.append(f"Clinical graph — linked symptoms: {', '.join(sym_labels)}.")
+                if related:
+                    parts.append(f"Differential conditions sharing symptoms: {', '.join(related[:3])}.")
+                if parts:
+                    graph_note = "Graph knowledge (Kuzu disease-symptom graph):\n" + " ".join(parts) + "\n\n"
+            except Exception:
+                pass  # graph errors never block the answer
+
     prompt = _PROMPT_TEMPLATE.format(
         lang_label=lang_label,
         context=context,
         question=question.strip(),
         disease_note=disease_note,
+        graph_note=graph_note,
     )
 
     client = _get_gemini_client()
