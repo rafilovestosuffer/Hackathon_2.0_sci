@@ -157,9 +157,16 @@ section[data-testid="stMain"] .block-container,
   padding-left: 2.6rem !important;
   padding-right: 2.6rem !important;
   background:
+    /* faint mint aurora top-left */
+    radial-gradient(ellipse 70% 60% at 0% 0%,
+      rgba(20,201,140,0.08) 0%, transparent 60%),
+    /* faint sapphire aurora bottom-right */
+    radial-gradient(ellipse 70% 60% at 100% 100%,
+      rgba(22,104,164,0.06) 0%, transparent 60%),
+    /* mint-tinted base */
     linear-gradient(180deg,
-      rgba(255,255,255,0.98) 0%,
-      rgba(252,253,255,0.97) 100%) !important;
+      rgba(244,251,247,0.985) 0%,
+      rgba(237,247,242,0.975) 100%) !important;
   backdrop-filter: blur(18px) saturate(150%);
   -webkit-backdrop-filter: blur(18px) saturate(150%);
   border-radius: 24px !important;
