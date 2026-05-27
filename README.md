@@ -286,6 +286,29 @@ pytest tests/ -v
 
 ---
 
+## 🔭 Future Roadmap
+
+The current system runs on a free cloud server — but the people who need it most often have no reliable internet.
+
+> **The last-mile problem:** A farmer in a char area of Jamalpur or a fisherman in the haor wetlands of Sylhet may have no 4G signal. Today, SkinAI Bangladesh requires an internet connection. Tomorrow, it should not.
+
+| Milestone | What | Why it matters for rural Bangladesh |
+|---|---|---|
+| **Offline Android app** | ONNX Runtime Mobile — INT8 model bundled on-device | Diagnosis works with zero connectivity; no data cost |
+| **SMS triage output** | Tier result + referral instruction via SMS | Feature phones still outnumber smartphones in rural chars and haors |
+| **Community health worker (CHW) mode** | Simplified UI for non-medical field workers | DGHS-trained CHWs can screen patients during village visits |
+| **Expanded disease classes** | Add Leprosy, Leishmaniasis, Fungal nail infections | High burden in rural BD, currently underserved by any AI tool |
+| **Federated model updates** | Improve model from anonymised field data | Model learns from actual rural BD presentations over time |
+
+**Why offline matters — by the numbers:**
+- Only **~40% of rural Bangladesh** has reliable 4G coverage (BTRC 2024)
+- Average data cost in rural areas = **~3–5 taka/MB** — a barrier for a 5 MB image upload
+- Community health workers visit **~13,000 community clinics** across Bangladesh with limited connectivity
+
+The INT8 quantization already done in this project is the critical first step — the model is small enough (< 50 MB) to bundle inside an Android APK. The offline vision is technically within reach.
+
+---
+
 ## ⚠️ Disclaimer
 
 SkinAI Bangladesh is a **research prototype** developed for the SciBlitz AI Challenge 2026. It is **not a certified medical device** and must not be used as a substitute for professional medical diagnosis or treatment. Always consult a licensed physician for medical advice.
