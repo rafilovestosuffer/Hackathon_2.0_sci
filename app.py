@@ -1644,10 +1644,6 @@ st.markdown(
     '    <span class="sk-footer-arrow">→</span>'
     '    <span class="sk-footer-step">Right time</span>'
     '  </div>'
-    '  <div class="sk-footer-meta">'
-    '    Built for <strong>IEEE SB CUET SciBlitz</strong> &amp; '
-    '<strong>Infinity AI BuildFest</strong>'
-    '  </div>'
     '</div>',
     unsafe_allow_html=True,
 )
