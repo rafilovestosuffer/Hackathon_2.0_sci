@@ -517,8 +517,12 @@ def check_image_quality(pil_img) -> tuple[bool, float]:
         return False, -1.0
 
 
-def render_referral_download_button(pdf_bytes) -> None:
-    """Native Streamlit download button when PDF available; muted placeholder otherwise."""
+def render_referral_download_button(pdf_bytes, key: str = "dl_referral_btn") -> None:
+    """Native Streamlit download button when PDF available; muted placeholder otherwise.
+
+    `key` must be unique per call site — this button is rendered in more than one
+    tab, and Streamlit renders all tab content in a single run.
+    """
     if pdf_bytes is not None:
         st.download_button(
             label="Download referral letter (PDF)",
@@ -526,7 +530,7 @@ def render_referral_download_button(pdf_bytes) -> None:
             file_name="skinai_referral.pdf",
             mime="application/pdf",
             use_container_width=True,
-            key="dl_referral_btn",
+            key=key,
             type="primary",
         )
     else:

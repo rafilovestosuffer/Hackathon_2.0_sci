@@ -334,7 +334,7 @@ def render_doctime_handoff_tab() -> None:
         """,
         unsafe_allow_html=True,
     )
-    render_referral_download_button(st.session_state.get("pdf_bytes"))
+    render_referral_download_button(st.session_state.get("pdf_bytes"), key="dl_referral_btn_doctime")
 
     # 5. Phase strip.
     _render_phase_strip()
