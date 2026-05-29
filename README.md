@@ -597,13 +597,8 @@ Three independent revenue streams (losing any one is survivable):
 
 ---
 
-## 👤 Team
-
-| Name | Role |
-|---|---|
-| **Rafiur Rahman** | ML Engineer — model, pipeline, RAG, bots, UI, deployment |
-
-**Institution:** IEEE SB CUET · **Contact:** mdrafiurrahman123098@gmail.com
+## Contact:
+**mail:** mdrafiurrahman123098@gmail.com
 **Repo:** [github.com/rafilovestosuffer/Hackathon_2.0_sci](https://github.com/rafilovestosuffer/Hackathon_2.0_sci)
 
 ---
