@@ -7,270 +7,593 @@ sdk: docker
 pinned: false
 ---
 
-# SkinAI Bangladesh 🩺
+<div align="center">
 
-> AI-powered dermatological screening and triage for rural Bangladesh
->
-> **"সঠিক রোগী → সঠিক ডাক্তার → সঠিক সময়"**
-> *"Right patient → Right doctor → Right time"*
+# 🩺 SkinAI Bangladesh
 
-[![Hugging Face Spaces](https://img.shields.io/badge/🤗%20Live%20Demo-HF%20Spaces-blue)](https://huggingface.co/spaces/rafilovestosuffer/skinai-bd)
-[![GitHub](https://img.shields.io/badge/GitHub-Repository-black)](https://github.com/rafilovestosuffer/Hackathon_2.0_sci)
-![Tests](https://img.shields.io/badge/tests-402%20passing-brightgreen)
+### AI-powered skin screening, triage & care-routing for rural Bangladesh
+
+**সঠিক রোগী → সঠিক ডাক্তার → সঠিক সময়**
+*Right patient → Right doctor → Right time*
+
+[![Live Demo](https://img.shields.io/badge/🤗_Live_Demo-Open_App-2563eb?style=for-the-badge)](https://huggingface.co/spaces/rafilovestosuffer/skinai-bd)
+[![GitHub](https://img.shields.io/badge/GitHub-Source-181717?style=for-the-badge&logo=github)](https://github.com/rafilovestosuffer/Hackathon_2.0_sci)
+
+![Tests](https://img.shields.io/badge/tests-403_functions-brightgreen)
 ![Python](https://img.shields.io/badge/python-3.10%2B-blue)
+![Inference](https://img.shields.io/badge/inference-INT8_·_CPU-orange)
+![No login](https://img.shields.io/badge/access-no_login-success)
+![License](https://img.shields.io/badge/use-research_/_humanitarian-green)
 
-**SciBlitz AI Challenge 2026 — IEEE SB CUET — Track A: Health & Society**
-**Infinity AI BuildFest — Submission**
+**🏆 Infinity AI BuildFest** · also prepared for **SciBlitz AI Challenge 2026 — IEEE SB CUET**
 
-🎬 **Demo Video:** _[To be recorded — use sidebar Demo Mode buttons for instant preview]_
+[**▶ Try it**](#-try-it-in-10-seconds) · [**How it works**](#-how-it-works) · [**Deep dives**](#-under-the-hood-deep-dives) · [**Tech stack**](#-complete-tech-stack) · [**Impact**](#-business-model--impact)
 
----
-
-## 🔴 The Problem
-
-Bangladesh has approximately **1 dermatologist per 250,000 people**. In rural areas, 80% of skin conditions go untreated or are mistreated by unlicensed practitioners. A farmer in Rangpur with a spreading rash cannot afford the 4-hour journey or the 1,500 taka fee for a specialist in the city.
-
-**SkinAI Bangladesh does not replace the doctor.** It ensures the right patient reaches the right doctor at the right time — instead of reaching the wrong practitioner too late.
+</div>
 
 ---
 
-## ✅ Live Demo
+## 💡 In one sentence
 
-**Public URL (no login required):**
-[https://huggingface.co/spaces/rafilovestosuffer/skinai-bd](https://huggingface.co/spaces/rafilovestosuffer/skinai-bd)
+SkinAI Bangladesh takes a patient's **spoken Bengali complaint** and **one skin photo**, and returns a **safe, explainable, doctor-addressed referral** — then can route them all the way to a **video consultation** and a **take-home care summary**. It runs **free, on CPU, with no login**, and reaches people over the **web, WhatsApp, and Telegram**.
 
->Judges: use the **Demo Mode** buttons in the sidebar for instant pre-loaded cases:
-> - 🟢 **Demo Tier 1** — Tinea (pharmacist referral, mild)
-> - 🟡 **Demo Tier 2** — Eczema (Upazila Health Complex, moderate)
-> - 🔴 **Demo Tier 3** — Scabies (urgent, full pipeline with hospital map)
+> It is **not** a classifier in a web page. It is an **end-to-end clinical triage system** — engineered to always fail *toward* a doctor, never away from one.
 
 ---
 
-## 🔄 Pipeline
+## 🔴 The problem
+
+Bangladesh has roughly **one dermatologist per 250,000 people**. In rural areas, an estimated **80% of skin conditions are untreated or mistreated** by unlicensed practitioners.
+
+<div align="center">
+
+> 🧑‍🌾 **Rahim** is a farmer in Rangpur. He notices a spreading rash. The nearest specialist is **4 hours away** and costs **1,500 taka** he can't spare.
+>
+> He opens SkinAI, **speaks in Bengali**, **takes one photo**. In seconds: *Tinea · mild · non-urgent* → "go to your local pharmacist; if it spreads, here's your referral letter for Rangpur Medical College Hospital."
+>
+> **Rahim has a plan. He doesn't need to go to Dhaka.**
+
+</div>
+
+---
+
+## ▶ Try it in 10 seconds
+
+**Live app (no login):** **[huggingface.co/spaces/rafilovestosuffer/skinai-bd](https://huggingface.co/spaces/rafilovestosuffer/skinai-bd)**
+
+Open **Tab 1 → "⚡ Quick Start"** and click a pre-filled case — each runs the **full pipeline** (inference → triage → hospital map → referral PDF) in one click:
+
+| Click this | You'll see |
+|---|---|
+| 🟢 **Tinea · Tier 1** | Non-urgent → pharmacist referral |
+| 🟡 **Eczema · Tier 2** | Routine → Upazila Health Complex |
+| 🔴 **Scabies · Tier 3** | Urgent → emergency hospital map + full referral |
+| 💚 **Normal · Healthy** | Tier 0 → no referral needed |
+
+> 💾 **Tab 3** also has a one-click **"Download a sample referral letter"** — a fully-populated PDF, no pipeline run needed. Perfect for judges in a silent room.
+
+---
+
+## 🩺 What it does — the full care loop
+
+SkinAI implements the **whole journey from symptom to specialist**, not just the diagnosis:
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                        INPUT LAYER                              │
-│   Bengali audio (mic / upload)      Skin photo (JPG/PNG)        │
-└────────────┬───────────────────────────────┬────────────────────┘
-             │                               │
-             ▼                               ▼
-   faster-whisper (base, bn)         BD-SkinNet (INT8)
-   Bengali transcript                Swin-B + CBAM × 4 stages
-             │                       disease class + confidence
-             ▼                               │
-   Gemini 2.5 Flash                  GradCAM++ on last Swin stage
-   9-field patient history JSON      heatmap + coverage_pct
-             │                               │
-             └───────────────┬───────────────┘
-                             ▼
-              ┌──────────────────────────────┐
-              │    4-SIGNAL TRIAGE ENGINE    │
-              │  Signal 1: Disease base tier │
-              │  Signal 2: Confidence < 0.40 │
-              │  Signal 3: Coverage > 40 %   │
-              │  Signal 4: Bengali keywords  │
-              └──────────────┬───────────────┘
-                             │
-               ┌─────────────┼─────────────┐
-               ▼             ▼             ▼
-            Tier 1         Tier 2        Tier 3
-          Pharmacist      Upazila     District Hospital
-          (3–5 days)     (48 hours)   + Emergency Map
-                                            │
-                                            ▼
-                                   Overpass API → Folium
-                                   5 nearest hospitals
-                                   (no API key needed)
-                             │
-                             ▼
-              ┌──────────────────────────────┐
-              │     REFERRAL LETTER PDF      │
-              │  Section 1: Patient history  │
-              │  Section 2: GradCAM overlay  │
-              │  Section 3: AI diagnosis     │
-              │  Section 4: Triage + hospital│
-              └──────────────────────────────┘
-
-    ┌─────────────────────────────────────────────────┐
-    │              RAG CHATBOT (Tab 2)                │
-    │  User question (Bengali or English)             │
-    │  → FAISS (MiniLM embeddings, 100 chunks)        │
-    │  → Gemini 2.5 Flash → grounded answer           │
-    │  Sources: CDC · NIH · WHO · DGHS Bangladesh     │
-    │  Context-aware: injects current diagnosis       │
-    └─────────────────────────────────────────────────┘
+ Screen  →  Diagnose  →  Triage  →  Refer  →  Book  →  Consult  →  Care Summary
+ (voice    (BD-SkinNet  (3-signal  (4-section (in-app   (video +    (take-home
+ + photo)   INT8)        engine)    PDF)       booking)   transcript)  PDF)
 ```
+
+The app is organized into **seven working tabs**:
+
+| # | Tab | What it delivers |
+|---|---|---|
+| 1 | **Diagnosis** | Bengali/English voice → auto-extracted patient history; photo → BD-SkinNet; severity banner + Bengali voice readout; clinical knowledge-graph context; nearest-facility map |
+| 2 | **Ask AI** | Bilingual chatbot grounded in **CDC · NIH · WHO · DGHS**, aware of your diagnosis, with a hard **no-medicine** guardrail |
+| 3 | **Referral** | One-click **4-section bilingual PDF** (or simplified **CHW slip**), addressed to a doctor |
+| 4 | **Disease Insights** | Bangladesh **prevalence heatmap** + prevention tips |
+| 5 | **DocTime** | **Telemedicine handoff** via deep-link + QR + WhatsApp + referral PDF |
+| 6 | **Phase 2 Network** | **In-app doctor booking** + post-booking **consultation room** → Care Summary PDF |
+| 7 | **Impact & Ethics** | Business model, model card, architecture, scalability, diaspora (NRB) pitch |
 
 ---
 
-## 🧠 BD-SkinNet — Model Card
+## 🏛 How it works
+
+The core pipeline fuses **three independent inputs** — image, voice, free text — into one safety-biased triage decision.
+
+```
+   🎙 Bengali/English audio                         📷 Skin photo
+            │                                             │
+            ▼                                             ▼
+   faster-whisper (small, INT8)              Blur check → auto-enhance
+   3-pass robust transcription                (Laplacian · CLAHE + unsharp)
+            │                                             │
+            ▼                                             ▼
+   Gemini 2.5 Flash-Lite                        BD-SkinNet (INT8)
+   → 9-field patient history                    Swin-B + CBAM ×4
+            │                                    → disease · confidence · top-2
+            └───────────────────┬───────────────────────┘
+                                ▼
+              ┌──────────────────────────────────────┐
+              │           TRIAGE ENGINE               │
+              │  Tier 0  ← confident "Normal"         │
+              │  Signal 1: disease-class base tier    │
+              │  Signal 2: confidence (<0.40 → Tier 3)│
+              │  Signal 3: Bengali symptom keywords   │
+              │  Rule: no class is Tier 3 by itself   │
+              └───────────────────┬───────────────────┘
+                                  ▼
+        Tier 0 ·  Tier 1  ·  Tier 2  ·  Tier 3 → + emergency hospital map
+        Healthy   Pharmacy   Upazila      District ER     (Overpass → Folium)
+                                  │
+                                  ▼
+                4-section bilingual referral PDF  +  grounded RAG chatbot
+```
+
+> **The big idea — *safety by escalation*.** The AI classifier is **one signal of three**, never the final word. Low confidence or urgent symptom words **escalate** the patient to a higher level of care, so an uncertain case gets *safer* care, not a confidently wrong label.
+
+---
+
+## 🔬 Under the hood — deep dives
+
+<sub>Each section is collapsed for easy scanning. **Click any title to expand the full detail.**</sub>
+
+<details>
+<summary><b>🧠 BD-SkinNet — the vision model (Swin-B + CBAM, INT8)</b></summary>
+
+<br>
+
+A custom model built specifically for **Bangladeshi clinical dermatology** — [`model/bd_skinnet.py`](model/bd_skinnet.py).
+
+```
+Input 224×224×3
+   │
+   ▼  Swin-B backbone (swin_base_patch4_window7_224, 4 feature stages)
+   ├── Stage 0 → 128 ch ─┐
+   ├── Stage 1 → 256 ch  │  each stage → its own CBAM (channel + spatial
+   ├── Stage 2 → 512 ch  │  attention) → Global Average Pool
+   └── Stage 3 → 1024 ch─┘
+            concat → 1920-d → Dropout → Linear(512) → LayerNorm → GELU
+                            → Dropout → Linear(8 classes) → softmax
+```
+
+- **Swin Transformer Base** — hierarchical vision transformer with shifted-window attention; captures both fine texture (scale, burrows) and overall lesion shape.
+- **CBAM (Convolutional Block Attention Module)** on **all 4 stages** — *channel* attention learns *which* features matter (redness vs. scale), *spatial* attention learns *where* to look (the lesion, not the background). This is the model's built-in focus + interpretability mechanism, and the reason it generalizes well from a modest clinical dataset.
+- **Multi-scale fusion** — pooling + concatenating all four stages lets the head reason over coarse and fine evidence at once.
+
+**8 classes** (7 conditions + a `Normal` control): Atopic Dermatitis · Contact Dermatitis · Eczema · Normal · Scabies · Seborrheic Dermatitis · Tinea · Vitiligo — each with a Bengali name.
 
 | Property | Value |
 |---|---|
-| Architecture | Swin Transformer Base + CBAM (Channel+Spatial Attention × 4 stages) |
-| Training data | Faridpur Medical College Hospital + Rangpur Medical College Hospital |
-| Test F1 | **92.46%** |
-| Test Accuracy | **92.37%** |
-| AUC-ROC | **0.9937** |
-| Classes (7) | Atopic Dermatitis, Contact Dermatitis, Eczema, Scabies, Seborrheic Dermatitis, Tinea, Vitiligo |
-| Input | 224 × 224 RGB |
-| Deployment | INT8 quantized (`torch.quantization.quantize_dynamic`) |
-| GradCAM++ target | Last CBAM spatial attention layer |
-| Explainability | Coverage % drives Signal 3 of triage engine |
+| Test F1 | **92.46%** (held-out Bangladeshi clinical set) |
+| Accuracy / AUC-ROC | 92.37% / 0.9937 (reported) |
+| Parameters | ~88M (FP32); **INT8** weights for serving |
+| Quantization | `torch.quantization.quantize_dynamic` → ~4× smaller, within ~1.5 F1 of FP32 |
+| Latency | ~1.8 s/image on **free CPU** |
+| Checkpoint | Hugging Face Hub `rafilovestosuffer/bd-skinnet`, downloaded & cached at runtime |
+| Training data | **Faridpur + Rangpur Medical College Hospitals** — no DermNet, no scraped, no synthetic |
 
-> **Training data note:** All images sourced from Bangladeshi clinical settings. No DermNet data used (competition policy).
+> Full [Model Card](docs/MODEL_CARD.md) + [Data Card](docs/DATA_CARD.md) in the repo. If the checkpoint can't download (cold Space / offline), inference returns a deterministic demo result with the identical schema, so the demo always works.
+
+</details>
+
+<details>
+<summary><b>🎙 Bengali voice pipeline — robust ASR for noisy, code-switched speech</b></summary>
+
+<br>
+
+Turning rural Bengali speech into structured medical data is hard. The pipeline ([`voice/pipeline.py`](voice/pipeline.py)) is built for it.
+
+**Stage 1 — Speech-to-text** (faster-whisper `small`, INT8, CPU):
+- **Format-agnostic** decode via PyAV — reads WAV/WebM/MP4/OGG/MP3/M4A from magic bytes (no `ffmpeg` on PATH, no temp files).
+- **Silence/quality gate** — rejects clips that are too short or too quiet, with a helpful Bengali message instead of a hallucinated transcript.
+- **3-pass transcription:** ① VAD-filtered + `no_speech_prob` segment filtering → ② no-VAD retry for longer clips → ③ **Bengali script correction** (the `small` model sometimes writes Bengali speech in Devanagari/Hindi; we detect the script leak and re-run forced to Bengali).
+- **Hallucination detection** — discards output with box/garbage glyphs or a token repeated 4× in a row.
+
+**Stage 2 — Structured extraction** (Gemini 2.5 Flash-Lite, `google-genai` SDK):
+- Handles Bengali, English, **and romanized Bengali** (*"amar gaye khuj hocche"*).
+- Returns exactly **9 JSON fields** (complaint, symptoms, area, duration, progression, prior treatment, associated symptoms, name, age) with 3 retries + strict validation + a "don't hallucinate" instruction. The result **auto-fills the editable patient form** and flows into the referral PDF.
+
+</details>
+
+<details>
+<summary><b>⚖️ Triage engine — transparent, rule-based, auditable</b></summary>
+
+<br>
+
+The clinical heart of the system ([`severity/engine.py`](severity/engine.py)) — every line is readable and verifiable by a clinician. A **healthy short-circuit** + **three escalation signals**:
+
+```python
+if disease_class == "Normal" and confidence >= 0.60:    # Tier 0 — healthy
+    return Tier 0
+
+tier = base_tier(disease_class)                          # Signal 1
+
+if confidence < 0.40:   tier = 3                         # Signal 2 — uncertainty
+elif confidence < 0.60: tier = max(tier, 2)
+
+if any(kw in transcript for kw in                        # Signal 3 — Bengali keywords
+       ["জ্বর","ছড়িয়ে","ব্যথা","রক্ত"]):                #  fever/spreading/pain/blood
+    tier = min(tier + 1, 3)
+```
+
+| Tier | Label | Action | Facility | Est. cost |
+|---|---|---|---|---|
+| 0 | HEALTHY | No treatment needed | — | ৳0 |
+| 1 | NON-URGENT | Pharmacist within 3–5 days | Local Pharmacy | ৳50–200 |
+| 2 | ROUTINE | Upazila Health Complex within 48 h | Upazila Health Complex | ৳0–100 (gov't) |
+| 3 | URGENT | Emergency care **today** | District Hospital | ৳0–500 (subsidised) |
+
+> **Safety property:** **no disease class maps to Tier 3 directly.** Emergency is reached *only* by escalation — the model signalling low confidence, or the patient's own urgent words. Out-of-distribution images get safer care, not a wrong label.
+
+</details>
+
+<details>
+<summary><b>🔎 RAG chatbot — grounded answers, 4-tier retrieval, hard no-medicine guardrail</b></summary>
+
+<br>
+
+The "Ask AI" tab ([`rag/retriever.py`](rag/retriever.py)) answers in Bengali or English, grounded **only** in trusted public-health sources.
+
+**Knowledge base — 100 curated chunks, four sources only:**
+
+| Source | Chunks | | Source | Chunks |
+|---|---:|---|---|---:|
+| CDC | 32 | | WHO | 16 |
+| NIH / MedlinePlus | 32 | | DGHS Bangladesh | 20 |
+
+Every chunk carries `SOURCE:`/`TOPIC:` provenance. **No DermNet, ever.**
+
+**4-tier retrieval cascade** (fast → semantic, never hard-fails):
+
+```
+question → 1. disk cache (SHA-256)        instant repeats
+         → 2. ChromaDB (HNSW, cosine)     best semantic match   } embeddings:
+         → 3. FAISS (flat inner-product)  semantic fallback     } multilingual-e5-small
+         → 4. BM25 (custom IDF)           ALWAYS works, no downloads
+```
+
+**Graph RAG** — when a diagnosis is active, the **Kuzu** graph injects structured facts (linked symptoms with ⚠ escalation flags, plus differential diseases sharing ≥2 symptoms) into the prompt, turning generic answers into grounded, differential-aware ones.
+
+**Generation** — Gemini 2.5 Flash-Lite, concise (3–5 sentences), language-matched, 3 retries.
+
+**🚫 Medicine guardrail (enforced in code):** every response passes a regex denylist — dosages (`500 mg`), forms (tablet/cream/…), drug-class suffixes (`-cillin`, `-mycin`, `-zole`, `-cortisone`, …), Bengali medicine phrases. Any match is **replaced** with a "consult a licensed pharmacist/doctor" message. The system *physically cannot* recommend a medication.
+
+</details>
+
+<details>
+<summary><b>🕸 Clinical knowledge graph (Kuzu)</b></summary>
+
+<br>
+
+An embedded **Kuzu** property graph ([`graph/store.py`](graph/store.py)) of hand-curated clinical relationships (no patient data ever enters it), built idempotently at startup.
+
+```
+(Disease) ──HAS_SYMPTOM──────▶ (Symptom {is_escalation})
+(Disease) ──MAPS_TO──────────▶ (TierAction)
+(Disease) ──COMMONLY_AFFECTS─▶ (BodyPart)
+(Disease) ──DOCUMENTED_BY────▶ (KnowledgeSource: CDC/NIH/WHO/DGHS)
+(Symptom) ──ESCALATES_TO─────▶ (TierAction: Tier 3)
+
+7 diseases · 20 symptoms · 12 body parts · 3 tiers · 4 sources
+```
+
+Powers the **"Signs to Monitor"** panel (normal vs. ⚠ escalation symptoms, in Bengali) and the Graph RAG context above. Differential diagnosis is a live Cypher query.
+
+</details>
+
+<details>
+<summary><b>📄 Bilingual PDF (fpdf2 + HarfBuzz) — Bengali that renders correctly in Acrobat</b></summary>
+
+<br>
+
+The referral letter is **addressed to a doctor, not the patient** — [`pdf_gen/referral.py`](pdf_gen/referral.py).
+
+> **Why fpdf2 + uharfbuzz, not ReportLab?** ReportLab embeds raw code-points with no glyph shaping, so Bengali conjuncts render *broken* in Adobe Acrobat. **fpdf2 pre-shapes text through HarfBuzz (GSUB/GPOS)** before embedding glyph IDs → Bengali is correct in every viewer.
+
+**4-section referral letter:**
+
+| Section | Content |
+|---|---|
+| 1 · Patient History | Name, age, complaint, symptoms, area, duration, progression, prior treatment (bilingual table) |
+| 2 · Clinical Observation | Notes image was analysed by BD-SkinNet; assessment timestamp |
+| 3 · AI Diagnostic Assessment | Disease (EN + BN), confidence, **differential** if top-2 > 15%, model provenance, "not a diagnosis" disclaimer |
+| 4 · Triage Recommendation | Color-coded urgency badge, action, facility, Bengali instruction, nearest hospital (Tier 3), and a **Scheduled Appointment** block if booked |
+
+Also generates a **one-page CHW slip** (with cost estimate) and a **6-section Care Summary PDF** ([`pdf_gen/consultation_summary.py`](pdf_gen/consultation_summary.py)) extracted from a post-consult transcript.
+
+</details>
+
+<details>
+<summary><b>🗺 Emergency hospital finder & epidemiology map</b></summary>
+
+<br>
+
+[`map/hospital_finder.py`](map/hospital_finder.py):
+- Queries the **OpenStreetMap Overpass API** (`amenity=hospital`) — **free, no API key** — and ranks by **Haversine distance** from a table of **68 Bangladesh districts** (with alternate spellings: chittagong/chattogram, bogra/bogura…).
+- **Resilient:** if Overpass times out, a static **DGHS division-hospital fallback** (with phone numbers) guarantees the PDF always names a real facility. Renders ranked cards + an interactive **Folium** map (user pin + ranked hospital pins, auto-fit), tier-aware as pharmacies / Upazila complexes / emergency hospitals.
+
+[`map/bd_heatmap.py`](map/bd_heatmap.py): a division-level **prevalence heatmap** per disease (qualitative burden from WHO SEARO patterns + literature) with RAG-generated prevention tips.
+
+</details>
+
+<details>
+<summary><b>🌐 Multi-channel access — Web · WhatsApp · Telegram · MCP (one container)</b></summary>
+
+<br>
+
+The same clinical pipeline behind multiple front doors, served from a single container via **nginx + supervisor**:
+
+```
+   Browser ─────▶┌──────────────────────────┐
+   WhatsApp ────▶│  nginx (port 7860)       │──▶ Streamlit UI (:8501)
+   Telegram ────▶└──────────────────────────┘──▶ FastAPI webhook (:8000)
+                                                     │
+                              platform-agnostic ROUTER + per-user STATE MACHINE
+```
+
+**WhatsApp & Telegram bot** ([`whatsapp/`](whatsapp/), [`webhook/`](webhook/)):
+- **Meta WhatsApp Cloud API** (HMAC-SHA256 `X-Hub-Signature-256` verification + subscribe handshake) and **Telegram Bot API**, normalized into one router.
+- **7-state conversation machine**: `NEW → district → image → voice → processing → result → RAG chat`.
+- Hardened: **idempotency** (dedupe 100 msg IDs), **rate limiting** (10/min), **TTL eviction** (10-min idle), blur gate. All sessions **in-memory only** — no DB, no PII.
+
+**MCP server** ([`mcp_server/skinai_server.py`](mcp_server/skinai_server.py)) exposes the engine as **3 tools** to Claude Desktop / Cursor: `triage_skin_condition`, `ask_skin_question` (medicine redaction enforced), `find_emergency_hospitals`.
+
+</details>
+
+<details>
+<summary><b>🤝 Telemedicine handoff & in-app care loop</b></summary>
+
+<br>
+
+A typed **provider abstraction** ([`telemedicine/providers.py`](telemedicine/providers.py)) — *"adding a partner is one Python file."*
+
+- **DocTime (Phase 1, live)** — an **honest co-branded handoff**: UTM-tagged deep-link + **QR code** + prefilled bilingual **WhatsApp** message + the referral PDF. **No fabricated booking IDs, no fake API calls** — all URLs are locally synthesized.
+- **Phase-3 stubs** (Praava, MediCal, Maya) are registered as `available=False` and raise if called — the roadmap is backed by real code.
+
+**In-app booking + consultation** ([`ui/doctor_booking.py`](ui/doctor_booking.py), [`ui/consultation_room.py`](ui/consultation_room.py)): 6 demo dermatologists → session-only booking (ID, meet link, fee) that flows into the referral PDF → a consultation room (demo / live audio→Whisper / manual notes) → a **Care Summary PDF**.
+
+</details>
+
+<details>
+<summary><b>🔐 Privacy, analytics & the /docs dashboard</b></summary>
+
+<br>
+
+- **No patient data is ever persisted** — web app uses `session_state`; the bot uses in-memory sessions with TTL eviction. No images, transcripts, or names touch disk.
+- **Anonymized aggregate telemetry only** ([`analytics/db.py`](analytics/db.py)): a local SQLite table of *counters* — event type, disease class, tier, language, confidence bucket. **No identifiers, no content.** Best-effort writes that can never crash the app.
+- **`/docs` dashboard** ([`pages/docs.py`](pages/docs.py)) shows knowledge-graph stats + the anonymized usage summary.
+
+</details>
 
 ---
 
-## ⚖️ Triage Engine — 4 Signals
+## 🧰 Complete tech stack
 
-| Signal | Rule | Escalation |
+| Layer | Technology | Why |
 |---|---|---|
-| 1 — Disease class | Hardcoded tier per class | Base tier (1 or 2) |
-| 2 — Confidence | < 0.40 → Tier 3; < 0.60 → min Tier 2 | Uncertainty escalates |
-| 3 — GradCAM coverage | > 40% → tier + 1 (cap 3) | Widespread lesion escalates |
-| 4 — Voice keywords | জ্বর / ছড়িয়ে / ব্যথা / রক্ত → tier + 1 | Systemic symptoms escalate |
-
-**No disease class maps to Tier 3 directly.** Tier 3 is reached only through escalation — this is medically safer than a simple lookup.
-
-| Tier | Label | Action | Facility |
-|---|---|---|---|
-| 1 | NON-URGENT | Consult pharmacist within 3–5 days | Local Pharmacy |
-| 2 | ROUTINE | Visit Upazila Health Complex within 48 hours | Upazila Health Complex |
-| 3 | URGENT | Seek emergency care TODAY | District Hospital |
-
----
-
-## 📊 Model Comparison & Baselines
-
-BD-SkinNet achieves **F1 = 92.46%** on a held-out Bangladeshi clinical test set (Faridpur MCH + Rangpur MCH). It is the **first skin-disease model trained exclusively on Bangladeshi patient presentations** — avoiding the well-documented light-skin bias of globally-trained models (e.g., DermNet-based tools, which also violate competition data policy). The AUC-ROC of **0.9937** indicates strong class separation even for visually similar conditions such as Scabies vs. Eczema or Tinea vs. Contact Dermatitis. No direct baseline comparison exists because no prior published model uses the same Bangladeshi clinical dataset.
-
-| Metric | BD-SkinNet (this work) | Notes |
-|---|---|---|
-| Test F1 | **92.46%** | Balanced across 7 classes |
-| Test Accuracy | **92.37%** | Per-sample |
-| AUC-ROC | **0.9937** | Multi-class OvR |
-| Training data | Faridpur MCH + Rangpur MCH | Bangladeshi clinical, not global |
-| Inference | INT8 quantized, CPU only | HF Spaces free tier compatible |
+| **UI** | Streamlit `1.54` | Native HF Spaces; custom medical design system |
+| **Model** | timm Swin-B + custom **CBAM** | SOTA backbone + attention focus/interpretability |
+| **Quantization** | PyTorch `quantize_dynamic` (INT8) | ~4× smaller — free-CPU & future-offline ready |
+| **Image** | Albumentations, OpenCV (Laplacian, CLAHE + unsharp) | Quality gate + auto-enhancement |
+| **Speech** | faster-whisper `small` (INT8) + PyAV | Offline Bengali ASR, format-agnostic |
+| **LLM** | **Gemini 2.5 Flash-Lite** (`google-genai`) | Free tier, strong Bengali, JSON + RAG |
+| **Vectors** | ChromaDB (HNSW) + FAISS + custom **BM25** | Semantic search + zero-dependency fallback |
+| **Embeddings** | `intfloat/multilingual-e5-small` | Bengali + English |
+| **Graph** | **Kuzu** (embedded Cypher) | Disease–symptom–triage relationships, Graph RAG |
+| **PDF** | **fpdf2 + uharfbuzz** | Correct Bengali shaping in Acrobat |
+| **Maps** | folium + **Overpass API** | OSM hospitals, no API key |
+| **Bots** | Meta WhatsApp Cloud API · Telegram Bot API | Reach rural patients where they are |
+| **Server** | **FastAPI + Uvicorn**, nginx + supervisor | Async webhooks, dual-service container |
+| **Agents** | **MCP** (FastMCP) | Exposes tools to Claude Desktop / Cursor |
+| **Extras** | gTTS (Bengali readout) · qrcode · SQLite (anon analytics) | |
+| **Ops** | Docker · GitHub Actions keepalive · pytest (403 fns) | Always-on, well-tested |
 
 ---
 
-## ✅ Constraint Compliance Checklist
+## 📁 Repository structure
 
-| # | Constraint | Status | Proof |
-|---|---|---|---|
-| 1 | No DermNet data | ✅ Verified | `rag/knowledge/` — all 100 chunks sourced from CDC/NIH/WHO/DGHS; `bd_skinnet.py` training data explicitly Faridpur MCH + Rangpur MCH |
-| 2 | No login / instant public URL | ✅ Verified | HF Space is public; no `st.secrets`-gated auth anywhere in `app.py` |
-| 3 | No medicine recommendations | ✅ Hard guardrail | `rag/retriever.py:_redact_medicine_names()` post-processes every Gemini response; regex denylist on drug-class suffixes + dosage patterns |
-| 4 | No persistent database | ✅ Verified | All state in `st.session_state`; grep for `sqlite`, `psycopg`, `redis` returns nothing |
-| 5 | Knowledge base = CDC/NIH/WHO/DGHS only | ✅ Verified | Every `.txt` file in `rag/knowledge/` has `SOURCE:` prefix from one of these four; build verified in `rag/seed_knowledge.py` |
-| 6 | HF Spaces CPU + INT8 mandatory | ✅ Ready | `model/export_int8.py` uses `torch.quantization.quantize_dynamic`; `requirements.txt` CPU-only torch; checkpoint integration template in `TASK.md` |
-| 7 | App live until July 12, 2026 | ✅ Active | `scripts/keepalive.py` pings HF Space every 20 min via GitHub Actions cron |
-| 8 | GitHub commits May 14–July 1, 2026 | ✅ Verified | Commit history starts `[w1/d1]` 2026-05-19 and is ongoing (`git log` verifiable) |
-| 9 | Demo video 3–5 min, YouTube unlisted | ⏳ Pending | Script ready at `docs/demo_script.md`; record using the 3 Demo Mode presets in the sidebar |
+<details>
+<summary><b>Click to expand the full repo map</b></summary>
+
+<br>
+
+```
+skinai-bangladesh/
+├── app.py                      # Streamlit entry point — 7-tab clinical app
+├── Dockerfile                  # python:3.10-slim · nginx + supervisor dual-service
+├── requirements.txt            # deps (CPU-only torch installed in Dockerfile)
+├── packages.txt                # system deps (libsndfile1, ffmpeg)
+│
+├── model/
+│   ├── bd_skinnet.py           # Swin-B + CBAM ×4 + INT8 loader + predict()
+│   └── disease_labels.py       # 8 classes · Bengali names · base tiers
+├── severity/engine.py          # Tier 0 + 3-signal triage engine
+├── voice/pipeline.py           # 3-pass Whisper ASR → Gemini 9-field history
+├── rag/
+│   ├── retriever.py            # cache→ChromaDB→FAISS→BM25 + Graph RAG + redaction
+│   ├── chroma_store.py · build_index.py · cache.py
+│   └── knowledge/              # 100 chunks: CDC×32 · NIH×32 · WHO×16 · DGHS×20
+├── graph/store.py              # Kuzu disease–symptom–triage graph
+├── pdf_gen/
+│   ├── referral.py             # 4-section referral + CHW slip (fpdf2 + HarfBuzz)
+│   └── consultation_summary.py # 6-section Care Summary PDF
+├── map/
+│   ├── hospital_finder.py      # Overpass + Haversine + DGHS fallback (68 districts)
+│   └── bd_heatmap.py           # prevalence heatmap
+├── telemedicine/               # provider Protocol + DocTime Phase-1 handoff
+├── whatsapp/ · webhook/        # bot router, state machine, clients, FastAPI server
+├── mcp_server/skinai_server.py # MCP server — 3 tools over stdio
+├── ui/                         # components, styles, booking, consultation room, tabs
+├── analytics/db.py             # anonymized aggregate telemetry (no PII)
+├── pages/docs.py               # /docs live ops dashboard
+├── scripts/ · .github/workflows/keepalive.yml
+├── tests/                      # 16 modules · 403 test functions
+└── docs/                       # MODEL_CARD · DATA_CARD · ETHICS · BUSINESS_MODEL · …
+```
+
+</details>
 
 ---
 
-## 🛠️ Tech Stack
+## 🚀 Run it yourself
 
-| Component | Library | Version | Why |
-|---|---|---|---|
-| App framework | Streamlit | ≥ 1.37 | HF Spaces native; `st.audio_input`, `st.chat_message` |
-| Model backbone | timm (Swin-B) | ≥ 0.9 | State-of-the-art vision transformer |
-| Attention module | Custom CBAM | — | Channel + spatial attention for skin texture |
-| INT8 inference | PyTorch | ≥ 2.0 | `quantize_dynamic` → 4× memory reduction |
-| Explainability | GradCAM++ | — | Heatmap + coverage % for Signal 3 |
-| Speech-to-text | faster-whisper | ≥ 0.10 | Offline, Bengali (bn), CPU INT8 |
-| LLM | Gemini 2.5 Flash | — | Free tier, Bengali support, large context |
-| Vector search | faiss-cpu | ≥ 1.7 | Cosine similarity, no external service |
-| Embeddings | MiniLM-L6-v2 | — | Multilingual (Bengali + English) |
-| PDF generator | reportlab | ≥ 4.0 | Bengali Noto Sans font, 4-section letter |
-| Map rendering | folium + streamlit-folium | — | OpenStreetMap tiles, no API key |
-| Hospital data | Overpass API | — | Free OSM query, Bangladesh coverage |
-| Image quality | OpenCV Laplacian | — | Blur detection before inference |
+<details>
+<summary><b>Local development</b></summary>
 
----
-
-## 🚀 Local Development
+<br>
 
 ```bash
-# 1. Clone
 git clone https://github.com/rafilovestosuffer/Hackathon_2.0_sci.git
 cd Hackathon_2.0_sci
 
-# 2. Install dependencies
-pip install -r requirements.txt
+pip install -r requirements.txt          # CPU only, ~3 GB RAM, Python 3.10+
 
-# 3. Set API key
-cp .env.example .env
-# Edit .env and add: GEMINI_API_KEY=your_key_here
-# Get a free key at: https://aistudio.google.com
+cp .env.example .env                      # then set GEMINI_API_KEY=...
+                                          # free key: https://aistudio.google.com
+python rag/build_index.py                 # first run only (ChromaDB/BM25 auto-build too)
 
-# 4. Build RAG index (first time only)
-python rag/build_index.py
-
-# 5. Run
 streamlit run app.py
 ```
 
-**Requirements:** Python 3.10+, CPU only (no GPU needed), ~3 GB RAM
+**Optional services:**
+```bash
+uvicorn webhook.server:app --port 8000    # WhatsApp + Telegram webhooks
+python -m mcp_server.skinai_server        # MCP server (Claude Desktop / Cursor)
+```
 
-## ☁️ HF Spaces Deployment
+</details>
 
-The live demo is hosted at [huggingface.co/spaces/rafilovestosuffer/skinai-bd](https://huggingface.co/spaces/rafilovestosuffer/skinai-bd).
+<details>
+<summary><b>Deploy to Hugging Face Spaces (Docker)</b></summary>
 
-To deploy your own fork:
+<br>
 
-1. Create a new Hugging Face Space (Docker SDK, CPU Basic, Public)
-2. Go to **Settings → Variables and Secrets → New Secret**
-   - Name: `GEMINI_API_KEY`
-   - Value: your Gemini API key from [aistudio.google.com](https://aistudio.google.com)
-3. Push the code — Docker build runs automatically
-   - The RAG index and embedding model are built inside the Docker image (no manual step needed)
-4. First cold start takes ~3–5 minutes; subsequent loads are instant
+The container is self-contained: the Dockerfile installs the **CPU-only torch wheel** (avoids a 700 MB CUDA download), downloads the Bengali font, pre-caches the embedding model, and **builds the RAG index at build time**. At runtime, **supervisor** runs **nginx on port 7860** (HF requirement), proxying to **Streamlit (:8501)** and the **FastAPI webhook (:8000)**.
+
+1. Create a Space → **Docker SDK · CPU Basic · Public**
+2. **Settings → Variables and Secrets** → add `GEMINI_API_KEY` (and bot tokens if used)
+3. Push — Docker builds automatically (first cold start ~3–5 min)
+4. A **GitHub Actions keepalive** pings the Space every 20 min to keep it awake
+
+</details>
 
 ---
 
-## 🧪 Tests
+## 🧪 Testing & reliability
 
 ```bash
 pytest tests/ -v
-# Expected: 245 passed
 ```
 
-| Test file | Module | Tests |
-|---|---|---|
-| test_gradcam.py | GradCAM++ | 13 |
-| test_severity.py | Triage engine | 29 |
-| test_pdf.py | Referral PDF | 11 |
-| test_voice.py | faster-whisper | 10 |
-| test_voice_gemini.py | Gemini extraction | 15 |
-| test_rag.py | FAISS + RAG | 30 |
-| test_ui.py | Components + styles (85 tests) | 85 |
-| test_hospital.py | Hospital finder | 17 |
-| test_pipeline.py | End-to-end pipeline | 35 |
-| **Total** | | **245** |
+**403 test functions across 16 modules** cover every layer — severity, RAG + redaction, voice + extraction, PDF, hospital finder, booking, bot state/router/clients, webhooks, telemedicine, end-to-end.
+
+**Graceful degradation is a design invariant** — every external dependency has a fallback:
+
+| If this fails… | …the system does this |
+|---|---|
+| Model checkpoint download | Deterministic demo prediction (same schema) |
+| ChromaDB / FAISS | Falls back to BM25 keyword search |
+| Kuzu graph | Skips graph context; RAG still answers |
+| Overpass API | DGHS division-hospital fallback |
+| Bengali font | Downloads it, else Helvetica |
+| Analytics write | Swallowed silently — app continues |
+
+---
+
+## 🧭 Responsible AI & constraint compliance
+
+<details>
+<summary><b>Safety principles + the full compliance checklist</b></summary>
+
+<br>
+
+- **Never a diagnosis** — every output is a *referral to a licensed clinician*; the PDF is addressed to a doctor.
+- **Never a medicine** — enforced in code (regex redaction over every LLM response).
+- **Uncertainty escalates** — confidence < 40% → Tier 3 by design.
+- **Bias disclosed in the product** — a bilingual fairness note renders under every prediction (training data is predominantly Fitzpatrick IV–VI, adults ≥18, 7 conditions; pediatric / melanoma / mucosal / Fitzpatrick I–III are out of scope).
+- **Data minimization** — no PII persisted; only anonymized aggregate counters.
+
+| # | Constraint | Status | Evidence |
+|---|---|---|---|
+| 1 | No DermNet data | ✅ | Clinical training data + 100 chunks all CDC/NIH/WHO/DGHS |
+| 2 | No login / instant public URL | ✅ | Public HF Space, no auth |
+| 3 | No medicine recommendations | ✅ | `_redact_medicine_names()` on every RAG response |
+| 4 | No persistent patient database | ✅ | `session_state` + in-memory bot sessions; only anonymized non-PII counters on disk |
+| 5 | Knowledge = CDC/NIH/WHO/DGHS only | ✅ | Every chunk has a `SOURCE:` header |
+| 6 | INT8 quantization on CPU | ✅ | `quantize_dynamic`; CPU-only torch wheel |
+| 7 | Live through the event window | ✅ | GitHub Actions keepalive every 20 min |
+| 8 | Commit history in window | ✅ | Dated commit log |
+| 9 | Demo video (3–5 min) | ⏳ | Script ready in [`docs/demo_script.md`](docs/demo_script.md) |
+
+Full [Model Card](docs/MODEL_CARD.md) · [Data Card](docs/DATA_CARD.md) · [Ethics Statement](docs/ETHICS_STATEMENT.md).
+
+</details>
+
+---
+
+## 💰 Business model & impact
+
+<details>
+<summary><b>How it stays free for patients — and still sustainable</b></summary>
+
+<br>
+
+**Mission lock:** *screening, triage, and the referral PDF are **free at the patient endpoint, forever.*** ([`docs/BUSINESS_MODEL.md`](docs/BUSINESS_MODEL.md))
+
+Three independent revenue streams (losing any one is survivable):
+
+1. **Teleconsult service fee** — a small, transparent platform fee added *only* if a patient chooses to book; the doctor keeps 100% of their fee. SkinAI-referred patients arrive with a structured PDF → shorter consults, fewer no-shows.
+2. **NRB "Sponsor-a-District"** — the ~1.7 M-strong diaspora (>$20 B/yr in remittances) funds the free tier in a named district, with monthly usage reporting. A working demo widget is in the app.
+3. **Public-health grants** — anonymized upazila-level epidemiology shared with MoHFW / DGHS / icddr,b under a non-commercial license.
+
+**Unit economics:** ≈ **$0.0003/inference**, ≈ **$40/month** hosting at 10k MAU, break-even ≈ 45 bookings/month.
+
+</details>
+
+<details>
+<summary><b>Scalability roadmap</b></summary>
+
+<br>
+
+| Phase | Scope | Cost/mo | Lever |
+|---|---|---|---|
+| **1 — Pilot** | 2 Upazila complexes, Rangpur | < $50 | HF Spaces + WhatsApp free tier (built) |
+| **2 — Regional** | 8 districts | ≈ $200 | HF → AWS `ap-south-1` is a Dockerfile swap |
+| **3 — National + South Asia** | + Hindi/Urdu RAG | ≈ $400 | **Offline ONNX/TFLite APK**, SMS triage, CHW mode |
+
+**Last-mile vision:** only ~40% of rural Bangladesh has reliable 4G. The INT8 model (< 50 MB) is already small enough to bundle in an offline APK — the hardest first step is **done**. ([`docs/SCALABILITY_ROADMAP.md`](docs/SCALABILITY_ROADMAP.md))
+
+</details>
 
 ---
 
 ## 📚 Attribution
 
-| Resource | Source | License | Usage |
-|---|---|---|---|
-| Swin Transformer (Swin-B) | timm / Microsoft | Apache 2.0 | Model backbone |
-| faster-whisper | SYSTRAN | MIT | Bengali speech recognition |
-| Gemini 2.5 Flash API | Google | Terms of Service | LLM for extraction + RAG |
-| FAISS | Meta AI | MIT | Vector similarity search |
-| paraphrase-multilingual-MiniLM-L6-v2 | Sentence-Transformers | Apache 2.0 | RAG embeddings |
-| reportlab | ReportLab Inc. | BSD | PDF generation |
-| folium | python-visualization | MIT | Interactive hospital map |
-| Overpass API | OpenStreetMap | ODbL | Hospital location data |
-| CDC skin disease content | CDC (US) | Public Domain | RAG knowledge base |
-| NIH / MedlinePlus content | NIH | Public Domain | RAG knowledge base |
-| WHO NTD / skin guidelines | WHO | CC BY-NC-SA 3.0 | RAG knowledge base |
-| DGHS Bangladesh guidelines | DGHS | Public Domain | RAG knowledge base |
-| Noto Sans Bengali font | Google Fonts | OFL 1.1 | Bengali text in PDF + UI |
+<details>
+<summary><b>Libraries, models & data sources (with licenses)</b></summary>
+
+<br>
+
+| Resource | Source | License |
+|---|---|---|
+| Swin Transformer (timm) | Microsoft | Apache 2.0 |
+| faster-whisper | SYSTRAN / OpenAI Whisper | MIT |
+| Gemini 2.5 Flash-Lite | Google (`google-genai`) | API ToS |
+| ChromaDB · FAISS | Chroma · Meta AI | Apache 2.0 · MIT |
+| `multilingual-e5-small` | intfloat (Microsoft) | MIT |
+| Kuzu | Kuzu Inc. | MIT |
+| fpdf2 · uharfbuzz | fpdf2 · HarfBuzz | LGPL · MIT-style |
+| folium · Overpass / OSM | python-visualization · OSM | MIT · ODbL |
+| FastAPI · Uvicorn · httpx | — | MIT · BSD |
+| MCP (FastMCP) | Anthropic / community | MIT |
+| CDC · NIH content | US Gov | Public Domain |
+| WHO content | WHO | CC BY-NC-SA 3.0 |
+| DGHS Bangladesh | DGHS | Public sector info |
+| Noto Sans Bengali | Google Fonts | OFL 1.1 |
+
+</details>
 
 ---
 
@@ -278,45 +601,26 @@ pytest tests/ -v
 
 | Name | Role |
 |---|---|
-| **Rafiur Rahman** | ML Engineer — Model, pipeline, UI, deployment |
+| **Rafiur Rahman** | ML Engineer — model, pipeline, RAG, bots, UI, deployment |
 
-**Institution:** IEEE SB CUET  
-**Competition:** SciBlitz AI Challenge 2026 — Track A: Health & Society  
-**Contact:** mdrafiurrahman123098@gmail.com
-
----
-
-## 🔭 Future Roadmap
-
-The current system runs on a free cloud server — but the people who need it most often have no reliable internet.
-
-> **The last-mile problem:** A farmer in a char area of Jamalpur or a fisherman in the haor wetlands of Sylhet may have no 4G signal. Today, SkinAI Bangladesh requires an internet connection. Tomorrow, it should not.
-
-| Milestone | What | Why it matters for rural Bangladesh |
-|---|---|---|
-| **Offline Android app** | ONNX Runtime Mobile — INT8 model bundled on-device | Diagnosis works with zero connectivity; no data cost |
-| **SMS triage output** | Tier result + referral instruction via SMS | Feature phones still outnumber smartphones in rural chars and haors |
-| **Community health worker (CHW) mode** | Simplified UI for non-medical field workers | DGHS-trained CHWs can screen patients during village visits |
-| **Expanded disease classes** | Add Leprosy, Leishmaniasis, Fungal nail infections | High burden in rural BD, currently underserved by any AI tool |
-| **Federated model updates** | Improve model from anonymised field data | Model learns from actual rural BD presentations over time |
-
-**Why offline matters — by the numbers:**
-- Only **~40% of rural Bangladesh** has reliable 4G coverage (BTRC 2024)
-- Average data cost in rural areas = **~3–5 taka/MB** — a barrier for a 5 MB image upload
-- Community health workers visit **~13,000 community clinics** across Bangladesh with limited connectivity
-
-The INT8 quantization already done in this project is the critical first step — the model is small enough (< 50 MB) to bundle inside an Android APK. The offline vision is technically within reach.
+**Institution:** IEEE SB CUET · **Contact:** mdrafiurrahman123098@gmail.com
+**Repo:** [github.com/rafilovestosuffer/Hackathon_2.0_sci](https://github.com/rafilovestosuffer/Hackathon_2.0_sci)
 
 ---
 
-## ⚠️ Disclaimer
+## ⚠️ Medical disclaimer
 
-SkinAI Bangladesh is a **research prototype** developed for the SciBlitz AI Challenge 2026. It is **not a certified medical device** and must not be used as a substitute for professional medical diagnosis or treatment. Always consult a licensed physician for medical advice.
+SkinAI Bangladesh is a **research prototype** — **not a certified medical device**. It must not replace professional diagnosis or treatment. Every output is a *referral to a licensed physician*; always consult one.
 
-এই অ্যাপ্লিকেশনটি গবেষণামূলক উদ্দেশ্যে তৈরি। এটি কোনো স্বীকৃত চিকিৎসা যন্ত্র নয়। সর্বদা একজন লাইসেন্সপ্রাপ্ত চিকিৎসকের পরামর্শ নিন।
+> এই অ্যাপ্লিকেশনটি গবেষণামূলক উদ্দেশ্যে তৈরি। এটি কোনো স্বীকৃত চিকিৎসা যন্ত্র নয়। সর্বদা একজন লাইসেন্সপ্রাপ্ত চিকিৎসকের পরামর্শ নিন।
+
+<div align="center">
 
 ---
 
-*Last updated: June 2026 | Submission deadline: July 1, 2026*
+**Built for Infinity AI BuildFest**
+*সঠিক রোগী → সঠিক ডাক্তার → সঠিক সময় · Right patient → Right doctor → Right time*
 
-<!-- Last redeploy: 2026-05-25T12:19Z -->
+[**▶ Open the live app**](https://huggingface.co/spaces/rafilovestosuffer/skinai-bd)
+
+</div>
