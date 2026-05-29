@@ -709,11 +709,11 @@ st.markdown('<hr class="divider">', unsafe_allow_html=True)
 section("🔗 Links", "links")
 c1, c2, c3, c4 = st.columns(4)
 with c1:
-    st.link_button("🚀 Live App", "https://huggingface.co/spaces/rafilovestosuffer/skinai-bangladesh", use_container_width=True)
+    st.link_button("🚀 Live App", "https://huggingface.co/spaces/rafilovestosuffer/skinai-bd", use_container_width=True)
 with c2:
     st.link_button("💻 GitHub", "https://github.com/rafilovestosuffer/Hackathon_2.0_sci", use_container_width=True)
 with c3:
-    st.link_button("🤗 HF Space", "https://huggingface.co/spaces/rafilovestosuffer/skinai-bangladesh", use_container_width=True)
+    st.link_button("🤗 HF Space", "https://huggingface.co/spaces/rafilovestosuffer/skinai-bd", use_container_width=True)
 with c4:
     st.link_button("🩺 /docs Page", "https://rafilovestosuffer-skinai-bd.hf.space/docs", use_container_width=True)
 

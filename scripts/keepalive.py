@@ -16,7 +16,7 @@ import requests
 
 HF_SPACE_URL = os.getenv(
     "HF_SPACE_URL",
-    "https://rafilovestosuffer-skinai-bangladesh.hf.space",
+    "https://rafilovestosuffer-skinai-bd.hf.space",
 )
 INTERVAL_SECONDS = 20 * 60  # 20 minutes
 

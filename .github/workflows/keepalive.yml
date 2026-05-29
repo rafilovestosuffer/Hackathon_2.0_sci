@@ -17,7 +17,7 @@ jobs:
     steps:
       - name: Ping HF Space
         run: |
-          URL="https://rafilovestosuffer-skinai-bangladesh.hf.space"
+          URL="https://rafilovestosuffer-skinai-bd.hf.space"
           echo "Pinging: $URL"
           STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 20 "$URL")
           echo "HTTP status: $STATUS"
