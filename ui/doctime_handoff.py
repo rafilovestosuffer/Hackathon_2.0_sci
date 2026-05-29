@@ -114,7 +114,6 @@ def _render_doctime_card(provider, urgent: bool) -> None:
               {urgent_pill}
             </div>
           </div>
-
           <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0.6rem;
                       margin-top:1.1rem;">
             <div style="background:#F0F9FF;border-radius:8px;padding:0.6rem;
