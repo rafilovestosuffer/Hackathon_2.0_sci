@@ -380,10 +380,11 @@ st.markdown(
     '    <div class="hero-arrow">→</div>'
     '    <div class="hero-step">সঠিক সময়<small>Right Time</small></div>'
     '  </div>'
-    '  <div style="margin-top:1.1rem;font-size:0.86rem;color:rgba(226,232,240,0.78);'
-    '              font-weight:400;letter-spacing:0.01em;line-height:1.55;">'
-    '    Swin Transformer + CBAM &nbsp;·&nbsp; 92.46% F1 &nbsp;·&nbsp; '
-    '    trained on Bangladesh clinical data &nbsp;·&nbsp; 8 conditions'
+    '  <div class="stat-bar" style="margin-top:1.25rem;">'
+    '    <span class="stat-chip stat-chip-blue">Swin Transformer + CBAM</span>'
+    '    <span class="stat-chip stat-chip-green">92.46% F1</span>'
+    '    <span class="stat-chip stat-chip-teal">Bangladesh clinical data</span>'
+    '    <span class="stat-chip stat-chip-dark">8 conditions</span>'
     '  </div>'
     '</div>',
     unsafe_allow_html=True,

@@ -7,8 +7,9 @@ Call inject_css() once at app startup (top of app.py).
 import streamlit as st
 
 # ── Design tokens (imported by components.py) ────────────────────────────────
-PRIMARY       = "#1A6FA8"   # medical trust blue
-TEAL          = "#0D9E75"   # health accent teal
+# Aligned with the CSS :root palette below (vibrant-clinical refresh).
+PRIMARY       = "#1668A4"   # medical trust sapphire
+TEAL          = "#10B981"   # health accent emerald
 ALERT_RED     = "#C0392B"   # Tier 3 urgent
 AMBER         = "#E67E22"   # Tier 2 warning
 SUCCESS       = "#27AE60"   # Tier 1 success
@@ -44,14 +45,24 @@ def inject_css() -> None:
 /* ─── CSS Custom Properties — premium clinical SaaS palette ────────────────── */
 :root {
   --c-primary:  #1668A4;          /* brighter medical sapphire */
-  --c-primary-2:#2E86C1;          /* livelier sapphire hover */
+  --c-primary-2:#2E9BE0;          /* livelier sapphire hover */
   --c-primary-3:#0E4F7A;          /* deeper sapphire press */
   --c-accent:   #10B981;          /* emerald — health/success */
   --c-accent-2: #059669;          /* deeper emerald */
-  --c-accent-bright: #14C98C;     /* brighter emerald for hover */
-  --c-violet:   #6366F1;          /* indigo accent for AI moments */
-  --c-coral:    #FB7185;          /* warm coral highlight */
+  --c-accent-bright: #10C98C;     /* brighter emerald for hover */
+  --c-violet:   #7C5CFF;          /* vivid violet accent for AI moments */
+  --c-cyan:     #06B6D4;          /* energetic cyan accent */
+  --c-coral:    #FB6A8A;          /* warm coral/rose highlight */
   --c-teal:     #10B981;          /* legacy alias */
+
+  /* Per-tab accent hues (cool → warm, cohesive) */
+  --c-tab1: #1668A4;  /* Diagnosis — sapphire */
+  --c-tab2: #7C5CFF;  /* Ask AI — violet */
+  --c-tab3: #10C98C;  /* Referral — emerald */
+  --c-tab4: #06B6D4;  /* Disease Insights — cyan */
+  --c-tab5: #00B4B4;  /* DocTime — teal */
+  --c-tab6: #F59E0B;  /* Phase 2 — amber */
+  --c-tab7: #FB6A8A;  /* Impact & Ethics — rose */
   --c-red:      #DC2626;
   --c-amber:    #F59E0B;
   --c-green:    #10B981;
@@ -64,13 +75,14 @@ def inject_css() -> None:
   --c-t2:       #475569;
   --c-t3:       #94A3B8;
   --r-card:     16px;
-  --grad-primary: linear-gradient(135deg, #1668A4 0%, #2E86C1 55%, #10B981 100%);
+  --grad-primary: linear-gradient(135deg, #1668A4 0%, #2E9BE0 48%, #10C98C 100%);
   --grad-primary-solid: linear-gradient(135deg, #1668A4 0%, #0E4F7A 100%);
-  --grad-accent:  linear-gradient(135deg, #14C98C 0%, #10B981 50%, #059669 100%);
-  --grad-accent-bright: linear-gradient(135deg, #34D9A2 0%, #14C98C 50%, #10B981 100%);
+  --grad-accent:  linear-gradient(135deg, #10C98C 0%, #10B981 50%, #059669 100%);
+  --grad-accent-bright: linear-gradient(135deg, #34D9A2 0%, #10C98C 50%, #10B981 100%);
+  --grad-violet:  linear-gradient(135deg, #7C5CFF 0%, #6366F1 100%);
   --grad-hero:    linear-gradient(120deg, #0A1F33 0%, #0E4F7A 45%, #047857 100%);
   --grad-hero-v2: linear-gradient(120deg, #061629 0%, #0E4F7A 35%, #1668A4 65%, #047857 100%);
-  --grad-coral:   linear-gradient(135deg, #FB7185 0%, #F43F5E 100%);
+  --grad-coral:   linear-gradient(135deg, #FB6A8A 0%, #F43F5E 100%);
   --shadow-xs:    0 1px 2px rgba(15,23,42,0.05);
   --shadow:       0 1px 3px rgba(15,23,42,0.06), 0 1px 2px rgba(15,23,42,0.04);
   --shadow-md:    0 6px 18px rgba(15,23,42,0.07), 0 2px 4px rgba(15,23,42,0.04);
@@ -157,16 +169,22 @@ section[data-testid="stMain"] .block-container,
   padding-left: 2.6rem !important;
   padding-right: 2.6rem !important;
   background:
-    /* faint mint aurora top-left */
-    radial-gradient(ellipse 70% 60% at 0% 0%,
-      rgba(20,201,140,0.08) 0%, transparent 60%),
-    /* faint sapphire aurora bottom-right */
-    radial-gradient(ellipse 70% 60% at 100% 100%,
-      rgba(22,104,164,0.06) 0%, transparent 60%),
-    /* mint-tinted base */
+    /* emerald aurora — top-left */
+    radial-gradient(ellipse 72% 55% at 0% 0%,
+      rgba(20,201,140,0.18) 0%, transparent 58%),
+    /* violet aurora — top-right */
+    radial-gradient(ellipse 70% 52% at 100% 0%,
+      rgba(124,92,255,0.13) 0%, transparent 56%),
+    /* sapphire aurora — bottom-right */
+    radial-gradient(ellipse 78% 58% at 100% 100%,
+      rgba(22,104,164,0.16) 0%, transparent 60%),
+    /* cyan aurora — bottom-left */
+    radial-gradient(ellipse 70% 50% at 0% 100%,
+      rgba(6,182,212,0.13) 0%, transparent 60%),
+    /* soft tinted base (kept light for text contrast) */
     linear-gradient(180deg,
-      rgba(244,251,247,0.985) 0%,
-      rgba(237,247,242,0.975) 100%) !important;
+      rgba(247,252,250,0.96) 0%,
+      rgba(238,246,251,0.95) 100%) !important;
   backdrop-filter: blur(18px) saturate(150%);
   -webkit-backdrop-filter: blur(18px) saturate(150%);
   border-radius: 24px !important;
@@ -392,6 +410,97 @@ section[data-testid="stSidebar"] [data-testid="stExpander"] summary {
 }
 .stTabs [data-baseweb="tab-panel"] { padding-top: 1.6rem; }
 
+/* ─── Per-tab professional line icons + accent colors ───────────────────────────
+   Crisp monochrome SVG line icons injected via CSS mask, tinted per tab.
+   No emoji; the tab labels in app.py stay clean bilingual text.            */
+.stTabs [data-baseweb="tab-list"] button[data-baseweb="tab"]::before {
+  content: "";
+  display: inline-block;
+  width: 16px; height: 16px;
+  margin-right: 0.5rem;
+  vertical-align: -3px;
+  background-color: var(--c-primary);
+  -webkit-mask-size: contain; mask-size: contain;
+  -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
+  -webkit-mask-position: center; mask-position: center;
+  opacity: 0.85;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+/* Tab 1 — Diagnosis (activity / ECG pulse) */
+.stTabs [data-baseweb="tab-list"] button:nth-of-type(1)::before {
+  background-color: var(--c-tab1);
+  -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M22 12h-4l-3 9L9 3l-3 9H2'/></svg>");
+  mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M22 12h-4l-3 9L9 3l-3 9H2'/></svg>");
+}
+/* Tab 2 — Ask AI (chat) */
+.stTabs [data-baseweb="tab-list"] button:nth-of-type(2)::before {
+  background-color: var(--c-tab2);
+  -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z'/></svg>");
+  mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z'/></svg>");
+}
+/* Tab 3 — Referral (document) */
+.stTabs [data-baseweb="tab-list"] button:nth-of-type(3)::before {
+  background-color: var(--c-tab3);
+  -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z'/><path d='M14 2v5h5'/><path d='M16 13H8'/><path d='M16 17H8'/><path d='M10 9H8'/></svg>");
+  mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z'/><path d='M14 2v5h5'/><path d='M16 13H8'/><path d='M16 17H8'/><path d='M10 9H8'/></svg>");
+}
+/* Tab 4 — Disease Insights (map pin) */
+.stTabs [data-baseweb="tab-list"] button:nth-of-type(4)::before {
+  background-color: var(--c-tab4);
+  -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0'/><circle cx='12' cy='10' r='3'/></svg>");
+  mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0'/><circle cx='12' cy='10' r='3'/></svg>");
+}
+/* Tab 5 — DocTime (stethoscope) */
+.stTabs [data-baseweb="tab-list"] button:nth-of-type(5)::before {
+  background-color: var(--c-tab5);
+  -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M11 2v2'/><path d='M5 2v2'/><path d='M5 3H4a2 2 0 0 0-2 2v4a6 6 0 0 0 12 0V5a2 2 0 0 0-2-2h-1'/><path d='M8 15a6 6 0 0 0 12 0v-3'/><circle cx='20' cy='10' r='2'/></svg>");
+  mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M11 2v2'/><path d='M5 2v2'/><path d='M5 3H4a2 2 0 0 0-2 2v4a6 6 0 0 0 12 0V5a2 2 0 0 0-2-2h-1'/><path d='M8 15a6 6 0 0 0 12 0v-3'/><circle cx='20' cy='10' r='2'/></svg>");
+}
+/* Tab 6 — Phase 2 Network (share / nodes) */
+.stTabs [data-baseweb="tab-list"] button:nth-of-type(6)::before {
+  background-color: var(--c-tab6);
+  -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='18' cy='5' r='3'/><circle cx='6' cy='12' r='3'/><circle cx='18' cy='19' r='3'/><line x1='8.59' x2='15.42' y1='13.51' y2='17.49'/><line x1='15.41' x2='8.59' y1='6.51' y2='10.49'/></svg>");
+  mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='18' cy='5' r='3'/><circle cx='6' cy='12' r='3'/><circle cx='18' cy='19' r='3'/><line x1='8.59' x2='15.42' y1='13.51' y2='17.49'/><line x1='15.41' x2='8.59' y1='6.51' y2='10.49'/></svg>");
+}
+/* Tab 7 — Impact & Ethics (target) */
+.stTabs [data-baseweb="tab-list"] button:nth-of-type(7)::before {
+  background-color: var(--c-tab7);
+  -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='10'/><circle cx='12' cy='12' r='6'/><circle cx='12' cy='12' r='2'/></svg>");
+  mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='10'/><circle cx='12' cy='12' r='6'/><circle cx='12' cy='12' r='2'/></svg>");
+}
+/* Icon comes alive on hover / active */
+.stTabs [data-baseweb="tab-list"] button[data-baseweb="tab"]:hover::before,
+.stTabs [data-baseweb="tab-list"] button[data-baseweb="tab"][aria-selected="true"]::before {
+  opacity: 1;
+  transform: scale(1.12);
+}
+/* Per-tab hover text colour + active underline colour */
+.stTabs [data-baseweb="tab-list"] button:nth-of-type(1):hover:not([aria-selected="true"]) { color: var(--c-tab1) !important; }
+.stTabs [data-baseweb="tab-list"] button:nth-of-type(2):hover:not([aria-selected="true"]) { color: var(--c-tab2) !important; }
+.stTabs [data-baseweb="tab-list"] button:nth-of-type(3):hover:not([aria-selected="true"]) { color: var(--c-tab3) !important; }
+.stTabs [data-baseweb="tab-list"] button:nth-of-type(4):hover:not([aria-selected="true"]) { color: var(--c-tab4) !important; }
+.stTabs [data-baseweb="tab-list"] button:nth-of-type(5):hover:not([aria-selected="true"]) { color: var(--c-tab5) !important; }
+.stTabs [data-baseweb="tab-list"] button:nth-of-type(6):hover:not([aria-selected="true"]) { color: var(--c-tab6) !important; }
+.stTabs [data-baseweb="tab-list"] button:nth-of-type(7):hover:not([aria-selected="true"]) { color: var(--c-tab7) !important; }
+.stTabs [data-baseweb="tab-list"] button:nth-of-type(1)[aria-selected="true"] { color: var(--c-tab1) !important; }
+.stTabs [data-baseweb="tab-list"] button:nth-of-type(2)[aria-selected="true"] { color: var(--c-tab2) !important; }
+.stTabs [data-baseweb="tab-list"] button:nth-of-type(3)[aria-selected="true"] { color: var(--c-tab3) !important; }
+.stTabs [data-baseweb="tab-list"] button:nth-of-type(4)[aria-selected="true"] { color: var(--c-tab4) !important; }
+.stTabs [data-baseweb="tab-list"] button:nth-of-type(5)[aria-selected="true"] { color: var(--c-tab5) !important; }
+.stTabs [data-baseweb="tab-list"] button:nth-of-type(6)[aria-selected="true"] { color: var(--c-tab6) !important; }
+.stTabs [data-baseweb="tab-list"] button:nth-of-type(7)[aria-selected="true"] { color: var(--c-tab7) !important; }
+.stTabs [data-baseweb="tab-list"] button:nth-of-type(1)[aria-selected="true"]::after { background: var(--c-tab1) !important; }
+.stTabs [data-baseweb="tab-list"] button:nth-of-type(2)[aria-selected="true"]::after { background: var(--c-tab2) !important; }
+.stTabs [data-baseweb="tab-list"] button:nth-of-type(3)[aria-selected="true"]::after { background: var(--c-tab3) !important; }
+.stTabs [data-baseweb="tab-list"] button:nth-of-type(4)[aria-selected="true"]::after { background: var(--c-tab4) !important; }
+.stTabs [data-baseweb="tab-list"] button:nth-of-type(5)[aria-selected="true"]::after { background: var(--c-tab5) !important; }
+.stTabs [data-baseweb="tab-list"] button:nth-of-type(6)[aria-selected="true"]::after { background: var(--c-tab6) !important; }
+.stTabs [data-baseweb="tab-list"] button:nth-of-type(7)[aria-selected="true"]::after { background: var(--c-tab7) !important; }
+/* Nested sub-tabs (Tab 7 Impact & Ethics) must NOT inherit the icon mask */
+.stTabs [data-baseweb="tab-panel"] .stTabs [data-baseweb="tab-list"] button[data-baseweb="tab"]::before {
+  content: none !important;
+}
+
 /* ─── Hero banner — editorial mesh with depth ──────────────────────────────── */
 .hero-banner {
   background:
@@ -472,8 +581,8 @@ section[data-testid="stSidebar"] [data-testid="stExpander"] summary {
   margin-bottom: 1.9rem;
 }
 .hero-step {
-  background: linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.04));
-  border: 1px solid rgba(255,255,255,0.13);
+  background: linear-gradient(180deg, rgba(56,148,222,0.22), rgba(16,185,129,0.10));
+  border: 1px solid rgba(56,148,222,0.32);
   border-radius: 10px;
   padding: 0.55rem 1.25rem;
   min-width: 118px;
@@ -1245,7 +1354,12 @@ section[data-testid="stSidebar"] [data-testid="stExpander"] summary {
   gap: 0.85rem;
   margin: -0.4rem 0 0.2rem 0;
   padding-bottom: 0.8rem;
-  border-bottom: 1px solid var(--c-border-2);
+  border-bottom: 2px solid transparent;
+  border-image: linear-gradient(90deg,
+    rgba(22,104,164,0.55) 0%,
+    rgba(16,185,129,0.40) 42%,
+    rgba(124,92,255,0.18) 70%,
+    transparent 95%) 1;
 }
 .dx-step-badge {
   flex-shrink: 0;
@@ -1339,8 +1453,11 @@ section[data-testid="stSidebar"] [data-testid="stExpander"] summary {
 
 /* Empty-state upload prompt — refined clinical card */
 .dx-upload-empty {
-  background: var(--c-bg-2);
-  border: 1.5px dashed var(--c-border);
+  background:
+    radial-gradient(ellipse 70% 65% at 50% 0%, rgba(16,185,129,0.12), transparent 62%),
+    radial-gradient(ellipse 80% 70% at 50% 100%, rgba(22,104,164,0.10), transparent 65%),
+    linear-gradient(180deg, #F3FBF8 0%, #F2F8FF 100%);
+  border: 1.5px dashed rgba(22,104,164,0.38);
   border-radius: 14px;
   padding: 2.6rem 1.5rem;
   text-align: center;
@@ -1350,11 +1467,12 @@ section[data-testid="stSidebar"] [data-testid="stExpander"] summary {
   width: 54px; height: 54px;
   margin: 0 auto 0.7rem auto;
   border-radius: 12px;
-  background: #FFFFFF;
-  border: 1px solid var(--c-border);
+  background: var(--grad-primary);
+  border: 1px solid rgba(11,79,108,0.30);
+  color: #FFFFFF;
   display: flex; align-items: center; justify-content: center;
   font-size: 1.6rem;
-  box-shadow: var(--shadow);
+  box-shadow: 0 6px 16px rgba(22,104,164,0.30), 0 1px 0 rgba(255,255,255,0.25) inset;
 }
 .dx-upload-empty-title {
   font-size: 0.94rem; font-weight: 600; color: #334155;
@@ -1871,9 +1989,10 @@ section[data-testid="stSidebar"] [data-testid="stExpander"] summary {
 /* Empty-state referral progress card */
 .referral-empty {
   background:
-    radial-gradient(ellipse 60% 40% at 50% 0%, rgba(22,104,164,0.05), transparent 70%),
-    linear-gradient(180deg, #FFFFFF 0%, #F8FAFC 100%) !important;
-  border: 1.5px dashed rgba(22,104,164,0.30) !important;
+    radial-gradient(ellipse 65% 50% at 50% 0%, rgba(22,104,164,0.12), transparent 68%),
+    radial-gradient(ellipse 80% 60% at 50% 100%, rgba(16,185,129,0.10), transparent 65%),
+    linear-gradient(180deg, #F4FAFF 0%, #F2FBF7 100%) !important;
+  border: 1.5px dashed rgba(22,104,164,0.38) !important;
   border-radius: 16px !important;
   padding: 2.4rem 2rem !important;
   box-shadow: var(--shadow-md) !important;
@@ -2127,10 +2246,18 @@ iframe[title="streamlit_folium.st_folium"],
   .hero-banner,
   .stTabs [data-baseweb="tab"],
   .stButton > button,
-  .stDownloadButton > button {
+  .stDownloadButton > button,
+  .sk-card:has(.disease-name-en),
+  .conf-bar-fill,
+  .conf-bar-fill-v2,
+  .conf-value-mono,
+  .tier-banner,
+  .tier-banner-3 {
     animation: none !important;
     transition: none !important;
   }
+  /* Ensure confidence bars still show their final width when motion is off */
+  .conf-bar-fill, .conf-bar-fill-v2 { animation: none !important; }
 }
 
 /* Global focus-visible ring — accessibility + premium polish */
@@ -2504,6 +2631,100 @@ html { scroll-behavior: smooth; }
   font-size: 0.74rem !important;
   color: #64748B !important;
   font-style: italic;
+}
+
+/* ─── Mobile ─────────────────────────────────────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════════════════════════
+   VIBRANT-CLINICAL REFRESH — result cards, reveal animations, richer hover
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* (c) Disease result card — vibrant tinted surface. Targets ONLY the disease
+   card via :has(), so generic .sk-card surfaces stay clean. */
+.sk-card:has(.disease-name-en) {
+  background:
+    radial-gradient(ellipse 80% 60% at 0% 0%, rgba(22,104,164,0.07), transparent 60%),
+    linear-gradient(180deg, #FFFFFF 0%, #F6FBFF 100%) !important;
+  border-left: 5px solid transparent !important;
+  border-image: var(--grad-primary) 1 !important;
+  box-shadow:
+    0 1px 0 rgba(255,255,255,1) inset,
+    0 8px 24px rgba(22,104,164,0.10),
+    0 2px 6px rgba(15,23,42,0.05) !important;
+  animation: sk-result-reveal 0.5s cubic-bezier(0.22,1,0.36,1) both;
+  transition: transform 0.16s ease, box-shadow 0.2s ease;
+}
+.sk-card:has(.disease-name-en):hover {
+  transform: translateY(-2px) !important;
+  box-shadow:
+    0 1px 0 rgba(255,255,255,1) inset,
+    0 16px 36px rgba(22,104,164,0.16),
+    0 3px 10px rgba(16,185,129,0.12) !important;
+}
+.sk-card:has(.disease-name-en) .disease-name-en {
+  background: linear-gradient(135deg, #0B1424 0%, #1668A4 70%, #0E4F7A 100%);
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* (d) Animated result reveal — confidence bar grows from 0, card + banner land staged */
+@keyframes sk-result-reveal {
+  from { opacity: 0; transform: translateY(10px) scale(0.985); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes conf-fill { from { width: 0; } }
+.conf-bar-fill, .conf-bar-fill-v2 {
+  animation: conf-fill 0.9s cubic-bezier(0.22,1,0.36,1) both;
+}
+.conf-value-mono {
+  display: inline-block;
+  animation: sk-result-reveal 0.6s ease-out both;
+  animation-delay: 0.15s;
+}
+.tier-banner {
+  animation: sk-result-reveal 0.55s cubic-bezier(0.22,1,0.36,1) both;
+  animation-delay: 0.12s;
+}
+.tier-banner:hover { transform: translateY(-2px) !important; }
+/* tier-3 keeps its urgent pulse, layered after the reveal */
+.tier-banner-3 {
+  animation:
+    sk-result-reveal 0.55s cubic-bezier(0.22,1,0.36,1) both,
+    pulse-urgent 2s ease-in-out infinite 0.55s;
+}
+/* Deepen tier fills so they read vivid rather than pale */
+.tier-banner-0 { background: linear-gradient(135deg, #E1FBEE 0%, #EEFDF4 100%); }
+.tier-banner-1 { background: linear-gradient(135deg, #E9FBF0 0%, #F4FCF7 100%); }
+.tier-banner-2 { background: linear-gradient(135deg, #FFF4E2 0%, #FEF9F0 100%); }
+.tier-banner-3 { background: linear-gradient(135deg, #FDE7E4 0%, #FDF1F0 100%); }
+
+/* (e) Richer hover/lift on cards that previously had none */
+.hospital-card, .history-chip, .differential-pill, .info-source-pill, .dx-upload-empty {
+  transition: transform 0.16s ease, box-shadow 0.2s ease, border-color 0.18s ease;
+}
+.hospital-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(22,104,164,0.35) !important;
+  box-shadow: 0 10px 24px rgba(22,104,164,0.12), 0 2px 6px rgba(15,23,42,0.05);
+}
+.history-chip:hover {
+  transform: translateY(-1px);
+  border-color: rgba(22,104,164,0.30) !important;
+  box-shadow: 0 6px 14px rgba(22,104,164,0.10);
+}
+.differential-pill:hover, .info-source-pill:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(22,104,164,0.18);
+}
+.dx-upload-empty:hover {
+  border-color: rgba(22,104,164,0.40) !important;
+  box-shadow: 0 10px 26px rgba(22,104,164,0.08);
+}
+
+/* (g) Frame the mic-recorder component container (inner button lives in an
+   iframe and can't be reached; we make the surrounding area look intentional). */
+[data-testid="stCustomComponentV1"] {
+  border-radius: 14px !important;
+  overflow: hidden;
 }
 
 /* ─── Mobile ─────────────────────────────────────────────────────────────────── */
