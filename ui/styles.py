@@ -170,21 +170,24 @@ section[data-testid="stMain"] .block-container,
   padding-right: 2.6rem !important;
   background:
     /* emerald aurora — top-left */
-    radial-gradient(ellipse 72% 55% at 0% 0%,
-      rgba(20,201,140,0.18) 0%, transparent 58%),
+    radial-gradient(ellipse 75% 62% at 0% 0%,
+      rgba(16,185,129,0.30) 0%, transparent 55%),
     /* violet aurora — top-right */
-    radial-gradient(ellipse 70% 52% at 100% 0%,
-      rgba(124,92,255,0.13) 0%, transparent 56%),
+    radial-gradient(ellipse 72% 56% at 100% 0%,
+      rgba(124,92,255,0.24) 0%, transparent 55%),
     /* sapphire aurora — bottom-right */
-    radial-gradient(ellipse 78% 58% at 100% 100%,
-      rgba(22,104,164,0.16) 0%, transparent 60%),
+    radial-gradient(ellipse 82% 64% at 100% 100%,
+      rgba(22,104,164,0.30) 0%, transparent 58%),
     /* cyan aurora — bottom-left */
-    radial-gradient(ellipse 70% 50% at 0% 100%,
-      rgba(6,182,212,0.13) 0%, transparent 60%),
-    /* soft tinted base (kept light for text contrast) */
+    radial-gradient(ellipse 74% 56% at 0% 100%,
+      rgba(6,182,212,0.26) 0%, transparent 58%),
+    /* amber whisper — center for warmth */
+    radial-gradient(ellipse 50% 40% at 50% 45%,
+      rgba(245,158,11,0.07) 0%, transparent 70%),
+    /* soft tinted base (kept light enough for text contrast) */
     linear-gradient(180deg,
-      rgba(247,252,250,0.96) 0%,
-      rgba(238,246,251,0.95) 100%) !important;
+      rgba(248,252,251,0.88) 0%,
+      rgba(240,247,252,0.86) 100%) !important;
   backdrop-filter: blur(18px) saturate(150%);
   -webkit-backdrop-filter: blur(18px) saturate(150%);
   border-radius: 24px !important;
@@ -1352,14 +1355,16 @@ section[data-testid="stSidebar"] [data-testid="stExpander"] summary {
   display: flex;
   align-items: center;
   gap: 0.85rem;
-  margin: -0.4rem 0 0.2rem 0;
-  padding-bottom: 0.8rem;
-  border-bottom: 2px solid transparent;
-  border-image: linear-gradient(90deg,
-    rgba(22,104,164,0.55) 0%,
-    rgba(16,185,129,0.40) 42%,
-    rgba(124,92,255,0.18) 70%,
-    transparent 95%) 1;
+  margin: -0.2rem 0 0.6rem 0;
+  padding: 0.65rem 0.9rem;
+  border-radius: 12px;
+  background: linear-gradient(90deg,
+    rgba(22,104,164,0.13) 0%,
+    rgba(16,185,129,0.08) 55%,
+    rgba(124,92,255,0.05) 100%);
+  border: 1px solid rgba(22,104,164,0.16);
+  border-left: 4px solid var(--c-primary);
+  box-shadow: 0 2px 8px rgba(22,104,164,0.06);
 }
 .dx-step-badge {
   flex-shrink: 0;
@@ -2725,6 +2730,45 @@ html { scroll-behavior: smooth; }
 [data-testid="stCustomComponentV1"] {
   border-radius: 14px !important;
   overflow: hidden;
+}
+
+/* (h) Vivid tier-coloured Quick-Start demo buttons (semantic: green/amber/red/teal) */
+[data-testid="stExpander"] [data-testid="stHorizontalBlock"] > [data-testid="column"]:nth-of-type(1) .stButton > button,
+[data-testid="stExpander"] [data-testid="stHorizontalBlock"] > [data-testid="column"]:nth-of-type(2) .stButton > button,
+[data-testid="stExpander"] [data-testid="stHorizontalBlock"] > [data-testid="column"]:nth-of-type(3) .stButton > button,
+[data-testid="stExpander"] [data-testid="stHorizontalBlock"] > [data-testid="column"]:nth-of-type(4) .stButton > button {
+  color: #FFFFFF !important;
+  border: 1px solid rgba(255,255,255,0.30) !important;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.18);
+}
+[data-testid="stExpander"] [data-testid="stHorizontalBlock"] > [data-testid="column"]:nth-of-type(1) .stButton > button { background: linear-gradient(135deg,#2ECC71 0%,#1E8449 100%) !important; box-shadow: 0 6px 16px rgba(39,174,96,0.35) !important; }
+[data-testid="stExpander"] [data-testid="stHorizontalBlock"] > [data-testid="column"]:nth-of-type(2) .stButton > button { background: linear-gradient(135deg,#F8B43C 0%,#D97706 100%) !important; box-shadow: 0 6px 16px rgba(245,158,11,0.35) !important; }
+[data-testid="stExpander"] [data-testid="stHorizontalBlock"] > [data-testid="column"]:nth-of-type(3) .stButton > button { background: linear-gradient(135deg,#F2675A 0%,#C0392B 100%) !important; box-shadow: 0 6px 16px rgba(220,38,38,0.35) !important; }
+[data-testid="stExpander"] [data-testid="stHorizontalBlock"] > [data-testid="column"]:nth-of-type(4) .stButton > button { background: linear-gradient(135deg,#14C98C 0%,#059669 100%) !important; box-shadow: 0 6px 16px rgba(16,185,129,0.35) !important; }
+/* hide the now-redundant left accent stripe on the coloured demo buttons */
+[data-testid="stExpander"] [data-testid="stHorizontalBlock"] > [data-testid="column"] .stButton > button::before { opacity: 0 !important; }
+[data-testid="stExpander"] [data-testid="stHorizontalBlock"] > [data-testid="column"] .stButton > button:hover {
+  filter: brightness(1.06);
+  transform: translateY(-3px);
+}
+
+/* (i) Tinted form controls so the input area isn't a white void */
+[data-baseweb="select"] > div {
+  background: linear-gradient(180deg, #F2F8FE 0%, #E9F3FC 100%) !important;
+}
+.stTextInput input, .stTextArea textarea, .stNumberInput input {
+  background: linear-gradient(180deg, #F8FBFF 0%, #F2F7FD 100%) !important;
+}
+.stTextInput input:focus, .stTextArea textarea:focus, .stNumberInput input:focus {
+  background: #FFFFFF !important;
+}
+
+/* (j) Colour-tint expander summary bars (Quick Start = amber, rest = sapphire→emerald) */
+[data-testid="stExpander"] summary {
+  background: linear-gradient(90deg, rgba(22,104,164,0.07) 0%, rgba(16,185,129,0.04) 60%, transparent 100%) !important;
+}
+[data-testid="stExpander"]:first-of-type summary {
+  background: linear-gradient(90deg, rgba(245,158,11,0.14) 0%, rgba(251,191,36,0.06) 60%, transparent 100%) !important;
 }
 
 /* ─── Mobile ─────────────────────────────────────────────────────────────────── */
