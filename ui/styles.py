@@ -1630,10 +1630,10 @@ section[data-testid="stSidebar"] [data-testid="stExpander"] summary {
 }
 [data-testid="stExpander"]:first-of-type {
   background:
-    linear-gradient(180deg, #FFFDF7 0%, #FFFFFF 100%) !important;
+    linear-gradient(180deg, #F5F9FE 0%, #FFFFFF 100%) !important;
 }
 [data-testid="stExpander"]:first-of-type summary::before {
-  background: linear-gradient(180deg, #FBBF24 0%, #F59E0B 100%);
+  background: var(--grad-primary);
 }
 [data-testid="stExpander"][open] {
   border-color: rgba(22,104,164,0.40) !important;
@@ -2763,12 +2763,12 @@ html { scroll-behavior: smooth; }
   background: #FFFFFF !important;
 }
 
-/* (j) Colour-tint expander summary bars (Quick Start = amber, rest = sapphire→emerald) */
+/* (j) Colour-tint expander summary bars — clean professional sapphire→emerald */
 [data-testid="stExpander"] summary {
   background: linear-gradient(90deg, rgba(22,104,164,0.07) 0%, rgba(16,185,129,0.04) 60%, transparent 100%) !important;
 }
 [data-testid="stExpander"]:first-of-type summary {
-  background: linear-gradient(90deg, rgba(245,158,11,0.14) 0%, rgba(251,191,36,0.06) 60%, transparent 100%) !important;
+  background: linear-gradient(90deg, rgba(22,104,164,0.12) 0%, rgba(46,155,224,0.05) 60%, transparent 100%) !important;
 }
 
 /* ─── Mobile ─────────────────────────────────────────────────────────────────── */
