@@ -68,7 +68,13 @@ def inject_css() -> None:
   --c-green:    #10B981;
   --c-bg:       #EEF2F7;          /* cooler slate canvas */
   --c-bg-2:     #F6F8FB;
-  --c-card:     #FFFFFF;
+  /* Soft tinted surfaces — replace flat white so nothing reads as stark
+     white. Barely-there sapphire→mint tint; high enough luminance to keep
+     text contrast ≥ AA. */
+  --c-surface:  #F6FAFB;          /* default sub-surface (was #FFFFFF) */
+  --c-surface-2:#EFF6F8;          /* companion gradient stop */
+  --grad-surface: linear-gradient(180deg, #FAFDFE 0%, #F1F8F7 100%);
+  --c-card:     var(--c-surface); /* repointed from #FFFFFF */
   --c-border:   #E2E8F0;
   --c-border-2: #EEF2F6;
   --c-t1:       #0B1424;          /* near-black premium ink */
@@ -184,10 +190,12 @@ section[data-testid="stMain"] .block-container,
     /* amber whisper — center for warmth */
     radial-gradient(ellipse 50% 40% at 50% 45%,
       rgba(245,158,11,0.07) 0%, transparent 70%),
-    /* soft tinted base (kept light enough for text contrast) */
-    linear-gradient(180deg,
-      rgba(248,252,251,0.88) 0%,
-      rgba(240,247,252,0.86) 100%) !important;
+    /* soft tinted base — gentle mint→sky wash (no longer flat white),
+       kept light enough for text contrast */
+    linear-gradient(155deg,
+      rgba(241,250,248,0.90) 0%,
+      rgba(235,245,250,0.88) 55%,
+      rgba(238,247,243,0.90) 100%) !important;
   backdrop-filter: blur(18px) saturate(150%);
   -webkit-backdrop-filter: blur(18px) saturate(150%);
   border-radius: 24px !important;
@@ -1203,7 +1211,7 @@ section[data-testid="stSidebar"] [data-testid="stExpander"] summary {
 [data-testid="stFileUploaderDropzone"],
 [data-testid="stFileUploadDropzone"] {
   background:
-    linear-gradient(#FFFFFF, #FFFFFF) padding-box,
+    var(--grad-surface) padding-box,
     linear-gradient(135deg, rgba(22,104,164,0.45), rgba(16,185,129,0.40)) border-box !important;
   border: 1.5px dashed transparent !important;
   border-radius: 14px !important;
@@ -1251,7 +1259,7 @@ section[data-testid="stSidebar"] [data-testid="stExpander"] summary {
   border-radius: 14px !important;
   overflow: hidden;
   background:
-    linear-gradient(#FFFFFF, #FFFFFF) padding-box,
+    var(--grad-surface) padding-box,
     linear-gradient(135deg, rgba(220,38,38,0.45), rgba(22,104,164,0.40)) border-box !important;
   border: 1.5px solid transparent !important;
   box-shadow: 0 2px 10px rgba(15,23,42,0.05);
@@ -1328,7 +1336,7 @@ section[data-testid="stSidebar"] [data-testid="stExpander"] summary {
 
 /* ─── Metric containers ──────────────────────────────────────────────────────── */
 [data-testid="metric-container"] {
-  background: white; border-radius: 12px;
+  background: var(--c-surface); border-radius: 12px;
   padding: 0.75rem 1rem; border: 1px solid var(--c-border); box-shadow: var(--shadow);
 }
 
@@ -1525,7 +1533,7 @@ section[data-testid="stSidebar"] [data-testid="stExpander"] summary {
   gap: 0.85rem;
   background:
     linear-gradient(135deg, rgba(20,201,140,0.14) 0%, rgba(22,104,164,0.07) 100%),
-    #FFFFFF;
+    var(--c-surface);
   border: 1px solid rgba(16,185,129,0.35);
   border-left: 4px solid #10B981;
   border-radius: 12px;
@@ -1584,8 +1592,7 @@ section[data-testid="stSidebar"] [data-testid="stExpander"] summary {
 [data-testid="stExpander"] {
   border: 1px solid var(--c-border) !important;
   border-radius: 14px !important;
-  background:
-    linear-gradient(180deg, #FFFFFF 0%, #FBFCFE 100%) !important;
+  background: var(--grad-surface) !important;
   box-shadow:
     0 1px 0 rgba(255,255,255,1) inset,
     0 2px 6px rgba(15,23,42,0.05),
@@ -1671,7 +1678,7 @@ section[data-testid="stSidebar"] [data-testid="stExpander"] summary {
    buttons. Targets the four demo buttons inside the Quick Start expander
    row that immediately follows the .dx-quickbar-head label.              */
 [data-testid="stExpander"] [data-testid="stHorizontalBlock"] .stButton > button {
-  background: linear-gradient(180deg, #FFFFFF 0%, #F8FBFE 100%) !important;
+  background: var(--grad-surface) !important;
   color: var(--c-t1) !important;
   border: 1px solid var(--c-border) !important;
   border-radius: 12px !important;
@@ -1732,8 +1739,7 @@ section[data-testid="stSidebar"] [data-testid="stExpander"] summary {
 
 /* ─── Selectbox / inputs — premium light theme ───────────────────────────────── */
 [data-baseweb="select"] > div {
-  background:
-    linear-gradient(180deg, #FFFFFF 0%, #FBFCFE 100%) !important;
+  background: var(--grad-surface) !important;
   border: 1.5px solid var(--c-border) !important;
   border-radius: 12px !important;
   box-shadow:
@@ -1810,7 +1816,7 @@ section[data-testid="stSidebar"] [data-testid="stExpander"] summary {
 .stTextInput input, .stTextArea textarea, .stNumberInput input {
   border-radius: 10px !important;
   border: 1px solid var(--c-border) !important;
-  background: #FFFFFF !important;
+  background: var(--c-surface) !important;
   transition: border-color 0.15s, box-shadow 0.15s;
 }
 .stTextInput input:focus, .stTextArea textarea:focus, .stNumberInput input:focus {
@@ -1827,7 +1833,7 @@ section[data-testid="stSidebar"] [data-testid="stExpander"] summary {
 .chat-outer-info {
   background:
     linear-gradient(135deg, rgba(22,104,164,0.08) 0%, rgba(16,185,129,0.06) 100%),
-    #FFFFFF !important;
+    var(--c-surface) !important;
   border: 1px solid rgba(22,104,164,0.20) !important;
   border-radius: 12px !important;
   padding: 0.7rem 1rem !important;
@@ -1901,7 +1907,7 @@ section[data-testid="stSidebar"] [data-testid="stExpander"] summary {
 /* Chat input bar — premium gradient border + visible glow */
 [data-testid="stChatInput"] {
   background:
-    linear-gradient(#FFFFFF, #FFFFFF) padding-box,
+    var(--grad-surface) padding-box,
     linear-gradient(135deg, #1668A4 0%, #10B981 50%, #6366F1 100%) border-box !important;
   border: 2px solid transparent !important;
   border-radius: 16px !important;
@@ -1942,7 +1948,7 @@ section[data-testid="stSidebar"] [data-testid="stExpander"] summary {
 /* Suggested-question pill buttons row */
 .stButton > button[kind="secondary"],
 [data-testid*="sq_"] {
-  background: #FFFFFF !important;
+  background: var(--c-surface) !important;
   color: var(--c-primary) !important;
   border: 1.5px solid rgba(22,104,164,0.35) !important;
   border-radius: 99px !important;
@@ -1964,8 +1970,7 @@ section[data-testid="stSidebar"] [data-testid="stExpander"] summary {
 
 /* Referral preview section cards — richer accent + section-number chip */
 .referral-section-card {
-  background:
-    linear-gradient(180deg, #FFFFFF 0%, #FBFCFE 100%) !important;
+  background: var(--grad-surface) !important;
   border-left: 4px solid transparent !important;
   border-image: var(--grad-primary) 1;
   border-top: 1px solid var(--c-border);
@@ -2007,7 +2012,7 @@ section[data-testid="stSidebar"] [data-testid="stExpander"] summary {
   box-shadow: var(--shadow-md) !important;
 }
 .referral-progress-row {
-  background: #FFFFFF !important;
+  background: var(--c-surface) !important;
   border: 1px solid var(--c-border) !important;
   transition: transform 0.15s ease, box-shadow 0.18s ease, border-color 0.18s ease;
 }
@@ -2071,7 +2076,7 @@ iframe[title="streamlit_folium.st_folium"],
     0 1px 0 rgba(255,255,255,1) inset,
     0 12px 32px rgba(15,23,42,0.10),
     0 2px 6px rgba(15,23,42,0.06) !important;
-  background: #FFFFFF !important;
+  background: var(--c-surface) !important;
 }
 
 /* Dataframe / table styling */
@@ -2085,8 +2090,7 @@ iframe[title="streamlit_folium.st_folium"],
 
 /* Stat / metric cards (used in insights tab) */
 [data-testid="metric-container"] {
-  background:
-    linear-gradient(180deg, #FFFFFF 0%, #F8FAFC 100%) !important;
+  background: var(--grad-surface) !important;
   border: 1px solid var(--c-border) !important;
   border-radius: 14px !important;
   padding: 1rem 1.2rem !important;
