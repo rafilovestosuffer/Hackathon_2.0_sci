@@ -52,3 +52,17 @@ Thumbs.db
 
 # Logs
 *.log
+
+# PDFs (test outputs and generated referrals — keep locally only)
+*.pdf
+
+# Internal project docs (not for submission)
+CLAUDE.md
+DECISIONS.md
+PLAN.md
+PROGRESS.md
+SESSION_PROTOCOL.md
+SUBMISSION.md
+TASK.md
+AGENTS.md
+docs/
