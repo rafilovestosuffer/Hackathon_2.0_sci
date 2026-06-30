@@ -25,7 +25,7 @@ pinned: false
 ![No login](https://img.shields.io/badge/access-no_login-success)
 ![License](https://img.shields.io/badge/use-research_/_humanitarian-green)
 
-**🏆 Infinity AI BuildFest** · also prepared for **SciBlitz AI Challenge 2026 — IEEE SB CUET**
+**🏆 Infinity AI BuildFest **
 
 [**▶ Try it**](#-try-it-in-10-seconds) · [**How it works**](#-how-it-works) · [**Deep dives**](#-under-the-hood-deep-dives) · [**Tech stack**](#-complete-tech-stack) · [**Impact**](#-business-model--impact)
 
