@@ -124,7 +124,7 @@ _ROMANIZED_BN_TRIGGERS = {
     "somporkay", "somporke", "niye", "keno", "kothay",
 }
 
-# ── Singletons ────────────────────────────────────────────────────────────────
+# --- Singletons ---
 _chunks: list[dict] = []          # raw chunks from .txt files — always populated
 _index = None                     # faiss.Index — optional
 _metadata: list[dict] | None = None
@@ -133,7 +133,7 @@ _gemini_client: genai.Client | None = None
 _idf: dict[str, float] = {}       # precomputed IDF for BM25
 
 
-# ── Keyword helpers ───────────────────────────────────────────────────────────
+# --- Keyword helpers ---
 
 def _tokenize(text: str) -> list[str]:
     return re.findall(r"[a-zঀ-৿]+", text.lower())
@@ -169,7 +169,7 @@ def _bm25_score(query_tokens: list[str], chunk_text: str, k1: float = 1.5, b: fl
     return score
 
 
-# ── Load chunks from .txt files ───────────────────────────────────────────────
+# --- Load chunks from .txt files ---
 
 def _load_chunks_from_files() -> list[dict]:
     chunks = []
@@ -201,7 +201,7 @@ def _load_chunks_from_files() -> list[dict]:
     return chunks
 
 
-# ── Optional FAISS upgrade ────────────────────────────────────────────────────
+# --- Optional FAISS upgrade ---
 
 def _try_load_faiss() -> bool:
     global _index, _metadata, _embed_model
@@ -236,7 +236,7 @@ def _try_load_faiss() -> bool:
         return False
 
 
-# ── Gemini ────────────────────────────────────────────────────────────────────
+# --- Gemini ---
 
 def _get_gemini_client() -> genai.Client:
     global _gemini_client
@@ -245,7 +245,7 @@ def _get_gemini_client() -> genai.Client:
     return _gemini_client
 
 
-# ── Public API ────────────────────────────────────────────────────────────────
+# --- Public API ---
 
 def load_index() -> bool:
     """

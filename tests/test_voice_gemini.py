@@ -30,7 +30,7 @@ def _make_client_mock(json_text: str):
     return mock_client
 
 
-# ── _empty_history & _validate_fields ────────────────────────────────────────
+# --- _empty_history & _validate_fields ---
 
 class TestHelpers:
     def test_empty_history_has_all_keys(self):
@@ -59,7 +59,7 @@ class TestHelpers:
         assert isinstance(result["patient_age"], str)
 
 
-# ── extract_patient_history ───────────────────────────────────────────────────
+# --- extract_patient_history ---
 
 class TestExtractPatientHistory:
     def test_returns_dict(self):

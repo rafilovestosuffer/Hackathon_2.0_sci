@@ -15,7 +15,7 @@ from whatsapp.router import handle_event, TextOut, PdfOut
 from whatsapp.state import State, store
 
 
-# ── Fixtures ─────────────────────────────────────────────────────────────────
+# --- Fixtures ---
 
 USER = "u_test"
 
@@ -106,7 +106,7 @@ def mock_pipeline_modules():
             }
 
 
-# ── Helper: build canonical events ────────────────────────────────────────────
+# --- Helper: build canonical events ---
 
 def text_event(body: str, mid: str = "m_auto") -> dict:
     return {"from": USER, "message_id": mid, "type": "text", "text": body,
@@ -121,7 +121,7 @@ def audio_event(mid: str = "m_aud") -> dict:
             "text": None, "media_id": "media_xyz", "mime_type": "audio/ogg"}
 
 
-# ── State transition tests ────────────────────────────────────────────────────
+# --- State transition tests ---
 
 class TestNewUserFlow:
     def test_first_message_sends_welcome(self, mock_media_dl):
@@ -223,7 +223,7 @@ class TestRagChatStage:
         mock_pipeline_modules["rag_answer"].assert_called_once()
 
 
-# ── Global commands ──────────────────────────────────────────────────────────
+# --- Global commands ---
 
 class TestGlobalCommands:
     def test_reset_command_restarts(self, mock_media_dl):
@@ -245,7 +245,7 @@ class TestGlobalCommands:
         assert store.get_or_create(USER).state == s_before
 
 
-# ── Idempotency + rate limit ─────────────────────────────────────────────────
+# --- Idempotency + rate limit ---
 
 class TestIdempotency:
     def test_duplicate_message_id_dropped(self, mock_media_dl):

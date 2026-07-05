@@ -6,7 +6,7 @@ def _result(disease, conf, transcript=""):
     return compute_tier(disease, conf, transcript)
 
 
-# ── Signal 1 base tiers ───────────────────────────────────────────────────────
+# --- Signal 1 base tiers ---
 
 class TestSignal1BaseTier:
     def test_tinea_high_conf_no_kw(self):
@@ -34,7 +34,7 @@ class TestSignal1BaseTier:
         assert r["tier"] == 2
 
 
-# ── Signal 2 confidence modifier ─────────────────────────────────────────────
+# --- Signal 2 confidence modifier ---
 
 class TestSignal2Confidence:
     def test_below_040_forces_tier3(self):
@@ -58,7 +58,7 @@ class TestSignal2Confidence:
         assert r["tier"] == 1
 
 
-# ── Signal 3 Bengali keyword modifier ────────────────────────────────────────
+# --- Signal 3 Bengali keyword modifier ---
 
 class TestSignal3Keywords:
     def test_fever_keyword_escalates(self):
@@ -90,7 +90,7 @@ class TestSignal3Keywords:
         assert r["tier"] == 3
 
 
-# ── Combined escalation ───────────────────────────────────────────────────────
+# --- Combined escalation ---
 
 class TestCombinedEscalation:
     def test_tier_never_exceeds_3(self):
@@ -98,7 +98,7 @@ class TestCombinedEscalation:
         assert r["tier"] == 3
 
 
-# ── Return dict structure ─────────────────────────────────────────────────────
+# --- Return dict structure ---
 
 class TestReturnStructure:
     def test_required_keys_present(self):
@@ -127,7 +127,7 @@ class TestReturnStructure:
             assert r["bengali_text"], "Bengali text must not be empty"
 
 
-# ── Boundary regression tests ─────────────────────────────────────────────────
+# --- Boundary regression tests ---
 
 class TestBoundaryConstants:
     def test_conf_tier3_constant_value(self):

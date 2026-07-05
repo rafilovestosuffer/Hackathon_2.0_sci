@@ -68,7 +68,7 @@ def verify_subscribe_challenge(
     return None
 
 
-# ── Outbound API ──────────────────────────────────────────────────────────────
+# --- Outbound API ---
 
 def send_text(to: str, body: str) -> dict:
     """Send a plain text message. `to` = E.164 phone number without +."""
@@ -135,7 +135,7 @@ def download_media(media_id: str) -> bytes:
         return r2.content
 
 
-# ── Webhook payload parsing ───────────────────────────────────────────────────
+# --- Webhook payload parsing ---
 
 def parse_incoming(payload: dict) -> list[dict]:
     """

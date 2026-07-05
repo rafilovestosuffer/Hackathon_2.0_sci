@@ -1,6 +1,5 @@
-# UI OVERHAUL — 2026-05-20
 """
-ui/components.py — Championship-grade reusable widgets for SkinAI Bangladesh.
+ui/components.py — reusable Streamlit widgets for SkinAI Bangladesh.
 All functions are standalone; call from app.py after inject_css().
 """
 
@@ -18,7 +17,7 @@ from ui.styles import (
     BORDER_COLOR,
 )
 
-# ── Tier config ───────────────────────────────────────────────────────────────
+# --- Tier config ---
 _TIER_CONFIG = {
     0: {"badge_class": "badge-tier1", "icon": "💚", "label": "HEALTHY",     "label_bn": "সুস্থ"},
     1: {"badge_class": "badge-tier1", "icon": "🟢", "label": "NON-URGENT",  "label_bn": "জরুরি নয়"},
@@ -44,10 +43,6 @@ _HISTORY_LABELS = {
     "patient_age":          ("Patient Age",          "রোগীর বয়স"),
 }
 
-
-# ══════════════════════════════════════════════════════════════════════════════
-# NEW COMPONENTS
-# ══════════════════════════════════════════════════════════════════════════════
 
 def render_sidebar_pipeline(
     voice_done: bool,
@@ -339,10 +334,6 @@ def render_referral_preview(pred: dict, tier_result: dict, history: dict) -> Non
     )
 
 
-# ══════════════════════════════════════════════════════════════════════════════
-# EXISTING COMPONENTS (kept + lightly upgraded)
-# ══════════════════════════════════════════════════════════════════════════════
-
 def render_triage_badge(tier_result: dict) -> None:
     """Legacy badge — kept for backward compat. Prefer render_tier_banner."""
     tier = tier_result.get("tier", 2)
@@ -545,9 +536,7 @@ def render_referral_download_button(pdf_bytes, key: str = "dl_referral_btn") -> 
         )
 
 
-# ══════════════════════════════════════════════════════════════════════════════
-# F2 — Treatment Cost Estimate
-# ══════════════════════════════════════════════════════════════════════════════
+# --- Treatment cost estimate ---
 
 def render_cost_estimate(tier: int) -> None:
     """Teal card showing estimated treatment cost in Taka for the given tier."""
@@ -572,9 +561,7 @@ def render_cost_estimate(tier: int) -> None:
     )
 
 
-# ══════════════════════════════════════════════════════════════════════════════
-# F7 — "Without SkinAI vs. With SkinAI" Impact Comparison
-# ══════════════════════════════════════════════════════════════════════════════
+# --- "Without vs. with SkinAI" comparison ---
 
 def render_impact_comparison() -> None:
     """Two-column before/after impact panel — goes in sidebar or Tab 1."""
@@ -614,9 +601,7 @@ def render_impact_comparison() -> None:
     )
 
 
-# ══════════════════════════════════════════════════════════════════════════════
-# F1 — Bengali TTS (gTTS) for triage result readout
-# ══════════════════════════════════════════════════════════════════════════════
+# --- Bengali TTS readout (gTTS) ---
 
 def render_audio_triage(tier_action_bn: str) -> None:
     """
@@ -642,9 +627,7 @@ def render_audio_triage(tier_action_bn: str) -> None:
         pass  # TTS is enhancement-only; silent failure is fine
 
 
-# ══════════════════════════════════════════════════════════════════════════════
-# F5 — Automatic Image Enhancement (CLAHE + unsharp mask)
-# ══════════════════════════════════════════════════════════════════════════════
+# --- Automatic image enhancement (CLAHE + unsharp mask) ---
 
 def enhance_skin_image(pil_img):
     """
@@ -684,9 +667,7 @@ def enhance_skin_image(pil_img):
         return pil_img, False
 
 
-# ══════════════════════════════════════════════════════════════════════════════
-# F6 — Symptom Duration Timeline
-# ══════════════════════════════════════════════════════════════════════════════
+# --- Symptom duration timeline ---
 
 _BN_NUMBERS = {
     "এক": 1, "দুই": 2, "তিন": 3, "চার": 4, "পাঁচ": 5,
@@ -806,9 +787,7 @@ def render_symptom_timeline(duration_str: str, tier: int) -> None:
     )
 
 
-# ══════════════════════════════════════════════════════════════════════════════
-# F3 — CHW (Community Health Worker) Simplified Result Card
-# ══════════════════════════════════════════════════════════════════════════════
+# --- CHW (Community Health Worker) simplified result card ---
 
 def render_chw_result(pred: dict, tier_result: dict) -> None:
     """
@@ -860,11 +839,8 @@ def render_chw_result(pred: dict, tier_result: dict) -> None:
     )
 
 
-# ══════════════════════════════════════════════════════════════════════════════
-# INFINITY AI BUILDFEST — Tab 6 helpers (additive, no pipeline impact)
-# Each helper renders pure content; no model calls, no state mutation beyond
-# the explicit NRB sponsor form below.
-# ══════════════════════════════════════════════════════════════════════════════
+# --- Impact & Ethics tab helpers ---
+# Pure rendering — no model calls, no state beyond the NRB sponsor form.
 
 def render_fairness_disclosure() -> None:
     """Compact bilingual fairness + limitations disclosure for the image flow.
@@ -900,7 +876,7 @@ def render_business_model() -> None:
     )
     st.write("")
 
-    # ── Freemium subscription — primary patient-facing stream ─────────────────
+    # Freemium subscription — primary patient-facing stream
     st.markdown(
         '<div style="background:linear-gradient(135deg,#0B2A52 0%,#1A6FA8 60%,#0D9E75 100%);'
         'color:white;border-radius:14px;padding:1.15rem 1.35rem;margin-bottom:0.9rem;'
@@ -967,7 +943,7 @@ def render_business_model() -> None:
         unsafe_allow_html=True,
     )
 
-    # ── Why this price point — quantitative justification ─────────────────────
+    # Why this price point — quantitative justification
     st.markdown(
         '<div style="background:#FFFFFF;border:1px solid #E2E8F0;border-radius:10px;'
         'padding:0.85rem 1.1rem;margin-bottom:0.9rem;">'
@@ -1191,9 +1167,8 @@ def render_scalability_roadmap() -> None:
     )
 
 
-# ── NRB Sponsor-a-District widget ───────────────────────────────────────────────
-# Plausible pre-seeded pledges so the live counter is non-zero on first load.
-# Code is open — judges can see these are demo data; no claim of real adoption.
+# --- NRB Sponsor-a-District widget ---
+# Pre-seeded pledges keep the counter non-zero on first load; clearly demo data.
 _NRB_SEED_PLEDGES = [
     {"name": "Tania Ahmed",        "country": "USA",          "district": "Rangpur",     "amount": 100, "seed": True},
     {"name": "Mohammad Karim",     "country": "UK",           "district": "Rajshahi",    "amount":  50, "seed": True},
@@ -1351,9 +1326,7 @@ def render_nrb_sponsor() -> None:
     )
 
 
-# ══════════════════════════════════════════════════════════════════════════════
-# BuildFest round 2 — explainability + privacy + architecture + KPI strip
-# ══════════════════════════════════════════════════════════════════════════════
+# --- Explainability, privacy, architecture, KPI strip ---
 
 def render_privacy_badge() -> None:
     """Compact bilingual privacy assurance rendered above the image uploader.
@@ -1380,7 +1353,7 @@ def render_privacy_badge() -> None:
     )
 
 
-# ── Tech decisions: defensible model & architecture choices ────────────────────
+# --- Tech decisions ---
 
 _TECH_DECISIONS = [
     {
@@ -1455,7 +1428,7 @@ def render_tech_decisions() -> None:
         )
 
 
-# ── Architecture diagram: 3-column inputs / processing / outputs flow ─────────
+# --- Architecture diagram: inputs / processing / outputs ---
 
 _ARCH_ROWS = [
     {
@@ -1572,10 +1545,8 @@ def render_architecture_diagram() -> None:
     )
 
 
-# ── Live impact KPI strip — system + session + Phase 1 target ─────────────────
-
-# Real, verifiable system metrics — these are facts about the product, not
-# inflated usage data. Honest framing is the whole point.
+# --- Live impact KPI strip ---
+# System metrics are verifiable product facts, not usage claims.
 _SYSTEM_METRICS = [
     {"value": "92.46%",  "label": "BD-SkinNet F1",     "note": "on BD clinical test set"},
     {"value": "7+1",     "label": "Disease classes",   "note": "7 conditions + Normal"},

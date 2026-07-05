@@ -1,7 +1,7 @@
 """
 pages/docs.py — SkinAI Bangladesh Live Documentation
 Accessible at: {hf_spaces_url}/docs
-YC-style pitch deck + technical whitepaper + system dashboard
+Pitch, technical overview, and live system dashboard
 """
 
 import datetime
@@ -15,7 +15,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
-# ── CSS ───────────────────────────────────────────────────────────────────────
+# --- CSS ---
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+Bengali:wght@400;600;700&display=swap');
@@ -217,7 +217,7 @@ p, span, label, div {
 """, unsafe_allow_html=True)
 
 
-# ── Helpers ───────────────────────────────────────────────────────────────────
+# --- Helpers ---
 
 def mermaid(diagram: str, height: int = 380):
     html = f"""
@@ -234,7 +234,7 @@ def section(title: str, anchor: str):
     st.markdown(f'<div class="section-header" id="{anchor}">{title}</div>', unsafe_allow_html=True)
 
 
-# ── HERO ──────────────────────────────────────────────────────────────────────
+# --- HERO ---
 st.markdown("""
 <div class="docs-hero">
     <h1>🩺 SkinAI Bangladesh</h1>
@@ -253,7 +253,7 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# ── NAV ───────────────────────────────────────────────────────────────────────
+# --- NAV ---
 st.markdown("""
 <div class="nav-bar">
     <span style="color:#00d4ff;font-weight:600;font-size:0.82rem">Jump to →</span>
@@ -271,7 +271,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 
-# ── 1. PROBLEM ────────────────────────────────────────────────────────────────
+# --- 1. PROBLEM ---
 section("🚨 The Problem", "problem")
 c1, c2, c3 = st.columns(3)
 with c1:
@@ -293,7 +293,7 @@ with c3:
 st.markdown('<hr class="divider">', unsafe_allow_html=True)
 
 
-# ── 2. SOLUTION ───────────────────────────────────────────────────────────────
+# --- 2. SOLUTION ---
 section("💡 The Solution", "solution")
 st.markdown("""
 <div class="card" style="margin-bottom:20px">
@@ -329,7 +329,7 @@ with c2:
 st.markdown('<hr class="divider">', unsafe_allow_html=True)
 
 
-# ── 3. TRACTION ───────────────────────────────────────────────────────────────
+# --- 3. TRACTION ---
 section("📊 Traction & Metrics", "traction")
 cols = st.columns(5)
 metrics = [
@@ -366,7 +366,7 @@ with c2:
 st.markdown('<hr class="divider">', unsafe_allow_html=True)
 
 
-# ── 4. ARCHITECTURE ───────────────────────────────────────────────────────────
+# --- 4. ARCHITECTURE ---
 section("🏗️ System Architecture", "architecture")
 mermaid("""
 graph TB
@@ -398,7 +398,7 @@ graph TB
 st.markdown('<hr class="divider">', unsafe_allow_html=True)
 
 
-# ── 5. DATA FLOW ─────────────────────────────────────────────────────────────
+# --- 5. DATA FLOW ---
 section("🔄 Data Flow Diagram", "dataflow")
 mermaid("""
 sequenceDiagram
@@ -433,7 +433,7 @@ sequenceDiagram
 st.markdown('<hr class="divider">', unsafe_allow_html=True)
 
 
-# ── 6. AI LAYER ──────────────────────────────────────────────────────────────
+# --- 6. AI LAYER ---
 section("🤖 AI Layer", "ai-layer")
 c1, c2, c3 = st.columns(3)
 with c1:
@@ -472,7 +472,7 @@ st.markdown("<br>", unsafe_allow_html=True)
 st.markdown('<hr class="divider">', unsafe_allow_html=True)
 
 
-# ── 7. FEATURE MATRIX ────────────────────────────────────────────────────────
+# --- 7. FEATURE MATRIX ---
 section("✅ Feature Matrix", "features")
 
 features = [
@@ -511,7 +511,7 @@ for name, impl, status in features:
 st.markdown('<hr class="divider">', unsafe_allow_html=True)
 
 
-# ── 8. TECH STACK ─────────────────────────────────────────────────────────────
+# --- 8. TECH STACK ---
 section("🔧 Technology Stack", "tech-stack")
 c1, c2 = st.columns(2)
 
@@ -556,7 +556,7 @@ with c2:
 st.markdown('<hr class="divider">', unsafe_allow_html=True)
 
 
-# ── 9. TRIAGE LOGIC ───────────────────────────────────────────────────────────
+# --- 9. TRIAGE LOGIC ---
 section("⚖️ Clinical Triage Logic", "triage")
 c1, c2, c3 = st.columns(3)
 with c1:
@@ -587,7 +587,7 @@ with c3:
 st.markdown('<hr class="divider">', unsafe_allow_html=True)
 
 
-# ── 10. BUSINESS MODEL ───────────────────────────────────────────────────────
+# --- 10. BUSINESS MODEL ---
 section("💼 Business Model", "business")
 c1, c2, c3 = st.columns(3)
 with c1:
@@ -612,7 +612,7 @@ with c3:
 st.markdown('<hr class="divider">', unsafe_allow_html=True)
 
 
-# ── 11. TEAM ─────────────────────────────────────────────────────────────────
+# --- 11. TEAM ---
 section("👥 Team", "team")
 
 team = [
@@ -639,7 +639,7 @@ for i, (name, role, email, initial, is_leader) in enumerate(team):
 st.markdown('<hr class="divider">', unsafe_allow_html=True)
 
 
-# ── 12. ROADMAP ──────────────────────────────────────────────────────────────
+# --- 12. ROADMAP ---
 section("🗺️ Product Roadmap", "roadmap")
 c1, c2, c3 = st.columns(3)
 with c1:
@@ -680,7 +680,7 @@ with c3:
 st.markdown('<hr class="divider">', unsafe_allow_html=True)
 
 
-# ── 13. SECURITY & SAFETY ────────────────────────────────────────────────────
+# --- 13. SECURITY & SAFETY ---
 section("🔒 Safety, Guardrails & Privacy", "security")
 c1, c2 = st.columns(2)
 with c1:
@@ -705,7 +705,7 @@ with c2:
 st.markdown('<hr class="divider">', unsafe_allow_html=True)
 
 
-# ── 14. LINKS ────────────────────────────────────────────────────────────────
+# --- 14. LINKS ---
 section("🔗 Links", "links")
 c1, c2, c3, c4 = st.columns(4)
 with c1:
@@ -717,7 +717,7 @@ with c3:
 with c4:
     st.link_button("🩺 /docs Page", "https://rafilovestosuffer-skinai-bd.hf.space/docs", use_container_width=True)
 
-# ── FOOTER ────────────────────────────────────────────────────────────────────
+# --- FOOTER ---
 st.markdown("""
 <div style="text-align:center;padding:32px 0 16px;color:#64748b;font-size:0.8rem">
     SkinAI Bangladesh · AI-powered dermatological screening for rural Bangladesh<br/>

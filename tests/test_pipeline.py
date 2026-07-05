@@ -11,7 +11,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 
-# ── Fixtures ──────────────────────────────────────────────────────────────────
+# --- Fixtures ---
 
 MODEL_OUTPUT = {
     "disease":      "Tinea",
@@ -43,9 +43,7 @@ HISTORY = {
 }
 
 
-# ══════════════════════════════════════════════════════════════════════════════
-# Model output structure
-# ══════════════════════════════════════════════════════════════════════════════
+# --- Model output structure ---
 
 class TestModelOutputStructure:
     """Verify _run_model() returns the structure expected by downstream code."""
@@ -74,9 +72,7 @@ class TestModelOutputStructure:
             assert "confidence" in entry
 
 
-# ══════════════════════════════════════════════════════════════════════════════
-# Model output → severity engine
-# ══════════════════════════════════════════════════════════════════════════════
+# --- Model output → severity engine ---
 
 class TestSeverityIntegration:
     """compute_tier() accepts model output and returns valid tier result."""
@@ -140,9 +136,7 @@ class TestSeverityIntegration:
         assert isinstance(result["tier"], int)
 
 
-# ══════════════════════════════════════════════════════════════════════════════
-# Severity result → PDF generator
-# ══════════════════════════════════════════════════════════════════════════════
+# --- Severity result → PDF generator ---
 
 class TestPDFPipeline:
     """generate_referral_pdf() accepts the session_data structure app.py produces."""
@@ -232,9 +226,7 @@ class TestPDFPipeline:
         assert isinstance(result, bytes)
 
 
-# ══════════════════════════════════════════════════════════════════════════════
-# Full chain: model → tier → PDF
-# ══════════════════════════════════════════════════════════════════════════════
+# --- Full chain: model → tier → PDF ---
 
 class TestFullPipeline:
     """Model output → compute_tier → generate_referral_pdf: all interfaces match."""

@@ -99,7 +99,7 @@ DISTRICT_COORDS: dict[str, tuple[float, float]] = {
 }
 
 
-# ── DGHS division-level fallback (one hospital per division) ─────────────────
+# --- DGHS division-level fallback (one hospital per division) ---
 # Used when Overpass API fails — ensures PDF Section 4 always has a facility name.
 _DIVISION_FALLBACK: list[dict] = [
     {"name": "Dhaka Medical College Hospital",          "address": "Bakshi Bazar, Dhaka",      "lat": 23.7248, "lon": 90.3976, "dist_km": 0.0, "phone": "02-55165088"},
@@ -123,7 +123,7 @@ def _nearest_division_fallback(lat: float, lon: float, n: int = 5) -> list[dict]
     return scored[:n]
 
 
-# ── Haversine distance ────────────────────────────────────────────────────────
+# --- Haversine distance ---
 
 def _haversine_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
     R = 6371.0
@@ -134,7 +134,7 @@ def _haversine_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
     return R * 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
 
 
-# ── Overpass query ────────────────────────────────────────────────────────────
+# --- Overpass query ---
 
 def _query_overpass(lat: float, lon: float, radius_m: int) -> list[dict]:
     """Return raw hospital elements from Overpass API. Retries once on timeout."""
@@ -206,7 +206,7 @@ def _parse_element(el: dict, user_lat: float, user_lon: float) -> Optional[dict]
     }
 
 
-# ── Public API ────────────────────────────────────────────────────────────────
+# --- Public API ---
 
 def get_district_coords(district: str) -> Optional[tuple[float, float]]:
     """Return (lat, lon) for a Bangladesh district name, or None."""

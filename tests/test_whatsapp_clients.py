@@ -9,7 +9,7 @@ from unittest.mock import patch, MagicMock
 import pytest
 
 
-# ── Meta client tests ─────────────────────────────────────────────────────────
+# --- Meta client tests ---
 
 class TestMetaSignatureVerification:
     def setup_method(self):
@@ -173,7 +173,7 @@ class TestMetaSendText:
             assert len(payload["text"]["body"]) == 4096
 
 
-# ── Telegram client tests ─────────────────────────────────────────────────────
+# --- Telegram client tests ---
 
 class TestTelegramParseIncoming:
     def test_parse_text(self):

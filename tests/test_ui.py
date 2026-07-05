@@ -9,7 +9,7 @@ import numpy as np
 import pytest
 
 
-# ── Helpers ───────────────────────────────────────────────────────────────────
+# --- Helpers ---
 
 def _captured_html(mock_st_markdown) -> str:
     """Return the concatenated HTML from all st.markdown calls."""
@@ -20,7 +20,7 @@ def _captured_html(mock_st_markdown) -> str:
     return "\n".join(parts)
 
 
-# ── TestInjectCSS ─────────────────────────────────────────────────────────────
+# --- TestInjectCSS ---
 
 class TestInjectCSS:
     def test_inject_css_calls_st_markdown(self):
@@ -60,7 +60,7 @@ class TestInjectCSS:
             assert "fonts.googleapis.com" in html
 
 
-# ── TestRenderTriageBadge ─────────────────────────────────────────────────────
+# --- TestRenderTriageBadge ---
 
 class TestRenderTriageBadge:
     def _call(self, tier_result):
@@ -95,7 +95,7 @@ class TestRenderTriageBadge:
         assert "ফার্মাসিস্টে যান" in html
 
 
-# ── TestRenderPatientHistory ──────────────────────────────────────────────────
+# --- TestRenderPatientHistory ---
 
 class TestRenderPatientHistory:
     def _call(self, history):
@@ -125,7 +125,7 @@ class TestRenderPatientHistory:
         assert "No history" in html or "no history" in html.lower()
 
 
-# ── TestRenderDiseaseCard ─────────────────────────────────────────────────────
+# --- TestRenderDiseaseCard ---
 
 class TestRenderDiseaseCard:
     def _call(self, disease, confidence, top2):
@@ -167,7 +167,7 @@ class TestRenderDiseaseCard:
         assert "73" in html or "73.0" in html
 
 
-# ── TestRenderReferralButton ──────────────────────────────────────────────────
+# --- TestRenderReferralButton ---
 
 class TestRenderReferralButton:
     def test_download_button_enabled_with_bytes(self):
@@ -193,7 +193,7 @@ class TestRenderReferralButton:
             assert "diagnosis" in html.lower() or "referral" in html.lower()
 
 
-# ── TestRenderRAGAnswer ───────────────────────────────────────────────────────
+# --- TestRenderRAGAnswer ---
 
 class TestRenderRAGAnswer:
     def test_answer_text_in_html(self):
@@ -218,7 +218,7 @@ class TestRenderRAGAnswer:
             assert "Bengali" in html or "বাংলা" in html
 
 
-# ── TestConfidenceCaption ─────────────────────────────────────────────────────
+# --- TestConfidenceCaption ---
 
 class TestConfidenceCaption:
     def _call(self, confidence):
@@ -252,7 +252,7 @@ class TestConfidenceCaption:
         assert "ডাক্তার" in html
 
 
-# ── TestCheckImageQuality ─────────────────────────────────────────────────────
+# --- TestCheckImageQuality ---
 
 class TestCheckImageQuality:
     def test_sharp_image_returns_not_blurry(self):
@@ -292,7 +292,7 @@ class TestCheckImageQuality:
         assert var == -1.0
 
 
-# ── TestRenderSidebarPipeline ─────────────────────────────────────────────────
+# --- TestRenderSidebarPipeline ---
 
 class TestRenderSidebarPipeline:
     def _call(self, **kwargs):
@@ -332,7 +332,7 @@ class TestRenderSidebarPipeline:
         assert "✓" in html
 
 
-# ── TestRenderStatCard ────────────────────────────────────────────────────────
+# --- TestRenderStatCard ---
 
 class TestRenderStatCard:
     def _call(self, label, value, color="#1A6FA8"):
@@ -358,7 +358,7 @@ class TestRenderStatCard:
         assert "stat-card-sb" in html
 
 
-# ── TestRenderTierBanner ──────────────────────────────────────────────────────
+# --- TestRenderTierBanner ---
 
 class TestRenderTierBanner:
     def _call(self, tier=1, urgency="NON-URGENT", action="See pharmacist",
@@ -400,7 +400,7 @@ class TestRenderTierBanner:
         assert "URGENT" in html
 
 
-# ── TestRenderConfidenceBar ───────────────────────────────────────────────────
+# --- TestRenderConfidenceBar ---
 
 class TestRenderConfidenceBar:
     def _call(self, confidence, label_en="Confident", label_bn="নিশ্চিত"):
@@ -438,7 +438,7 @@ class TestRenderConfidenceBar:
         assert "conf-bar-wrap-v2" in html or "conf-bar-fill-v2" in html
 
 
-# ── TestRenderChatMessage ─────────────────────────────────────────────────────
+# --- TestRenderChatMessage ---
 
 class TestRenderChatMessage:
     """render_chat_message returns an HTML string — no st mocking needed."""
@@ -492,7 +492,7 @@ class TestRenderChatMessage:
         assert "chat-source-chips" not in html
 
 
-# ── TestRenderSuggestedQuestions ──────────────────────────────────────────────
+# --- TestRenderSuggestedQuestions ---
 
 class TestRenderSuggestedQuestions:
     def _mock_cols(self, n):
@@ -535,7 +535,7 @@ class TestRenderSuggestedQuestions:
             mock_st.columns.assert_called_once_with(3)
 
 
-# ── TestRenderReferralPreview ─────────────────────────────────────────────────
+# --- TestRenderReferralPreview ---
 
 class TestRenderReferralPreview:
     _PRED = {
@@ -607,7 +607,7 @@ class TestRenderReferralPreview:
         assert "Local Pharmacy" in html
 
 
-# ── Infinity AI BuildFest — Tab 6 helpers ─────────────────────────────────────
+# --- Infinity AI BuildFest — Tab 6 helpers ---
 
 class TestFairnessDisclosure:
     def test_renders_without_error(self):
@@ -746,7 +746,7 @@ class TestNRBSponsor:
             assert "Probashi Kallyan Bank" in html
 
 
-# ── Round 2: explainability, privacy, architecture, KPI strip ──────────────────
+# --- Round 2: explainability, privacy, architecture, KPI strip ---
 
 class TestPrivacyBadge:
     def test_renders_without_error(self):

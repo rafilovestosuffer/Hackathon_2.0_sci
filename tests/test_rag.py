@@ -10,10 +10,11 @@ from unittest.mock import MagicMock, patch
 import numpy as np
 import pytest
 
+import rag.cache as rag_cache
 import rag.retriever as retriever
 
 
-# ── Fixtures ─────────────────────────────────────────────────────────────────
+# --- Fixtures ---
 
 FAKE_METADATA = [
     {"filename": "cdc_tinea_01.txt", "source": "CDC", "topic": "Tinea Overview",
@@ -54,6 +55,13 @@ def _install_fake_state():
 
 
 def _clear_state():
+    # Isolate the disk cache so answers can't leak between tests (or from a
+    # previously running app on the same machine).
+    rag_cache._CACHE_PATH = os.path.join(
+        os.environ.get("TMP") or os.environ.get("TMPDIR") or ".", "skinai_test_rag_cache.json"
+    )
+    if os.path.exists(rag_cache._CACHE_PATH):
+        os.remove(rag_cache._CACHE_PATH)
     retriever._index = None
     retriever._metadata = None
     retriever._embed_model = None
@@ -62,7 +70,7 @@ def _clear_state():
     retriever._idf = {}
 
 
-# ── TestLoadIndex ─────────────────────────────────────────────────────────────
+# --- TestLoadIndex ---
 
 class TestLoadIndex:
     def setup_method(self):
@@ -109,7 +117,7 @@ class TestLoadIndex:
         assert len(retriever._chunks) == len(FAKE_METADATA)
 
 
-# ── TestRetrieve ──────────────────────────────────────────────────────────────
+# --- TestRetrieve ---
 
 class TestRetrieve:
     def setup_method(self):
@@ -151,7 +159,7 @@ class TestRetrieve:
             assert isinstance(r, dict)
 
 
-# ── TestAnswerQuestion ────────────────────────────────────────────────────────
+# --- TestAnswerQuestion ---
 
 class TestAnswerQuestion:
     def setup_method(self):
@@ -252,7 +260,7 @@ class TestAnswerQuestion:
         assert "The patient has been diagnosed with:" not in prompt
 
 
-# ── TestGeminiPrompt ──────────────────────────────────────────────────────────
+# --- TestGeminiPrompt ---
 
 class TestGeminiPrompt:
     def setup_method(self):
@@ -303,7 +311,7 @@ class TestGeminiPrompt:
         assert "Scabies (38% confidence)" in prompt
 
 
-# ── TestMedicineGuardrail ─────────────────────────────────────────────────────
+# --- TestMedicineGuardrail ---
 
 class TestMedicineGuardrail:
     """Verify _redact_medicine_names strips drug content and answer_question applies it."""

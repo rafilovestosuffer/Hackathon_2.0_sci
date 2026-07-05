@@ -31,7 +31,7 @@ _db   = None
 _conn = None
 _available = False
 
-# ── Seed data (7 BD-SkinNet classes + clinical knowledge) ─────────────────────
+# --- Seed data (7 BD-SkinNet classes + clinical knowledge) ---
 
 _DISEASES = [
     ("Atopic_Dermatitis",     "অ্যাটোপিক ডার্মাটাইটিস", 2),
@@ -125,7 +125,7 @@ _DISEASE_SOURCES = {
 _ESCALATION_SYMPTOMS = {"spreading", "fever", "pain", "bleeding"}
 
 
-# ── Internal helpers ──────────────────────────────────────────────────────────
+# --- Internal helpers ---
 
 def _get_conn():
     global _db, _conn
@@ -141,7 +141,7 @@ def _exec(conn, cypher: str, params: dict | None = None):
     return conn.execute(cypher, params) if params else conn.execute(cypher)
 
 
-# ── Public API ────────────────────────────────────────────────────────────────
+# --- Public API ---
 
 def build_graph() -> bool:
     """
@@ -157,21 +157,21 @@ def build_graph() -> bool:
 
         conn = _get_conn()
 
-        # ── Node tables ───────────────────────────────────────────────────────
+        # Node tables
         _exec(conn, "CREATE NODE TABLE Disease(name STRING, name_bn STRING, tier_base INT64, PRIMARY KEY(name))")
         _exec(conn, "CREATE NODE TABLE Symptom(name STRING, name_bn STRING, is_escalation BOOLEAN, PRIMARY KEY(name))")
         _exec(conn, "CREATE NODE TABLE BodyPart(name STRING, name_bn STRING, PRIMARY KEY(name))")
         _exec(conn, "CREATE NODE TABLE TierAction(tier INT64, urgency_label STRING, action_en STRING, facility STRING, PRIMARY KEY(tier))")
         _exec(conn, "CREATE NODE TABLE KnowledgeSource(name STRING, description STRING, PRIMARY KEY(name))")
 
-        # ── Relationship tables ───────────────────────────────────────────────
+        # Relationship tables
         _exec(conn, "CREATE REL TABLE HAS_SYMPTOM(FROM Disease TO Symptom)")
         _exec(conn, "CREATE REL TABLE MAPS_TO(FROM Disease TO TierAction)")
         _exec(conn, "CREATE REL TABLE COMMONLY_AFFECTS(FROM Disease TO BodyPart)")
         _exec(conn, "CREATE REL TABLE DOCUMENTED_BY(FROM Disease TO KnowledgeSource)")
         _exec(conn, "CREATE REL TABLE ESCALATES_TO(FROM Symptom TO TierAction)")
 
-        # ── Seed nodes ────────────────────────────────────────────────────────
+        # Seed nodes
         for name, name_bn, tier in _DISEASES:
             _exec(conn, "CREATE (:Disease {name: $n, name_bn: $b, tier_base: $t})",
                   {"n": name, "b": name_bn, "t": tier})
@@ -192,7 +192,7 @@ def build_graph() -> bool:
             _exec(conn, "CREATE (:KnowledgeSource {name: $n, description: $d})",
                   {"n": name, "d": desc})
 
-        # ── Seed relationships ────────────────────────────────────────────────
+        # Seed relationships
         for disease, symptoms in _DISEASE_SYMPTOMS.items():
             for symptom in symptoms:
                 _exec(conn,

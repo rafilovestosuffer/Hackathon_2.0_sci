@@ -41,7 +41,7 @@ app = FastAPI(title="SkinAI Bangladesh — WhatsApp + Telegram Webhook")
 _BOOT_TS = time.time()
 
 
-# ── Outbound dispatch helpers ────────────────────────────────────────────────
+# --- Outbound dispatch helpers ---
 
 def _send_actions_meta(actions: list[router.Action]) -> None:
     for act in actions:
@@ -65,7 +65,7 @@ def _send_actions_telegram(actions: list[router.Action]) -> None:
             logger.error("Telegram send failed: %s", e)
 
 
-# ── Health ───────────────────────────────────────────────────────────────────
+# --- Health ---
 
 @app.get("/health")
 def health() -> JSONResponse:
@@ -145,7 +145,7 @@ def root() -> JSONResponse:
     })
 
 
-# ── WhatsApp (Meta) ──────────────────────────────────────────────────────────
+# --- WhatsApp (Meta) ---
 
 @app.get("/webhook/whatsapp")
 def whatsapp_verify(
@@ -193,7 +193,7 @@ async def whatsapp_receive(
     return Response(status_code=200)
 
 
-# ── Telegram ─────────────────────────────────────────────────────────────────
+# --- Telegram ---
 
 @app.post("/webhook/telegram")
 async def telegram_receive(request: Request):

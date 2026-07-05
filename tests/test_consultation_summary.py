@@ -11,7 +11,7 @@ import pytest
 
 from pdf_gen.consultation_summary import generate_consultation_summary_pdf
 
-# ── Mock helpers ──────────────────────────────────────────────────────────────
+# --- Mock helpers ---
 
 _FULL_DATA = {
     "diagnosis_confirmed": "Tinea Corporis",
@@ -77,7 +77,7 @@ def _make_gemini_mock(data: dict):
     return mock_client
 
 
-# ── Tests ─────────────────────────────────────────────────────────────────────
+# --- Tests ---
 
 class TestFullTranscript:
     def test_full_transcript_generates_pdf(self):

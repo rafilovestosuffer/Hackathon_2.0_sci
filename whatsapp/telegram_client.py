@@ -51,7 +51,7 @@ def _file_base() -> str:
     return f"https://api.telegram.org/file/bot{_token()}"
 
 
-# ── Outbound API ──────────────────────────────────────────────────────────────
+# --- Outbound API ---
 
 def send_text(chat_id: int | str, body: str) -> dict:
     url = f"{_base()}/sendMessage"
@@ -87,7 +87,7 @@ def download_file(file_id: str) -> bytes:
         return r2.content
 
 
-# ── Webhook payload parsing ───────────────────────────────────────────────────
+# --- Webhook payload parsing ---
 
 def parse_incoming(payload: dict) -> list[dict]:
     """

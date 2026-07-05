@@ -448,6 +448,7 @@ skinai-bangladesh/
 git clone https://github.com/rafilovestosuffer/Hackathon_2.0_sci.git
 cd Hackathon_2.0_sci
 
+pip install torch torchvision --extra-index-url https://download.pytorch.org/whl/cpu
 pip install -r requirements.txt          # CPU only, ~3 GB RAM, Python 3.10+
 
 cp .env.example .env                      # then set GEMINI_API_KEY=...
@@ -525,7 +526,7 @@ pytest tests/ -v
 | 6 | INT8 quantization on CPU | ✅ | `quantize_dynamic`; CPU-only torch wheel |
 | 7 | Live through the event window | ✅ | GitHub Actions keepalive every 20 min |
 | 8 | Commit history in window | ✅ | Dated commit log |
-| 9 | Demo video (3–5 min) | ⏳ | Script ready in [`docs/demo_script.md`](docs/demo_script.md) |
+| 9 | Demo video (3–5 min) | ⏳ | Script ready |
 
 Full [Model Card](docs/MODEL_CARD.md) · [Data Card](docs/DATA_CARD.md) · [Ethics Statement](docs/ETHICS_STATEMENT.md).
 

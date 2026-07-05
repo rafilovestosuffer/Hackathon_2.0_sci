@@ -19,7 +19,7 @@ from fpdf.enums import Align, XPos, YPos
 
 logger = logging.getLogger(__name__)
 
-# ── Font ──────────────────────────────────────────────────────────────────────
+# --- Font ---
 _FONT_DIR  = os.path.join(os.path.dirname(__file__), "fonts")
 _FONT_PATH = os.path.join(_FONT_DIR, "NotoSansBengali-Regular.ttf")
 _FONT_URL  = (
@@ -27,7 +27,7 @@ _FONT_URL  = (
     "Cn-SJsCGWQxOjaGwMQ6fIiMywrNJIky6nvd8BjzVMvJx2mcSPVFpVEqE-6KmsolLudA.ttf"
 )
 
-# ── Palette ───────────────────────────────────────────────────────────────────
+# --- Palette ---
 _BLUE       = (26,  82,  118)
 _LIGHT_BLUE = (234, 244, 251)
 _BORDER_BL  = (174, 214, 241)
@@ -56,7 +56,7 @@ def _ensure_font() -> bool:
         return False
 
 
-# ── PDF base class ────────────────────────────────────────────────────────────
+# --- PDF base class ---
 class _PDF(FPDF):
     """FPDF subclass with Bengali font helpers and layout primitives."""
 
@@ -73,7 +73,7 @@ class _PDF(FPDF):
                 logger.warning("Bengali font registration failed: %s", e)
         return self
 
-    # ── Font selectors ────────────────────────────────────────────────────────
+    # Font selectors
     # Both methods use the Bengali TTF when loaded.  NotoSansBengali carries
     # high-quality Latin glyphs AND covers the full Unicode range (no latin-1
     # limit), so em-dashes, ©, etc. never raise FPDFUnicodeEncodingException.
@@ -99,7 +99,7 @@ class _PDF(FPDF):
         except Exception:
             pass
 
-    # ── Section heading ───────────────────────────────────────────────────────
+    # Section heading
 
     def section_heading(self, en: str, bn_text: str):
         self.ln(5)
@@ -122,7 +122,7 @@ class _PDF(FPDF):
         self.set_text_color(0, 0, 0)
         self.set_line_width(0.2)
 
-    # ── Patient-history KV table ──────────────────────────────────────────────
+    # Patient-history KV table
 
     def kv_table(self, rows: list, col_l: int = 52):
         """Two-column label|value table.  rows = [(en, bn, value), ...]"""
@@ -161,7 +161,7 @@ class _PDF(FPDF):
 
             self.set_y(y0 + row_h)
 
-    # ── Urgency badge ─────────────────────────────────────────────────────────
+    # Urgency badge
 
     def urgency_badge(self, label: str, color: tuple):
         bw = self.w - self.l_margin - self.r_margin
@@ -175,7 +175,7 @@ class _PDF(FPDF):
         self.ln(2)
         self.set_text_color(0, 0, 0)
 
-    # ── Inline Latin + Bengali line ───────────────────────────────────────────
+    # Inline Latin + Bengali line
 
     def mixed_line(self, prefix: str, bn_word: str, suffix: str, size: int = 10, bold: bool = False):
         """Render one line: [Latin prefix][Bengali word][Latin suffix]."""
@@ -192,7 +192,7 @@ class _PDF(FPDF):
         self.cell(0, 6, suffix, new_x=XPos.LMARGIN, new_y=YPos.NEXT)
 
 
-# ── Public API ────────────────────────────────────────────────────────────────
+# --- Public API ---
 
 def generate_referral_pdf(session_data: dict) -> bytes:
     """Generate 4-section AI referral letter. Returns raw PDF bytes."""
@@ -201,7 +201,7 @@ def generate_referral_pdf(session_data: dict) -> bytes:
     pdf.add_page()
     now = datetime.now().strftime("%Y-%m-%d %H:%M")
 
-    # ── Header ────────────────────────────────────────────────────────────────
+    # Header
     pdf.set_text_color(*_BLUE)
     pdf.lat(17, bold=True)
     pdf.cell(0, 10, "SkinAI Bangladesh — AI Referral Letter",
@@ -214,7 +214,7 @@ def generate_referral_pdf(session_data: dict) -> bytes:
     pdf.set_text_color(0, 0, 0)
     pdf.ln(2)
 
-    # ── Section 1 — Patient History ───────────────────────────────────────────
+    # Section 1 — Patient History
     pdf.section_heading("Section 1 — Patient History", "রোগীর ইতিহাস")
 
     symptoms_val = _norm(", ".join(session_data.get("symptoms") or []) or "—")
@@ -240,7 +240,7 @@ def generate_referral_pdf(session_data: dict) -> bytes:
          assoc_val),
     ])
 
-    # ── Section 2 — Clinical Observation ─────────────────────────────────────
+    # Section 2 — Clinical Observation
     pdf.section_heading("Section 2 — Clinical Observation",
                         "ক্লিনিক্যাল পর্যবক্ষণ")
 
@@ -256,7 +256,7 @@ def generate_referral_pdf(session_data: dict) -> bytes:
     pdf.cell(0, 5, f"Assessment datetime: {now}", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
     pdf.set_text_color(0, 0, 0)
 
-    # ── Section 3 — AI Diagnostic Assessment ─────────────────────────────────
+    # Section 3 — AI Diagnostic Assessment
     pdf.section_heading("Section 3 — AI Diagnostic Assessment", "AI রোগ নির্ণয়")
 
     disease_class   = session_data.get("disease_class", "Unknown")
@@ -289,7 +289,7 @@ def generate_referral_pdf(session_data: dict) -> bytes:
              new_x=XPos.LMARGIN, new_y=YPos.NEXT)
     pdf.set_text_color(0, 0, 0)
 
-    # ── Section 4 — Triage Recommendation ────────────────────────────────────
+    # Section 4 — Triage Recommendation
     pdf.section_heading("Section 4 — Triage Recommendation",
                         "ট্রিয়াজ সুপারিশ")
 
@@ -317,7 +317,7 @@ def generate_referral_pdf(session_data: dict) -> bytes:
         pdf.cell(0, 5, f"Nearest Hospital: {hospital_name} — {hospital_addr}",
                  new_x=XPos.LMARGIN, new_y=YPos.NEXT)
 
-    # ── Scheduled Appointment (if booked via doctor booking tab) ─────────────
+    # Scheduled Appointment (if booked via doctor booking tab)
     booking_confirmed = session_data.get("booking_confirmed", False)
     booking_details   = session_data.get("booking_details") or {}
     if booking_confirmed and booking_details:
@@ -358,7 +358,7 @@ def generate_referral_pdf(session_data: dict) -> bytes:
         ), new_x=XPos.LMARGIN, new_y=YPos.NEXT)
         pdf.set_text_color(0, 0, 0)
 
-    # ── Footer ────────────────────────────────────────────────────────────────
+    # Footer
     pdf.ln(5)
     pdf.set_text_color(*_RED)
     pdf.lat(8)
@@ -375,7 +375,7 @@ def generate_demo_consultation_pdf() -> bytes:
     Used for the always-visible demo download button — no pipeline run required.
     """
     demo_data = {
-        # ── Patient history ───────────────────────────────────────────────────
+        # Patient history
         "patient_name":        "রহিম মিয়া (Rahim Mia)",
         "patient_age":         "৩৫ বছর (35 years)",
         "chief_complaint":     "সারা শরীলে তীব্র চুলকানি ও ফুসকুড়ি · Intense itching and spreading rash all over body",
@@ -385,7 +385,7 @@ def generate_demo_consultation_pdf() -> bytes:
         "progression":         "দ্রুত ছড়িয়ে পড়ছে · Spreading rapidly",
         "previous_treatment":  "কোনো চিকিৎসা নেওয়া হয়নি · No prior treatment",
         "associated_symptoms": ["জ্বর (fever)", "ব্যথা (pain)", "রাতে বেশি চুলকানি (worse at night)"],
-        # ── AI diagnosis ──────────────────────────────────────────────────────
+        # AI diagnosis
         "disease_class":   "Scabies",
         "disease_bengali": "খুজলি (স্ক্যাবিস)",
         "confidence":      0.38,
@@ -393,7 +393,7 @@ def generate_demo_consultation_pdf() -> bytes:
             {"disease": "Scabies", "confidence": 0.38},
             {"disease": "Eczema",  "confidence": 0.22},
         ],
-        # ── Triage ───────────────────────────────────────────────────────────
+        # Triage
         "tier":          3,
         "urgency_label": "URGENT",
         "action":        "Seek emergency care TODAY at District Hospital",
@@ -401,7 +401,7 @@ def generate_demo_consultation_pdf() -> bytes:
         "bengali_text":  "আজই জেলা হাসপাতালে জরুরি চিকিৎসা নিন — জরুরি চিকিৎসা প্রয়োজন",
         "hospital_name":    "Rangpur Medical College Hospital",
         "hospital_address": "Rangpur Sadar, Rangpur District",
-        # ── Doctor booking (post-consultation) ────────────────────────────────
+        # Doctor booking (post-consultation)
         "booking_confirmed": True,
         "booking_details": {
             "doctor_name":        "Dr. Nusrat Jahan",
@@ -428,7 +428,7 @@ def generate_chw_referral_slip(session_data: dict) -> bytes:
     tier = session_data.get("tier", 1)
     tc   = _TIER_COLOR.get(tier, _GREY)
 
-    # ── Header ────────────────────────────────────────────────────────────────
+    # Header
     pdf.set_text_color(*_BLUE)
     pdf.lat(18, bold=True)
     pdf.cell(0, 12, "SkinAI Bangladesh — CHW Referral Slip",
@@ -443,7 +443,7 @@ def generate_chw_referral_slip(session_data: dict) -> bytes:
     pdf.set_text_color(0, 0, 0)
     pdf.ln(5)
 
-    # ── Urgency badge ─────────────────────────────────────────────────────────
+    # Urgency badge
     tier_labels = {
         1: "NON-URGENT",
         2: "ROUTINE — REFER",
@@ -464,7 +464,7 @@ def generate_chw_referral_slip(session_data: dict) -> bytes:
     pdf.set_text_color(0, 0, 0)
     pdf.ln(4)
 
-    # ── Patient info table ────────────────────────────────────────────────────
+    # Patient info table
     name       = _norm(session_data.get("patient_name") or "—")
     age        = _norm(session_data.get("patient_age") or "—")
     disease    = session_data.get("disease_class", "—")
@@ -487,7 +487,7 @@ def generate_chw_referral_slip(session_data: dict) -> bytes:
     ])
     pdf.ln(5)
 
-    # ── Bengali instruction ───────────────────────────────────────────────────
+    # Bengali instruction
     if action_bn:
         pdf.set_text_color(*tc)
         pdf.bn(13)
@@ -495,7 +495,7 @@ def generate_chw_referral_slip(session_data: dict) -> bytes:
         pdf.set_text_color(0, 0, 0)
         pdf.ln(4)
 
-    # ── Nearest hospital (Tier 3) ─────────────────────────────────────────────
+    # Nearest hospital (Tier 3)
     if tier == 3:
         hosp_name = session_data.get("hospital_name", "")
         hosp_addr = session_data.get("hospital_address", "")
@@ -505,7 +505,7 @@ def generate_chw_referral_slip(session_data: dict) -> bytes:
                      new_x=XPos.LMARGIN, new_y=YPos.NEXT)
             pdf.ln(3)
 
-    # ── Footer ────────────────────────────────────────────────────────────────
+    # Footer
     pdf.set_text_color(*_RED)
     pdf.lat(8)
     pdf.multi_cell(0, 5,
