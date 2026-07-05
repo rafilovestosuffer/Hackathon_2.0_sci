@@ -781,7 +781,7 @@ class TestTechDecisions:
             for needle in [
                 "Swin Transformer Base + CBAM",
                 "INT8 dynamic quantisation",
-                "4-signal severity engine",
+                "3-signal severity engine",
                 "Gemini 1.5 Flash",
                 "FAISS",
             ]:
@@ -820,7 +820,7 @@ class TestArchitectureDiagram:
             for component in [
                 "faster-whisper",
                 "BD-SkinNet INT8",
-                "4-signal severity engine",
+                "3-signal severity engine",
                 "FAISS-CPU",
                 "Overpass API",
                 "reportlab",

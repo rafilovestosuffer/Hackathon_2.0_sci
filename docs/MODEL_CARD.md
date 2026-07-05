@@ -74,7 +74,7 @@ See `docs/DATA_CARD.md` for the full data card.
 - **No medicine recommendations, ever.** Encoded as a hard constraint in `CLAUDE.md`.
 - **No final diagnosis claims.** The output is structured as a *referral to a licensed clinician* — the generated PDF is addressed to a doctor, not the patient.
 - **Auto-escalation on uncertainty.** Low confidence (<40%) → Tier 3, by design.
-- **Multi-signal cross-check.** The model is one of four severity signals (disease class, model confidence, lesion coverage, voice symptom keywords). Single-point failure is mitigated by design.
+- **Multi-signal cross-check.** The model is one of three severity signals (disease class, model confidence, voice symptom keywords). Single-point failure is mitigated by design.
 - **Data minimisation.** Inferences run server-side in session state; no PII is persisted, no analytics tracking, no database. Images leave the session only if the patient explicitly books a teleconsult.
 - **Free at the patient endpoint forever.** Mission-locked. Sustainability comes from telemedicine revenue share, NRB sponsorship, and grants — never from patient charges.
 

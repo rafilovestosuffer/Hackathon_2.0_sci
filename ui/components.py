@@ -1070,9 +1070,9 @@ def render_ethics_card() -> None:
          "membranes, eye involvement. These cases auto-escalate to Tier 3 and the referral letter "
          "states the limitation explicitly."),
         ("🛡️", "Multi-signal safety design",
-         "The 4-signal severity engine (disease class + confidence + lesion coverage + Bengali "
-         "symptom keywords) is itself a bias-mitigation measure: any single signal failing degrades "
-         "gracefully because three others vote. Low confidence escalates to Tier 3 by design, "
+         "The 3-signal severity engine (disease class + confidence + Bengali "
+         "symptom keywords) is itself a bias-mitigation measure: no single signal decides the tier "
+         "alone. Low confidence escalates to Tier 3 by design, "
          "not by exception."),
         ("👨‍⚕️", "Human-in-the-loop, always",
          "The AI never prescribes medicine (hard constraint), never makes a final diagnosis, and "
@@ -1374,10 +1374,10 @@ _TECH_DECISIONS = [
         "color":   "#0D9E75",
     },
     {
-        "name":    "4-signal severity engine",
+        "name":    "3-signal severity engine",
         "role":    "Triage decision layer",
-        "why":     "Fuses disease class, model confidence, lesion coverage and Bengali symptom "
-                   "keywords. Any single signal failing degrades gracefully — three others vote. "
+        "why":     "Fuses disease class, model confidence and Bengali symptom "
+                   "keywords. No single signal decides the tier alone — low confidence escalates. "
                    "Low confidence escalates by design, so out-of-distribution images get safer "
                    "care, not worse care.",
         "metric":  "Tier 1 / 2 / 3 in &lt;10 ms (pure Python)",
@@ -1445,7 +1445,7 @@ _ARCH_ROWS = [
     },
     {
         "input":  ("⚙️", "Above two signals + voice transcript", "in session state"),
-        "proc":   ("4-signal severity engine<br>(class · confidence · coverage · keywords)",
+        "proc":   ("3-signal severity engine<br>(class · confidence · keywords)",
                    "&lt;10 ms · pure Python"),
         "output": ("🚦", "Tier 1 / 2 / 3 decision", "with English + Bengali action text"),
     },

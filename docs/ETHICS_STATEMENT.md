@@ -48,14 +48,13 @@ The severity engine (`severity/engine.py`) treats low model confidence as a Tier
 
 ## 5. Multi-signal safety as bias mitigation
 
-The 4-signal severity engine combines:
+The 3-signal severity engine combines:
 
 1. Disease class (model output)
 2. Model confidence
-3. Lesion area coverage
-4. Bengali voice symptom keywords (e.g., জ্বর, ছড়িয়ে, ব্যথা, রক্ত — fever, spreading, pain, blood)
+3. Bengali voice symptom keywords (e.g., জ্বর, ছড়িয়ে, ব্যথা, রক্ত — fever, spreading, pain, blood)
 
-Any single signal failing degrades gracefully because three others vote. This is a design measure: it means a biased model output (e.g., low confidence on a Fitzpatrick I patient) cannot single-handedly route someone to inadequate care.
+No single signal decides the tier on its own: low model confidence escalates the case regardless of the predicted class, and urgent symptom keywords escalate further. This is a design measure — a biased model output (e.g., low confidence on a Fitzpatrick I patient) cannot single-handedly route someone to inadequate care.
 
 ---
 

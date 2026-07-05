@@ -646,7 +646,7 @@ with c1:
     st.markdown("""<div class="card">
     <h3>✅ Phase 1 — Done</h3>
     <p>• BD-SkinNet INT8 training<br/>
-    • 4-signal triage engine<br/>
+    • 3-signal triage engine<br/>
     • Bengali voice pipeline<br/>
     • RAG chatbot (CDC/NIH/WHO/DGHS)<br/>
     • Emergency hospital map<br/>
