@@ -12,12 +12,10 @@ from datetime import date, timedelta
 
 import streamlit as st
 
-# ══════════════════════════════════════════════════════════════════════════════
-# DOCTOR ROSTER (6 hardcoded — no DB)
-# ══════════════════════════════════════════════════════════════════════════════
+# --- DOCTOR ROSTER (6 hardcoded — no DB) ---
 
 DEMO_DOCTORS = [
-    # ── 1. Dr. Nusrat Jahan ── CMCH, Chittagong ──────────────────────────────
+    # 1. Dr. Nusrat Jahan — CMCH, Chittagong
     {
         "id": "dr_nusrat_001",
         "name": "Dr. Nusrat Jahan",
@@ -48,7 +46,7 @@ DEMO_DOCTORS = [
         "location": "Chittagong",
     },
 
-    # ── 2. Dr. Farhan Ahmed ── DMCH, Dhaka ────────────────────────────────────
+    # 2. Dr. Farhan Ahmed — DMCH, Dhaka
     {
         "id": "dr_farhan_002",
         "name": "Dr. Farhan Ahmed",
@@ -79,7 +77,7 @@ DEMO_DOCTORS = [
         "location": "Dhaka",
     },
 
-    # ── 3. Dr. Sadia Islam ── BSMMU, Dhaka ───────────────────────────────────
+    # 3. Dr. Sadia Islam — BSMMU, Dhaka
     {
         "id": "dr_sadia_003",
         "name": "Dr. Sadia Islam",
@@ -110,7 +108,7 @@ DEMO_DOCTORS = [
         "location": "Dhaka",
     },
 
-    # ── 4. Dr. Kamal Hossain ── RMCH, Rajshahi ───────────────────────────────
+    # 4. Dr. Kamal Hossain — RMCH, Rajshahi
     {
         "id": "dr_kamal_004",
         "name": "Dr. Kamal Hossain",
@@ -141,7 +139,7 @@ DEMO_DOCTORS = [
         "location": "Rajshahi",
     },
 
-    # ── 5. Dr. Anika Rahman ── SOMCH, Sylhet ─────────────────────────────────
+    # 5. Dr. Anika Rahman — SOMCH, Sylhet
     {
         "id": "dr_anika_005",
         "name": "Dr. Anika Rahman",
@@ -172,7 +170,7 @@ DEMO_DOCTORS = [
         "location": "Sylhet",
     },
 
-    # ── 6. Dr. Tanvir Chowdhury ── MMCH, Mymensingh ──────────────────────────
+    # 6. Dr. Tanvir Chowdhury — MMCH, Mymensingh
     {
         "id": "dr_tanvir_006",
         "name": "Dr. Tanvir Chowdhury",
@@ -216,9 +214,7 @@ def get_doctor(doctor_id: str) -> dict:
     return _DOCTOR_BY_ID.get(doctor_id, DEMO_DOCTORS[0])
 
 
-# ══════════════════════════════════════════════════════════════════════════════
-# BENGALI HELPERS
-# ══════════════════════════════════════════════════════════════════════════════
+# --- BENGALI HELPERS ---
 
 _BN_NUM = {
     "0": "০", "1": "১", "2": "২", "3": "৩", "4": "৪",
@@ -277,9 +273,7 @@ def _format_consult_bn(n: int) -> str:
     return _to_bn_num(s[:-3]) + "," + _to_bn_num(s[-3:]) + "+"
 
 
-# ══════════════════════════════════════════════════════════════════════════════
-# SLOT GENERATION
-# ══════════════════════════════════════════════════════════════════════════════
+# --- SLOT GENERATION ---
 
 def get_available_slots(days_ahead: int = 7, doctor: dict = None) -> list:
     """
@@ -319,9 +313,7 @@ def get_available_slots(days_ahead: int = 7, doctor: dict = None) -> list:
     return result
 
 
-# ══════════════════════════════════════════════════════════════════════════════
-# SECTION RENDERERS (private)
-# ══════════════════════════════════════════════════════════════════════════════
+# --- SECTION RENDERERS (private) ---
 
 def _render_tier_context_banner(tier) -> None:
     if tier == 1:
@@ -805,9 +797,7 @@ def _render_confirmed_booking_card() -> None:
         st.rerun()
 
 
-# ══════════════════════════════════════════════════════════════════════════════
-# PUBLIC API
-# ══════════════════════════════════════════════════════════════════════════════
+# --- PUBLIC API ---
 
 def render_doctor_booking_tab() -> None:
     """
@@ -831,7 +821,7 @@ def render_doctor_booking_tab() -> None:
     selected_doc    = get_doctor(st.session_state.get("selected_doctor_id",
                                                        DEMO_DOCTORS[0]["id"]))
 
-    # ── Tab header ─────────────────────────────────────────────────────────
+    # Tab header
     fee_range = f"৳{min(d['fee_bdt'] for d in DEMO_DOCTORS)}–{max(d['fee_bdt'] for d in DEMO_DOCTORS)}"
     st.markdown(
         f'<div class="sk-section-h2">Doctor Booking</div>'
@@ -847,19 +837,19 @@ def render_doctor_booking_tab() -> None:
         _render_emergency_block()
         return
 
-    # ── Doctor selection grid ──────────────────────────────────────────────
+    # Doctor selection grid
     _render_doctor_selection_grid(selected_doc["id"])
 
     st.markdown("---")
 
-    # ── Selected doctor expanded profile ──────────────────────────────────
+    # Selected doctor expanded profile
     _render_doctor_profile(selected_doc)
 
     if st.session_state.booking_confirmed and st.session_state.booking_details:
         _render_confirmed_booking_card()
         return
 
-    # ── Calendar strip ─────────────────────────────────────────────────────
+    # Calendar strip
     available_slots = get_available_slots(7, doctor=selected_doc)
     if not available_slots:
         st.warning("কোনো উপলব্ধ স্লট নেই। · No available slots in the next 7 days.")
@@ -867,12 +857,12 @@ def render_doctor_booking_tab() -> None:
 
     _render_calendar_strip(available_slots, selected_doc)
 
-    # ── Time slots ─────────────────────────────────────────────────────────
+    # Time slots
     sel_idx = st.session_state.get("selected_date_idx")
     if sel_idx is not None and sel_idx < len(available_slots):
         _render_time_slots(available_slots[sel_idx])
 
-    # ── Patient info ───────────────────────────────────────────────────────
+    # Patient info
     st.markdown("---")
     st.markdown(
         '<div class="sk-section-h2">Patient Info</div>'

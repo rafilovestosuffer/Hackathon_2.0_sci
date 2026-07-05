@@ -40,7 +40,7 @@ def _sign(body: bytes) -> str:
     return f"sha256={mac}"
 
 
-# ── Health ────────────────────────────────────────────────────────────────────
+# --- Health ---
 
 def test_health_returns_200_with_diagnostics():
     r = client.get("/health")
@@ -59,7 +59,7 @@ def test_root_lists_endpoints():
     assert "/webhook/whatsapp" in str(r.json())
 
 
-# ── Meta subscribe handshake ──────────────────────────────────────────────────
+# --- Meta subscribe handshake ---
 
 class TestMetaSubscribe:
     def test_correct_token_echoes_challenge(self):
@@ -86,7 +86,7 @@ class TestMetaSubscribe:
         assert r.status_code == 403
 
 
-# ── Meta inbound ──────────────────────────────────────────────────────────────
+# --- Meta inbound ---
 
 class TestMetaInbound:
     def test_bad_signature_403(self):
@@ -127,7 +127,7 @@ class TestMetaInbound:
             assert "স্বাগতম" in args[1]
 
 
-# ── Telegram inbound ──────────────────────────────────────────────────────────
+# --- Telegram inbound ---
 
 class TestTelegramInbound:
     def test_text_triggers_send(self):

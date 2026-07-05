@@ -66,7 +66,7 @@ def get_provider(name: str) -> TelemedicineProvider:
     return REGISTRY[name.lower()]
 
 
-# ── Session → payload helper ─────────────────────────────────────────────────
+# --- Session → payload helper ---
 
 def payload_from_session(session_state) -> Optional[HandoffPayload]:
     """Build a HandoffPayload from Streamlit session_state. Returns None if
@@ -104,7 +104,7 @@ def payload_from_session(session_state) -> Optional[HandoffPayload]:
     )
 
 
-# ── Phase-3 stubs ────────────────────────────────────────────────────────────
+# --- Phase-3 stubs ---
 # These exist so the Impact roadmap and provider grid are backed by real code.
 # They deliberately raise on handoff — calling them is a bug.
 

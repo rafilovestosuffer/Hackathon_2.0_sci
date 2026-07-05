@@ -2,9 +2,9 @@
 mcp_server/skinai_server.py
 SkinAI Bangladesh — MCP Server (stdio transport)
 
-Exposes three production-grade tools over the Model Context Protocol:
+Exposes three tools over the Model Context Protocol:
 
-  • triage_skin_condition  — 4-signal clinical triage engine
+  • triage_skin_condition  — 3-signal clinical triage engine
   • ask_skin_question      — Bengali/English RAG chatbot (BM25 + FAISS + Gemini)
   • find_emergency_hospitals — Overpass API hospital finder for Tier 3 emergencies
 
@@ -23,7 +23,7 @@ Environment
 import os
 import sys
 
-# ── Ensure project root is on sys.path so module imports resolve correctly ──────
+# --- Ensure project root is on sys.path so module imports resolve correctly ---
 _PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if _PROJECT_ROOT not in sys.path:
     sys.path.insert(0, _PROJECT_ROOT)
@@ -34,7 +34,7 @@ from severity.engine import compute_tier
 from rag.retriever import answer_question, load_index
 from map.hospital_finder import find_nearest_hospitals, get_district_coords
 
-# ── Server bootstrap ─────────────────────────────────────────────────────────
+# --- Server bootstrap ---
 mcp = FastMCP(
     name="SkinAI Bangladesh",
     instructions=(
@@ -49,7 +49,7 @@ mcp = FastMCP(
 load_index()
 
 
-# ── Tool 1: Triage engine ─────────────────────────────────────────────────────
+# --- Tool 1: Triage engine ---
 
 @mcp.tool()
 def triage_skin_condition(
@@ -84,7 +84,7 @@ def triage_skin_condition(
     return compute_tier(disease_class, confidence, transcript)
 
 
-# ── Tool 2: RAG chatbot ───────────────────────────────────────────────────────
+# --- Tool 2: RAG chatbot ---
 
 @mcp.tool()
 def ask_skin_question(
@@ -119,7 +119,7 @@ def ask_skin_question(
     return answer_question(question, lang=lang, disease_context=ctx)
 
 
-# ── Tool 3: Emergency hospital finder ────────────────────────────────────────
+# --- Tool 3: Emergency hospital finder ---
 
 @mcp.tool()
 def find_emergency_hospitals(
@@ -173,7 +173,7 @@ def find_emergency_hospitals(
     ]
 
 
-# ── Entry point ───────────────────────────────────────────────────────────────
+# --- Entry point ---
 
 if __name__ == "__main__":
     mcp.run(transport="stdio")

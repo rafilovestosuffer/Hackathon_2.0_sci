@@ -24,7 +24,7 @@ def _make_silent_wav(duration_s: float = 1.0, sample_rate: int = 16000) -> bytes
     return buf.getvalue()
 
 
-# ── Model singleton ───────────────────────────────────────────────────────────
+# --- Model singleton ---
 
 class TestGetModel:
     def test_returns_whisper_model(self):
@@ -37,7 +37,7 @@ class TestGetModel:
         assert m1 is m2
 
 
-# ── transcribe_audio ──────────────────────────────────────────────────────────
+# --- transcribe_audio ---
 
 class TestTranscribeAudio:
     def test_returns_str_type(self):
@@ -74,7 +74,7 @@ class TestTranscribeAudio:
         assert result == result.strip()
 
 
-# ── transcribe_audio_detailed: auto-detect + prompt selection ────────────────
+# --- transcribe_audio_detailed: auto-detect + prompt selection ---
 
 def _fake_model_returning(lang: str, prob: float, text: str = "hello"):
     """Build a fake WhisperModel whose .transcribe records the call kwargs."""

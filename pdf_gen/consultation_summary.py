@@ -18,7 +18,7 @@ from fpdf.enums import Align, XPos, YPos
 
 logger = logging.getLogger(__name__)
 
-# ── Font (identical paths to referral.py — shares the cached .ttf) ────────────
+# --- Font (identical paths to referral.py — shares the cached .ttf) ---
 _FONT_DIR  = os.path.join(os.path.dirname(__file__), "fonts")
 _FONT_PATH = os.path.join(_FONT_DIR, "NotoSansBengali-Regular.ttf")
 _FONT_URL  = (
@@ -26,7 +26,7 @@ _FONT_URL  = (
     "Cn-SJsCGWQxOjaGwMQ6fIiMywrNJIky6nvd8BjzVMvJx2mcSPVFpVEqE-6KmsolLudA.ttf"
 )
 
-# ── Palette ───────────────────────────────────────────────────────────────────
+# --- Palette ---
 _TEAL      = (46,  134, 171)   # #2E86AB — header logo
 _BLUE      = (26,   82, 118)   # section headings
 _LT_BLUE   = (235, 245, 251)   # #EBF5FB — diagnosis box fill
@@ -38,7 +38,7 @@ _RED       = (146,  43,  33)
 _GREY      = (150, 150, 150)
 _BLACK     = (0,     0,   0)
 
-# ── Gemini prompts ────────────────────────────────────────────────────────────
+# --- Gemini prompts ---
 _SYS_PROMPT = (
     "You are a medical documentation assistant for SkinAI Bangladesh, a rural "
     "dermatology triage system. You are given a transcript of a completed "
@@ -52,7 +52,7 @@ _SYS_PROMPT = (
     "* Output ONLY valid JSON. No preamble. No markdown. No explanation."
 )
 
-# ── Default warning signs (shown when transcript has none) ───────────────────
+# --- Default warning signs (shown when transcript has none) ---
 _DEFAULT_WARNINGS_BN = [
     "জ্বর ১০২°F এর উপরে",
     "দ্রুত ছড়িয়ে পড়া লালভাব",
@@ -66,7 +66,7 @@ _DEFAULT_WARNINGS_EN = [
     "Swelling of face or throat",
 ]
 
-# ── Singleton Gemini client ───────────────────────────────────────────────────
+# --- Singleton Gemini client ---
 _gemini_client = None
 
 
@@ -88,7 +88,7 @@ def _strip_fences(text: str) -> str:
     return text.strip()
 
 
-# ── Font bootstrap ────────────────────────────────────────────────────────────
+# --- Font bootstrap ---
 
 def _ensure_font() -> bool:
     if os.path.exists(_FONT_PATH):
@@ -109,7 +109,7 @@ def _norm(text) -> str:
     return unicodedata.normalize("NFC", text)
 
 
-# ── PDF base class (mirrors referral.py _PDF exactly) ────────────────────────
+# --- PDF base class (mirrors referral.py _PDF exactly) ---
 
 class _PDF(FPDF):
     _has_bn: bool = False
@@ -175,7 +175,7 @@ class _PDF(FPDF):
         )
 
 
-# ── Gemini extraction ─────────────────────────────────────────────────────────
+# --- Gemini extraction ---
 
 def _extract_via_gemini(transcript: str, duration: int) -> dict | None:
     """
@@ -236,7 +236,7 @@ def _safe_str(data: dict, key: str) -> str:
     return str(val).strip() if val else ""
 
 
-# ── Fallback PDF (Gemini unavailable) ────────────────────────────────────────
+# --- Fallback PDF (Gemini unavailable) ---
 
 def _fallback_pdf(session_state: dict, duration: int) -> bytes:
     prediction = session_state.get("prediction") or {}
@@ -282,7 +282,7 @@ def _fallback_pdf(session_state: dict, duration: int) -> bytes:
     return bytes(pdf.output())
 
 
-# ── Section renderers ─────────────────────────────────────────────────────────
+# --- Section renderers ---
 
 def _render_header(pdf: _PDF, data: dict, session_state: dict, duration: int):
     pw = pdf.w - pdf.l_margin - pdf.r_margin
@@ -519,7 +519,7 @@ def _render_dos_donts(pdf: _PDF, data: dict):
     pdf.set_draw_color(*_RED)
     pdf.rect(x_r, start_y, col_w, h_r, style="FD")
 
-    # ── Left column — DOS ──────────────────────────────────────────────────────
+    # Left column — DOS
     cy = start_y + 2
     pdf.set_xy(x_l + 2, cy)
     pdf.set_text_color(*_GREEN)
@@ -541,7 +541,7 @@ def _render_dos_donts(pdf: _PDF, data: dict):
         pdf.cell(col_w - 5, 6, display, new_x=XPos.LMARGIN, new_y=YPos.NEXT)
         cy += item_h
 
-    # ── Right column — DONTS ───────────────────────────────────────────────────
+    # Right column — DONTS
     cy = start_y + 2
     pdf.set_xy(x_r + 2, cy)
     pdf.set_text_color(*_RED)
@@ -716,7 +716,7 @@ def _render_footer(pdf: _PDF):
     pdf.set_line_width(0.2)
 
 
-# ── Public API ────────────────────────────────────────────────────────────────
+# --- Public API ---
 
 def generate_consultation_summary_pdf(
     consultation_transcript: str,
@@ -734,7 +734,7 @@ def generate_consultation_summary_pdf(
     Returns:
         Tuple of (raw PDF bytes, list of prescribed medicine dicts).
     """
-    # ── Step 1: Gemini extraction ─────────────────────────────────────────────
+    # Step 1: Gemini extraction
     data = None
     if consultation_transcript and consultation_transcript.strip():
         data = _extract_via_gemini(consultation_transcript, consultation_duration_minutes)
@@ -743,7 +743,7 @@ def generate_consultation_summary_pdf(
         logger.warning("Gemini extraction failed — returning fallback PDF")
         return _fallback_pdf(session_state, consultation_duration_minutes), []
 
-    # ── Step 2: Build PDF ─────────────────────────────────────────────────────
+    # Step 2: Build PDF
     pdf = _PDF(unit="mm", format="A4")
     pdf.bootstrap()
     pdf.add_page()
@@ -759,7 +759,7 @@ def generate_consultation_summary_pdf(
     return bytes(pdf.output()), _safe_list(data, "prescribed_medicines")
 
 
-# ── Demo PDF (no Gemini, no session_state required) ───────────────────────────
+# --- Demo PDF (no Gemini, no session_state required) ---
 
 def generate_demo_summary_pdf() -> tuple[bytes, list]:
     """

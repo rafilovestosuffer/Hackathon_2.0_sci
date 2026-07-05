@@ -1,4 +1,3 @@
-# UI OVERHAUL — 2026-05-20
 """
 SkinAI Bangladesh — main Streamlit app.
 "সঠিক রোগী → সঠিক ডাক্তার → সঠিক সময়"
@@ -56,7 +55,7 @@ from map.hospital_finder import (
 
 logger = logging.getLogger(__name__)
 
-# ── Page config (must be first Streamlit call) ────────────────────────────────
+# Page config must be the first Streamlit call
 st.set_page_config(
     page_title="SkinAI Bangladesh",
     page_icon="🩺",
@@ -66,10 +65,8 @@ st.set_page_config(
 
 inject_css()
 
-# Hide the sidebar UI + restore the glass-morphism card at a wider max-width.
-# The clinical mesh background defined in ui/styles.py (.stApp) should peek
-# around the edges of a centered translucent white card — this is the design
-# intent. We override only the max-width so the card breathes on big screens.
+# Hide the sidebar and widen the centered card; the mesh background from
+# ui/styles.py stays visible around its edges.
 st.markdown(
     """
     <style>
@@ -77,8 +74,6 @@ st.markdown(
       div[data-testid="stSidebarCollapsedControl"] { display: none !important; }
       button[kind="header"] { display: none !important; }
 
-      /* Wider card so wide monitors don't feel cramped, but still let the
-         clinical mesh background show at the edges (the glass design). */
       .block-container,
       [data-testid="stAppViewContainer"] .main .block-container {
         max-width: 1500px !important;
@@ -105,7 +100,7 @@ st.markdown(
 )
 
 
-# ── Cached loaders ────────────────────────────────────────────────────────────
+# --- Cached loaders ---
 
 @st.cache_resource(show_spinner="Loading RAG knowledge base…")
 def _load_rag_index():
@@ -117,7 +112,7 @@ def _load_graph():
     return _build_graph()
 
 
-# ── BD-SkinNet model loader + inference ──────────────────────────────────────
+# --- BD-SkinNet loader + inference ---
 
 _HF_REPO     = "rafilovestosuffer/bd-skinnet"
 _HF_FILENAME = "bd_skinnet_int8.pth"
@@ -176,7 +171,7 @@ def _transcribe(
     if not audio_bytes or len(audio_bytes) < 500:
         return "", "no_audio", 0.0, "", 0.0
 
-    # Measure RMS so we can tell user if mic is silent
+    # Measure RMS so we can tell the user if the mic was silent
     try:
         from faster_whisper.audio import decode_audio
         import io as _io
@@ -220,7 +215,7 @@ def _push_history_to_form(h: dict) -> None:
     st.session_state["form_symptoms"]        = ", ".join(syms) if isinstance(syms, list) else str(syms)
 
 
-# ── Session state defaults ────────────────────────────────────────────────────
+# --- Session state defaults ---
 _DEFAULTS = {
     "transcript":        "",
     "history":           {},
@@ -265,10 +260,7 @@ _rag_ready = _warm_rag()
 _load_graph()   # build disease-symptom knowledge graph (non-blocking)
 
 
-# ══════════════════════════════════════════════════════════════════════════════
-# DEMO CASES — defined at module scope so both the sidebar (Quick Actions) and
-# Tab 1 (Quick Demo Bar) can reuse the same dict.
-# ══════════════════════════════════════════════════════════════════════════════
+# Pre-filled demo cases for the Quick Start bar in Tab 1
 _DEMO_CASES = {
     "demo_tier1": {
         "label": "🟢 Demo — Tinea Tier 1",
@@ -356,15 +348,7 @@ _DEMO_CASES = {
 }
 
 
-# ══════════════════════════════════════════════════════════════════════════════
-# (No sidebar — full-width single-column layout. All actions live in tabs.)
-# `chw_mode` keeps its default value (False) from _DEFAULTS for downstream code.
-# ══════════════════════════════════════════════════════════════════════════════
-
-
-# ══════════════════════════════════════════════════════════════════════════════
-# HERO HEADER
-# ══════════════════════════════════════════════════════════════════════════════
+# --- Hero header ---
 st.markdown(
     '<div class="hero-banner">'
     '  <div class="hero-glow"></div>'
@@ -391,7 +375,6 @@ st.markdown(
 )
 
 
-# ── Tabs ──────────────────────────────────────────────────────────────────────
 tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
     "Diagnosis · রোগ নির্ণয়",
     "Ask AI · প্রশ্ন করুন",
@@ -403,11 +386,9 @@ tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
 ])
 
 
-# ══════════════════════════════════════════════════════════════════════════════
-# TAB 1 — Diagnosis & Triage
-# ══════════════════════════════════════════════════════════════════════════════
+# --- Tab 1: Diagnosis & Triage ---
 with tab1:
-    # ── Try-a-demo expander (collapsed by default so the real workflow leads) ──
+    # Demo expander stays collapsed so the real workflow leads
     with st.expander("⚡  Quick Start — try a pre-filled demo case", expanded=False):
         st.markdown(
             '<div class="dx-quickbar-head">'
@@ -422,8 +403,6 @@ with tab1:
         )
         _demo_keys = list(_DEMO_CASES.keys())
         _demo_cols = st.columns(len(_demo_keys))
-        # Plain text labels — no leading emoji circles, the badge inside the
-        # demo dict already conveys tier/colour via styled cards downstream.
         _CLEAN_LABELS = {
             "demo_tier1":  "Tinea · Tier 1",
             "demo_tier2":  "Eczema · Tier 2",
@@ -441,11 +420,9 @@ with tab1:
                 ):
                     _dp = dict(_dc["pred"])
 
-                    # If this demo case has a bundled skin photo, load it
-                    # and run REAL BD-SkinNet. Disease label stays the
-                    # demo-intended class so the button labelled
-                    # "Tinea · Tier 1" reliably shows a Tinea/Tier-1
-                    # outcome end-to-end.
+                    # Demo cases with a bundled photo also run the real model,
+                    # but the displayed class stays the demo one so each
+                    # button's outcome is predictable.
                     _img_path = _dc.get("image")
                     if _img_path:
                         from pathlib import Path as _P
@@ -478,7 +455,7 @@ with tab1:
 
     col_left, col_right = st.columns([1, 1], gap="large")
 
-    # ── LEFT COLUMN: Voice Input + Patient Data ────────────────────────────────
+    # Left column: voice input + patient form
     with col_left:
         st.markdown(
             '<div class="dx-panel-head">'
@@ -496,7 +473,6 @@ with tab1:
             unsafe_allow_html=True,
         )
 
-        # ── Language selector ─────────────────────────────────────────────────
         _audio_lang_choice = st.selectbox(
             "Audio language",
             options=["Bengali (বাংলা)", "English", "Auto-detect"],
@@ -514,7 +490,7 @@ with tab1:
         audio_bytes = None
         audio_fmt   = "wav"
 
-        # ── Primary: live microphone recording ───────────────────────────────
+        # Live microphone recording
         _mic_available = True
         try:
             from streamlit_mic_recorder import mic_recorder
@@ -551,7 +527,7 @@ with tab1:
                         "least 3 seconds — say your name, age, and symptoms."
                     )
 
-        # ── Fallback options collapsed by default ────────────────────────────
+        # Fallbacks: upload a file or type the history
         with st.expander("Can't use a microphone?  Upload audio or type instead.", expanded=False):
             _fb_upload, _fb_text = st.tabs(["Upload audio file", "Type the history"])
 
@@ -610,7 +586,7 @@ with tab1:
                     st.audio(audio_bytes, format="audio/wav")
                     st.success("Demo clip loaded — transcribing…")
 
-        # ── Process audio if captured (hash-guarded to prevent infinite rerun) ──
+        # Process captured audio once — the hash guard prevents rerun loops
         if audio_bytes:
             _audio_hash = hashlib.md5(audio_bytes).hexdigest()
             _already_processed = (_audio_hash == st.session_state.get("_last_audio_hash", ""))
@@ -630,7 +606,7 @@ with tab1:
                     if _transcript:
                         _log_event("voice", lang=_detected or _selected_lang or "bn")
 
-                # Show RMS energy level — helps diagnose silent mic issues
+                # Mic level indicator helps diagnose a silent mic
                 if _rms >= 0:
                     _rms_pct = min(int(_rms * 5000), 100)
                     _rms_color = "#27AE60" if _rms_pct > 5 else "#E74C3C"
@@ -710,7 +686,7 @@ with tab1:
 
         st.markdown('<hr class="dx-divider">', unsafe_allow_html=True)
 
-        # ── Patient Data Form — always visible, editable ──────────────────────
+        # Patient form — always visible, editable
         st.markdown(
             '<div class="dx-panel-head">'
             '  <div class="dx-step-badge">2</div>'
@@ -794,16 +770,14 @@ with tab1:
                 "symptoms":            _syms,
                 "associated_symptoms": _h.get("associated_symptoms", []),
             }
-            # st.toast survives the implicit rerun that follows the button
-            # click; st.success + st.rerun() killed the feedback before it
-            # could render, so the user thought nothing happened.
+            # st.toast survives the rerun that follows a button click
             st.toast("✅ Patient data saved!", icon="💾")
 
         if st.session_state.history and st.session_state.history.get("patient_name"):
             st.markdown("")
             render_patient_history_table(st.session_state.history)
 
-    # ── RIGHT COLUMN: Image Upload + Results ───────────────────────────────────
+    # Right column: image upload + results
     with col_right:
         st.markdown(
             '<div class="dx-panel-head">'
@@ -854,7 +828,7 @@ with tab1:
                     unsafe_allow_html=True,
                 )
 
-            # F5 — Auto-enhance low-light / blurry images before inference
+            # Auto-enhance low-light / blurry images before inference
             enhanced_img, was_enhanced = enhance_skin_image(pil_img)
             if was_enhanced:
                 _ecol1, _ecol2 = st.columns(2)
@@ -896,11 +870,10 @@ with tab1:
                 conf_bucket="high" if _conf >= 0.60 else ("medium" if _conf >= 0.40 else "low"),
             )
 
-            # Disease result card
             render_disease_card(pred["disease"], pred["confidence"], pred["top2"])
             render_fairness_disclosure()
 
-            # Graph-derived clinical context (non-blocking — skipped if graph unavailable)
+            # Graph-derived clinical context — skipped if the graph is unavailable
             _g_syms  = _graph_symptoms(pred["disease"])
             _g_parts = _graph_parts(pred["disease"])
             if _g_syms or _g_parts:
@@ -926,8 +899,7 @@ with tab1:
                     st.caption("Source: SkinAI knowledge graph — CDC · NIH · WHO · DGHS Bangladesh")
 
         else:
-            # No new upload — show the demo photo + cached results if a demo
-            # button was clicked, or just cached results otherwise.
+            # No new upload — show the demo photo and/or cached results
             _demo_path = st.session_state.get("demo_image_path")
             if _demo_path:
                 from pathlib import Path as _P
@@ -962,12 +934,12 @@ with tab1:
                     unsafe_allow_html=True,
                 )
 
-    # ── FULL-WIDTH: Severity Tier Banner + enhancements ───────────────────────
+    # Full-width severity banner + follow-ups
     if st.session_state.tier_result:
         _tr = st.session_state.tier_result
         st.markdown('<div style="margin-top:0.25rem;"></div>', unsafe_allow_html=True)
 
-        # F3 — CHW mode: simplified big card instead of standard banner
+        # CHW mode shows a simplified big card instead of the standard banner
         if st.session_state.get("chw_mode") and st.session_state.prediction:
             render_chw_result(st.session_state.prediction, _tr)
         else:
@@ -979,15 +951,14 @@ with tab1:
                 facility      = _tr["facility"],
             )
 
-        # F1 — Bengali TTS readout
         render_audio_triage(_tr.get("bengali_text", ""))
 
-        # F6 — Symptom timeline (only when history has duration)
+        # Symptom timeline needs a duration from the history
         _dur = (st.session_state.history or {}).get("duration", "")
         if _dur:
             render_symptom_timeline(_dur, _tr["tier"])
 
-        # ── All tiers: Nearest healthcare facility map (skip for tier 0) ────────
+        # Nearest facility map for tiers 1-3
         if _tr["tier"] == 0:
             st.markdown(
                 '<div style="background:#E8FDF1;border:1.5px solid #6FCFA5;border-radius:10px;'
@@ -1063,11 +1034,8 @@ with tab1:
                     ))
 
 
-# ══════════════════════════════════════════════════════════════════════════════
-# TAB 2 — RAG Chatbot
-# ══════════════════════════════════════════════════════════════════════════════
+# --- Tab 2: Ask AI (RAG chatbot) ---
 with tab2:
-    # ── Source info bar ───────────────────────────────────────────────────────
     if not _rag_ready:
         st.warning(bn_en(
             "⚠️ জ্ঞানভান্ডার লোড হচ্ছে না। build_index.py চালানো হয়েছে কিনা যাচাই করুন।",
@@ -1087,7 +1055,7 @@ with tab2:
         unsafe_allow_html=True,
     )
 
-    # ── Disease context ────────────────────────────────────────────────────────
+    # An active diagnosis becomes context for every answer
     _disease_context_str = None
     if st.session_state.prediction:
         _p = st.session_state.prediction
@@ -1099,7 +1067,6 @@ with tab2:
             "answering questions in this clinical context.",
         )
 
-    # ── Chat history (native st.chat_message — auto-scroll, accessible) ─────────
     for _msg in st.session_state.chat_history:
         with st.chat_message(_msg["role"]):
             st.markdown(_msg["content"])
@@ -1112,7 +1079,7 @@ with tab2:
             st.session_state.rag_answer   = ""
             st.rerun()
     else:
-        # Empty state — premium hero card with animated AI orb
+        # Empty state
         st.markdown(
             '<div class="ask-hero">'
             '  <div class="ask-hero-orb">'
@@ -1154,7 +1121,6 @@ with tab2:
             st.session_state.rag_lang   = _lang
             st.rerun()
 
-    # ── Chat input ─────────────────────────────────────────────────────────────
     _question = st.chat_input(
         "আপনার প্রশ্ন লিখুন / Type your question… (Bengali or English)",
         key="chat_input",
@@ -1174,7 +1140,7 @@ with tab2:
         })
         st.session_state.rag_answer = _answer
         st.session_state.rag_lang   = _lang
-        # Anonymised analytics — question hash only, no content stored
+        # Anonymised analytics — no question content stored
         _log_event("rag", lang=_lang)
         st.rerun()
 
@@ -1186,11 +1152,9 @@ with tab2:
     )
 
 
-# ══════════════════════════════════════════════════════════════════════════════
-# TAB 3 — Referral Letter PDF
-# ══════════════════════════════════════════════════════════════════════════════
+# --- Tab 3: Referral letter PDF ---
 with tab3:
-    # ── Sample PDF — collapsed, available without running the pipeline ───────
+    # Sample PDF is available without running the pipeline
     with st.expander("Download a sample referral letter (no diagnosis needed)", expanded=False):
         st.caption(
             "Fully-populated example: Rahim · Scabies Tier 3 · with doctor booking. "
@@ -1234,7 +1198,7 @@ with tab3:
     history = st.session_state.history
 
     if pred and tier and tier.get("tier") == 0:
-        # ── Tier 0: Healthy skin — no referral needed ─────────────────────────
+        # Tier 0: healthy skin, no referral needed
         st.markdown(
             '<div style="background:#E8FDF1;border:1.5px solid #6FCFA5;border-radius:14px;'
             'padding:1.6rem 2rem;text-align:center;margin:1rem 0;">'
@@ -1249,12 +1213,10 @@ with tab3:
         )
 
     elif pred and tier:
-        # ── PDF Preview cards ─────────────────────────────────────────────────
         render_referral_preview(pred, tier, history)
 
         st.markdown("<br>", unsafe_allow_html=True)
 
-        # ── Single primary action: radio + Generate ───────────────────────────
         from model.disease_labels import get_bengali as _get_bn
         _session_data = {
             **history,
@@ -1295,7 +1257,6 @@ with tab3:
                 except Exception as e:
                     st.error(f"PDF generation failed: {e}")
 
-        # ── Download buttons ───────────────────────────────────────────────────
         render_referral_download_button(st.session_state.pdf_bytes)
 
         _chw_pdf = st.session_state.get("chw_pdf_bytes")
@@ -1311,7 +1272,7 @@ with tab3:
             )
 
     else:
-        # ── Empty state with progress indicator ───────────────────────────────
+        # Empty state with progress steps
         _voice_done     = bool(st.session_state.transcript)
         _image_done     = st.session_state.prediction is not None
         _diagnosis_done = st.session_state.tier_result is not None
@@ -1356,9 +1317,7 @@ with tab3:
     )
 
 
-# ══════════════════════════════════════════════════════════════════════════════
-# TAB 4 — Epidemiology / Disease Prevalence Heatmap
-# ══════════════════════════════════════════════════════════════════════════════
+# --- Tab 4: Disease prevalence heatmap ---
 with tab4:
     st.markdown(
         '<div class="sk-section-h2">Bangladesh Skin Disease Prevalence</div>'
@@ -1377,7 +1336,7 @@ with tab4:
     _disease_options = {d.replace("_", " "): d for d in _diseases}
     _disease_option_keys = list(_disease_options.keys())
 
-    # Pre-select the most-recent diagnosis (if any) — saves clicks
+    # Pre-select the most recent diagnosis to save clicks
     _default_idx = 0
     _current_pred = (st.session_state.get("prediction") or {}).get("disease", "")
     if _current_pred:
@@ -1443,7 +1402,6 @@ with tab4:
                 unsafe_allow_html=True,
             )
 
-    # Citation row
     _src = DISEASE_SOURCE.get(_sel_disease, "WHO SEARO regional patterns")
     st.markdown(
         f'<div style="font-size:0.72rem;color:#718096;margin-top:0.5rem;">'
@@ -1505,23 +1463,17 @@ with tab4:
             st.markdown(_follow)
 
 
-# ══════════════════════════════════════════════════════════════════════════════
-# TAB 5 — DocTime Telemedicine Handoff (Phase 1 launch partner)
-# ══════════════════════════════════════════════════════════════════════════════
+# --- Tab 5: DocTime telemedicine handoff ---
 with tab5:
     render_doctime_handoff_tab()
 
 
-# ══════════════════════════════════════════════════════════════════════════════
-# TAB 6 — Phase 2 Preview: our own dermatologist network
-# ══════════════════════════════════════════════════════════════════════════════
+# --- Tab 6: Phase 2 dermatologist network ---
 with tab6:
     render_phase2_preview_tab()
 
 
-# ══════════════════════════════════════════════════════════════════════════════
-# TAB 7 — Impact, Ethics & Roadmap (Infinity AI BuildFest submission content)
-# ══════════════════════════════════════════════════════════════════════════════
+# --- Tab 7: Impact, Ethics & Roadmap ---
 with tab7:
     st.markdown(
         '<div style="background:linear-gradient(135deg,#1A6FA8 0%,#0D9E75 100%);'
@@ -1629,9 +1581,7 @@ with tab7:
         render_nrb_sponsor()
 
 
-# ══════════════════════════════════════════════════════════════════════════════
-# APP FOOTER
-# ══════════════════════════════════════════════════════════════════════════════
+# --- Footer ---
 st.markdown(
     '<div class="sk-footer">'
     '  <div class="sk-footer-brand">'

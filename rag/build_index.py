@@ -94,8 +94,7 @@ def load_chunks(knowledge_dir: str) -> list[dict]:
 def build():
     if not os.path.isdir(KNOWLEDGE_DIR):
         raise FileNotFoundError(
-            f"Knowledge directory not found: {KNOWLEDGE_DIR}\n"
-            "Run: python rag/seed_knowledge.py"
+            f"Knowledge directory not found: {KNOWLEDGE_DIR}"
         )
 
     print(f"Loading chunks from {KNOWLEDGE_DIR} ...")

@@ -1,7 +1,5 @@
 """
-keepalive.py — Ping HF Space every 20 minutes to prevent sleep.
-
-CONSTRAINT 7: App must stay live until July 12, 2026.
+keepalive.py — Ping the HF Space every 20 minutes so it never sleeps.
 
 Usage (manual):
     python scripts/keepalive.py

@@ -1,12 +1,11 @@
-# UI OVERHAUL — 2026-05-20
 """
-ui/styles.py — Championship-grade medical CSS for SkinAI Bangladesh.
+ui/styles.py — medical design-system CSS for SkinAI Bangladesh.
 Call inject_css() once at app startup (top of app.py).
 """
 
 import streamlit as st
 
-# ── Design tokens (imported by components.py) ────────────────────────────────
+# --- Design tokens (imported by components.py) ---
 # Aligned with the CSS :root palette below (vibrant-clinical refresh).
 PRIMARY       = "#1668A4"   # medical trust sapphire
 TEAL          = "#10B981"   # health accent emerald
@@ -135,27 +134,6 @@ html, body, [class*="css"] {
   min-height: 100vh;
 }
 
-/* Soft conic vignette over the canvas — subtle prismatic shimmer that
-   reads as "premium product" rather than flat color. Sits behind the
-   card via z-index 0 / pointer-events none.                            */
-.stApp::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
-  background:
-    conic-gradient(from 220deg at 78% 22%,
-      transparent 0deg,
-      rgba(56,148,222,0.10) 40deg,
-      transparent 110deg,
-      rgba(16,185,129,0.08) 200deg,
-      transparent 270deg,
-      rgba(99,102,241,0.07) 320deg,
-      transparent 360deg);
-  filter: blur(38px);
-  mix-blend-mode: screen;
-}
 
 /* Main container — bright translucent glass surface that DRAMATICALLY
    floats above the dark canvas. Comprehensive selectors cover every
@@ -174,28 +152,7 @@ section[data-testid="stMain"] .block-container,
   padding-bottom: 3.5rem !important;
   padding-left: 2.6rem !important;
   padding-right: 2.6rem !important;
-  background:
-    /* emerald aurora — top-left */
-    radial-gradient(ellipse 75% 62% at 0% 0%,
-      rgba(16,185,129,0.30) 0%, transparent 55%),
-    /* violet aurora — top-right */
-    radial-gradient(ellipse 72% 56% at 100% 0%,
-      rgba(124,92,255,0.24) 0%, transparent 55%),
-    /* sapphire aurora — bottom-right */
-    radial-gradient(ellipse 82% 64% at 100% 100%,
-      rgba(22,104,164,0.30) 0%, transparent 58%),
-    /* cyan aurora — bottom-left */
-    radial-gradient(ellipse 74% 56% at 0% 100%,
-      rgba(6,182,212,0.26) 0%, transparent 58%),
-    /* amber whisper — center for warmth */
-    radial-gradient(ellipse 50% 40% at 50% 45%,
-      rgba(245,158,11,0.07) 0%, transparent 70%),
-    /* soft tinted base — gentle mint→sky wash (no longer flat white),
-       kept light enough for text contrast */
-    linear-gradient(155deg,
-      rgba(241,250,248,0.90) 0%,
-      rgba(235,245,250,0.88) 55%,
-      rgba(238,247,243,0.90) 100%) !important;
+  background: linear-gradient(160deg, #E6EEF6 0%, #D7E3F0 100%) !important;
   backdrop-filter: blur(18px) saturate(150%);
   -webkit-backdrop-filter: blur(18px) saturate(150%);
   border-radius: 24px !important;
@@ -230,6 +187,28 @@ section[data-testid="stMain"] .block-container::before,
   pointer-events: none;
   border-top-left-radius: 24px;
   border-top-right-radius: 24px;
+}
+
+/* Soft conic vignette over the canvas — subtle prismatic shimmer that
+   reads as "premium product" rather than flat color. Sits behind the
+   card via z-index 0 / pointer-events none.                            */
+.stApp::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    conic-gradient(from 220deg at 78% 22%,
+      transparent 0deg,
+      rgba(56,148,222,0.10) 40deg,
+      transparent 110deg,
+      rgba(16,185,129,0.08) 200deg,
+      transparent 270deg,
+      rgba(99,102,241,0.07) 320deg,
+      transparent 360deg);
+  filter: blur(38px);
+  mix-blend-mode: screen;
 }
 
 /* Make sure tab panels are TRANSPARENT — otherwise they paint over the

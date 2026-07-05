@@ -65,4 +65,18 @@ SESSION_PROTOCOL.md
 SUBMISSION.md
 TASK.md
 AGENTS.md
-docs/
+docs/submission/
+docs/demo_script.md
+
+# One-off generators (kept locally, not needed to run the app)
+rag/seed_knowledge.py
+scripts/extract_demo_images.py
+scripts/make_demo_clip.py
+scripts/generate_demo_summary.py
+scripts/generate_demo_script_pdf.py
+
+# Assistant/tooling config
+.agents/
+.claude/
+.codex/
+*.lnk

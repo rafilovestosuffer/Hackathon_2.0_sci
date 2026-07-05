@@ -31,7 +31,7 @@ _BOOKING_REQUIRED_KEYS = [
 ]
 
 
-# ── Test 1: only valid days returned ─────────────────────────────────────────
+# --- Test 1: only valid days returned ---
 
 class TestAvailableSlotsValidDays:
     def test_returns_only_sun_tue_thu(self):
@@ -47,7 +47,7 @@ class TestAvailableSlotsValidDays:
             assert DEMO_DOCTOR["available_days"].get(s["day_name"]) is True
 
 
-# ── Test 2: slot count in 7-day window ───────────────────────────────────────
+# --- Test 2: slot count in 7-day window ---
 
 class TestAvailableSlotsCount:
     def test_7_day_window_returns_2_or_3(self):
@@ -69,7 +69,7 @@ class TestAvailableSlotsCount:
             assert s["date"] > today
 
 
-# ── Test 3: booking_id format ─────────────────────────────────────────────────
+# --- Test 3: booking_id format ---
 
 class TestBookingIdFormat:
     def test_pattern_matches(self):
@@ -91,7 +91,7 @@ class TestBookingIdFormat:
         assert all(1000 <= i <= 9999 for i in ids)
 
 
-# ── Test 4: Bengali numeral conversion ────────────────────────────────────────
+# --- Test 4: Bengali numeral conversion ---
 
 class TestBengaliNumeralConversion:
     def test_evening_time_conversion(self):
@@ -125,7 +125,7 @@ class TestBengaliNumeralConversion:
         assert _to_bn_num("2026") == "২০২৬"
 
 
-# ── Test 5: booking_details has all required keys ────────────────────────────
+# --- Test 5: booking_details has all required keys ---
 
 class TestBookingDetailsKeys:
     def _make_booking_details(self) -> dict:
@@ -171,7 +171,7 @@ class TestBookingDetailsKeys:
         assert bd["meet_link"].startswith("https://meet.google.com/")
 
 
-# ── Test 6: tier None disables confirm ───────────────────────────────────────
+# --- Test 6: tier None disables confirm ---
 
 class TestTierNonePreviewOnly:
     def test_tier_none_confirm_disabled(self):
@@ -190,7 +190,7 @@ class TestTierNonePreviewOnly:
         assert confirm_should_be_disabled is False
 
 
-# ── Test 7: tier 3 hides booking flow ────────────────────────────────────────
+# --- Test 7: tier 3 hides booking flow ---
 
 class TestTier3HidesBookingFlow:
     def test_tier_3_returns_early(self):
@@ -214,7 +214,7 @@ class TestTier3HidesBookingFlow:
         assert show_booking_form is True  # shows preview, confirm disabled
 
 
-# ── Bonus: DEMO_DOCTOR data integrity ────────────────────────────────────────
+# --- Bonus: DEMO_DOCTOR data integrity ---
 
 class TestDemoDoctorIntegrity:
     def test_has_required_fields(self):
@@ -248,7 +248,7 @@ class TestDemoDoctorIntegrity:
         assert len(DEMO_DOCTOR["meet_link"]) > 0
 
 
-# ── Bonus: slot structure ─────────────────────────────────────────────────────
+# --- Bonus: slot structure ---
 
 class TestSlotStructure:
     def test_each_slot_has_required_keys(self):
@@ -281,7 +281,7 @@ class TestSlotStructure:
             assert has_bengali, f"No Bengali in date_display_bn: {s['date_display_bn']!r}"
 
 
-# ── Multi-doctor roster tests ─────────────────────────────────────────────────
+# --- Multi-doctor roster tests ---
 
 class TestDemoDoctorsRoster:
     def test_roster_has_six_doctors(self):

@@ -22,7 +22,7 @@ from whatsapp.state import State, store
 logger = logging.getLogger(__name__)
 
 
-# ── Outbound action dataclasses ───────────────────────────────────────────────
+# --- Outbound action dataclasses ---
 
 @dataclass
 class TextOut:
@@ -41,7 +41,7 @@ class PdfOut:
 Action = TextOut | PdfOut
 
 
-# ── Helpers ───────────────────────────────────────────────────────────────────
+# --- Helpers ---
 
 def _is_reset_command(text: str) -> bool:
     t = (text or "").strip().lower()
@@ -92,14 +92,12 @@ def _laplacian_variance(img_bytes: bytes) -> float:
         return -1.0
 
 
-# ── Model inference adapter ──────────────────────────────────────────────────
-# Mirrors app.py::_run_model — when the real checkpoint lands, swap here too.
+# --- Model inference adapter ---
 
 def _run_model(image_bytes: bytes) -> dict:
     """Return {disease, confidence, top2} from image bytes."""
-    # Placeholder identical to app.py:_run_model — keeps demo deterministic
-    # while real checkpoint is unavailable. When checkpoint arrives, replace
-    # body with real BD-SkinNet inference.
+    # The bot returns a fixed demo prediction (same schema as app.py::_run_model);
+    # real BD-SkinNet inference runs in the web app.
     return {
         "disease": "Tinea",
         "confidence": 0.82,
@@ -110,7 +108,7 @@ def _run_model(image_bytes: bytes) -> dict:
     }
 
 
-# ── Pipeline runner — called when both image + (voice or skip) are in ────────
+# --- Pipeline runner — called when both image + (voice or skip) are in ---
 
 def _run_pipeline(sess) -> tuple[dict, dict, Optional[dict], bytes]:
     """
@@ -188,7 +186,7 @@ def _build_triage_text(prediction: dict, tier_result: dict, nearest: Optional[di
     )
 
 
-# ── Main entry point ──────────────────────────────────────────────────────────
+# --- Main entry point ---
 
 def handle_event(
     event: dict,

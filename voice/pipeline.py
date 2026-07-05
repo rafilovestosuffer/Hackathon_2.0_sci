@@ -24,11 +24,11 @@ load_dotenv()
 
 logger = logging.getLogger(__name__)
 
-# ── Singletons ────────────────────────────────────────────────────────────────
+# --- Singletons ---
 _whisper_model = None
 _gemini_client = None
 
-# ── Constants ─────────────────────────────────────────────────────────────────
+# --- Constants ---
 _SILENCE_RMS_THRESHOLD  = 0.0005   # below this → treat as silence
 _MIN_AUDIO_SECONDS      = 0.5      # recordings shorter than this are rejected
 _NO_SPEECH_PROB_MAX     = 0.55     # segments above this threshold are hallucination
@@ -73,7 +73,7 @@ Rules:
 Transcript: {transcript}"""
 
 
-# ── Internal helpers ──────────────────────────────────────────────────────────
+# --- Internal helpers ---
 
 def _empty_history() -> dict:
     return {k: ([] if isinstance(v, list) else "") for k, v in _HISTORY_KEYS.items()}
@@ -163,7 +163,7 @@ def _check_audio_quality(audio_arr: np.ndarray) -> tuple[bool, float, str]:
     return True, rms, ""
 
 
-# ── Public API ────────────────────────────────────────────────────────────────
+# --- Public API ---
 
 # Initial prompts force the model to output in the right script.
 # Without these, Whisper often romanizes Bengali into Latin OR — worse —

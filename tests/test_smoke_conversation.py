@@ -15,7 +15,7 @@ import httpx
 import pytest
 
 
-# ── Env setup BEFORE any whatsapp imports ─────────────────────────────────────
+# --- Env setup BEFORE any whatsapp imports ---
 os.environ["META_VERIFY_TOKEN"] = "vt"
 os.environ["META_APP_SECRET"] = "sec"
 os.environ["META_ACCESS_TOKEN"] = "tok"

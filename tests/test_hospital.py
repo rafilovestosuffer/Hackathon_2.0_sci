@@ -9,7 +9,7 @@ import pytest
 import map.hospital_finder as hf
 
 
-# ── Fake Overpass response ────────────────────────────────────────────────────
+# --- Fake Overpass response ---
 
 _FAKE_ELEMENTS = [
     {
@@ -53,7 +53,7 @@ def _fake_overpass(lat, lon, radius_m):
     return _FAKE_ELEMENTS
 
 
-# ── TestGetDistrictCoords ─────────────────────────────────────────────────────
+# --- TestGetDistrictCoords ---
 
 class TestGetDistrictCoords:
     def test_dhaka_returns_coords(self):
@@ -78,7 +78,7 @@ class TestGetDistrictCoords:
         assert hf.get_district_coords("chattogram") is not None
 
 
-# ── TestFindNearestHospitals ──────────────────────────────────────────────────
+# --- TestFindNearestHospitals ---
 
 class TestFindNearestHospitals:
     def setup_method(self):
@@ -140,7 +140,7 @@ class TestFindNearestHospitals:
         assert any("Bangabandhu" in n for n in names)
 
 
-# ── TestHaversine ─────────────────────────────────────────────────────────────
+# --- TestHaversine ---
 
 class TestHaversine:
     def test_same_point_is_zero(self):
