@@ -782,7 +782,7 @@ class TestTechDecisions:
                 "Swin Transformer Base + CBAM",
                 "INT8 dynamic quantisation",
                 "3-signal severity engine",
-                "Gemini 1.5 Flash",
+                "Gemini 2.5 Flash-Lite",
                 "FAISS",
             ]:
                 assert needle in html, f"missing decision: {needle}"

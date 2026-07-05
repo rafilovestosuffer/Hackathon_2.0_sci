@@ -236,12 +236,12 @@ if any(kw in transcript for kw in                        # Signal 3 — Bengali 
 
 The "Ask AI" tab ([`rag/retriever.py`](rag/retriever.py)) answers in Bengali or English, grounded **only** in trusted public-health sources.
 
-**Knowledge base — 100 curated chunks, four sources only:**
+**Knowledge base — 104 curated chunks, four sources only:**
 
 | Source | Chunks | | Source | Chunks |
 |---|---:|---|---|---:|
-| CDC | 32 | | WHO | 16 |
-| NIH / MedlinePlus | 32 | | DGHS Bangladesh | 20 |
+| CDC | 32 | | WHO | 17 |
+| NIH / MedlinePlus | 34 | | DGHS Bangladesh | 21 |
 
 Every chunk carries `SOURCE:`/`TOPIC:` provenance. **No DermNet, ever.**
 
@@ -311,7 +311,7 @@ Also generates a **one-page CHW slip** (with cost estimate) and a **6-section Ca
 <br>
 
 [`map/hospital_finder.py`](map/hospital_finder.py):
-- Queries the **OpenStreetMap Overpass API** (`amenity=hospital`) — **free, no API key** — and ranks by **Haversine distance** from a table of **68 Bangladesh districts** (with alternate spellings: chittagong/chattogram, bogra/bogura…).
+- Queries the **OpenStreetMap Overpass API** (`amenity=hospital`) — **free, no API key** — and ranks by **Haversine distance** from a table of **70 Bangladesh districts** (with alternate spellings: chittagong/chattogram, bogra/bogura…).
 - **Resilient:** if Overpass times out, a static **DGHS division-hospital fallback** (with phone numbers) guarantees the PDF always names a real facility. Renders ranked cards + an interactive **Folium** map (user pin + ranked hospital pins, auto-fit), tier-aware as pharmacies / Upazila complexes / emergency hospitals.
 
 [`map/bd_heatmap.py`](map/bd_heatmap.py): a division-level **prevalence heatmap** per disease (qualitative burden from WHO SEARO patterns + literature) with RAG-generated prevention tips.
@@ -414,13 +414,13 @@ skinai-bangladesh/
 ├── rag/
 │   ├── retriever.py            # cache→ChromaDB→FAISS→BM25 + Graph RAG + redaction
 │   ├── chroma_store.py · build_index.py · cache.py
-│   └── knowledge/              # 100 chunks: CDC×32 · NIH×32 · WHO×16 · DGHS×20
+│   └── knowledge/              # 104 chunks: CDC×32 · NIH×34 · WHO×17 · DGHS×21
 ├── graph/store.py              # Kuzu disease–symptom–triage graph
 ├── pdf_gen/
 │   ├── referral.py             # 4-section referral + CHW slip (fpdf2 + HarfBuzz)
 │   └── consultation_summary.py # 6-section Care Summary PDF
 ├── map/
-│   ├── hospital_finder.py      # Overpass + Haversine + DGHS fallback (68 districts)
+│   ├── hospital_finder.py      # Overpass + Haversine + DGHS fallback (70 districts)
 │   └── bd_heatmap.py           # prevalence heatmap
 ├── telemedicine/               # provider Protocol + DocTime Phase-1 handoff
 ├── whatsapp/ · webhook/        # bot router, state machine, clients, FastAPI server
@@ -518,7 +518,7 @@ pytest tests/ -v
 
 | # | Constraint | Status | Evidence |
 |---|---|---|---|
-| 1 | No DermNet data | ✅ | Clinical training data + 100 chunks all CDC/NIH/WHO/DGHS |
+| 1 | No DermNet data | ✅ | Clinical training data + 104 chunks all CDC/NIH/WHO/DGHS |
 | 2 | No login / instant public URL | ✅ | Public HF Space, no auth |
 | 3 | No medicine recommendations | ✅ | `_redact_medicine_names()` on every RAG response |
 | 4 | No persistent patient database | ✅ | `session_state` + in-memory bot sessions; only anonymized non-PII counters on disk |

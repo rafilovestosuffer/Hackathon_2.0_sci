@@ -308,7 +308,7 @@ c1, c2 = st.columns(2)
 with c1:
     st.markdown("""<div class="card">
     <h3>🎙️ Bengali Voice Input</h3>
-    <p>Patient speaks in Bengali. faster-whisper ASR transcribes → Gemini 1.5 Flash extracts 9-field structured patient history JSON.</p>
+    <p>Patient speaks in Bengali. faster-whisper ASR transcribes → Gemini 2.5 Flash-Lite extracts 9-field structured patient history JSON.</p>
     </div>""", unsafe_allow_html=True)
     st.markdown("<br>", unsafe_allow_html=True)
     st.markdown("""<div class="card">
@@ -376,7 +376,7 @@ graph TB
     end
     subgraph PROCESSING["⚙️ Processing Layer"]
         C[faster-whisper ASR<br/>INT8 · language=bn]
-        D[Gemini 1.5 Flash<br/>JSON Extraction]
+        D[Gemini 2.5 Flash-Lite<br/>JSON Extraction]
         E[BD-SkinNet<br/>Swin-B + CBAM · INT8]
     end
     subgraph TRIAGE["🎯 Triage Engine"]
@@ -449,10 +449,10 @@ with c1:
 with c2:
     st.markdown("""<div class="card">
     <h3>RAG Chatbot (NLP)</h3>
-    <p><strong style="color:#e2e8f0">BM25 + FAISS + Gemini 2.5 Flash</strong><br/>
+    <p><strong style="color:#e2e8f0">BM25 + FAISS + Gemini 2.5 Flash-Lite</strong><br/>
     100 disease-specific chunks<br/>
-    CDC × 32 · NIH × 32<br/>
-    WHO × 16 · DGHS BD × 20<br/>
+    CDC × 32 · NIH × 34<br/>
+    WHO × 17 · DGHS BD × 21<br/>
     Auto Bengali/English detection<br/>
     Medicine-name redaction guardrail</p>
     </div>""", unsafe_allow_html=True)
@@ -520,7 +520,7 @@ stack_left = [
     ("Vision Model", "Swin Transformer Base · CBAM · timm 1.0.27"),
     ("Quantization", "torch.quantization.quantize_dynamic (INT8)"),
     ("ASR", "faster-whisper (Whisper Base) · CTranslate2 INT8"),
-    ("LLM / API", "Gemini 2.5 Flash · google-genai 1.63.0"),
+    ("LLM / API", "Gemini 2.5 Flash-Lite · google-genai 1.63.0"),
     ("RAG Retrieval", "ChromaDB HNSW · FAISS · BM25 fallback chain"),
     ("Embeddings", "intfloat/multilingual-e5-small"),
     ("Vector DB", "ChromaDB 0.5 — 100 knowledge chunk collection"),

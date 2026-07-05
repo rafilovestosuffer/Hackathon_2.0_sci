@@ -1384,7 +1384,7 @@ _TECH_DECISIONS = [
         "color":   "#7C3AED",
     },
     {
-        "name":    "Gemini 1.5 Flash + FAISS-CPU",
+        "name":    "Gemini 2.5 Flash-Lite + FAISS-CPU",
         "role":    "Voice extraction &amp; RAG",
         "why":     "Gemini Flash chosen over GPT-4 for native Bengali, long context window, and a "
                    "generous free tier suited to a no-revenue pilot. FAISS-CPU chosen over Chroma/"
@@ -1433,7 +1433,7 @@ def render_tech_decisions() -> None:
 _ARCH_ROWS = [
     {
         "input":  ("🎙️", "Bengali voice", "WAV / MP3 / mic"),
-        "proc":   ("faster-whisper (Bengali ASR)<br>→ Gemini 1.5 Flash (JSON extract)",
+        "proc":   ("faster-whisper (Bengali ASR)<br>→ Gemini 2.5 Flash-Lite (JSON extract)",
                    "~3 s · free tier"),
         "output": ("📋", "9-field patient history JSON", "name, age, complaint, symptoms…"),
     },
@@ -1457,7 +1457,7 @@ _ARCH_ROWS = [
     },
     {
         "input":  ("💬", "User question (Bengali or English)", "in chat"),
-        "proc":   ("MiniLM multilingual embeddings<br>→ FAISS-CPU → Gemini 1.5 Flash",
+        "proc":   ("MiniLM multilingual embeddings<br>→ FAISS-CPU → Gemini 2.5 Flash-Lite",
                    "~1.1 s · grounded in CDC/NIH/WHO/DGHS"),
         "output": ("📚", "Bilingual evidence-grounded answer", "with source attribution"),
     },
