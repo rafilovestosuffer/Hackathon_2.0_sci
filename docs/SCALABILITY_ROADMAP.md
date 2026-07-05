@@ -48,7 +48,7 @@
 
 **Ships.**
 - Offline-capable mobile APK (TFLite INT8 export of the existing checkpoint — same architecture, ahead-of-time compiled). Targets rural users with intermittent connectivity.
-- Hindi and Urdu RAG corpora added to the knowledge base (the embedding model is already multilingual — `paraphrase-multilingual-MiniLM-L6-v2`).
+- Hindi and Urdu RAG corpora added to the knowledge base (the embedding model is already multilingual — `intfloat/multilingual-e5-small`).
 - Model card and data card published in machine-readable form for external adaptation.
 - South Asian partnership exploration: WHO SEARO regional coordination, AIIMS Delhi telemedicine collaborations.
 

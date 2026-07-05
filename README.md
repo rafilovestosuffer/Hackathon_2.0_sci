@@ -448,6 +448,7 @@ skinai-bangladesh/
 git clone https://github.com/rafilovestosuffer/Hackathon_2.0_sci.git
 cd Hackathon_2.0_sci
 
+pip install torch torchvision --extra-index-url https://download.pytorch.org/whl/cpu
 pip install -r requirements.txt          # CPU only, ~3 GB RAM, Python 3.10+
 
 cp .env.example .env                      # then set GEMINI_API_KEY=...
