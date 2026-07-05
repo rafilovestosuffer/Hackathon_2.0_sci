@@ -86,9 +86,10 @@ def debug_telegram_getme() -> JSONResponse:
     token = os.environ.get("TELEGRAM_BOT_TOKEN", "")
     if not token:
         return JSONResponse({"ok": False, "error": "no token"}, status_code=500)
+    host = os.environ.get("TELEGRAM_API_BASE", "https://api.telegram.org").rstrip("/")
     try:
-        with httpx.Client(timeout=10.0) as c:
-            r = c.get(f"https://api.telegram.org/bot{token}/getMe")
+        with httpx.Client(timeout=15.0) as c:
+            r = c.get(f"{host}/bot{token}/getMe")
         return JSONResponse({"status": r.status_code, "body": r.json()})
     except Exception as e:
         return JSONResponse({"ok": False, "error": repr(e), "type": type(e).__name__},

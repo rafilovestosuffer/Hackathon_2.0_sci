@@ -43,12 +43,19 @@ def _token() -> str:
     return t
 
 
+# HF Spaces free egress blocks api.telegram.org. Set TELEGRAM_API_BASE to a
+# proxy host (e.g. a Cloudflare Worker mirroring api.telegram.org) to route
+# outbound calls through it. Defaults to Telegram direct for local dev.
+def _api_host() -> str:
+    return os.environ.get("TELEGRAM_API_BASE", "https://api.telegram.org").rstrip("/")
+
+
 def _base() -> str:
-    return f"https://api.telegram.org/bot{_token()}"
+    return f"{_api_host()}/bot{_token()}"
 
 
 def _file_base() -> str:
-    return f"https://api.telegram.org/file/bot{_token()}"
+    return f"{_api_host()}/file/bot{_token()}"
 
 
 # --- Outbound API ---
