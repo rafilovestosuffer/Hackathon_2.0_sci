@@ -48,39 +48,42 @@ The realism of this pitch depends on naming the *real* clinician personas —
 because in this setting the person holding the phone is usually **not** a
 dermatologist. That is precisely the gap.
 
-### Persona A — the Upazila MBBS generalist *(primary target)*
-The doctor at an Upazila Health Complex (Tier 2 in your engine) is a **general
-MBBS physician, not a dermatologist.** They see skin cases daily with little
-specialist training and no specialist to consult. For them, SkinAI is:
+### 👉 THE persona — the **overworked Upazila Health Complex MBBS doctor**
+
+Pick **one** clinician and build the whole pitch around them. It is the
+**general (MBBS) medical officer at a government Upazila Health Complex** — the
+Tier 2 facility your triage engine already routes patients to. The evidence
+that this is the single highest-value user, not one option among three:
+
+| Fact | Source | Why it makes this persona the leverage point |
+|---|---|---|
+| **~59% of doctor posts at Upazila Health Complexes are vacant** nationally; **~70% empty in Rangpur** — your pilot district | *The Lancet Regional Health SEA* / national reporting | The doctors who remain are drowning. A tool that saves minutes per patient is oxygen, not a nice-to-have. |
+| The doctors present are **~82% general MBBS**, not specialists | UHC medical-officer study (PMC) | They face skin cases with **no dermatology training and no specialist to ask** — exactly the gap the AI fills. |
+| **Up to ~60%** of people in developing countries have a skin condition; rural Bangladesh ~**40 / 1,000** | *IJDVL* / TBS reporting | Huge, constant case volume flows through these exact doctors. |
+| The two most common complaints are **scabies and fungal (tinea)** | Bangladesh outpatient studies | These are **2 of SkinAI's 8 model classes** — the model was built for the cases this doctor actually sees. |
+
+**In one sentence:** *there aren't enough doctors, the ones who are there
+aren't skin specialists, and skin disease is everywhere — so the highest-value
+user is the general doctor at the Upazila Health Complex who has to handle skin
+cases alone.*
+
+For that doctor, SkinAI is:
 - a **structured second opinion** on a case outside their specialty,
-- a **differential-diagnosis prompt** ("have you considered scabies vs. eczema? these two share ≥2 symptoms"),
+- a **differential-diagnosis prompt** ("scabies vs. eczema? these two share ≥2 symptoms"),
 - a **when-to-escalate signal** they can trust and document.
 
-This is the single highest-value user. Evidence: a prospective trial across 36
-Swedish primary-care centres found AI decision support **measurably increased
-the physician's diagnostic accuracy** on skin lesions — the value of these
-tools is largest for the *non-specialist*, exactly your Persona A.
+Clinical evidence this actually helps the *non-specialist*: a prospective trial
+across 36 Swedish primary-care centres found AI decision support **measurably
+increased the physician's diagnostic accuracy** on skin lesions. The value of
+these tools is largest exactly where the user is *not* a dermatologist.
 
-### Persona B — the Community Health Worker / village "doctor"
-The frontline health worker or paramedic who is often the *first and only*
-contact. Your existing **CHW slip** (`pdf_gen/referral.py`) already speaks to
-this persona. SkinAI gives them a **structured checklist and an escalation
-flag** so they know *which* patients genuinely need to be sent up the chain —
-raising the quality of who gets referred, not just the quantity.
+> **Framing takeaway — say this, and only this:** *"We are not replacing a
+> dermatologist that rural Bangladesh doesn't have. We are giving the **one
+> overworked general doctor who is already there** a second pair of eyes."*
 
-### Persona C — the remote dermatologist doing teledermatology
-The scarce specialist, reachable by store-and-forward. For them SkinAI is a
-**pre-triaged, pre-charted worklist**: each case arrives with history, image,
-model suggestion, confidence, and differential already attached, so a 10-minute
-review becomes a 3-minute one. Published teledermatology programmes show this
-pattern **cuts referral volume and wait times** (e.g. an Austrian store-and-
-forward service where only 17% of triaged patients still needed an in-person
-specialist visit).
-
-> **Framing takeaway:** don't pitch "an AI for dermatologists." Pitch **"a
-> dermatology co-pilot for the 99% of frontline clinicians who are *not*
-> dermatologists,"** plus a **triage inbox that makes the one real
-> dermatologist go further.**
+### Secondary personas *(mention only if asked — do not lead with them)*
+- **Community Health Worker / village doctor** — the first contact. Your CHW slip (`pdf_gen/referral.py`) already serves them with a structured escalation flag: *which* patients truly need sending up.
+- **Remote dermatologist (teledermatology)** — the scarce specialist gets a pre-triaged, pre-charted worklist. Published programmes show this cuts referral volume and wait times. This is the Phase-2 scale story, **not** the demo headline.
 
 ---
 
@@ -235,6 +238,8 @@ judge the doctor is in control.
 - AI as a **"second reader" / assistive tool, not replacement** (dermatologist + GP views): [Towards successful implementation of AI in skin cancer care — PMC](https://pmc.ncbi.nlm.nih.gov/articles/PMC9734890/) · [Augmented intelligence and dermatology, Part II — *JAAD*](https://www.sciencedirect.com/science/article/abs/pii/S0190962225004402)
 - **Teledermatology triage** reduces referrals & wait times, uplifts local providers: [Teledermatology reduces referrals & improves specialist access — PMC](https://pmc.ncbi.nlm.nih.gov/articles/PMC7788431/) · [Teledermatology in rural, underserved, isolated settings — PMC](https://pmc.ncbi.nlm.nih.gov/articles/PMC9589860/) · [Five years of teledermatology triage in Styria — *JDDG*](https://onlinelibrary.wiley.com/doi/10.1111/ddg.70097)
 - **Regulatory "reviewable basis" line** for non-device CDS (FDA 2022 final guidance): [FDA Final CDS Software Guidance — Goodwin](https://www.goodwinlaw.com/en/insights/publications/2022/10/10_17-fda-issues-final-clinical-decision) · [Federal Register notice](https://www.federalregister.gov/documents/2022/09/28/2022-20993/clinical-decision-support-software-guidance-for-industry-and-food-and-drug-administration-staff)
+- **Bangladesh Upazila Health Complex staffing / vacancy crisis** (the persona's context): [Challenges faced by medical officers at UHCs & district hospitals — *Lancet Regional Health SEA* / PMC](https://pmc.ncbi.nlm.nih.gov/articles/PMC11043881/) · [~59% of doctor posts vacant in marginalised-community health centres — reporting](https://en.bonikbarta.com/bangladesh/XPqPE6eSsCNeutPp)
+- **Bangladesh skin-disease burden & common presentations** (scabies, fungal/tinea dominate): [Skin health in Bangladesh: an overview — *IJDVL*](https://ijdvl.com/skin-health-in-bangladesh-an-overview/) · [Why skin diseases are on the rise in Bangladesh — *TBS*](https://www.tbsnews.net/bangladesh/health/why-skin-diseases-are-rise-bangladesh-1304976)
 
 > **Note:** these sources are US/EU regulatory and clinical-evidence anchors used
 > to *frame* the positioning. SkinAI remains a research prototype and is not a
