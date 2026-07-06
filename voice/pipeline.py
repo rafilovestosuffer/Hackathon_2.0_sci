@@ -6,7 +6,9 @@ Bengali audio → transcript → structured patient history.
 Design choices:
   - decode_audio(BytesIO) converts ANY format (WAV/WebM/MP4/OGG) to float32 numpy
     via PyAV (already a faster-whisper dependency) — no temp files, no ffmpeg in PATH
-  - Whisper language always forced to "bn" — no auto-detection uncertainty
+  - language defaults to "bn" but "en"/None (auto-detect) are supported; a 3-pass
+    transcription (VAD filter → no-VAD retry → Bengali-script correction) handles the
+    `small` model's tendency to leak Devanagari on short Bengali clinical speech
   - RMS energy check prevents empty-transcript errors on silent recordings
   - Gemini extraction retries 3× with full validation
 """
@@ -366,7 +368,7 @@ def transcribe_audio(
 
 def extract_patient_history(transcript: str) -> dict:
     """
-    Extract structured patient history from transcript via Gemini 2.5 Flash.
+    Extract structured patient history from transcript via Gemini 2.5 Flash-Lite.
     Always returns a dict with all 9 keys — never raises.
     """
     if not transcript or not transcript.strip():

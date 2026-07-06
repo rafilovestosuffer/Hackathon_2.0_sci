@@ -4,7 +4,7 @@ pdf_gen/consultation_summary.py — Post-Consultation AI Care Summary PDF
 fpdf2 + uharfbuzz (same stack as referral.py — Bengali renders correctly in
 Adobe Acrobat because fpdf2 pre-shapes text via HarfBuzz before embedding).
 
-Gemini 2.5 Flash extracts structured data from the consultation transcript;
+Gemini 2.5 Flash-Lite extracts structured data from the consultation transcript;
 fpdf2 renders a 6-section bilingual Bengali+English PDF the patient takes home.
 """
 import json
@@ -179,7 +179,7 @@ class _PDF(FPDF):
 
 def _extract_via_gemini(transcript: str, duration: int) -> dict | None:
     """
-    Call Gemini 2.5 Flash to extract structured consultation data.
+    Call Gemini 2.5 Flash-Lite to extract structured consultation data.
     Returns parsed dict on success, None on all-retry failure.
     """
     today = datetime.now().strftime("%Y-%m-%d")

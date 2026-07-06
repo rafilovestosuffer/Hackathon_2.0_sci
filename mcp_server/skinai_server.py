@@ -95,11 +95,11 @@ def ask_skin_question(
     """
     Answer a dermatology question using the SkinAI RAG knowledge base.
 
-    Knowledge sources (100 disease-specific chunks, no DermNet):
-      CDC × 32  |  NIH × 32  |  WHO × 16  |  DGHS Bangladesh × 20
+    Knowledge sources (104 disease-specific chunks, no DermNet):
+      CDC × 32  |  NIH × 34  |  WHO × 17  |  DGHS Bangladesh × 21
 
     Retrieval: BM25 keyword search (primary), FAISS semantic upgrade if index exists.
-    Generation: Gemini 2.5 Flash with 3-retry and medicine-name redaction.
+    Generation: Gemini 2.5 Flash-Lite with 3-retry and medicine-name redaction.
 
     Constraints enforced server-side:
       — Never recommends specific medication names or dosages
