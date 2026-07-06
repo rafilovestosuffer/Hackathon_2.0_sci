@@ -2779,6 +2779,51 @@ html { scroll-behavior: smooth; }
   .chat-bubble-user, .chat-bubble-ai { max-width: 90%; font-size: 0.84rem; }
   .history-chip-grid { grid-template-columns: 1fr; }
 }
+
+/* ── Clinician mode — doctor's second-opinion panel ─────────────────── */
+.clinician-panel {
+  border: 1.5px solid #C7D7E8;
+  border-left: 5px solid #1668A4;
+  background: #F4F8FC;
+  border-radius: 14px;
+  padding: 1.1rem 1.25rem;
+  margin: 0.5rem 0 0.35rem 0;
+}
+.clinician-panel-head {
+  display: flex; align-items: center; gap: 0.5rem;
+  font-weight: 800; font-size: 1.02rem; color: #0F3B63;
+  margin-bottom: 0.15rem;
+}
+.clinician-panel-sub {
+  font-size: 0.78rem; color: #4A6A86; margin-bottom: 0.8rem;
+}
+.clinician-summary {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem 1.1rem;
+  background: #FFFFFF; border: 1px solid #DCE6F0; border-radius: 10px;
+  padding: 0.8rem 0.95rem; margin-bottom: 0.15rem;
+}
+.clinician-summary .cs-row { display: flex; flex-direction: column; gap: 0.1rem; }
+.clinician-summary .cs-label {
+  font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.03em;
+  color: #718096; font-weight: 700;
+}
+.clinician-summary .cs-value { font-size: 0.95rem; color: #1A202C; font-weight: 600; }
+.clinician-summary .cs-value-bn { font-size: 0.82rem; color: #4A5568; }
+.clinician-summary .cs-full { grid-column: 1 / -1; }
+.clinician-summary .cs-src {
+  grid-column: 1 / -1; font-size: 0.72rem; color: #718096;
+  border-top: 1px dashed #E2E8F0; padding-top: 0.5rem; margin-top: 0.1rem;
+}
+.clinician-chip {
+  display: inline-flex; align-items: center; gap: 0.4rem;
+  font-size: 0.86rem; font-weight: 700; border-radius: 999px;
+  padding: 0.45rem 0.9rem; margin-top: 0.2rem;
+}
+.clinician-chip-confirmed { background: #D5F5E3; border: 1.5px solid #10B981; color: #065F46; }
+.clinician-chip-override  { background: #FDEBD0; border: 1.5px solid #E67E22; color: #7A3E00; }
+@media (max-width: 640px) {
+  .clinician-summary { grid-template-columns: 1fr; }
+}
 </style>
 """,
         unsafe_allow_html=True,

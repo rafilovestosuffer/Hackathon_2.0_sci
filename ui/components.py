@@ -478,6 +478,73 @@ def render_disease_card(disease: str, confidence: float, top2: list) -> None:
     )
 
 
+def render_clinical_summary(pred: dict, tier_result: dict) -> None:
+    """Dense, read-only clinical summary for the treating doctor (Clinician mode).
+
+    Presentational only — reads the AI prediction + tier dicts, mutates nothing.
+    """
+    disease   = pred.get("disease", "Unknown")
+    conf_pct  = max(0.0, min(100.0, pred.get("confidence", 0.0) * 100))
+    display_en = disease.replace("_", " ")
+    bengali    = get_bengali(disease)
+
+    # Differential — same >0.15 rule used by render_disease_card / the PDF
+    top2 = pred.get("top2", [])
+    diff_txt = "—"
+    if (
+        isinstance(top2, (list, tuple)) and len(top2) >= 2
+        and isinstance(top2[1], dict) and top2[1].get("confidence", 0.0) > 0.15
+    ):
+        d2 = top2[1]
+        diff_txt = f'{d2.get("disease", "").replace("_", " ")} ({d2.get("confidence", 0.0) * 100:.0f}%)'
+
+    tier = tier_result.get("tier", 1)
+    cfg  = _TIER_CONFIG.get(tier, _TIER_CONFIG[1])
+    tier_txt = f'{cfg["icon"]} Tier {tier} · {cfg["label"]}'
+    facility = tier_result.get("facility", "—") or "—"
+
+    st.markdown(
+        f'<div class="clinician-summary">'
+        f'  <div class="cs-row"><span class="cs-label">AI assessment</span>'
+        f'    <span class="cs-value">{display_en}</span>'
+        f'    <span class="cs-value-bn">{bengali}</span></div>'
+        f'  <div class="cs-row"><span class="cs-label">Model confidence</span>'
+        f'    <span class="cs-value">{conf_pct:.1f}%</span></div>'
+        f'  <div class="cs-row"><span class="cs-label">Differential</span>'
+        f'    <span class="cs-value">{diff_txt}</span></div>'
+        f'  <div class="cs-row"><span class="cs-label">Suggested triage</span>'
+        f'    <span class="cs-value">{tier_txt}</span></div>'
+        f'  <div class="cs-row cs-full"><span class="cs-label">Recommended facility</span>'
+        f'    <span class="cs-value">{facility}</span></div>'
+        f'  <div class="cs-src">Decision support only — you are the final authority. '
+        f'Knowledge grounding: CDC · NIH · WHO · DGHS Bangladesh</div>'
+        f'</div>',
+        unsafe_allow_html=True,
+    )
+
+
+def render_clinician_decision_chip(decision: dict) -> None:
+    """Render the saved clinician decision as a confirmed / override chip."""
+    if not decision:
+        return
+    if decision.get("status") == "confirmed":
+        disease = decision.get("disease", "").replace("_", " ")
+        st.markdown(
+            f'<span class="clinician-chip clinician-chip-confirmed">'
+            f'✓ Confirmed by clinician · {disease}</span>',
+            unsafe_allow_html=True,
+        )
+    else:
+        ai_disease  = (decision.get("ai_disease", "") or "").replace("_", " ")
+        new_disease = decision.get("disease", "").replace("_", " ")
+        tier = decision.get("tier", "")
+        st.markdown(
+            f'<span class="clinician-chip clinician-chip-override">'
+            f'✎ AI: {ai_disease} → Clinician: {new_disease} · Tier {tier}</span>',
+            unsafe_allow_html=True,
+        )
+
+
 def render_rag_answer(answer: str, lang: str = "en") -> None:
     """Render RAG answer in styled teal-bordered box with source tags."""
     src_tag  = '<span class="rag-source-tag">CDC · NIH · WHO · DGHS</span>'

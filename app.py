@@ -35,12 +35,14 @@ from ui.components import (
     render_privacy_badge,
     render_tech_decisions,
     render_architecture_diagram,
+    render_clinical_summary,
+    render_clinician_decision_chip,
 )
 from ui.doctor_booking import render_doctor_booking_tab
 from ui.consultation_room import render_consultation_room
 from ui.doctime_handoff import render_doctime_handoff_tab
 from ui.phase2_preview import render_phase2_preview_tab
-from severity.engine import compute_tier
+from severity.engine import compute_tier, TIER_ACTIONS
 from pdf_gen.referral import generate_referral_pdf
 from rag.retriever import load_index, answer_question
 from analytics.db import log_event as _log_event
@@ -156,6 +158,89 @@ def _run_model(pil_img: Image.Image) -> dict:
     }
 
 
+def _effective_pred_tier():
+    """Resolve the values used for the referral: the clinician's decision when
+    Clinician mode is on and a decision is saved, otherwise the untouched AI
+    outputs. Never mutates st.session_state.prediction / tier_result."""
+    pred = st.session_state.prediction
+    tier = st.session_state.tier_result
+    dec  = st.session_state.clinician_decision
+    if not (st.session_state.clinician_mode and dec and pred and tier):
+        return pred, tier
+    d = dec["disease"]
+    t = dec["tier"]
+    eff_pred = {
+        "disease":    d,
+        "confidence": pred.get("confidence", 0.0) if d == pred.get("disease") else 1.0,
+        "top2":       pred.get("top2", []),
+    }
+    eff_tier = {"tier": t, **TIER_ACTIONS[t]}   # same construction compute_tier uses
+    return eff_pred, eff_tier
+
+
+def _render_clinician_block(pred: dict, tier_result: dict) -> None:
+    """Clinician mode panel: dense clinical summary + confirm/override controls.
+    Writes the doctor's choice to st.session_state.clinician_decision only."""
+    from model.disease_labels import CLASS_NAMES, get_bengali, get_tier
+
+    st.markdown(
+        '<div class="clinician-panel">'
+        '  <div class="clinician-panel-head">🩺 Clinician review — second opinion</div>'
+        '  <div class="clinician-panel-sub">'
+        'Decision support for the treating doctor · আপনিই চূড়ান্ত সিদ্ধান্তদাতা</div>'
+        '</div>',
+        unsafe_allow_html=True,
+    )
+    render_clinical_summary(pred, tier_result)
+
+    ai_disease = pred.get("disease", "Normal")
+    choice = st.radio(
+        "Clinical decision",
+        options=["✓ Confirm AI assessment", "✎ Override"],
+        horizontal=True,
+        key="clinician_choice",
+        help="Confirm accepts the AI assessment; Override records your corrected "
+             "diagnosis and triage tier for the referral.",
+    )
+
+    if choice.startswith("✎"):
+        _idx = CLASS_NAMES.index(ai_disease) if ai_disease in CLASS_NAMES else 0
+        chosen = st.selectbox(
+            "Corrected diagnosis",
+            options=CLASS_NAMES,
+            index=_idx,
+            format_func=lambda c: f"{c.replace('_', ' ')} · {get_bengali(c)}",
+            key="clinician_override_class",
+        )
+        _suggested_tier = get_tier(chosen)
+        chosen_tier = st.selectbox(
+            "Triage tier",
+            options=[0, 1, 2, 3],
+            index=_suggested_tier,
+            format_func=lambda t: f"Tier {t} — "
+                                  f"{['Healthy', 'Non-urgent', 'Routine', 'Urgent'][t]}",
+            key="clinician_override_tier",
+            help="Defaults to the class's base tier; adjust to your clinical judgement.",
+        )
+        if st.button("Save clinical decision", key="save_clinician_decision", type="primary"):
+            st.session_state.clinician_decision = {
+                "status":     "overridden",
+                "disease":    chosen,
+                "tier":       chosen_tier,
+                "ai_disease": ai_disease,
+            }
+    else:
+        if st.button("Save clinical decision", key="save_clinician_decision", type="primary"):
+            st.session_state.clinician_decision = {
+                "status":     "confirmed",
+                "disease":    ai_disease,
+                "tier":       tier_result.get("tier", 1),
+                "ai_disease": ai_disease,
+            }
+
+    render_clinician_decision_chip(st.session_state.clinician_decision)
+
+
 def _transcribe(
     audio_bytes: bytes,
     language: str | None = "bn",
@@ -228,6 +313,9 @@ _DEFAULTS = {
     "rag_lang":          "en",
     "chat_history":      [],
     "chw_mode":          False,
+    # Clinician mode — doctor's second-opinion view (default OFF; gates all new UI)
+    "clinician_mode":     False,
+    "clinician_decision": None,   # None | {"status": "confirmed"|"overridden", "disease": str, "tier": int}
     "demo_image_path":   None,  # set by demo buttons; cleared by real upload
     "_last_audio_hash":  "",   # prevents re-processing same audio on rerun
     "prevention_tips_cache": {},
@@ -446,6 +534,7 @@ with tab1:
                     st.session_state.history     = _dc["history"]
                     st.session_state.transcript  = _dc["transcript"]
                     st.session_state.pdf_bytes   = None
+                    st.session_state.clinician_decision = None  # new case → drop any prior override
                     st.session_state.booking_confirmed = False
                     st.session_state.booking_details   = None
                     st.session_state.selected_date_idx = None
@@ -797,6 +886,13 @@ with tab1:
 
         render_privacy_badge()
 
+        st.toggle(
+            "👨‍⚕️ Clinician mode — doctor's second opinion",
+            key="clinician_mode",
+            help="For the treating doctor: view a clinical summary and confirm or "
+                 "override the AI assessment. রোগীর জন্য নয় — চিকিৎসকের জন্য।",
+        )
+
         image_file = st.file_uploader(
             "Upload a clear photo of the affected skin area",
             type=["jpg", "jpeg", "png", "webp"],
@@ -848,6 +944,7 @@ with tab1:
 
             st.session_state.pdf_bytes    = None
             st.session_state.chat_history = []
+            st.session_state.clinician_decision = None  # new image → drop any prior override
 
             with st.spinner("🔬 Analysing skin image…"):
                 pred = _run_model(enhanced_img if was_enhanced else pil_img)
@@ -952,6 +1049,10 @@ with tab1:
             )
 
         render_audio_triage(_tr.get("bengali_text", ""))
+
+        # Clinician mode — doctor's second-opinion panel (default OFF)
+        if st.session_state.clinician_mode and st.session_state.prediction:
+            _render_clinician_block(st.session_state.prediction, _tr)
 
         # Symptom timeline needs a duration from the history
         _dur = (st.session_state.history or {}).get("duration", "")
@@ -1193,9 +1294,11 @@ with tab3:
                     key="dl_demo_pdf_disabled",
                 )
 
-    pred    = st.session_state.prediction
-    tier    = st.session_state.tier_result
+    # Clinician mode: the doctor's saved decision drives the referral; otherwise
+    # the untouched AI outputs (identical to before when clinician mode is off).
+    pred, tier = _effective_pred_tier()
     history = st.session_state.history
+    _clin_dec = st.session_state.clinician_decision if st.session_state.clinician_mode else None
 
     if pred and tier and tier.get("tier") == 0:
         # Tier 0: healthy skin, no referral needed
@@ -1234,7 +1337,22 @@ with tab3:
             "hospital_address": (st.session_state.nearest_hospital or {}).get("address", ""),
             "booking_confirmed": st.session_state.get("booking_confirmed", False),
             "booking_details":   st.session_state.get("booking_details"),
+            # Optional clinician-review annotations (ignored by referral.py if unused)
+            "clinician_reviewed": bool(_clin_dec),
+            "clinician_note": (
+                (
+                    "Confirmed by clinician"
+                    if _clin_dec.get("status") == "confirmed"
+                    else f"AI: {_clin_dec.get('ai_disease', '').replace('_', ' ')} "
+                         f"→ Clinician: {pred['disease'].replace('_', ' ')}"
+                )
+                if _clin_dec else ""
+            ),
         }
+
+        # Surface the clinician's decision above the document controls
+        if _clin_dec:
+            render_clinician_decision_chip(_clin_dec)
 
         _pdf_type = st.radio(
             "Document type",
