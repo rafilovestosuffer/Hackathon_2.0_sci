@@ -132,21 +132,30 @@ def _load_bd_skinnet():
         return None
 
 
-def _run_model(pil_img: Image.Image) -> dict:
-    from model.bd_skinnet import predict
+# Shown when the model can't load or inference fails — the demo must degrade
+# gracefully, never crash the run with a traceback.
+_FALLBACK_PRED = {
+    "disease":      "Tinea",
+    "confidence":   0.82,
+    "top2": [
+        {"disease": "Tinea",              "confidence": 0.82},
+        {"disease": "Contact_Dermatitis", "confidence": 0.11},
+    ],
+}
 
+
+def _run_model(pil_img: Image.Image) -> dict:
     model = _load_bd_skinnet()
     if model is None:
-        return {
-            "disease":      "Tinea",
-            "confidence":   0.82,
-            "top2": [
-                {"disease": "Tinea",              "confidence": 0.82},
-                {"disease": "Contact_Dermatitis", "confidence": 0.11},
-            ],
-        }
+        return dict(_FALLBACK_PRED)
 
-    result = predict(model, pil_img)
+    try:
+        from model.bd_skinnet import predict
+        result = predict(model, pil_img)
+    except Exception as exc:
+        logger.warning("BD-SkinNet inference failed: %s", exc)
+        return dict(_FALLBACK_PRED)
+
     return {
         "disease":      result["disease_class"],
         "confidence":   result["confidence"],
@@ -964,26 +973,62 @@ with tab1:
                 ))
                 st.stop()
 
-            # Image quality check
-            is_blurry, blur_var = check_image_quality(pil_img)
-            if is_blurry:
+            # Analyse only when the photo actually changes. Every widget
+            # interaction reruns this script, and without this guard each
+            # rerun would repeat the ~2s CPU inference and wipe the PDF,
+            # chat and clinician state. Same pattern as _last_audio_hash.
+            _img_hash = hashlib.md5(image_file.getvalue()).hexdigest()
+            if _img_hash != st.session_state.get("_last_image_hash"):
+                st.session_state["_last_image_hash"] = _img_hash
+
+                is_blurry, blur_var = check_image_quality(pil_img)
+                enhanced_img, was_enhanced = enhance_skin_image(pil_img)
+                st.session_state["_img_analysis"] = {
+                    "blurry":   is_blurry,
+                    "blur_var": blur_var,
+                    "enhanced": enhanced_img if was_enhanced else None,
+                }
+
+                st.session_state.pdf_bytes    = None
+                st.session_state.chat_history = []
+                st.session_state.clinician_decision = None  # new image → drop any prior override
+
+                with st.spinner("🔬 Analysing skin image…"):
+                    pred = _run_model(enhanced_img if was_enhanced else pil_img)
+                    st.session_state.prediction = pred
+
+                # Anonymised analytics — no patient data, aggregate only
+                _conf = pred["confidence"]
+                _new_tier = compute_tier(
+                    disease_class=pred["disease"],
+                    confidence=_conf,
+                    transcript=st.session_state.transcript,
+                )
+                _log_event(
+                    "triage",
+                    disease_class=pred["disease"],
+                    tier=_new_tier["tier"],
+                    conf_bucket="high" if _conf >= 0.60 else ("medium" if _conf >= 0.40 else "low"),
+                )
+            _analysis = st.session_state.get("_img_analysis") or {}
+
+            if _analysis.get("blurry"):
                 st.markdown(
                     f'<div class="blur-warning">'
-                    f'⚠️ <strong>Image may be blurry</strong> (sharpness: {blur_var:.0f}). '
+                    f'⚠️ <strong>Image may be blurry</strong> (sharpness: {_analysis.get("blur_var", 0):.0f}). '
                     f'ছবিটি অস্পষ্ট হতে পারে — ভালো ফলাফলের জন্য স্পষ্ট ছবি ব্যবহার করুন।'
                     f'</div>',
                     unsafe_allow_html=True,
                 )
 
-            # Auto-enhance low-light / blurry images before inference
-            enhanced_img, was_enhanced = enhance_skin_image(pil_img)
-            if was_enhanced:
+            _enhanced = _analysis.get("enhanced")
+            if _enhanced is not None:
                 with st.container(key="dx_img_enhanced"):
                     _ecol1, _ecol2 = st.columns(2)
                     with _ecol1:
                         st.image(pil_img, use_container_width=True, caption="Original")
                     with _ecol2:
-                        st.image(enhanced_img, use_container_width=True, caption="✨ Enhanced")
+                        st.image(_enhanced, use_container_width=True, caption="✨ Enhanced")
                 st.markdown(
                     '<div class="info-box" style="font-size:0.78rem;">'
                     '✨ <strong>Auto-enhanced</strong> for better analysis '
@@ -995,30 +1040,16 @@ with tab1:
                 with st.container(key="dx_img_upload"):
                     st.image(pil_img, use_container_width=True, caption="Uploaded skin image")
 
-            st.session_state.pdf_bytes    = None
-            st.session_state.chat_history = []
-            st.session_state.clinician_decision = None  # new image → drop any prior override
+            pred = st.session_state.prediction
 
-            with st.spinner("🔬 Analysing skin image…"):
-                pred = _run_model(enhanced_img if was_enhanced else pil_img)
-                st.session_state.prediction = pred
-
-            # Compute tier (stored → rendered below columns)
+            # Tier stays cheap to recompute and must track the transcript —
+            # voice recorded after the photo can still escalate urgency.
             tier_result = compute_tier(
                 disease_class=pred["disease"],
                 confidence=pred["confidence"],
                 transcript=st.session_state.transcript,
             )
             st.session_state.tier_result = tier_result
-
-            # Anonymised analytics — no patient data, aggregate only
-            _conf = pred["confidence"]
-            _log_event(
-                "triage",
-                disease_class=pred["disease"],
-                tier=tier_result["tier"],
-                conf_bucket="high" if _conf >= 0.60 else ("medium" if _conf >= 0.40 else "low"),
-            )
 
             render_disease_card(pred["disease"], pred["confidence"], pred["top2"])
             render_fairness_disclosure()
@@ -1179,7 +1210,10 @@ with tab1:
                         with st.spinner("🗺️ Rendering map…"):
                             fmap = render_hospital_map(hospitals, user_lat, user_lon)
                         if fmap:
-                            st_folium(fmap, use_container_width=True, height=380)
+                            # returned_objects=[] → display-only; map pans/zooms
+                            # without triggering a full script rerun each time
+                            st_folium(fmap, use_container_width=True, height=380,
+                                      returned_objects=[], key="hospital_map")
                     except Exception:
                         pass
                 else:
@@ -1520,7 +1554,8 @@ with tab4:
         try:
             from streamlit_folium import st_folium
             _epi_map = render_prevalence_map(_sel_disease)
-            st_folium(_epi_map, use_container_width=True, height=420)
+            st_folium(_epi_map, use_container_width=True, height=420,
+                      returned_objects=[], key="prevalence_map")
         except Exception as _e:
             st.warning(f"Map rendering failed: {_e}")
 

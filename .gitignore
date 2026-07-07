@@ -80,3 +80,4 @@ scripts/generate_demo_script_pdf.py
 .claude/
 .codex/
 *.lnk
+.playwright-mcp/

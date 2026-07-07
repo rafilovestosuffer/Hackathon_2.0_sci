@@ -434,18 +434,24 @@ def render_audio_triage(tier_action_bn: str) -> None:
     if not tier_action_bn:
         return
     try:
-        import io as _io
-        from gtts import gTTS
-        buf = _io.BytesIO()
-        tts = gTTS(text=tier_action_bn, lang="bn", slow=False)
-        tts.write_to_fp(buf)
-        buf.seek(0)
+        # Cache per text — without this every rerun repeats the Google TTS
+        # network round-trip, adding 0.5–2s of lag to each interaction.
+        _cache = st.session_state.setdefault("_tts_cache", {})
+        mp3 = _cache.get(tier_action_bn)
+        if mp3 is None:
+            import io as _io
+            from gtts import gTTS
+            buf = _io.BytesIO()
+            tts = gTTS(text=tier_action_bn, lang="bn", slow=False)
+            tts.write_to_fp(buf)
+            mp3 = buf.getvalue()
+            _cache[tier_action_bn] = mp3
         st.markdown(
             '<div style="font-size:0.72rem;color:#4A5568;margin-top:0.4rem;margin-bottom:0.15rem;">'
             '🔊 বাংলায় শুনুন · Listen in Bengali</div>',
             unsafe_allow_html=True,
         )
-        st.audio(buf.read(), format="audio/mp3")
+        st.audio(mp3, format="audio/mp3")
     except Exception:
         pass  # TTS is enhancement-only; silent failure is fine
 
