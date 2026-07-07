@@ -20,13 +20,11 @@ license: mit
 [![Live Demo](https://img.shields.io/badge/🤗_Live_Demo-Open_App-2563eb?style=for-the-badge)](https://huggingface.co/spaces/rafilovestosuffer/skinai-bd)
 [![GitHub](https://img.shields.io/badge/GitHub-Source-181717?style=for-the-badge&logo=github)](https://github.com/rafilovestosuffer/Hackathon_2.0_sci)
 
-![Tests](https://img.shields.io/badge/tests-403_functions-brightgreen)
+![Tests](https://img.shields.io/badge/tests-366_passing-brightgreen)
 ![Python](https://img.shields.io/badge/python-3.10%2B-blue)
 ![Inference](https://img.shields.io/badge/inference-INT8_·_CPU-orange)
 ![No login](https://img.shields.io/badge/access-no_login-success)
-![License](https://img.shields.io/badge/use-research_/_humanitarian-green)
-
-**🏆 AI-powered dermatological triage for rural Bangladesh**
+![License](https://img.shields.io/badge/license-MIT-green)
 
 [**▶ Try it**](#-try-it-in-10-seconds) · [**How it works**](#-how-it-works) · [**Deep dives**](#-under-the-hood-deep-dives) · [**Tech stack**](#-complete-tech-stack) · [**Impact**](#-business-model--impact)
 
@@ -75,6 +73,18 @@ Open **Tab 1 → "⚡ Quick Start"** and click a pre-filled case — each runs t
 
 ---
 
+## 📸 What it looks like
+
+![Home — seven tabs, voice + photo inputs, one-click demo cases](assets/screenshots/home-quickstart.jpg)
+
+| Voice-filled history → AI diagnosis | Triage verdict → Bengali readout → hospital finder |
+|---|---|
+| ![Auto-filled Bengali patient form beside the AI diagnosis card](assets/screenshots/diagnosis-card.jpg) | ![Urgent tier banner with Bengali audio player and emergency hospital search](assets/screenshots/triage-output.jpg) |
+
+<sub>Live Space, Scabies · Tier 3 demo case. Note the diagnosis card saying **"Uncertain — see a doctor"** at 38% confidence — low confidence escalates the patient to safer care instead of guessing.</sub>
+
+---
+
 ## 🩺 What it does — the full care loop
 
 SkinAI implements the **whole journey from symptom to specialist**, not just the diagnosis:
@@ -92,9 +102,9 @@ The app is organized into **seven working tabs**:
 | 1 | **Diagnosis** | Bengali/English voice → auto-extracted patient history; photo → BD-SkinNet; severity banner + Bengali voice readout; clinical knowledge-graph context; nearest-facility map |
 | 2 | **Ask AI** | Bilingual chatbot grounded in **CDC · NIH · WHO · DGHS**, aware of your diagnosis, with a hard **no-medicine** guardrail |
 | 3 | **Referral** | One-click **4-section bilingual PDF** (or simplified **CHW slip**), addressed to a doctor |
-| 4 | **Disease Insights** | Bangladesh **prevalence heatmap** + prevention tips |
+| 4 | **Insights** | Bangladesh **prevalence heatmap** + prevention tips |
 | 5 | **DocTime** | **Telemedicine handoff** via deep-link + QR + WhatsApp + referral PDF |
-| 6 | **Phase 2 Network** | **In-app doctor booking** + post-booking **consultation room** → Care Summary PDF |
+| 6 | **Phase 2 · Network** | **In-app doctor booking** + post-booking **consultation room** → Care Summary PDF |
 | 7 | **Impact & Ethics** | Business model, model card, architecture, scalability, diaspora (NRB) pitch |
 
 ---
@@ -389,7 +399,7 @@ A typed **provider abstraction** ([`telemedicine/providers.py`](telemedicine/pro
 | **Server** | **FastAPI + Uvicorn**, nginx + supervisor | Async webhooks, dual-service container |
 | **Agents** | **MCP** (FastMCP) | Exposes tools to Claude Desktop / Cursor |
 | **Extras** | gTTS (Bengali readout) · qrcode · SQLite (anon analytics) | |
-| **Ops** | Docker · GitHub Actions keepalive · pytest (403 fns) | Always-on, well-tested |
+| **Ops** | Docker · GitHub Actions keepalive · pytest (366 tests) | Always-on, well-tested |
 
 ---
 
@@ -430,7 +440,7 @@ skinai-bangladesh/
 ├── analytics/db.py             # anonymized aggregate telemetry (no PII)
 ├── pages/docs.py               # /docs live ops dashboard
 ├── scripts/ · .github/workflows/keepalive.yml
-├── tests/                      # 16 modules · 403 test functions
+├── tests/                      # 16 modules · 366 tests
 └── docs/                       # MODEL_CARD · DATA_CARD · ETHICS · BUSINESS_MODEL · …
 ```
 
@@ -489,7 +499,7 @@ The container is self-contained: the Dockerfile installs the **CPU-only torch wh
 pytest tests/ -v
 ```
 
-**403 test functions across 16 modules** cover every layer — severity, RAG + redaction, voice + extraction, PDF, hospital finder, booking, bot state/router/clients, webhooks, telemedicine, end-to-end.
+**366 tests across 16 modules** cover every layer — severity, RAG + redaction, voice + extraction, PDF, hospital finder, booking, bot state/router/clients, webhooks, telemedicine, end-to-end. All green.
 
 **Graceful degradation is a design invariant** — every external dependency has a fallback:
 
@@ -599,9 +609,10 @@ Three independent revenue streams (losing any one is survivable):
 
 ---
 
-## Contact:
-**mail:** mdrafiurrahman123098@gmail.com
-**Repo:** [github.com/rafilovestosuffer/Hackathon_2.0_sci](https://github.com/rafilovestosuffer/Hackathon_2.0_sci)
+## 📬 Contact
+
+**Rafiur Rahman** · mdrafiurrahman123098@gmail.com
+**Live app:** [huggingface.co/spaces/rafilovestosuffer/skinai-bd](https://huggingface.co/spaces/rafilovestosuffer/skinai-bd) · **Source:** [github.com/rafilovestosuffer/Hackathon_2.0_sci](https://github.com/rafilovestosuffer/Hackathon_2.0_sci)
 
 ---
 
