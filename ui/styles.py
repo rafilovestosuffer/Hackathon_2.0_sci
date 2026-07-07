@@ -231,121 +231,6 @@ header[data-testid="stHeader"] { background: transparent !important; box-shadow:
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--c-teal); border-radius: 99px; }
 
-/* ─── Sidebar ───────────────────────────────────────────────────────────────── */
-section[data-testid="stSidebar"] {
-  background: #0B1929 !important;
-}
-section[data-testid="stSidebar"] > div { padding-top: 0.75rem; }
-section[data-testid="stSidebar"] * {
-  color: #CBD5E1 !important;
-  font-family: 'Inter', 'Noto Sans Bengali', sans-serif !important;
-}
-section[data-testid="stSidebar"] hr { border-color: #1E3A5F !important; margin: 0.5rem 0; }
-
-.sidebar-logo {
-  font-size: 1.35rem;
-  font-weight: 800;
-  color: #60B8E8 !important;
-  text-align: center;
-  padding: 0.2rem 0 0.05rem 0;
-  letter-spacing: -0.02em;
-}
-.sidebar-tagline {
-  font-size: 0.72rem;
-  color: #4A6080 !important;
-  text-align: center;
-  margin-bottom: 0.65rem;
-  font-style: italic;
-  font-family: 'Noto Sans Bengali', sans-serif !important;
-}
-.sidebar-stat {
-  background: #132236;
-  border-radius: 8px;
-  padding: 0.4rem 0.7rem;
-  margin: 0.2rem 0;
-  font-size: 0.78rem;
-  color: #94A3B8 !important;
-}
-.sidebar-stat strong { color: #60B8E8 !important; }
-
-/* Sidebar expander override */
-section[data-testid="stSidebar"] [data-testid="stExpander"] {
-  background: #132236;
-  border: 1px solid #1E3A5F;
-  border-radius: 8px;
-}
-section[data-testid="stSidebar"] [data-testid="stExpander"] summary {
-  color: #94A3B8 !important;
-  font-size: 0.8rem;
-}
-
-/* ─── Pipeline steps ────────────────────────────────────────────────────────── */
-.pipeline-step {
-  display: flex;
-  align-items: center;
-  gap: 0.55rem;
-  padding: 0.42rem 0.7rem;
-  border-radius: 8px;
-  margin: 0.18rem 0;
-  font-size: 0.76rem;
-  background: #132236;
-  border: 1px solid transparent;
-  transition: all 0.25s;
-}
-.pipeline-step.done   { border-color: var(--c-teal); background: #0A2018; color: #34D399 !important; }
-.pipeline-step.active { border-color: var(--c-primary); background: #0D1F35; color: #60B8E8 !important;
-                        animation: pulse-step 2s ease-in-out infinite; }
-.pipeline-step.pending { color: #3D5166 !important; }
-.pipeline-dot {
-  width: 18px; height: 18px; border-radius: 50%; flex-shrink: 0;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 0.6rem; font-weight: 700;
-}
-.pipeline-dot.done   { background: var(--c-teal); color: white; }
-.pipeline-dot.active { background: var(--c-primary); color: white; }
-.pipeline-dot.pending { border: 2px solid #2D4560; }
-@keyframes pulse-step {
-  0%,100% { box-shadow: 0 0 0 0 rgba(13,158,117,0.35); }
-  50%     { box-shadow: 0 0 0 5px rgba(13,158,117,0); }
-}
-
-/* ─── Source pills (sidebar) ────────────────────────────────────────────────── */
-.source-pill {
-  display: inline-block;
-  background: #1E3A5F;
-  color: #60B8E8 !important;
-  font-size: 0.62rem;
-  font-weight: 700;
-  border-radius: 99px;
-  padding: 0.12rem 0.5rem;
-  margin: 0.12rem 0.08rem;
-  letter-spacing: 0.04em;
-}
-
-/* Stat card (inside expander) */
-.stat-card-sb {
-  background: #0B1929;
-  border: 1px solid #1E3A5F;
-  border-radius: 8px;
-  padding: 0.55rem 0.75rem;
-  margin: 0.25rem 0;
-  text-align: center;
-}
-.stat-card-sb-label {
-  font-size: 0.62rem;
-  font-weight: 600;
-  color: #4A6080 !important;
-  text-transform: uppercase;
-  letter-spacing: 0.07em;
-  margin-bottom: 0.15rem;
-}
-.stat-card-sb-value {
-  font-size: 1.25rem;
-  font-weight: 800;
-  color: #60B8E8 !important;
-  line-height: 1.15;
-}
-
 /* ─── Tab bar — segmented control, premium SaaS feel ────────────────────────── */
 .stTabs [data-baseweb="tab-list"] {
   background:
@@ -697,8 +582,8 @@ section[data-testid="stSidebar"] [data-testid="stExpander"] summary {
 
 /* ─── Columns: NO global card treatment (broke demo buttons, recorder, etc.).
        Use the .dx-panel-head section header for visual hierarchy instead.   ── */
-[data-testid="stHorizontalBlock"] > [data-testid="column"],
-[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
+[data-testid="stHorizontalBlock"] > [data-testid="stColumn"],
+[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] {
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;
@@ -707,17 +592,17 @@ section[data-testid="stSidebar"] [data-testid="stExpander"] summary {
   border-radius: 0 !important;
   position: relative;
 }
-[data-testid="stHorizontalBlock"] > [data-testid="column"]::before {
+[data-testid="stHorizontalBlock"] > [data-testid="stColumn"]::before {
   display: none !important;
 }
 /* Subtle vertical divider between the two main columns in Tab 1.
    Only applied to the FIRST column of a 2-col horizontal block, drawn on its
    right edge, so it visually separates Voice Input from Skin Photo. */
-[data-testid="stHorizontalBlock"] > [data-testid="column"]:first-child:not(:last-child) {
+[data-testid="stHorizontalBlock"] > [data-testid="stColumn"]:first-child:not(:last-child) {
   border-right: 1px solid var(--c-border-2) !important;
   padding-right: 1.6rem !important;
 }
-[data-testid="stHorizontalBlock"] > [data-testid="column"]:first-child:not(:last-child) + [data-testid="column"] {
+[data-testid="stHorizontalBlock"] > [data-testid="stColumn"]:first-child:not(:last-child) + [data-testid="stColumn"] {
   padding-left: 1.6rem !important;
 }
 
@@ -898,7 +783,7 @@ section[data-testid="stSidebar"] [data-testid="stExpander"] summary {
 }
 .tier-banner-0 {
   background: #E8FDF1;
-  border-left: 6px solid #0D9E75;
+  border-left: 6px solid #10B981;
   border-top: 1px solid #6FCFA5; border-right: 1px solid #6FCFA5; border-bottom: 1px solid #6FCFA5;
   box-shadow: 0 4px 20px rgba(13,158,117,0.15);
 }
@@ -952,14 +837,6 @@ section[data-testid="stSidebar"] [data-testid="stExpander"] summary {
 .tier-action-bn-2 { color: #A04000; }
 .tier-action-bn-3 { color: #922B21; font-weight: 700; }
 .tier-facility { font-size: 0.72rem; color: var(--c-t3); margin-top: 0.28rem; font-weight: 500; }
-
-/* Legacy badge classes (render_triage_badge compat) */
-.badge-tier1 { background:#D5F5E3; border:2px solid #27AE60; color:#1E8449; border-radius:12px; padding:1rem 1.5rem; margin:0.75rem 0; }
-.badge-tier2 { background:#FDEBD0; border:2px solid #E67E22; color:#A04000; border-radius:12px; padding:1rem 1.5rem; margin:0.75rem 0; }
-.badge-tier3 { background:#FADBD8; border:2px solid #C0392B; color:#922B21; border-radius:12px; padding:1rem 1.5rem; margin:0.75rem 0; animation:pulse-urgent 1.8s ease-in-out infinite; }
-.badge-label   { font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; opacity:0.8; }
-.badge-urgency { font-size:1.35rem; font-weight:700; margin:0.2rem 0; }
-.badge-action, .badge-action-bn { font-size:0.9rem; margin-top:0.25rem; font-weight:500; }
 
 /* ─── Chat interface ─────────────────────────────────────────────────────────── */
 .chat-outer-info {
@@ -1096,18 +973,6 @@ section[data-testid="stSidebar"] [data-testid="stExpander"] summary {
                  color: white !important; animation: pulse-step 2s ease-in-out infinite; }
 .referral-progress-row.done-row { background: #F0FBF4; }
 .referral-progress-row.next-row { background: #EBF5FB; font-weight: 600; }
-
-/* ─── RAG answer ─────────────────────────────────────────────────────────────── */
-.rag-answer-box {
-  background: #F0FBF4; border-left: 4px solid var(--c-teal);
-  border-radius: 0 10px 10px 0; padding: 1rem 1.25rem;
-  font-size: 0.93rem; line-height: 1.65; color: var(--c-t1);
-}
-.rag-source-tag {
-  display: inline-block; background: #D5F5E3; color: #1E8449;
-  font-size: 0.7rem; font-weight: 600; border-radius: 99px;
-  padding: 0.1rem 0.6rem; margin: 0.45rem 0.18rem 0 0;
-}
 
 /* ─── History table ──────────────────────────────────────────────────────────── */
 .history-table { width: 100%; border-collapse: collapse; font-size: 0.86rem; }
@@ -1314,7 +1179,7 @@ section[data-testid="stSidebar"] [data-testid="stExpander"] summary {
 .stAlert { border-radius: 10px; font-family: 'Inter', 'Noto Sans Bengali', sans-serif !important; }
 
 /* ─── Metric containers ──────────────────────────────────────────────────────── */
-[data-testid="metric-container"] {
+[data-testid="stMetric"] {
   background: var(--c-surface); border-radius: 12px;
   padding: 0.75rem 1rem; border: 1px solid var(--c-border); box-shadow: var(--shadow);
 }
@@ -2068,7 +1933,7 @@ iframe[title="streamlit_folium.st_folium"],
 }
 
 /* Stat / metric cards (used in insights tab) */
-[data-testid="metric-container"] {
+[data-testid="stMetric"] {
   background: var(--grad-surface) !important;
   border: 1px solid var(--c-border) !important;
   border-radius: 14px !important;
@@ -2080,7 +1945,7 @@ iframe[title="streamlit_folium.st_folium"],
   overflow: hidden;
   transition: transform 0.15s, box-shadow 0.2s;
 }
-[data-testid="metric-container"]::before {
+[data-testid="stMetric"]::before {
   content: "";
   position: absolute;
   top: 0; left: 0; right: 0;
@@ -2088,7 +1953,7 @@ iframe[title="streamlit_folium.st_folium"],
   background: var(--grad-primary);
   opacity: 0.7;
 }
-[data-testid="metric-container"]:hover {
+[data-testid="stMetric"]:hover {
   transform: translateY(-2px);
   box-shadow:
     0 1px 0 rgba(255,255,255,1) inset,
@@ -2392,6 +2257,15 @@ a:hover {
     0 8px 20px rgba(15,23,42,0.08),
     0 1px 3px rgba(15,23,42,0.06) !important;
   border: 1px solid var(--c-border);
+}
+/* Tab-1 skin-photo previews — cap the height so the AI diagnosis card stays
+   near the fold instead of being pushed down by a full-column photo. */
+div[class*="st-key-dx_img_"] [data-testid="stImage"] img {
+  max-height: 380px !important;
+  width: auto !important;
+  max-width: 100% !important;
+  display: block;
+  margin: 0 auto;
 }
 
 /* Camera input — refined to match file uploader */
@@ -2718,23 +2592,39 @@ html { scroll-behavior: smooth; }
   border-radius: 14px !important;
   overflow: hidden;
 }
+/* Give the mic recorder a dashed input-zone frame so the plain component
+   button reads as a deliberate recording area, echoing the file uploader. */
+.st-key-mic_recorder_v2 {
+  border: 1.5px dashed rgba(22,104,164,0.35);
+  border-radius: 14px;
+  padding: 0.5rem 0.6rem 0.15rem 0.6rem;
+  background: linear-gradient(180deg, #F2F8FE 0%, #E9F3FC 100%);
+  transition: border-color 0.18s ease, box-shadow 0.2s ease;
+}
+.st-key-mic_recorder_v2:hover {
+  border-color: rgba(22,104,164,0.60);
+  box-shadow: 0 6px 16px rgba(22,104,164,0.10);
+}
 
-/* (h) Vivid tier-coloured Quick-Start demo buttons (semantic: green/amber/red/teal) */
-[data-testid="stExpander"] [data-testid="stHorizontalBlock"] > [data-testid="column"]:nth-of-type(1) .stButton > button,
-[data-testid="stExpander"] [data-testid="stHorizontalBlock"] > [data-testid="column"]:nth-of-type(2) .stButton > button,
-[data-testid="stExpander"] [data-testid="stHorizontalBlock"] > [data-testid="column"]:nth-of-type(3) .stButton > button,
-[data-testid="stExpander"] [data-testid="stHorizontalBlock"] > [data-testid="column"]:nth-of-type(4) .stButton > button {
+/* (h) Vivid tier-coloured Quick-Start demo buttons (semantic: green/amber/red/teal).
+   Targeted by widget key — the old column nth-of-type selectors died when
+   Streamlit renamed the column test id, leaving these buttons unstyled. */
+.st-key-tab_demo_demo_tier1 button,
+.st-key-tab_demo_demo_tier2 button,
+.st-key-tab_demo_demo_tier3 button,
+.st-key-tab_demo_demo_normal button {
   color: #FFFFFF !important;
   border: 1px solid rgba(255,255,255,0.30) !important;
   text-shadow: 0 1px 2px rgba(0,0,0,0.18);
 }
-[data-testid="stExpander"] [data-testid="stHorizontalBlock"] > [data-testid="column"]:nth-of-type(1) .stButton > button { background: linear-gradient(135deg,#2ECC71 0%,#1E8449 100%) !important; box-shadow: 0 6px 16px rgba(39,174,96,0.35) !important; }
-[data-testid="stExpander"] [data-testid="stHorizontalBlock"] > [data-testid="column"]:nth-of-type(2) .stButton > button { background: linear-gradient(135deg,#F8B43C 0%,#D97706 100%) !important; box-shadow: 0 6px 16px rgba(245,158,11,0.35) !important; }
-[data-testid="stExpander"] [data-testid="stHorizontalBlock"] > [data-testid="column"]:nth-of-type(3) .stButton > button { background: linear-gradient(135deg,#F2675A 0%,#C0392B 100%) !important; box-shadow: 0 6px 16px rgba(220,38,38,0.35) !important; }
-[data-testid="stExpander"] [data-testid="stHorizontalBlock"] > [data-testid="column"]:nth-of-type(4) .stButton > button { background: linear-gradient(135deg,#14C98C 0%,#059669 100%) !important; box-shadow: 0 6px 16px rgba(16,185,129,0.35) !important; }
-/* hide the now-redundant left accent stripe on the coloured demo buttons */
-[data-testid="stExpander"] [data-testid="stHorizontalBlock"] > [data-testid="column"] .stButton > button::before { opacity: 0 !important; }
-[data-testid="stExpander"] [data-testid="stHorizontalBlock"] > [data-testid="column"] .stButton > button:hover {
+.st-key-tab_demo_demo_tier1 button { background: linear-gradient(135deg,#2ECC71 0%,#1E8449 100%) !important; box-shadow: 0 6px 16px rgba(39,174,96,0.35) !important; }
+.st-key-tab_demo_demo_tier2 button { background: linear-gradient(135deg,#F8B43C 0%,#D97706 100%) !important; box-shadow: 0 6px 16px rgba(245,158,11,0.35) !important; }
+.st-key-tab_demo_demo_tier3 button { background: linear-gradient(135deg,#F2675A 0%,#C0392B 100%) !important; box-shadow: 0 6px 16px rgba(220,38,38,0.35) !important; }
+.st-key-tab_demo_demo_normal button { background: linear-gradient(135deg,#14C98C 0%,#059669 100%) !important; box-shadow: 0 6px 16px rgba(16,185,129,0.35) !important; }
+.st-key-tab_demo_demo_tier1 button:hover,
+.st-key-tab_demo_demo_tier2 button:hover,
+.st-key-tab_demo_demo_tier3 button:hover,
+.st-key-tab_demo_demo_normal button:hover {
   filter: brightness(1.06);
   transform: translateY(-3px);
 }
@@ -2757,6 +2647,17 @@ html { scroll-behavior: smooth; }
 [data-testid="stExpander"]:first-of-type summary {
   background: linear-gradient(90deg, rgba(245,158,11,0.14) 0%, rgba(251,191,36,0.06) 60%, transparent 100%) !important;
 }
+/* …but expanders nested inside columns (e.g. "Can't use a microphone?") are
+   first-of-type within their own column, so restore the default tint there. */
+[data-testid="stColumn"] [data-testid="stExpander"] summary {
+  background: linear-gradient(90deg, rgba(22,104,164,0.07) 0%, rgba(16,185,129,0.04) 60%, transparent 100%) !important;
+}
+[data-testid="stColumn"] [data-testid="stExpander"] {
+  background: var(--grad-surface) !important;
+}
+[data-testid="stColumn"] [data-testid="stExpander"] summary::before {
+  background: var(--grad-primary);
+}
 
 /* ─── Mobile ─────────────────────────────────────────────────────────────────── */
 @media (max-width: 600px) {
@@ -2767,7 +2668,7 @@ html { scroll-behavior: smooth; }
   .hero-step { min-width: 90px; font-size: 0.85rem; padding: 0.45rem 0.8rem; }
   .hero-arrow { margin: 0 0.3rem; font-size: 1rem; }
   .stat-chip { font-size: 0.7rem; padding: 0.22rem 0.6rem; }
-  [data-testid="stHorizontalBlock"] > [data-testid="column"] { padding: 0.75rem 0.85rem !important; }
+  [data-testid="stHorizontalBlock"] > [data-testid="stColumn"] { padding: 0.75rem 0.85rem !important; }
   .tier-banner { flex-direction: column; gap: 0.4rem; }
   .tier-urgency { font-size: 1.05rem; }
   .tier-action, .tier-action-bn { font-size: 0.82rem; }

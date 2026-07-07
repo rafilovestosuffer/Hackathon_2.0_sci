@@ -19,10 +19,10 @@ from ui.styles import (
 
 # --- Tier config ---
 _TIER_CONFIG = {
-    0: {"badge_class": "badge-tier1", "icon": "💚", "label": "HEALTHY",     "label_bn": "সুস্থ"},
-    1: {"badge_class": "badge-tier1", "icon": "🟢", "label": "NON-URGENT",  "label_bn": "জরুরি নয়"},
-    2: {"badge_class": "badge-tier2", "icon": "🟡", "label": "ROUTINE",     "label_bn": "নিয়মিত"},
-    3: {"badge_class": "badge-tier3", "icon": "🔴", "label": "URGENT",      "label_bn": "জরুরি"},
+    0: {"icon": "💚", "label": "HEALTHY",     "label_bn": "সুস্থ"},
+    1: {"icon": "🟢", "label": "NON-URGENT",  "label_bn": "জরুরি নয়"},
+    2: {"icon": "🟡", "label": "ROUTINE",     "label_bn": "নিয়মিত"},
+    3: {"icon": "🔴", "label": "URGENT",      "label_bn": "জরুরি"},
 }
 _TIER_ICONS = {0: "💚", 1: "✅", 2: "⚠️", 3: "🚨"}
 
@@ -42,61 +42,6 @@ _HISTORY_LABELS = {
     "patient_name":         ("Patient Name",         "রোগীর নাম"),
     "patient_age":          ("Patient Age",          "রোগীর বয়স"),
 }
-
-
-def render_sidebar_pipeline(
-    voice_done: bool,
-    image_done: bool,
-    diagnosis_done: bool,
-    referral_done: bool,
-) -> None:
-    """Render the 4-step visual pipeline tracker inside the sidebar."""
-    steps = [
-        ("🎙️", "Voice recorded",   "ভয়েস রেকর্ড",   voice_done),
-        ("📷", "Image analysed",   "ছবি বিশ্লেষণ",   image_done),
-        ("🧠", "Diagnosis ready",  "রোগ নির্ণয়",     diagnosis_done),
-        ("📄", "Referral ready",   "রেফারেল প্রস্তুত", referral_done),
-    ]
-    first_pending = None
-    for i, (_, _, _, done) in enumerate(steps):
-        if not done and first_pending is None:
-            first_pending = i
-
-    for i, (icon, label_en, label_bn, done) in enumerate(steps):
-        if done:
-            state_cls = "done"
-            dot_cls   = "done"
-            dot_inner = "✓"
-        elif i == first_pending:
-            state_cls = "active"
-            dot_cls   = "active"
-            dot_inner = str(i + 1)
-        else:
-            state_cls = "pending"
-            dot_cls   = "pending"
-            dot_inner = str(i + 1)
-
-        st.markdown(
-            f'<div class="pipeline-step {state_cls}">'
-            f'  <div class="pipeline-dot {dot_cls}">{dot_inner}</div>'
-            f'  <div>'
-            f'    <div style="font-size:0.76rem;font-weight:600;">{icon} {label_en}</div>'
-            f'    <div style="font-size:0.68rem;font-family:\'Noto Sans Bengali\',sans-serif;">{label_bn}</div>'
-            f'  </div>'
-            f'</div>',
-            unsafe_allow_html=True,
-        )
-
-
-def render_stat_card(label: str, value: str, color: str = "#1A6FA8") -> None:
-    """Render a metric stat card (used inside the sidebar expander)."""
-    st.markdown(
-        f'<div class="stat-card-sb">'
-        f'  <div class="stat-card-sb-label">{label}</div>'
-        f'  <div class="stat-card-sb-value" style="color:{color} !important;">{value}</div>'
-        f'</div>',
-        unsafe_allow_html=True,
-    )
 
 
 def render_tier_banner(
@@ -128,93 +73,6 @@ def render_tier_banner(
     )
 
 
-def render_confidence_bar(
-    confidence_float: float,
-    label_en: str,
-    label_bn: str,
-) -> None:
-    """Render a styled HTML confidence progress bar with bilingual label."""
-    pct = max(0.0, min(100.0, confidence_float * 100))
-
-    if confidence_float >= 0.80:
-        bar_color = "#27AE60"
-        cap_cls   = "conf-high"
-        cap_text  = f"✓ {label_bn} &nbsp;·&nbsp; {label_en}"
-    elif confidence_float >= 0.60:
-        bar_color = "#E67E22"
-        cap_cls   = "conf-mid"
-        cap_text  = f"~ {label_bn} &nbsp;·&nbsp; {label_en}"
-    else:
-        bar_color = "#C0392B"
-        cap_cls   = "conf-low"
-        cap_text  = f"⚠ {label_bn} &nbsp;·&nbsp; {label_en}"
-
-    st.markdown(
-        f'<div class="conf-label-v2">'
-        f'  <span>Confidence · আত্মবিশ্বাস</span>'
-        f'  <span class="conf-value-mono" style="color:{bar_color};">{pct:.1f}%</span>'
-        f'</div>'
-        f'<div class="conf-bar-wrap-v2">'
-        f'  <div class="conf-bar-fill-v2" style="width:{pct}%;background:{bar_color};"></div>'
-        f'</div>'
-        f'<div><span class="conf-caption {cap_cls}">{cap_text}</span></div>',
-        unsafe_allow_html=True,
-    )
-
-
-def _md_to_html(text: str) -> str:
-    """Minimal markdown → HTML for chat bubble rendering."""
-    # Bold then italic
-    text = re.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', text)
-    text = re.sub(r'\*(.+?)\*',     r'<em>\1</em>',         text)
-    # Bullet lines → • prefix
-    lines = text.split('\n')
-    out = []
-    for line in lines:
-        stripped = line.lstrip()
-        if stripped.startswith('- ') or stripped.startswith('• '):
-            out.append('• ' + stripped[2:])
-        else:
-            out.append(line)
-    return '<br>'.join(out)
-
-
-def render_chat_message(role: str, content: str, sources=None) -> str:
-    """Return an HTML string for a single chat bubble (does NOT call st.markdown)."""
-    if sources is None:
-        sources = []
-
-    if role == "user":
-        safe = (
-            content
-            .replace("&", "&amp;")
-            .replace("<", "&lt;")
-            .replace(">", "&gt;")
-        )
-        return (
-            f'<div class="chat-bubble-wrap-user">'
-            f'  <div class="chat-bubble-user">{safe}</div>'
-            f'</div>'
-        )
-
-    # AI message
-    html_body = _md_to_html(content)
-    chips = "".join(
-        f'<span class="chat-source-chip">{s}</span>' for s in sources
-    )
-    src_html = f'<div class="chat-source-chips">{chips}</div>' if chips else ""
-
-    return (
-        f'<div class="chat-bubble-wrap-ai">'
-        f'  <div class="ai-avatar">AI</div>'
-        f'  <div style="flex:1">'
-        f'    <div class="chat-bubble-ai">{html_body}</div>'
-        f'    {src_html}'
-        f'  </div>'
-        f'</div>'
-    )
-
-
 def render_suggested_questions(questions_list: list) -> str | None:
     """
     Render clickable pill suggestion buttons in a row.
@@ -236,7 +94,7 @@ def render_referral_preview(pred: dict, tier_result: dict, history: dict) -> Non
     disease_bn = _gb(pred.get("disease", ""))
     conf_pct   = pred.get("confidence", 0.0) * 100
     tier       = tier_result.get("tier", 2)
-    tier_colors = {0: "#0D9E75", 1: "#27AE60", 2: "#E67E22", 3: "#C0392B"}
+    tier_colors = {0: "#10B981", 1: "#27AE60", 2: "#E67E22", 3: "#C0392B"}
     tier_color  = tier_colors.get(tier, "#4A5568")
     tier_label  = tier_result.get("urgency_label", f"Tier {tier}")
 
@@ -334,28 +192,6 @@ def render_referral_preview(pred: dict, tier_result: dict, history: dict) -> Non
     )
 
 
-def render_triage_badge(tier_result: dict) -> None:
-    """Legacy badge — kept for backward compat. Prefer render_tier_banner."""
-    tier = tier_result.get("tier", 2)
-    cfg  = _TIER_CONFIG.get(tier, _TIER_CONFIG[2])
-
-    urgency   = tier_result.get("urgency_label", cfg["label"])
-    action_en = tier_result.get("action", "")
-    action_bn = tier_result.get("bengali_text", tier_result.get("bn", ""))
-    facility  = tier_result.get("facility", tier_result.get("facility_type", ""))
-
-    st.markdown(
-        f'<div class="{cfg["badge_class"]}">'
-        f'  <div class="badge-label">{cfg["icon"]} TRIAGE RESULT · ট্রাইয়েজ ফলাফল</div>'
-        f'  <div class="badge-urgency">{urgency}</div>'
-        f'  <div class="badge-action">{action_en}</div>'
-        + (f'  <div class="badge-action-bn">{action_bn}</div>' if action_bn else '')
-        + (f'  <div style="margin-top:0.4rem;font-size:0.78rem;opacity:0.75;">Facility: {facility}</div>' if facility else '')
-        + f'</div>',
-        unsafe_allow_html=True,
-    )
-
-
 def render_patient_history_table(history: dict) -> None:
     """Render voice-extracted patient history as a bilingual chip grid."""
     st.markdown(
@@ -403,11 +239,11 @@ def render_disease_card(disease: str, confidence: float, top2: list) -> None:
 
     # Special healthy card for Normal class
     if disease == "Normal":
-        bar_color = "#0D9E75"
+        bar_color = "#10B981"
         cap_cls   = "conf-high"
         cap_text  = "✓ ত্বক স্বাভাবিক &nbsp;·&nbsp; Skin appears healthy"
         st.markdown(
-            f'<div class="sk-card" style="border-left:5px solid #0D9E75;background:#E8FDF1;">'
+            f'<div class="sk-card" style="border-left:5px solid #10B981;background:#E8FDF1;">'
             f'  <div class="sk-card-title" style="color:#064E3B;">AI Diagnosis — এআই রোগ নির্ণয়</div>'
             f'  <div class="disease-name-en" style="color:#064E3B;">💚 {display_en}</div>'
             f'  <div class="disease-name-bn" style="color:#064E3B;">{bengali_name}</div>'
@@ -545,21 +381,6 @@ def render_clinician_decision_chip(decision: dict) -> None:
         )
 
 
-def render_rag_answer(answer: str, lang: str = "en") -> None:
-    """Render RAG answer in styled teal-bordered box with source tags."""
-    src_tag  = '<span class="rag-source-tag">CDC · NIH · WHO · DGHS</span>'
-    lang_tag = (
-        '<span class="rag-source-tag">Bengali · বাংলা</span>'
-        if lang == "bn"
-        else '<span class="rag-source-tag">English</span>'
-    )
-    st.markdown(
-        f'<div class="rag-answer-box">{answer}</div>'
-        f'<div style="margin-top:0.35rem;">{src_tag}{lang_tag}</div>',
-        unsafe_allow_html=True,
-    )
-
-
 def check_image_quality(pil_img) -> tuple[bool, float]:
     """
     Laplacian variance blur detection.
@@ -601,71 +422,6 @@ def render_referral_download_button(pdf_bytes, key: str = "dl_referral_btn") -> 
             f'</div>',
             unsafe_allow_html=True,
         )
-
-
-# --- Treatment cost estimate ---
-
-def render_cost_estimate(tier: int) -> None:
-    """Teal card showing estimated treatment cost in Taka for the given tier."""
-    from severity.engine import COST_ESTIMATE
-    info = COST_ESTIMATE.get(tier, COST_ESTIMATE[2])
-    tier_colors = {1: "#27AE60", 2: "#E67E22", 3: "#C0392B"}
-    color = tier_colors.get(tier, "#1A6FA8")
-    st.markdown(
-        f'<div style="background:#F0FFF4;border:1.5px solid {color};border-radius:10px;'
-        f'padding:0.75rem 1rem;margin-top:0.5rem;">'
-        f'  <div style="font-size:0.72rem;font-weight:700;color:{color};'
-        f'text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.3rem;">'
-        f'💰 Estimated Cost · আনুমানিক খরচ</div>'
-        f'  <div style="font-size:1.4rem;font-weight:800;color:{color};">'
-        f'{info["range"]}</div>'
-        f'  <div style="font-size:0.8rem;color:#4A5568;margin-top:0.15rem;">'
-        f'{info["note"]}</div>'
-        f'  <div style="font-family:\'Noto Sans Bengali\',sans-serif;font-size:0.78rem;'
-        f'color:#4A5568;margin-top:0.1rem;">{info["note_bn"]}</div>'
-        f'</div>',
-        unsafe_allow_html=True,
-    )
-
-
-# --- "Without vs. with SkinAI" comparison ---
-
-def render_impact_comparison() -> None:
-    """Two-column before/after impact panel — goes in sidebar or Tab 1."""
-    st.markdown(
-        '<div style="margin-top:0.5rem;">'
-        '<div style="font-size:0.68rem;font-weight:700;color:#4A6080;'
-        'text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.4rem;">'
-        '⚖️ Impact · পার্থক্য</div>'
-
-        '<div style="display:flex;gap:0.4rem;">'
-
-        # Left — without SkinAI
-        '<div style="flex:1;background:#FFF5F5;border:1.5px solid #FC8181;'
-        'border-radius:8px;padding:0.55rem 0.6rem;">'
-        '<div style="font-size:1rem;margin-bottom:0.15rem;">❌</div>'
-        '<div style="font-size:0.62rem;font-weight:700;color:#C53030;margin-bottom:0.2rem;">'
-        'Without SkinAI</div>'
-        '<div style="font-size:0.6rem;color:#742A2A;line-height:1.4;">'
-        'হাতুড়ে ডাক্তার<br>ভুল চিকিৎসা<br>১৪ দিন দেরি<br>অবস্থা খারাপ'
-        '</div>'
-        '</div>'
-
-        # Right — with SkinAI
-        '<div style="flex:1;background:#F0FFF4;border:1.5px solid #68D391;'
-        'border-radius:8px;padding:0.55rem 0.6rem;">'
-        '<div style="font-size:1rem;margin-bottom:0.15rem;">✅</div>'
-        '<div style="font-size:0.62rem;font-weight:700;color:#22543D;margin-bottom:0.2rem;">'
-        'With SkinAI</div>'
-        '<div style="font-size:0.6rem;color:#276749;line-height:1.4;">'
-        'AI নির্ণয়<br>সঠিক রেফারেল<br>&lt;১ ঘণ্টায়<br>সুস্থতার পথ'
-        '</div>'
-        '</div>'
-
-        '</div>'  # flex container
-        '</div>',
-        unsafe_allow_html=True,
-    )
 
 
 # --- Bengali TTS readout (gTTS) ---
@@ -945,7 +701,7 @@ def render_business_model() -> None:
 
     # Freemium subscription — primary patient-facing stream
     st.markdown(
-        '<div style="background:linear-gradient(135deg,#0B2A52 0%,#1A6FA8 60%,#0D9E75 100%);'
+        '<div style="background:linear-gradient(135deg,#0B2A52 0%,#1668A4 60%,#10B981 100%);'
         'color:white;border-radius:14px;padding:1.15rem 1.35rem;margin-bottom:0.9rem;'
         'box-shadow:0 6px 22px rgba(11,42,82,0.18);">'
         '  <div style="display:flex;justify-content:space-between;align-items:baseline;'
@@ -1048,7 +804,7 @@ def render_business_model() -> None:
             "why":  "Doctors keep their full fee with no negotiation; patients see one clean price and "
                     "receive a pre-triaged consult with a structured referral PDF already in hand — "
                     "shorter consults, fewer cancellations, higher booking conversion",
-            "color": "#1A6FA8",
+            "color": "#1668A4",
         },
         {
             "name": "NRB Sponsor-a-District",
@@ -1056,7 +812,7 @@ def render_business_model() -> None:
             "who":  "~1.7M-strong Bangladeshi diaspora",
             "why":  "Channels a small slice of the >$20B annual remittance flow into measurable, "
                     "geolocated health impact — see the live demo widget below",
-            "color": "#0D9E75",
+            "color": "#10B981",
         },
         {
             "name": "Public-health &amp; development grants",
@@ -1186,7 +942,7 @@ def render_scalability_roadmap() -> None:
             "reach": "2 Upazila Health Complexes in Rangpur Division",
             "ships": "Current web app + WhatsApp and Telegram bots (already built and tested)",
             "cost":  "&lt; $50 / month",
-            "color": "#0D9E75",
+            "color": "#10B981",
         },
         {
             "name": "Phase 2 — Divisional",
@@ -1194,7 +950,7 @@ def render_scalability_roadmap() -> None:
             "reach": "8 districts across Rangpur and Rajshahi divisions",
             "ships": "Low-bandwidth WhatsApp-first flow promoted; partnership MoUs with district hospitals",
             "cost":  "≈ $200 / month",
-            "color": "#1A6FA8",
+            "color": "#1668A4",
         },
         {
             "name": "Phase 3 — National &amp; regional",
@@ -1224,7 +980,7 @@ def render_scalability_roadmap() -> None:
         )
 
     st.markdown(
-        '<div style="background:#EBF5FB;border:1px solid #1A6FA8;border-radius:8px;'
+        '<div style="background:#EBF5FB;border:1px solid #1668A4;border-radius:8px;'
         'padding:0.65rem 0.9rem;margin-top:0.6rem;font-size:0.8rem;color:#1A5276;line-height:1.55;">'
         '<strong>Infrastructure path.</strong> HF Spaces (today) → AWS ap-south-1 (Mumbai) with '
         'auto-scale on the same Docker image. The existing dual-service routing '
@@ -1279,7 +1035,7 @@ def render_nrb_sponsor() -> None:
 
     # Live counter banner
     st.markdown(
-        f'<div style="background:linear-gradient(135deg,#0D9E75 0%,#1A6FA8 100%);color:white;'
+        f'<div style="background:linear-gradient(135deg,#10B981 0%,#1668A4 100%);color:white;'
         f'border-radius:12px;padding:1rem 1.25rem;margin:0.6rem 0;display:flex;'
         f'justify-content:space-around;gap:0.75rem;flex-wrap:wrap;text-align:center;">'
         f'  <div><div style="font-size:1.65rem;font-weight:800;line-height:1;">${total_amount:,}</div>'
@@ -1367,7 +1123,7 @@ def render_nrb_sponsor() -> None:
             f'padding:0.45rem 0.7rem;margin-bottom:0.3rem;font-size:0.8rem;">'
             f'  <div><strong style="color:#1A202C;">{p["name"]}</strong>'
             f'    <span style="color:#718096;"> · {p["country"]} → {p["district"]}</span>{seed_tag}</div>'
-            f'  <div style="font-weight:700;color:#0D9E75;font-family:\'JetBrains Mono\',monospace;">'
+            f'  <div style="font-weight:700;color:#10B981;font-family:\'JetBrains Mono\',monospace;">'
             f'    ${p["amount"]}</div>'
             f'</div>'
         )
@@ -1430,7 +1186,7 @@ _TECH_DECISIONS = [
                    "convolutional ResNet/EfficientNet baselines. CBAM (Channel + Spatial Attention) "
                    "adds explicit focus on lesion regions without changing the backbone.",
         "metric":  "F1 = 92.46% on Bangladeshi clinical test set",
-        "color":   "#1A6FA8",
+        "color":   "#1668A4",
     },
     {
         "name":    "INT8 dynamic quantisation",
@@ -1438,7 +1194,7 @@ _TECH_DECISIONS = [
         "why":     "≈4× CPU speedup with &lt;1.5 F1-point degradation versus FP32. Mandatory for "
                    "deployment on the free HF Spaces CPU tier — no GPU, no warm-up budget.",
         "metric":  "~1.8 s end-to-end inference on free CPU",
-        "color":   "#0D9E75",
+        "color":   "#10B981",
     },
     {
         "name":    "3-signal severity engine",
@@ -1607,94 +1363,6 @@ def render_architecture_diagram() -> None:
         'region without touching the severity engine, RAG sources can be replaced with regional '
         'guidelines. The whole system ships as a single Docker image with no external service '
         'dependencies beyond Gemini and the Overpass API (both free, both have fallbacks).'
-        '</div>',
-        unsafe_allow_html=True,
-    )
-
-
-# --- Live impact KPI strip ---
-# System metrics are verifiable product facts, not usage claims.
-_SYSTEM_METRICS = [
-    {"value": "92.46%",  "label": "BD-SkinNet F1",     "note": "on BD clinical test set"},
-    {"value": "7+1",     "label": "Disease classes",   "note": "7 conditions + Normal"},
-    {"value": "4",       "label": "Triage signals",    "note": "fused per decision"},
-    {"value": "1.8 s",   "label": "Inference",         "note": "INT8 on free CPU"},
-    {"value": "402",     "label": "Automated tests",   "note": "CI-enforced"},
-    {"value": "0",       "label": "PII persisted",     "note": "session-state only"},
-]
-
-
-def _increment_session_screening_counter(prediction_id: str | None) -> None:
-    """Bump the live session counter when a new prediction is observed.
-
-    `prediction_id` is a stable hash of the current prediction (or None if
-    nothing has been analysed yet). Counter increments on each *new* id seen,
-    not on each rerun.
-    """
-    if prediction_id is None:
-        return
-    seen = st.session_state.setdefault("_kpi_seen_predictions", set())
-    if prediction_id not in seen:
-        seen.add(prediction_id)
-        st.session_state["_kpi_session_screenings"] = len(seen)
-
-
-def render_impact_kpi_strip(prediction_id: str | None = None) -> None:
-    """Thin, full-width KPI strip rendered above the tab bar on every page.
-
-    Three honest signal types:
-      1. System metrics (real, verifiable facts about the product)
-      2. Live session counter (increments as the judge uses the app)
-      3. Phase 1 pilot target (clearly labeled as a projection)
-    """
-    _increment_session_screening_counter(prediction_id)
-    session_screenings = st.session_state.get("_kpi_session_screenings", 0)
-
-    # System metrics row
-    metric_html = ""
-    for m in _SYSTEM_METRICS:
-        metric_html += (
-            f'<div style="flex:1;min-width:90px;text-align:center;padding:0.15rem 0.3rem;">'
-            f'  <div style="font-size:1.05rem;font-weight:800;color:#FFFFFF;line-height:1.1;'
-            f'font-family:\'JetBrains Mono\',monospace;">{m["value"]}</div>'
-            f'  <div style="font-size:0.62rem;font-weight:700;color:#E2E8F0;'
-            f'text-transform:uppercase;letter-spacing:0.04em;margin-top:0.15rem;">{m["label"]}</div>'
-            f'  <div style="font-size:0.58rem;color:#A0AEC0;margin-top:0.05rem;line-height:1.2;">{m["note"]}</div>'
-            f'</div>'
-        )
-
-    # Session + Phase 1 target row
-    session_block = (
-        f'<div style="flex:1;min-width:120px;text-align:center;padding:0.15rem 0.3rem;'
-        f'border-left:1px solid rgba(255,255,255,0.18);">'
-        f'  <div style="font-size:1.05rem;font-weight:800;color:#9AE6B4;line-height:1.1;'
-        f'font-family:\'JetBrains Mono\',monospace;">{session_screenings}</div>'
-        f'  <div style="font-size:0.62rem;font-weight:700;color:#E2E8F0;'
-        f'text-transform:uppercase;letter-spacing:0.04em;margin-top:0.15rem;">Live · this session</div>'
-        f'  <div style="font-size:0.58rem;color:#A0AEC0;margin-top:0.05rem;line-height:1.2;">'
-        f'{"screenings analysed live" if session_screenings else "no screenings yet — try a demo case"}</div>'
-        f'</div>'
-    )
-
-    target_block = (
-        '<div style="flex:1.4;min-width:160px;text-align:center;padding:0.15rem 0.5rem;'
-        'border-left:1px solid rgba(255,255,255,0.18);">'
-        '  <div style="font-size:0.78rem;font-weight:700;color:#FBD38D;line-height:1.25;">'
-        '    Phase 1 pilot target<br>'
-        '    <span style="font-family:\'JetBrains Mono\',monospace;font-size:0.9rem;">'
-        '200 patients · 2 UHCs · 90 days</span>'
-        '  </div>'
-        '  <div style="font-size:0.58rem;color:#A0AEC0;margin-top:0.15rem;font-style:italic;">'
-        '    Projection · see Scalability tab</div>'
-        '</div>'
-    )
-
-    st.markdown(
-        '<div style="background:linear-gradient(135deg,#1A202C 0%,#2D3748 100%);'
-        'border-radius:10px;padding:0.55rem 0.75rem;margin:0.5rem 0 0.75rem 0;'
-        'display:flex;flex-wrap:wrap;gap:0.2rem;align-items:stretch;'
-        'box-shadow:0 2px 8px rgba(0,0,0,0.08);">'
-        + metric_html + session_block + target_block +
         '</div>',
         unsafe_allow_html=True,
     )

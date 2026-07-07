@@ -22,7 +22,7 @@
 
 ## Intended use
 
-**Primary purpose.** Assist non-clinician users in rural Bangladesh in routing skin complaints to the correct level of care: pharmacist (Tier 1), Upazila Health Complex (Tier 2), or District Hospital emergency (Tier 3). The model is one signal of four in a multi-signal triage engine — it is never used as a standalone diagnostic.
+**Primary purpose.** Assist non-clinician users in rural Bangladesh in routing skin complaints to the correct level of care: pharmacist (Tier 1), Upazila Health Complex (Tier 2), or District Hospital emergency (Tier 3). The model is one signal of three in a multi-signal triage engine — it is never used as a standalone diagnostic.
 
 **Intended users.** Adults (≥18) in Bangladesh self-screening on a smartphone or feature phone (via the WhatsApp/Telegram bot), and Community Health Workers (Shasthya Seboika, ASHA equivalents) using the simplified CHW mode.
 
@@ -32,7 +32,7 @@
 
 ## Training data
 
-| Source | Faridpur Medical College Hospital, Rangpur Medical College Hospital |
+| Source | Faridpur Medical College Hospital, Rangpur Medical College Hospital, Kishoreganj Medical College Hospital |
 |---|---|
 | Country | Bangladesh |
 | Image type | In-clinic photographs of presenting skin complaints |
@@ -55,7 +55,7 @@ See `docs/DATA_CARD.md` for the full data card.
 
 ## Bias analysis &amp; limitations
 
-**Geographic.** All training data originates from Faridpur and Rangpur divisions. Performance on other Bangladeshi divisions is expected to be comparable (similar genetic and environmental profiles) but has not been formally evaluated. Performance on non-South-Asian populations is expected to degrade.
+**Geographic.** All training data originates from three Bangladeshi medical college hospitals (Faridpur, Rangpur, Kishoreganj). Performance on other Bangladeshi districts is expected to be comparable (similar genetic and environmental profiles) but has not been formally evaluated. Performance on non-South-Asian populations is expected to degrade.
 
 **Skin tone.** Training data is predominantly Fitzpatrick IV–VI. The model has not been evaluated on Fitzpatrick I–III. The in-app fairness disclosure surfaces this limitation to every user.
 
@@ -82,4 +82,4 @@ See `docs/DATA_CARD.md` for the full data card.
 
 ## Caveats
 
-This model card describes the deployed checkpoint as of the BuildFest submission. Performance numbers reflect the held-out test set the model was originally evaluated on; real-world deployment in additional districts will require periodic re-evaluation. Adoption in new geographies (India, Pakistan, Nepal, Sri Lanka — Phase 3 of the roadmap) will require a new model card per locale.
+This model card describes the deployed checkpoint as of this submission. Performance numbers reflect the held-out test set the model was originally evaluated on; real-world deployment in additional districts will require periodic re-evaluation. Adoption in new geographies (India, Pakistan, Nepal, Sri Lanka — Phase 3 of the roadmap) will require a new model card per locale.

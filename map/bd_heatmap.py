@@ -106,7 +106,7 @@ def render_prevalence_map(disease: str = "Tinea"):
     for division, (lat, lon) in DIVISIONS.items():
         level  = BURDEN.get(division, {}).get(disease, "L")
         weight = LEVEL_WEIGHT.get(level, 1)
-        color  = LEVEL_COLOR.get(level, "#1A6FA8")
+        color  = LEVEL_COLOR.get(level, "#1668A4")
         label  = LEVEL_LABEL.get(level, level)
 
         folium.CircleMarker(

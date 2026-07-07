@@ -209,7 +209,7 @@ def generate_referral_pdf(session_data: dict) -> bytes:
     pdf.set_text_color(*_GREY)
     pdf.lat(8)
     pdf.cell(0, 5, f"Generated: {now}", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
-    pdf.cell(0, 5, "AI-powered dermatological screening & triage | SciBlitz AI Challenge 2026",
+    pdf.cell(0, 5, "AI-powered dermatological screening & triage",
              new_x=XPos.LMARGIN, new_y=YPos.NEXT)
     pdf.set_text_color(0, 0, 0)
     pdf.ln(2)

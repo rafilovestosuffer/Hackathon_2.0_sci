@@ -265,8 +265,12 @@ def _render_phase_strip() -> None:
     )
 
 
-def render_doctime_handoff_tab() -> None:
-    """Entry point — called from app.py inside `with tab5:`."""
+def render_doctime_handoff_tab(generate_pdf=None) -> None:
+    """Entry point — called from app.py inside `with tab5:`.
+
+    generate_pdf: optional zero-arg callable that builds the referral PDF into
+    st.session_state.pdf_bytes, so the handoff works without a Referral-tab visit.
+    """
     payload = payload_from_session(st.session_state)
 
     st.markdown(
@@ -333,6 +337,18 @@ def render_doctime_handoff_tab() -> None:
         """,
         unsafe_allow_html=True,
     )
+    # The PDF may not exist yet if the patient came straight here from the
+    # diagnosis — offer to generate it inline instead of a dead placeholder.
+    if st.session_state.get("pdf_bytes") is None and generate_pdf is not None:
+        if st.button(
+            "Generate referral PDF · রেফারেল পত্র তৈরি করুন",
+            use_container_width=True,
+            key="doctime_gen_pdf_btn",
+        ):
+            with st.spinner("Generating referral PDF…"):
+                generate_pdf()
+            if st.session_state.get("pdf_bytes") is not None:
+                st.rerun()   # swap the generate button for the download button
     render_referral_download_button(st.session_state.get("pdf_bytes"), key="dl_referral_btn_doctime")
 
     # 5. Phase strip.

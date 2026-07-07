@@ -66,7 +66,7 @@ def _render_medeasy_section(medicines: list) -> None:
                 f'মাত্রা: {dose} &nbsp;·&nbsp; {freq} &nbsp;·&nbsp; {dur}</div>'
                 f'<div style="display:flex;gap:1rem;flex-wrap:wrap;">'
                 f'<a href="{url_me}" target="_blank" rel="noopener noreferrer" '
-                f'style="flex:1;min-width:160px;display:block;text-align:center;background:#1A6FA8;color:white;'
+                f'style="flex:1;min-width:160px;display:block;text-align:center;background:#1668A4;color:white;'
                 f'font-size:0.95rem;font-weight:700;padding:0.65rem 1rem;border-radius:8px;'
                 f'text-decoration:none;letter-spacing:0.01em;">🔵 MedEasy-তে অর্ডার করুন</a>'
                 f'<a href="{url_ep}" target="_blank" rel="noopener noreferrer" '
@@ -295,9 +295,10 @@ def _tab_manual_notes() -> str | None:
 
 def _render_transcript_and_pdf(transcript: str) -> None:
     """Show editable transcript and PDF generation button."""
-    st.markdown("---")
-    st.markdown("### Consultation Transcript")
-    st.caption("পরামর্শ ট্রান্সক্রিপ্ট")
+    st.markdown(
+        '<div class="sk-section-h2" style="margin-top:1rem;">Consultation Transcript · পরামর্শ ট্রান্সক্রিপ্ট</div>',
+        unsafe_allow_html=True,
+    )
 
     edited = st.text_area(
         "Review and edit transcript before generating PDF",
@@ -316,9 +317,10 @@ def _render_transcript_and_pdf(transcript: str) -> None:
         "consultation_duration_minutes", 30
     )
 
-    st.markdown("---")
-    st.markdown("### Care Summary PDF")
-    st.caption("পরামর্শ সারসংক্ষেপ PDF")
+    st.markdown(
+        '<div class="sk-section-h2" style="margin-top:1rem;">Care Summary PDF · পরামর্শ সারসংক্ষেপ</div>',
+        unsafe_allow_html=True,
+    )
 
     info_col, btn_col = st.columns([3, 1])
     with info_col:
@@ -391,9 +393,10 @@ def _render_transcript_and_pdf(transcript: str) -> None:
 
 def render_consultation_room() -> None:
     """Render the full Consultation Room UI. Call this from app.py Tab 5."""
-    st.markdown("---")
-    st.markdown("## Consultation Room")
-    st.caption("পরামর্শ কক্ষ")
+    st.markdown(
+        '<div class="sk-section-h2" style="margin-top:1rem;">Consultation Room · পরামর্শ কক্ষ</div>',
+        unsafe_allow_html=True,
+    )
     st.markdown(
         "Your appointment is confirmed. Choose how to capture your consultation — "
         "try the quick demo, record live audio, or type notes. "
@@ -402,9 +405,9 @@ def render_consultation_room() -> None:
 
     # Three input modes
     tab_video, tab_audio, tab_manual = st.tabs([
-        "📥 Quick Demo",
-        "🎙️ Live Recording",
-        "📝 Manual Notes",
+        "Quick Demo",
+        "Live Recording",
+        "Manual Notes",
     ])
 
     new_transcript = None

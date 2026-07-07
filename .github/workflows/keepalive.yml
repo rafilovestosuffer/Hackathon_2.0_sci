@@ -1,7 +1,7 @@
 name: Keepalive — Ping HF Space
 
 # Runs every 20 minutes from May 19 to July 12, 2026.
-# CONSTRAINT 7: App must stay live until July 12, 2026 (SciBlitz AI Challenge).
+# CONSTRAINT 7: App must stay live until July 12, 2026.
 
 on:
   schedule:

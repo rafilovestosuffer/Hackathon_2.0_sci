@@ -36,14 +36,14 @@ class TestInjectCSS:
             html = mock_st.markdown.call_args.args[0]
             assert "Noto+Sans+Bengali" in html or "Noto Sans Bengali" in html
 
-    def test_inject_css_contains_badge_classes(self):
+    def test_inject_css_contains_tier_banner_classes(self):
         with patch("ui.styles.st") as mock_st:
             from ui.styles import inject_css
             inject_css()
             html = mock_st.markdown.call_args.args[0]
-            assert "badge-tier1" in html
-            assert "badge-tier2" in html
-            assert "badge-tier3" in html
+            assert "tier-banner-1" in html
+            assert "tier-banner-2" in html
+            assert "tier-banner-3" in html
 
     def test_inject_css_unsafe_allow_html_true(self):
         with patch("ui.styles.st") as mock_st:
@@ -58,41 +58,6 @@ class TestInjectCSS:
             inject_css()
             html = mock_st.markdown.call_args.args[0]
             assert "fonts.googleapis.com" in html
-
-
-# --- TestRenderTriageBadge ---
-
-class TestRenderTriageBadge:
-    def _call(self, tier_result):
-        with patch("ui.components.st") as mock_st:
-            from ui.components import render_triage_badge
-            render_triage_badge(tier_result)
-            return _captured_html(mock_st.markdown)
-
-    def test_badge_tier1_rendered(self):
-        html = self._call({"tier": 1, "urgency_label": "NON-URGENT",
-                           "action": "Consult pharmacist", "bn": "ফার্মাসিস্ট"})
-        assert "badge-tier1" in html
-
-    def test_badge_tier2_rendered(self):
-        html = self._call({"tier": 2, "urgency_label": "ROUTINE",
-                           "action": "Visit clinic", "bn": "ক্লিনিকে যান"})
-        assert "badge-tier2" in html
-
-    def test_badge_tier3_rendered(self):
-        html = self._call({"tier": 3, "urgency_label": "URGENT",
-                           "action": "Emergency", "bn": "জরুরি"})
-        assert "badge-tier3" in html
-
-    def test_badge_shows_action_text(self):
-        html = self._call({"tier": 2, "urgency_label": "ROUTINE",
-                           "action": "Visit Upazila", "bn": "উপজেলায় যান"})
-        assert "Visit Upazila" in html
-
-    def test_badge_shows_bengali_action(self):
-        html = self._call({"tier": 1, "urgency_label": "NON-URGENT",
-                           "action": "Go pharmacist", "bn": "ফার্মাসিস্টে যান"})
-        assert "ফার্মাসিস্টে যান" in html
 
 
 # --- TestRenderPatientHistory ---
@@ -193,31 +158,6 @@ class TestRenderReferralButton:
             assert "diagnosis" in html.lower() or "referral" in html.lower()
 
 
-# --- TestRenderRAGAnswer ---
-
-class TestRenderRAGAnswer:
-    def test_answer_text_in_html(self):
-        with patch("ui.components.st") as mock_st:
-            from ui.components import render_rag_answer
-            render_rag_answer("Tinea is caused by fungi.", "en")
-            html = _captured_html(mock_st.markdown)
-            assert "Tinea is caused by fungi." in html
-
-    def test_source_tags_shown(self):
-        with patch("ui.components.st") as mock_st:
-            from ui.components import render_rag_answer
-            render_rag_answer("Test answer", "en")
-            html = _captured_html(mock_st.markdown)
-            assert "CDC" in html or "WHO" in html
-
-    def test_bengali_lang_tag(self):
-        with patch("ui.components.st") as mock_st:
-            from ui.components import render_rag_answer
-            render_rag_answer("বাংলায় উত্তর।", "bn")
-            html = _captured_html(mock_st.markdown)
-            assert "Bengali" in html or "বাংলা" in html
-
-
 # --- TestConfidenceCaption ---
 
 class TestConfidenceCaption:
@@ -292,72 +232,6 @@ class TestCheckImageQuality:
         assert var == -1.0
 
 
-# --- TestRenderSidebarPipeline ---
-
-class TestRenderSidebarPipeline:
-    def _call(self, **kwargs):
-        with patch("ui.components.st") as mock_st:
-            from ui.components import render_sidebar_pipeline
-            render_sidebar_pipeline(**kwargs)
-            return _captured_html(mock_st.markdown)
-
-    def test_renders_four_steps(self):
-        html = self._call(voice_done=False, image_done=False,
-                          diagnosis_done=False, referral_done=False)
-        assert html.count("pipeline-step") == 4
-
-    def test_done_step_gets_done_class(self):
-        html = self._call(voice_done=True, image_done=False,
-                          diagnosis_done=False, referral_done=False)
-        assert "pipeline-step done" in html
-
-    def test_active_step_present_when_not_all_done(self):
-        html = self._call(voice_done=False, image_done=False,
-                          diagnosis_done=False, referral_done=False)
-        assert "pipeline-step active" in html
-
-    def test_pending_step_present(self):
-        html = self._call(voice_done=True, image_done=False,
-                          diagnosis_done=False, referral_done=False)
-        assert "pending" in html
-
-    def test_all_done_no_active_step(self):
-        html = self._call(voice_done=True, image_done=True,
-                          diagnosis_done=True, referral_done=True)
-        assert "active" not in html
-
-    def test_done_dot_shows_checkmark(self):
-        html = self._call(voice_done=True, image_done=False,
-                          diagnosis_done=False, referral_done=False)
-        assert "✓" in html
-
-
-# --- TestRenderStatCard ---
-
-class TestRenderStatCard:
-    def _call(self, label, value, color="#1A6FA8"):
-        with patch("ui.components.st") as mock_st:
-            from ui.components import render_stat_card
-            render_stat_card(label, value, color)
-            return _captured_html(mock_st.markdown)
-
-    def test_label_in_html(self):
-        html = self._call("Clinical Accuracy", "92.46%")
-        assert "Clinical Accuracy" in html
-
-    def test_value_in_html(self):
-        html = self._call("Clinical Accuracy", "92.46%")
-        assert "92.46%" in html
-
-    def test_custom_color_in_html(self):
-        html = self._call("Conditions", "7", color="#27AE60")
-        assert "#27AE60" in html
-
-    def test_renders_stat_card_class(self):
-        html = self._call("Source", "BD Hospitals")
-        assert "stat-card-sb" in html
-
-
 # --- TestRenderTierBanner ---
 
 class TestRenderTierBanner:
@@ -398,98 +272,6 @@ class TestRenderTierBanner:
     def test_tier3_has_urgent_label(self):
         html = self._call(tier=3, urgency="URGENT")
         assert "URGENT" in html
-
-
-# --- TestRenderConfidenceBar ---
-
-class TestRenderConfidenceBar:
-    def _call(self, confidence, label_en="Confident", label_bn="নিশ্চিত"):
-        with patch("ui.components.st") as mock_st:
-            from ui.components import render_confidence_bar
-            render_confidence_bar(confidence, label_en, label_bn)
-            return _captured_html(mock_st.markdown)
-
-    def test_renders_percentage(self):
-        html = self._call(0.82)
-        assert "82" in html
-
-    def test_high_confidence_green(self):
-        html = self._call(0.85)
-        assert "#27AE60" in html
-
-    def test_low_confidence_red(self):
-        html = self._call(0.35)
-        assert "#C0392B" in html
-
-    def test_mid_confidence_amber(self):
-        html = self._call(0.65)
-        assert "#E67E22" in html
-
-    def test_label_en_in_html(self):
-        html = self._call(0.75, label_en="Model confident")
-        assert "Model confident" in html
-
-    def test_label_bn_in_html(self):
-        html = self._call(0.75, label_bn="মডেল নিশ্চিত")
-        assert "মডেল নিশ্চিত" in html
-
-    def test_confidence_bar_class_present(self):
-        html = self._call(0.80)
-        assert "conf-bar-wrap-v2" in html or "conf-bar-fill-v2" in html
-
-
-# --- TestRenderChatMessage ---
-
-class TestRenderChatMessage:
-    """render_chat_message returns an HTML string — no st mocking needed."""
-
-    def test_returns_string(self):
-        from ui.components import render_chat_message
-        result = render_chat_message("user", "Hello")
-        assert isinstance(result, str)
-
-    def test_user_bubble_class(self):
-        from ui.components import render_chat_message
-        html = render_chat_message("user", "Test question")
-        assert "chat-bubble-user" in html
-
-    def test_ai_bubble_class(self):
-        from ui.components import render_chat_message
-        html = render_chat_message("assistant", "Test answer")
-        assert "chat-bubble-ai" in html
-
-    def test_user_content_in_html(self):
-        from ui.components import render_chat_message
-        html = render_chat_message("user", "What is scabies?")
-        assert "What is scabies?" in html
-
-    def test_ai_content_in_html(self):
-        from ui.components import render_chat_message
-        html = render_chat_message("assistant", "Scabies is caused by mites.")
-        assert "Scabies is caused by mites." in html
-
-    def test_sources_rendered_as_chips(self):
-        from ui.components import render_chat_message
-        html = render_chat_message("assistant", "Answer", sources=["CDC", "WHO"])
-        assert "CDC" in html
-        assert "WHO" in html
-        assert "chat-source-chip" in html
-
-    def test_user_html_chars_escaped(self):
-        from ui.components import render_chat_message
-        html = render_chat_message("user", "<script>alert('xss')</script>")
-        assert "<script>" not in html
-        assert "&lt;script&gt;" in html
-
-    def test_ai_avatar_present(self):
-        from ui.components import render_chat_message
-        html = render_chat_message("assistant", "Hello")
-        assert "ai-avatar" in html
-
-    def test_empty_sources_no_chip_div(self):
-        from ui.components import render_chat_message
-        html = render_chat_message("assistant", "Hello", sources=[])
-        assert "chat-source-chips" not in html
 
 
 # --- TestRenderSuggestedQuestions ---
@@ -607,7 +389,7 @@ class TestRenderReferralPreview:
         assert "Local Pharmacy" in html
 
 
-# --- Infinity AI BuildFest — Tab 6 helpers ---
+# --- Tab 6 helpers ---
 
 class TestFairnessDisclosure:
     def test_renders_without_error(self):
@@ -833,48 +615,6 @@ class TestArchitectureDiagram:
             render_architecture_diagram()
             html = _captured_html(mock_st.markdown)
             assert "Modularity" in html
-
-
-class TestImpactKPIStrip:
-    def _patched_st(self, mock_st, session=None):
-        if session is None:
-            session = {}
-        mock_st.session_state = session
-        return mock_st
-
-    def test_renders_with_no_prediction(self):
-        with patch("ui.components.st") as mock_st:
-            self._patched_st(mock_st)
-            from ui.components import render_impact_kpi_strip
-            render_impact_kpi_strip(prediction_id=None)
-            assert mock_st.markdown.called
-            html = _captured_html(mock_st.markdown)
-            # System metrics always present
-            assert "92.46%" in html
-            assert "402" in html
-
-    def test_session_counter_increments_on_new_prediction(self):
-        with patch("ui.components.st") as mock_st:
-            session = {}
-            self._patched_st(mock_st, session)
-            from ui.components import render_impact_kpi_strip
-            render_impact_kpi_strip(prediction_id="Tinea-0.85-22.5")
-            assert session.get("_kpi_session_screenings") == 1
-            # Same id again — no increment
-            render_impact_kpi_strip(prediction_id="Tinea-0.85-22.5")
-            assert session.get("_kpi_session_screenings") == 1
-            # New id — increments
-            render_impact_kpi_strip(prediction_id="Scabies-0.38-45.0")
-            assert session.get("_kpi_session_screenings") == 2
-
-    def test_phase_1_target_visible(self):
-        with patch("ui.components.st") as mock_st:
-            self._patched_st(mock_st)
-            from ui.components import render_impact_kpi_strip
-            render_impact_kpi_strip(prediction_id=None)
-            html = _captured_html(mock_st.markdown)
-            assert "Phase 1 pilot target" in html
-            assert "200 patients" in html
 
 
 class TestEthicsCardCompliance:

@@ -94,4 +94,4 @@ The NRB Sponsor-a-District widget is the Phase 1 demo of what becomes the Phase 
 
 ## What this roadmap does not promise
 
-This is a 12-month plan with named partners and concrete cost estimates. It is not a finished business that exists today. Phase 1 begins after BuildFest. Phase 2 is contingent on Phase 1 outcome metrics. Phase 3 is aspirational and contingent on Phase 2 traction. The numbers are honest projections, not forecasts.
+This is a 12-month plan with named partners and concrete cost estimates. It is not a finished business that exists today. Phase 1 begins after the initial pilot. Phase 2 is contingent on Phase 1 outcome metrics. Phase 3 is aspirational and contingent on Phase 2 traction. The numbers are honest projections, not forecasts.

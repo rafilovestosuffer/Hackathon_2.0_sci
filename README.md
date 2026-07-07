@@ -25,7 +25,7 @@ pinned: false
 ![No login](https://img.shields.io/badge/access-no_login-success)
 ![License](https://img.shields.io/badge/use-research_/_humanitarian-green)
 
-**🏆 Infinity AI BuildFest **
+**🏆 AI-powered dermatological triage for rural Bangladesh**
 
 [**▶ Try it**](#-try-it-in-10-seconds) · [**How it works**](#-how-it-works) · [**Deep dives**](#-under-the-hood-deep-dives) · [**Tech stack**](#-complete-tech-stack) · [**Impact**](#-business-model--impact)
 
@@ -172,7 +172,7 @@ Input 224×224×3
 | Quantization | `torch.quantization.quantize_dynamic` → ~4× smaller, within ~1.5 F1 of FP32 |
 | Latency | ~1.8 s/image on **free CPU** |
 | Checkpoint | Hugging Face Hub `rafilovestosuffer/bd-skinnet`, downloaded & cached at runtime |
-| Training data | **Faridpur + Rangpur Medical College Hospitals** — no DermNet, no scraped, no synthetic |
+| Training data | **Faridpur, Rangpur & Kishoreganj Medical College Hospitals** — 3,322 real clinical images; no DermNet, no scraped, no web images (rare classes rebalanced with diffusion synthesis) |
 
 > Full [Model Card](docs/MODEL_CARD.md) + [Data Card](docs/DATA_CARD.md) in the repo. If the checkpoint can't download (cold Space / offline), inference returns a deterministic demo result with the identical schema, so the demo always works.
 
@@ -614,7 +614,6 @@ SkinAI Bangladesh is a **research prototype** — **not a certified medical devi
 
 ---
 
-**Built for Infinity AI BuildFest**
 *সঠিক রোগী → সঠিক ডাক্তার → সঠিক সময় · Right patient → Right doctor → Right time*
 
 [**▶ Open the live app**](https://huggingface.co/spaces/rafilovestosuffer/skinai-bd)

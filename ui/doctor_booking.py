@@ -384,15 +384,15 @@ def _render_doctor_selection_grid(selected_id: str) -> None:
         for col, doc in zip(cols, row_docs):
             with col:
                 is_sel = selected_id == doc["id"]
-                border = "#0D9E75" if is_sel else "#E2E8F0"
+                border = "#10B981" if is_sel else "#E2E8F0"
                 bg     = "#F0FFF8" if is_sel else "#FFFFFF"
-                shadow = "0 0 0 2px #0D9E75" if is_sel else "0 1px 3px rgba(0,0,0,0.07)"
+                shadow = "0 0 0 2px #10B981" if is_sel else "0 1px 3px rgba(0,0,0,0.07)"
 
                 filled = int(doc["rating"])
                 stars = "★" * filled + "☆" * (5 - filled)
 
                 avail_html = "".join(
-                    f'<span style="background:#E6FFFA;color:#0D9E75;padding:0.1rem 0.35rem;'
+                    f'<span style="background:#E6FFFA;color:#10B981;padding:0.1rem 0.35rem;'
                     f'border-radius:4px;font-size:0.63rem;font-weight:700;margin:0.1rem 0.1rem 0 0;">'
                     f'{_BN_DAY_SHORT[d]}</span>'
                     for d, v in doc["available_days"].items() if v
@@ -405,7 +405,7 @@ def _render_doctor_selection_grid(selected_id: str) -> None:
                 )
                 lang_str = " + ".join(doc["languages"][:2])
                 sel_indicator = (
-                    '<div style="position:absolute;top:0.5rem;right:0.5rem;background:#0D9E75;'
+                    '<div style="position:absolute;top:0.5rem;right:0.5rem;background:#10B981;'
                     'color:white;border-radius:99px;width:1.25rem;height:1.25rem;'
                     'display:flex;align-items:center;justify-content:center;'
                     'font-size:0.7rem;font-weight:700;">✓</div>'
@@ -429,7 +429,7 @@ def _render_doctor_selection_grid(selected_id: str) -> None:
                     # Name
                     f'<div style="font-size:0.88rem;font-weight:800;color:#1A202C;line-height:1.2;">'
                     f'{doc["name_bn"]}</div>'
-                    f'<div style="font-size:0.78rem;font-weight:600;color:#1A6FA8;">'
+                    f'<div style="font-size:0.78rem;font-weight:600;color:#1668A4;">'
                     f'{doc["name"]}</div>'
                     f'<div style="font-size:0.65rem;color:#4A5568;margin-top:0.15rem;'
                     f'white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'
@@ -444,7 +444,7 @@ def _render_doctor_selection_grid(selected_id: str) -> None:
                     # Available days
                     f'<div style="margin-top:0.3rem;display:flex;flex-wrap:wrap;">{avail_html}</div>'
                     # Fee
-                    f'<div style="font-size:0.82rem;font-weight:700;color:#0D9E75;margin-top:0.3rem;">'
+                    f'<div style="font-size:0.82rem;font-weight:700;color:#10B981;margin-top:0.3rem;">'
                     f'৳{doc["fee_bdt"]} &nbsp;·&nbsp; {doc["consultation_duration_min"]} min</div>'
                     f'</div>',
                     unsafe_allow_html=True,
@@ -472,7 +472,7 @@ def _render_doctor_profile(doc: dict) -> None:
     filled = int(doc["rating"])
     stars = "★" * filled + "☆" * (5 - filled)
     spec_tags = "".join(
-        f'<span style="background:#E6FFFA;color:#0D9E75;padding:0.15rem 0.5rem;'
+        f'<span style="background:#E6FFFA;color:#10B981;padding:0.15rem 0.5rem;'
         f'border-radius:99px;font-size:0.72rem;font-weight:600;margin:0.15rem 0.15rem 0 0;">'
         f'{s}</span>'
         for s in doc["specializations"]
@@ -501,7 +501,7 @@ def _render_doctor_profile(doc: dict) -> None:
         f'</div>'
         f'<div style="flex:1;">'
         f'<div style="font-size:1.15rem;font-weight:800;color:#1A202C;">{doc["name_bn"]}</div>'
-        f'<div style="font-size:0.95rem;font-weight:600;color:#1A6FA8;">{doc["name"]}</div>'
+        f'<div style="font-size:0.95rem;font-weight:600;color:#1668A4;">{doc["name"]}</div>'
         f'<div style="font-size:0.8rem;color:#4A5568;margin-top:0.15rem;">{doc["credentials_bn"]}</div>'
         f'<div style="font-size:0.78rem;color:#718096;">{doc["credentials"]}</div>'
         f'<div style="font-size:0.82rem;color:#2D3748;margin-top:0.35rem;">'
@@ -510,7 +510,7 @@ def _render_doctor_profile(doc: dict) -> None:
         f'<div style="margin-top:0.4rem;display:flex;gap:0.75rem;flex-wrap:wrap;font-size:0.78rem;color:#4A5568;">'
         f'<span>⏱️ {doc["experience_years"]} yrs exp.</span>'
         f'<span>💬 {lang_str}</span>'
-        f'<span style="color:#0D9E75;font-weight:600;">{consult_bn} পরামর্শ সম্পন্ন</span>'
+        f'<span style="color:#10B981;font-weight:600;">{consult_bn} পরামর্শ সম্পন্ন</span>'
         f'</div>'
         f'<div style="font-size:0.75rem;color:#4A5568;margin-top:0.2rem;">📅 {avail_days}</div>'
         f'<div style="margin-top:0.5rem;display:flex;flex-wrap:wrap;">{spec_tags}</div>'
@@ -542,14 +542,14 @@ def _render_calendar_strip(available_slots: list, doc: dict) -> None:
             if d in slot_map:
                 slot_idx, slot_data = slot_map[d]
                 is_sel = st.session_state.get("selected_date_idx") == slot_idx
-                border = "#0D9E75" if is_sel else "#CBD5E1"
+                border = "#10B981" if is_sel else "#CBD5E1"
                 bg     = "#E6FFFA" if is_sel else "#FFFFFF"
                 tick   = "✓ " if is_sel else ""
                 st.markdown(
                     f'<div style="background:{bg};border:2px solid {border};'
                     f'border-radius:10px;padding:0.45rem 0.2rem;text-align:center;'
                     f'margin-bottom:0.3rem;">'
-                    f'<div style="font-size:0.62rem;font-weight:700;color:#0D9E75;">'
+                    f'<div style="font-size:0.62rem;font-weight:700;color:#10B981;">'
                     f'{slot_data["day_name_bn"]}</div>'
                     f'<div style="font-size:1.25rem;font-weight:800;color:#1A202C;">'
                     f'{_to_bn_num(str(d.day))}</div>'
@@ -595,7 +595,7 @@ def _render_time_slots(day_data: dict) -> None:
     c1, c2 = st.columns(2)
     with c1:
         st.markdown(
-            '<div style="font-size:0.82rem;font-weight:700;color:#1A6FA8;'
+            '<div style="font-size:0.82rem;font-weight:700;color:#1668A4;'
             'margin-bottom:0.4rem;">☀️ সকাল · Morning</div>',
             unsafe_allow_html=True,
         )
@@ -611,7 +611,7 @@ def _render_time_slots(day_data: dict) -> None:
 
     with c2:
         st.markdown(
-            '<div style="font-size:0.82rem;font-weight:700;color:#0D9E75;'
+            '<div style="font-size:0.82rem;font-weight:700;color:#10B981;'
             'margin-bottom:0.4rem;">🌆 সন্ধ্যা · Evening</div>',
             unsafe_allow_html=True,
         )
@@ -628,7 +628,7 @@ def _render_time_slots(day_data: dict) -> None:
     sel_slot = st.session_state.get("selected_slot")
     if sel_slot:
         st.markdown(
-            f'<div style="background:#E6FFFA;border:1px solid #0D9E75;border-radius:8px;'
+            f'<div style="background:#E6FFFA;border:1px solid #10B981;border-radius:8px;'
             f'padding:0.4rem 0.75rem;font-size:0.82rem;color:#065F46;margin-top:0.4rem;">'
             f'✓ বেছেছেন: <strong>{_time_to_bn(sel_slot)}</strong> · {sel_slot}'
             f'</div>',

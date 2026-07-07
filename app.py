@@ -15,7 +15,6 @@ from PIL import Image
 from ui.styles import inject_css
 from ui.components import (
     render_tier_banner,
-    render_chat_message,
     render_suggested_questions,
     render_referral_preview,
     render_audio_triage,
@@ -176,6 +175,52 @@ def _effective_pred_tier():
     }
     eff_tier = {"tier": t, **TIER_ACTIONS[t]}   # same construction compute_tier uses
     return eff_pred, eff_tier
+
+
+def _build_referral_session_data() -> dict:
+    """Assemble the referral-letter payload from session state. Shared by the
+    Referral tab and the DocTime handoff's inline generate button."""
+    from model.disease_labels import get_bengali as _get_bn
+    pred, tier = _effective_pred_tier()
+    _clin_dec = st.session_state.clinician_decision if st.session_state.clinician_mode else None
+    return {
+        **st.session_state.history,
+        "disease_class":   pred["disease"],
+        "disease_bengali": _get_bn(pred["disease"]),
+        "confidence":      pred["confidence"],
+        "top2":            pred.get("top2", []),
+        "tier":            tier["tier"],
+        "urgency_label":   tier["urgency_label"],
+        "action":          tier["action"],
+        "facility":        tier["facility"],
+        "bengali_text":    tier["bengali_text"],
+        "transcript":      st.session_state.transcript,
+        "hospital_name":    (st.session_state.nearest_hospital or {}).get("name", ""),
+        "hospital_address": (st.session_state.nearest_hospital or {}).get("address", ""),
+        "booking_confirmed": st.session_state.get("booking_confirmed", False),
+        "booking_details":   st.session_state.get("booking_details"),
+        # Optional clinician-review annotations (ignored by referral.py if unused)
+        "clinician_reviewed": bool(_clin_dec),
+        "clinician_note": (
+            (
+                "Confirmed by clinician"
+                if _clin_dec.get("status") == "confirmed"
+                else f"AI: {_clin_dec.get('ai_disease', '').replace('_', ' ')} "
+                     f"→ Clinician: {pred['disease'].replace('_', ' ')}"
+            )
+            if _clin_dec else ""
+        ),
+    }
+
+
+def _generate_full_referral_pdf() -> None:
+    """Generate the full referral letter into session state. Passed to the
+    DocTime tab so it can offer PDF generation without a Referral-tab visit."""
+    try:
+        st.session_state.pdf_bytes     = generate_referral_pdf(_build_referral_session_data())
+        st.session_state.chw_pdf_bytes = None
+    except Exception as e:
+        st.error(f"PDF generation failed: {e}")
 
 
 def _render_clinician_block(pred: dict, tier_result: dict) -> None:
@@ -344,8 +389,9 @@ for _k, _v in _DEFAULTS.items():
 def _warm_rag() -> bool:
     return _load_rag_index()
 
-_rag_ready = _warm_rag()
-_load_graph()   # build disease-symptom knowledge graph (non-blocking)
+# Warm-up happens inside Tab 2 (below) rather than here: Streamlit streams
+# elements as the script runs, so deferring the knowledge-base load until
+# after the hero and Tab 1 lets the styled page paint first on a cold Space.
 
 
 # Pre-filled demo cases for the Quick Start bar in Tab 1
@@ -463,14 +509,15 @@ st.markdown(
 )
 
 
+# Labels kept short so all seven tabs fit without scrolling on 1280px laptops
 tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
     "Diagnosis · রোগ নির্ণয়",
     "Ask AI · প্রশ্ন করুন",
     "Referral · রেফারেল পত্র",
-    "Disease Insights · রোগ-পরিচিতি",
-    "DocTime · ডকটাইম পরামর্শ",
-    "Phase 2 Network · নিজস্ব নেটওয়ার্ক",
-    "Impact & Ethics · প্রভাব ও নীতি",
+    "Insights · রোগ-পরিচিতি",
+    "DocTime · পরামর্শ",
+    "Phase 2 · নেটওয়ার্ক",
+    "Impact · প্রভাব ও নীতি",
 ])
 
 
@@ -540,7 +587,11 @@ with tab1:
                     st.session_state.selected_date_idx = None
                     st.session_state.selected_slot     = None
                     _push_history_to_form(_dc["history"])
+                    st.session_state["_demo_toast"] = _CLEAN_LABELS.get(_dk, _dc["label"])
                     st.rerun()
+
+    if st.session_state.pop("_demo_toast", None):
+        st.toast("Demo case loaded — results below ⬇", icon="✅")
 
     col_left, col_right = st.columns([1, 1], gap="large")
 
@@ -927,11 +978,12 @@ with tab1:
             # Auto-enhance low-light / blurry images before inference
             enhanced_img, was_enhanced = enhance_skin_image(pil_img)
             if was_enhanced:
-                _ecol1, _ecol2 = st.columns(2)
-                with _ecol1:
-                    st.image(pil_img, use_container_width=True, caption="Original")
-                with _ecol2:
-                    st.image(enhanced_img, use_container_width=True, caption="✨ Enhanced")
+                with st.container(key="dx_img_enhanced"):
+                    _ecol1, _ecol2 = st.columns(2)
+                    with _ecol1:
+                        st.image(pil_img, use_container_width=True, caption="Original")
+                    with _ecol2:
+                        st.image(enhanced_img, use_container_width=True, caption="✨ Enhanced")
                 st.markdown(
                     '<div class="info-box" style="font-size:0.78rem;">'
                     '✨ <strong>Auto-enhanced</strong> for better analysis '
@@ -940,7 +992,8 @@ with tab1:
                     unsafe_allow_html=True,
                 )
             else:
-                st.image(pil_img, use_container_width=True, caption="Uploaded skin image")
+                with st.container(key="dx_img_upload"):
+                    st.image(pil_img, use_container_width=True, caption="Uploaded skin image")
 
             st.session_state.pdf_bytes    = None
             st.session_state.chat_history = []
@@ -1001,9 +1054,10 @@ with tab1:
             if _demo_path:
                 from pathlib import Path as _P
                 if _P(_demo_path).exists():
-                    st.image(_demo_path,
-                             use_container_width=True,
-                             caption="Demo skin image — loaded from sample case")
+                    with st.container(key="dx_img_demo"):
+                        st.image(_demo_path,
+                                 use_container_width=True,
+                                 caption="Demo skin image — loaded from sample case")
             if st.session_state.prediction:
                 pred = st.session_state.prediction
                 if not _demo_path:
@@ -1137,6 +1191,9 @@ with tab1:
 
 # --- Tab 2: Ask AI (RAG chatbot) ---
 with tab2:
+    # Deferred warm-up (see note at the old call site) — cached after first run.
+    _rag_ready = _warm_rag()
+    _load_graph()   # build disease-symptom knowledge graph (non-blocking)
     if not _rag_ready:
         st.warning(bn_en(
             "⚠️ জ্ঞানভান্ডার লোড হচ্ছে না। build_index.py চালানো হয়েছে কিনা যাচাই করুন।",
@@ -1320,35 +1377,7 @@ with tab3:
 
         st.markdown("<br>", unsafe_allow_html=True)
 
-        from model.disease_labels import get_bengali as _get_bn
-        _session_data = {
-            **history,
-            "disease_class":   pred["disease"],
-            "disease_bengali": _get_bn(pred["disease"]),
-            "confidence":      pred["confidence"],
-            "top2":            pred.get("top2", []),
-            "tier":            tier["tier"],
-            "urgency_label":   tier["urgency_label"],
-            "action":          tier["action"],
-            "facility":        tier["facility"],
-            "bengali_text":    tier["bengali_text"],
-            "transcript":      st.session_state.transcript,
-            "hospital_name":    (st.session_state.nearest_hospital or {}).get("name", ""),
-            "hospital_address": (st.session_state.nearest_hospital or {}).get("address", ""),
-            "booking_confirmed": st.session_state.get("booking_confirmed", False),
-            "booking_details":   st.session_state.get("booking_details"),
-            # Optional clinician-review annotations (ignored by referral.py if unused)
-            "clinician_reviewed": bool(_clin_dec),
-            "clinician_note": (
-                (
-                    "Confirmed by clinician"
-                    if _clin_dec.get("status") == "confirmed"
-                    else f"AI: {_clin_dec.get('ai_disease', '').replace('_', ' ')} "
-                         f"→ Clinician: {pred['disease'].replace('_', ' ')}"
-                )
-                if _clin_dec else ""
-            ),
-        }
+        _session_data = _build_referral_session_data()
 
         # Surface the clinician's decision above the document controls
         if _clin_dec:
@@ -1416,7 +1445,7 @@ with tab3:
             f'<div class="referral-progress-row {_c1}">'
             f'{_d1} Voice input <span style="font-size:0.78rem;color:#A0AEC0;">(optional)</span></div>'
             f'<div class="referral-progress-row {_c2}">'
-            f'{_d2} Upload skin image &nbsp;<strong style="color:#1A6FA8;">← start here</strong></div>'
+            f'{_d2} Upload skin image &nbsp;<strong style="color:#1668A4;">← start here</strong></div>'
             f'<div class="referral-progress-row {_c3}">'
             f'{_d3} AI analysis runs automatically</div>'
             f'<div class="referral-progress-row {_c4}">'
@@ -1471,7 +1500,7 @@ with tab4:
     )
     _sel_disease = _disease_options[_sel_display]
     _sel_bn      = DISEASE_LABELS_BN.get(_sel_disease, _sel_display)
-    _sel_color   = DISEASE_COLORS.get(_sel_disease, "#1A6FA8")
+    _sel_color   = DISEASE_COLORS.get(_sel_disease, "#1668A4")
 
     st.markdown(
         f'<div class="info-box" style="font-family:\'Noto Sans Bengali\',sans-serif;">'
@@ -1583,7 +1612,7 @@ with tab4:
 
 # --- Tab 5: DocTime telemedicine handoff ---
 with tab5:
-    render_doctime_handoff_tab()
+    render_doctime_handoff_tab(generate_pdf=_generate_full_referral_pdf)
 
 
 # --- Tab 6: Phase 2 dermatologist network ---
@@ -1594,7 +1623,7 @@ with tab6:
 # --- Tab 7: Impact, Ethics & Roadmap ---
 with tab7:
     st.markdown(
-        '<div style="background:linear-gradient(135deg,#1A6FA8 0%,#0D9E75 100%);'
+        '<div style="background:linear-gradient(135deg,#1668A4 0%,#10B981 100%);'
         'color:white;border-radius:14px;padding:1.1rem 1.4rem;margin-bottom:1rem;">'
         '<div style="font-size:1.05rem;font-weight:800;letter-spacing:0.01em;">'
         'Impact, Ethics &amp; Roadmap</div>'

@@ -15,7 +15,7 @@ The dataset was assembled to train a skin-disease classifier suitable for triagi
 | Field | Value |
 |---|---|
 | Modality | RGB clinical photographs (smartphone-grade) |
-| Source institutions | Faridpur Medical College Hospital (FMCH); Rangpur Medical College Hospital (RMCH) |
+| Source institutions | Faridpur Medical College Hospital (FMCH), via SkinDiseaseBD; Rangpur & Kishoreganj Medical College Hospitals, via SkinDisNet |
 | Country | Bangladesh |
 | Classes (7 + control) | Atopic Dermatitis, Eczema, Scabies, Vitiligo, Contact Dermatitis, Seborrheic Dermatitis, Tinea; Normal control |
 | Age range | Adults ≥18 |
