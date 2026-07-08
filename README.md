@@ -28,7 +28,7 @@ license: mit
 ![No login](https://img.shields.io/badge/access-no_login-success)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
-[**▶ Try it**](#-try-it-in-10-seconds) · [**How it works**](#-how-it-works) · [**Deep dives**](#-under-the-hood-deep-dives) · [**Tech stack**](#-complete-tech-stack) · [**Impact**](#-business-model--impact)
+[**▶ Try it**](#-try-it-in-10-seconds) · [**How it works**](#-how-it-works) · [**Deep dives**](#-under-the-hood--deep-dives) · [**Tech stack**](#-complete-tech-stack) · [**Impact**](#-business-model--impact)
 
 </div>
 
@@ -79,38 +79,11 @@ Open **Tab 1 → "⚡ Quick Start"** and click a pre-filled case — each runs t
 
 <div align="center">
 
-[![SkinAI Bangladesh — demo video](https://i.ytimg.com/vi/Kr7bDTYJy_I/hqdefault.jpg)](https://youtu.be/Kr7bDTYJy_I)
+<a href="https://youtu.be/Kr7bDTYJy_I"><img src="assets/screenshots/home-quickstart.jpg" width="640" alt="SkinAI Bangladesh — click to watch the demo video on YouTube"></a>
 
 **[▶ Watch the full walkthrough on YouTube](https://youtu.be/Kr7bDTYJy_I)** — voice → photo → triage → referral PDF, end to end.
 
 </div>
-
----
-
-## 📱 Try it on Telegram — [@SkinAIBDBot](https://t.me/SkinAIBDBot)
-
-The **same clinical pipeline, live inside Telegram** — no app install, no login, works on any phone. Send your district, one photo, and a Bengali voice note; the bot replies with a bilingual diagnosis, triage tier, and next steps.
-
-<div align="center">
-
-<table>
-<tr>
-<th>Live bot conversation</th>
-<th>Scan to open the bot</th>
-</tr>
-<tr>
-<td align="center"><img src="assets/screenshots/telegram-bot-chat.jpg" width="300" alt="SkinAI Bangladesh Telegram bot guiding a patient in Bengali — district, skin photo, then a voice-note request"></td>
-<td align="center"><img src="assets/screenshots/telegram-qr.png" width="280" alt="QR code linking to the @SkinAIBDBot Telegram bot"></td>
-</tr>
-<tr>
-<td align="center"><sub>District → photo → voice note, guided in Bengali + English</sub></td>
-<td align="center"><sub>Or open <a href="https://t.me/SkinAIBDBot"><b>t.me/SkinAIBDBot</b></a> directly</sub></td>
-</tr>
-</table>
-
-</div>
-
-> The bot runs the identical BD-SkinNet → triage → referral engine as the web app, through a 7-state conversation machine — see the [multi-channel deep dive](#-under-the-hood-deep-dives) below.
 
 ---
 
@@ -648,6 +621,33 @@ Three independent revenue streams (losing any one is survivable):
 | Noto Sans Bengali | Google Fonts | OFL 1.1 |
 
 </details>
+
+---
+
+## 📱 Try it on Telegram — [@SkinAIBDBot](https://t.me/SkinAIBDBot)
+
+The **same clinical pipeline, live inside Telegram** — no app install, no login, works on any phone. Send your district, one photo, and a Bengali voice note; the bot replies with a bilingual diagnosis, triage tier, and next steps.
+
+<div align="center">
+
+<table>
+<tr>
+<th>Live bot conversation</th>
+<th>Scan to open the bot</th>
+</tr>
+<tr>
+<td align="center"><img src="assets/screenshots/telegram-bot-chat.jpg" width="300" alt="SkinAI Bangladesh Telegram bot guiding a patient in Bengali — district, skin photo, then a voice-note request"></td>
+<td align="center"><img src="assets/screenshots/telegram-qr.png" width="280" alt="QR code linking to the @SkinAIBDBot Telegram bot"></td>
+</tr>
+<tr>
+<td align="center"><sub>District → photo → voice note, guided in Bengali + English</sub></td>
+<td align="center"><sub>Or open <a href="https://t.me/SkinAIBDBot"><b>t.me/SkinAIBDBot</b></a> directly</sub></td>
+</tr>
+</table>
+
+</div>
+
+> The bot runs the identical BD-SkinNet → triage → referral engine as the web app, through a 7-state conversation machine — see the [multi-channel deep dive](#-under-the-hood--deep-dives) above.
 
 ---
 
