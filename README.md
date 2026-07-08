@@ -18,7 +18,7 @@ license: mit
 *Right patient → Right doctor → Right time*
 
 [![Live Demo](https://img.shields.io/badge/🤗_Live_Demo-Open_App-2563eb?style=for-the-badge)](https://huggingface.co/spaces/rafilovestosuffer/skinai-bd)
-[![Demo Video](https://img.shields.io/badge/YouTube-Demo_Video-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](https://youtu.be/Kr7bDTYJy_I)
+[![Demo Video](https://img.shields.io/badge/YouTube-Demo_Video-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](https://youtu.be/9zOjfBBU4qg)
 [![Telegram Bot](https://img.shields.io/badge/Telegram-@SkinAIBDBot-26A5E4?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/SkinAIBDBot)
 [![GitHub](https://img.shields.io/badge/GitHub-Source-181717?style=for-the-badge&logo=github)](https://github.com/rafilovestosuffer/Hackathon_2.0_sci)
 
@@ -79,9 +79,9 @@ Open **Tab 1 → "⚡ Quick Start"** and click a pre-filled case — each runs t
 
 <div align="center">
 
-<a href="https://youtu.be/Kr7bDTYJy_I"><img src="assets/screenshots/home-quickstart.jpg" width="640" alt="SkinAI Bangladesh — click to watch the demo video on YouTube"></a>
+[![SkinAI Bangladesh — demo video](https://i.ytimg.com/vi/9zOjfBBU4qg/maxresdefault.jpg)](https://youtu.be/9zOjfBBU4qg)
 
-**[▶ Watch the full walkthrough on YouTube](https://youtu.be/Kr7bDTYJy_I)** — voice → photo → triage → referral PDF, end to end.
+**[▶ Watch the full walkthrough on YouTube](https://youtu.be/9zOjfBBU4qg)** — voice → photo → triage → referral PDF, end to end.
 
 </div>
 
@@ -552,7 +552,7 @@ pytest tests/ -v
 | 6 | INT8 quantization on CPU | ✅ | `quantize_dynamic`; CPU-only torch wheel |
 | 7 | Live through the event window | ✅ | GitHub Actions keepalive every 20 min |
 | 8 | Commit history in window | ✅ | Dated commit log |
-| 9 | Demo video (3–5 min) | ✅ | [YouTube walkthrough](https://youtu.be/Kr7bDTYJy_I) |
+| 9 | Demo video (3–5 min) | ✅ | [YouTube walkthrough](https://youtu.be/9zOjfBBU4qg) |
 
 Full [Model Card](docs/MODEL_CARD.md) · [Data Card](docs/DATA_CARD.md) · [Ethics Statement](docs/ETHICS_STATEMENT.md).
 
