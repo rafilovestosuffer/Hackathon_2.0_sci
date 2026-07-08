@@ -18,6 +18,8 @@ license: mit
 *Right patient → Right doctor → Right time*
 
 [![Live Demo](https://img.shields.io/badge/🤗_Live_Demo-Open_App-2563eb?style=for-the-badge)](https://huggingface.co/spaces/rafilovestosuffer/skinai-bd)
+[![Demo Video](https://img.shields.io/badge/YouTube-Demo_Video-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](https://youtu.be/Kr7bDTYJy_I)
+[![Telegram Bot](https://img.shields.io/badge/Telegram-@SkinAIBDBot-26A5E4?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/SkinAIBDBot)
 [![GitHub](https://img.shields.io/badge/GitHub-Source-181717?style=for-the-badge&logo=github)](https://github.com/rafilovestosuffer/Hackathon_2.0_sci)
 
 ![Tests](https://img.shields.io/badge/tests-366_passing-brightgreen)
@@ -70,6 +72,45 @@ Open **Tab 1 → "⚡ Quick Start"** and click a pre-filled case — each runs t
 | 💚 **Normal · Healthy** | Tier 0 → no referral needed |
 
 > 💾 **Tab 3** also has a one-click **"Download a sample referral letter"** — a fully-populated PDF, no pipeline run needed. Perfect for judges in a silent room.
+
+---
+
+## 🎬 Demo video
+
+<div align="center">
+
+[![SkinAI Bangladesh — demo video](https://i.ytimg.com/vi/Kr7bDTYJy_I/hqdefault.jpg)](https://youtu.be/Kr7bDTYJy_I)
+
+**[▶ Watch the full walkthrough on YouTube](https://youtu.be/Kr7bDTYJy_I)** — voice → photo → triage → referral PDF, end to end.
+
+</div>
+
+---
+
+## 📱 Try it on Telegram — [@SkinAIBDBot](https://t.me/SkinAIBDBot)
+
+The **same clinical pipeline, live inside Telegram** — no app install, no login, works on any phone. Send your district, one photo, and a Bengali voice note; the bot replies with a bilingual diagnosis, triage tier, and next steps.
+
+<div align="center">
+
+<table>
+<tr>
+<th>Live bot conversation</th>
+<th>Scan to open the bot</th>
+</tr>
+<tr>
+<td align="center"><img src="assets/screenshots/telegram-bot-chat.jpg" width="300" alt="SkinAI Bangladesh Telegram bot guiding a patient in Bengali — district, skin photo, then a voice-note request"></td>
+<td align="center"><img src="assets/screenshots/telegram-qr.png" width="280" alt="QR code linking to the @SkinAIBDBot Telegram bot"></td>
+</tr>
+<tr>
+<td align="center"><sub>District → photo → voice note, guided in Bengali + English</sub></td>
+<td align="center"><sub>Or open <a href="https://t.me/SkinAIBDBot"><b>t.me/SkinAIBDBot</b></a> directly</sub></td>
+</tr>
+</table>
+
+</div>
+
+> The bot runs the identical BD-SkinNet → triage → referral engine as the web app, through a 7-state conversation machine — see the [multi-channel deep dive](#-under-the-hood-deep-dives) below.
 
 ---
 
@@ -345,6 +386,7 @@ The same clinical pipeline behind multiple front doors, served from a single con
 ```
 
 **WhatsApp & Telegram bot** ([`whatsapp/`](whatsapp/), [`webhook/`](webhook/)):
+- **Live on Telegram: [@SkinAIBDBot](https://t.me/SkinAIBDBot)** — try the full district → photo → voice → triage flow from any phone.
 - **Meta WhatsApp Cloud API** (HMAC-SHA256 `X-Hub-Signature-256` verification + subscribe handshake) and **Telegram Bot API**, normalized into one router.
 - **7-state conversation machine**: `NEW → district → image → voice → processing → result → RAG chat`.
 - Hardened: **idempotency** (dedupe 100 msg IDs), **rate limiting** (10/min), **TTL eviction** (10-min idle), blur gate. All sessions **in-memory only** — no DB, no PII.
@@ -537,7 +579,7 @@ pytest tests/ -v
 | 6 | INT8 quantization on CPU | ✅ | `quantize_dynamic`; CPU-only torch wheel |
 | 7 | Live through the event window | ✅ | GitHub Actions keepalive every 20 min |
 | 8 | Commit history in window | ✅ | Dated commit log |
-| 9 | Demo video (3–5 min) | ⏳ | Script ready |
+| 9 | Demo video (3–5 min) | ✅ | [YouTube walkthrough](https://youtu.be/Kr7bDTYJy_I) |
 
 Full [Model Card](docs/MODEL_CARD.md) · [Data Card](docs/DATA_CARD.md) · [Ethics Statement](docs/ETHICS_STATEMENT.md).
 
