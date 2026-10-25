@@ -1,0 +1,13 @@
+{
+  "name": "SkinAI Lite — offline skin triage",
+  "short_name": "SkinAI Lite",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#EEF2F7",
+  "theme_color": "#1668A4",
+  "lang": "bn",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}

@@ -17,7 +17,7 @@ The dataset was assembled to train a skin-disease classifier suitable for triagi
 | Modality | RGB clinical photographs (smartphone-grade) |
 | Source institutions | Faridpur Medical College Hospital (FMCH), via SkinDiseaseBD; Rangpur & Kishoreganj Medical College Hospitals, via SkinDisNet |
 | Country | Bangladesh |
-| Classes (7 + control) | Atopic Dermatitis, Eczema, Scabies, Vitiligo, Contact Dermatitis, Seborrheic Dermatitis, Tinea; Normal control |
+| Classes | Research dataset: 7 (adds Vitiligo). Live checkpoint: 6 — Atopic Dermatitis, Contact Dermatitis, Eczema, Scabies, Seborrheic Dermatitis, Tinea |
 | Age range | Adults ≥18 |
 | Skin tone | Predominantly Fitzpatrick IV–VI (South Asian) |
 | Sex | Both, approximately representative of the presenting clinic populations |
@@ -26,7 +26,11 @@ The dataset was assembled to train a skin-disease classifier suitable for triagi
 
 ## Collection process
 
-Photographs were captured by attending clinicians or trained assistants at the point of care, using standard smartphone cameras under hospital lighting. Each image was labelled by the diagnosing physician. No social-media scraping, no synthetic generation, no DermNet content.
+Photographs were captured by attending clinicians or trained assistants at the point of care, using standard smartphone cameras under hospital lighting. Each image was labelled by the diagnosing physician. No social-media scraping, no DermNet content.
+
+**Synthetic augmentation.** After the 70/15/15 split of the 3,322 real images, Stable Diffusion v1.5 (img2img, DDIM 20 steps, guidance 7.5, strength 0.45) generated 1,039 images for three minority classes (Atopic Dermatitis, Seborrheic Dermatitis, Vitiligo) — **from training-split images only**. Validation and test sets contain real images only. FID 28.9–37.8 (details in the BD_SkinNet repo).
+
+**Split unit.** The split is stratified by image, not by patient; no near-duplicate removal was applied.
 
 ---
 
@@ -41,7 +45,7 @@ Photographs were captured by attending clinicians or trained assistants at the p
 
 ## Distribution
 
-The trained checkpoint (`bd_skinnet_int8.pth`) is published on Hugging Face Hub at `rafilovestosuffer/bd-skinnet`. The raw training images are **not** redistributed — they remain with the source institutions under their patient-consent agreements. Researchers interested in the training corpus should contact the source institutions directly.
+The trained checkpoint (`bd_skinnet_int8.pth`) is published on Hugging Face Hub at `rafilovestosuffer/bd-skinnet`. The training images come from two published datasets — SkinDiseaseBD (Faridpur MCH) and SkinDisNet (Rangpur & Kishoreganj MCH; Mendeley Data, DOI 10.17632/yj3md44hxg.2). This repository does not redistribute them; obtain them from the publishers under their terms.
 
 ---
 
@@ -63,4 +67,4 @@ The deployed checkpoint will be re-evaluated quarterly against newly collected p
 
 ## Ethical sourcing
 
-Patient consent was obtained at the source institutions following their standard clinical-photography consent procedures. No image carries identifiable face data unless the affected lesion required it, in which case the image is cropped to the lesion at preprocessing time. No personally identifying metadata (name, MRN, geolocation) is associated with the published checkpoint.
+This project did not collect any images. Patient consent and ethics procedures are those documented by the dataset publishers. No personally identifying metadata (name, MRN, geolocation) is used in training or associated with the published checkpoint.

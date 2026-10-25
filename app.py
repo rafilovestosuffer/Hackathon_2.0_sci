@@ -36,12 +36,13 @@ from ui.components import (
     render_architecture_diagram,
     render_clinical_summary,
     render_clinician_decision_chip,
+    render_tier_reasons,
 )
 from ui.doctor_booking import render_doctor_booking_tab
 from ui.consultation_room import render_consultation_room
 from ui.doctime_handoff import render_doctime_handoff_tab
 from ui.phase2_preview import render_phase2_preview_tab
-from severity.engine import compute_tier, TIER_ACTIONS
+from severity.engine import compute_tier, explain_tier, TIER_ACTIONS
 from pdf_gen.referral import generate_referral_pdf
 from rag.retriever import load_index, answer_question
 from analytics.db import log_event as _log_event
@@ -113,57 +114,16 @@ def _load_graph():
     return _build_graph()
 
 
-# --- BD-SkinNet loader + inference ---
+# --- BD-SkinNet inference ---
+# One shared loader for every channel (web, Telegram, /api). When the model
+# can't run, the result has available=False and no class — the UI shows an
+# "unavailable" message instead of any prediction.
 
-_HF_REPO     = "rafilovestosuffer/bd-skinnet"
-_HF_FILENAME = "bd_skinnet_int8.pth"
-
-
-@st.cache_resource(show_spinner="Loading BD-SkinNet model…")
-def _load_bd_skinnet():
-    """Download INT8 checkpoint from HF Hub (cached for the session lifetime)."""
-    try:
-        from huggingface_hub import hf_hub_download
-        from model.bd_skinnet import load_model
-        ckpt_path = hf_hub_download(repo_id=_HF_REPO, filename=_HF_FILENAME)
-        return load_model(ckpt_path)
-    except Exception as exc:
-        logger.warning("BD-SkinNet load failed: %s", exc)
-        return None
-
-
-# Shown when the model can't load or inference fails — the demo must degrade
-# gracefully, never crash the run with a traceback.
-_FALLBACK_PRED = {
-    "disease":      "Tinea",
-    "confidence":   0.82,
-    "top2": [
-        {"disease": "Tinea",              "confidence": 0.82},
-        {"disease": "Contact_Dermatitis", "confidence": 0.11},
-    ],
-}
+from model import service as _model_service
 
 
 def _run_model(pil_img: Image.Image) -> dict:
-    model = _load_bd_skinnet()
-    if model is None:
-        return dict(_FALLBACK_PRED)
-
-    try:
-        from model.bd_skinnet import predict
-        result = predict(model, pil_img)
-    except Exception as exc:
-        logger.warning("BD-SkinNet inference failed: %s", exc)
-        return dict(_FALLBACK_PRED)
-
-    return {
-        "disease":      result["disease_class"],
-        "confidence":   result["confidence"],
-        "top2": [
-            {"disease": t["class"], "confidence": t["confidence"]}
-            for t in result["top2"]
-        ],
-    }
+    return _model_service.run_inference(pil_img)
 
 
 def _effective_pred_tier():
@@ -371,6 +331,10 @@ _DEFAULTS = {
     "clinician_mode":     False,
     "clinician_decision": None,   # None | {"status": "confirmed"|"overridden", "disease": str, "tier": int}
     "demo_image_path":   None,  # set by demo buttons; cleared by real upload
+    "demo_live_pred":    None,  # real model output on the demo photo
+    "_demo_scripted":    False, # True while a scripted Quick Start case is shown
+    "_case_image":       None,  # bytes of the analysed upload (for doctor review, if consented)
+    "_case_id":          None,  # id in cases/store once shared with a doctor
     "_last_audio_hash":  "",   # prevents re-processing same audio on rerun
     "prevention_tips_cache": {},
     # Doctor booking state
@@ -509,10 +473,19 @@ st.markdown(
     '  </div>'
     '  <div class="stat-bar" style="margin-top:1.25rem;">'
     '    <span class="stat-chip stat-chip-blue">Swin Transformer + CBAM</span>'
-    '    <span class="stat-chip stat-chip-green">92.46% F1</span>'
+    '    <span class="stat-chip stat-chip-green">INT8 · free CPU</span>'
     '    <span class="stat-chip stat-chip-teal">Bangladesh clinical data</span>'
-    '    <span class="stat-chip stat-chip-dark">8 conditions</span>'
+    '    <span class="stat-chip stat-chip-dark">6 conditions</span>'
     '  </div>'
+    '</div>',
+    unsafe_allow_html=True,
+)
+st.markdown(
+    '<div class="info-box" style="margin:0.25rem 0 0.75rem;font-size:0.85rem;">'
+    '📴 <a href="/lite/" target="_blank"><strong>SkinAI Lite</strong></a> — '
+    'ইন্টারনেট ছাড়াও চলে · works offline, sends when signal returns'
+    ' &nbsp;·&nbsp; 👩‍⚕️ <a href="/doctor" target="_blank"><strong>Doctor Queue</strong></a> — '
+    'clinician review (PIN)'
     '</div>',
     unsafe_allow_html=True,
 )
@@ -537,13 +510,14 @@ with tab1:
         st.markdown(
             '<div class="dx-quickbar-head">'
             '<span class="dx-quickbar-flash">⚡</span>'
-            'Skip voice &amp; image — load a real clinical scenario in one click'
+            'Skip voice &amp; image — load a scripted scenario in one click'
             '</div>',
             unsafe_allow_html=True,
         )
         st.caption(
-            "Each demo runs the full pipeline (BD-SkinNet inference, triage, "
-            "hospital map, referral). Ideal for judges in a silent room."
+            "Each scripted scenario walks the full pipeline (triage, hospital map, "
+            "referral) and also shows the live model's output on the bundled photo. "
+            "Ideal for judges in a silent room."
         )
         _demo_keys = list(_DEMO_CASES.keys())
         _demo_cols = st.columns(len(_demo_keys))
@@ -564,9 +538,11 @@ with tab1:
                 ):
                     _dp = dict(_dc["pred"])
 
-                    # Demo cases with a bundled photo also run the real model,
-                    # but the displayed class stays the demo one so each
-                    # button's outcome is predictable.
+                    # Scripted scenario: the displayed class/confidence are
+                    # preset so each button reliably shows its tier. The page
+                    # labels them as scripted and shows the real model's
+                    # output on the same photo next to them.
+                    st.session_state["demo_live_pred"] = None
                     _img_path = _dc.get("image")
                     if _img_path:
                         from pathlib import Path as _P
@@ -575,7 +551,7 @@ with tab1:
                             st.session_state["demo_image_path"] = str(_full)
                             try:
                                 _pil = Image.open(_full).convert("RGB")
-                                _run_model(_pil)
+                                st.session_state["demo_live_pred"] = _run_model(_pil)
                             except Exception as _e:
                                 logger.warning("Demo inference failed: %s", _e)
                         else:
@@ -584,6 +560,7 @@ with tab1:
                         st.session_state["demo_image_path"] = None
 
                     st.session_state.prediction  = _dp
+                    st.session_state["_demo_scripted"] = True
                     st.session_state.tier_result = compute_tier(
                         _dp["disease"], _dp["confidence"], _dc["transcript"],
                     )
@@ -939,7 +916,7 @@ with tab1:
             '</div>'
             '<div class="dx-panel-desc">'
             'Upload a clear, well-lit close-up of the affected area. '
-            'BD-SkinNet (Swin+CBAM, INT8) analyses the image on-device.'
+            'BD-SkinNet (Swin+CBAM, INT8) analyses the image on the server CPU.'
             '</div>',
             unsafe_allow_html=True,
         )
@@ -964,6 +941,7 @@ with tab1:
         if image_file is not None:
             # A real upload always supersedes any demo image
             st.session_state["demo_image_path"] = None
+            st.session_state["_demo_scripted"] = False
             try:
                 pil_img = Image.open(image_file).convert("RGB")
             except Exception:
@@ -992,24 +970,33 @@ with tab1:
                 st.session_state.pdf_bytes    = None
                 st.session_state.chat_history = []
                 st.session_state.clinician_decision = None  # new image → drop any prior override
+                st.session_state["_case_image"] = image_file.getvalue()
+                st.session_state["_case_id"] = None
 
                 with st.spinner("🔬 Analysing skin image…"):
                     pred = _run_model(enhanced_img if was_enhanced else pil_img)
-                    st.session_state.prediction = pred
 
-                # Anonymised analytics — no patient data, aggregate only
-                _conf = pred["confidence"]
-                _new_tier = compute_tier(
-                    disease_class=pred["disease"],
-                    confidence=_conf,
-                    transcript=st.session_state.transcript,
-                )
-                _log_event(
-                    "triage",
-                    disease_class=pred["disease"],
-                    tier=_new_tier["tier"],
-                    conf_bucket="high" if _conf >= 0.60 else ("medium" if _conf >= 0.40 else "low"),
-                )
+                if not pred.get("available"):
+                    # No prediction at all — never show a placeholder class.
+                    # Clearing the hash lets the next rerun retry the model.
+                    st.session_state.prediction  = None
+                    st.session_state.tier_result = None
+                    st.session_state["_last_image_hash"] = None
+                else:
+                    st.session_state.prediction = pred
+                    # Anonymised analytics — no patient data, aggregate only
+                    _conf = pred["confidence"]
+                    _new_tier = compute_tier(
+                        disease_class=pred["disease"],
+                        confidence=_conf,
+                        transcript=st.session_state.transcript,
+                    )
+                    _log_event(
+                        "triage",
+                        disease_class=pred["disease"],
+                        tier=_new_tier["tier"],
+                        conf_bucket="high" if _conf >= 0.60 else ("medium" if _conf >= 0.40 else "low"),
+                    )
             _analysis = st.session_state.get("_img_analysis") or {}
 
             if _analysis.get("blurry"):
@@ -1041,43 +1028,48 @@ with tab1:
                     st.image(pil_img, use_container_width=True, caption="Uploaded skin image")
 
             pred = st.session_state.prediction
+            if pred is None:
+                st.error(bn_en(
+                    "এআই মডেল এই মুহূর্তে চালু নেই — কোনো ফলাফল দেখানো হচ্ছে না। একটু পরে আবার ছবিটি দিন।",
+                    "The AI model is not available right now — no result is shown. Please re-upload the photo in a minute.",
+                ))
+            else:
+                # Tier stays cheap to recompute and must track the transcript —
+                # voice recorded after the photo can still escalate urgency.
+                tier_result = compute_tier(
+                    disease_class=pred["disease"],
+                    confidence=pred["confidence"],
+                    transcript=st.session_state.transcript,
+                )
+                st.session_state.tier_result = tier_result
 
-            # Tier stays cheap to recompute and must track the transcript —
-            # voice recorded after the photo can still escalate urgency.
-            tier_result = compute_tier(
-                disease_class=pred["disease"],
-                confidence=pred["confidence"],
-                transcript=st.session_state.transcript,
-            )
-            st.session_state.tier_result = tier_result
+                render_disease_card(pred["disease"], pred["confidence"], pred["top2"])
+                render_fairness_disclosure()
 
-            render_disease_card(pred["disease"], pred["confidence"], pred["top2"])
-            render_fairness_disclosure()
-
-            # Graph-derived clinical context — skipped if the graph is unavailable
-            _g_syms  = _graph_symptoms(pred["disease"])
-            _g_parts = _graph_parts(pred["disease"])
-            if _g_syms or _g_parts:
-                with st.expander("🔗 Clinical Knowledge Graph — Signs to Monitor", expanded=False):
-                    if _g_syms:
-                        _warn = [s["name_bn"] for s in _g_syms if s["is_escalation"]]
-                        _norm = [s["name_bn"] for s in _g_syms if not s["is_escalation"]]
-                        if _norm:
+                # Graph-derived clinical context — skipped if the graph is unavailable
+                _g_syms  = _graph_symptoms(pred["disease"])
+                _g_parts = _graph_parts(pred["disease"])
+                if _g_syms or _g_parts:
+                    with st.expander("🔗 Clinical Knowledge Graph — Signs to Monitor", expanded=False):
+                        if _g_syms:
+                            _warn = [s["name_bn"] for s in _g_syms if s["is_escalation"]]
+                            _norm = [s["name_bn"] for s in _g_syms if not s["is_escalation"]]
+                            if _norm:
+                                st.markdown(
+                                    "**সাধারণ লক্ষণ:** " + " · ".join(_norm),
+                                    unsafe_allow_html=False,
+                                )
+                            if _warn:
+                                st.warning(
+                                    "⚠️ **জরুরি লক্ষণ** — এগুলো দেখা দিলে অবিলম্বে ডাক্তার দেখান: "
+                                    + " · ".join(_warn)
+                                )
+                        if _g_parts:
                             st.markdown(
-                                "**সাধারণ লক্ষণ:** " + " · ".join(_norm),
-                                unsafe_allow_html=False,
+                                "**সাধারণত আক্রান্ত অংশ:** "
+                                + " · ".join(p["name_bn"] for p in _g_parts)
                             )
-                        if _warn:
-                            st.warning(
-                                "⚠️ **জরুরি লক্ষণ** — এগুলো দেখা দিলে অবিলম্বে ডাক্তার দেখান: "
-                                + " · ".join(_warn)
-                            )
-                    if _g_parts:
-                        st.markdown(
-                            "**সাধারণত আক্রান্ত অংশ:** "
-                            + " · ".join(p["name_bn"] for p in _g_parts)
-                        )
-                    st.caption("Source: SkinAI knowledge graph — CDC · NIH · WHO · DGHS Bangladesh")
+                        st.caption("Source: SkinAI knowledge graph — CDC · NIH · WHO · DGHS Bangladesh")
 
         else:
             # No new upload — show the demo photo and/or cached results
@@ -1091,10 +1083,29 @@ with tab1:
                                  caption="Demo skin image — loaded from sample case")
             if st.session_state.prediction:
                 pred = st.session_state.prediction
-                if not _demo_path:
+                if not _demo_path and not st.session_state.get("_demo_scripted"):
                     st.markdown(
                         '<div class="info-box-teal" style="margin-bottom:0.75rem;">'
                         'Previous analysis loaded — upload a new image to re-analyse</div>',
+                        unsafe_allow_html=True,
+                    )
+                if st.session_state.get("_demo_scripted"):
+                    _live = st.session_state.get("demo_live_pred") or {}
+                    if _live.get("available"):
+                        _live_txt = (f'Live BD-SkinNet on this photo: '
+                                     f'<strong>{_live["disease"].replace("_", " ")}</strong> '
+                                     f'({_live["confidence"]:.0%}).')
+                    elif _demo_path:
+                        _live_txt = 'Live model unavailable right now for this photo.'
+                    else:
+                        _live_txt = 'This scenario has no photo.'
+                    st.markdown(
+                        '<div class="info-box" style="margin-bottom:0.75rem;font-size:0.8rem;">'
+                        '🎬 <strong>Scripted demo scenario</strong> — the class and confidence '
+                        'below are preset to show this triage tier; they are not a live result. '
+                        f'{_live_txt} Upload your own photo for a live analysis.<br>'
+                        'নমুনা দৃশ্য — নিচের ফলাফল আগে থেকে নির্ধারিত, সরাসরি বিশ্লেষণ নয়।'
+                        '</div>',
                         unsafe_allow_html=True,
                     )
                 render_disease_card(pred["disease"], pred["confidence"], pred["top2"])
@@ -1133,7 +1144,54 @@ with tab1:
                 facility      = _tr["facility"],
             )
 
+        if st.session_state.prediction:
+            render_tier_reasons(explain_tier(
+                st.session_state.prediction["disease"],
+                st.session_state.prediction["confidence"],
+                st.session_state.transcript or "",
+            ))
+
         render_audio_triage(_tr.get("bengali_text", ""))
+
+        # Ask a doctor to review — only for a live analysis, only with consent
+        if (st.session_state.prediction and not st.session_state.get("_demo_scripted")
+                and st.session_state.get("_case_image")):
+            with st.container(border=True):
+                st.markdown("**👩‍⚕️ ডাক্তারের মতামত চান? · Ask a doctor to review**")
+                _cid = st.session_state.get("_case_id")
+                if _cid:
+                    from cases.store import get_case as _get_case
+                    _case = _get_case(_cid) or {}
+                    if _case.get("status") in ("confirmed", "overridden"):
+                        st.success(
+                            f"Doctor {_case['status']}: {_case['dr_disease'].replace('_', ' ')} · "
+                            f"Tier {_case['dr_tier']} — {TIER_ACTIONS[_case['dr_tier']]['action']}"
+                            + (f" · Note: {_case['dr_note']}" if _case.get("dr_note") else ""))
+                    else:
+                        st.info("পাঠানো হয়েছে — ডাক্তার এখনো দেখেননি। এই পাতায় ফিরে এলে মতামত দেখবেন। "
+                                "· Sent — waiting for a doctor. Urgent signs? Don't wait.")
+                else:
+                    _consent = st.checkbox(
+                        "আমি সম্মত — ছবি ও ফলাফল (নাম/ফোন ছাড়া) একজন ডাক্তারকে দেখানো যাবে; ৭ দিন পর মুছে যাবে। "
+                        "· I agree to share the photo and result (no name or phone) with a doctor; deleted after 7 days.",
+                        key="case_consent",
+                    )
+                    if st.button("Send to doctor · ডাক্তারকে পাঠান", disabled=not _consent,
+                                 key="send_case"):
+                        from cases.store import add_case as _add_case
+                        _p = st.session_state.prediction
+                        st.session_state["_case_id"] = _add_case(
+                            consent=_consent,
+                            source="web",
+                            image=st.session_state["_case_image"],
+                            ai_disease=_p["disease"],
+                            ai_conf=_p["confidence"],
+                            ai_tier=_tr["tier"],
+                            reasons=explain_tier(_p["disease"], _p["confidence"],
+                                                 st.session_state.transcript or ""),
+                            district=st.session_state.get("district_input", "") or "",
+                        )
+                        st.rerun()
 
         # Clinician mode — doctor's second-opinion panel (default OFF)
         if st.session_state.clinician_mode and st.session_state.prediction:

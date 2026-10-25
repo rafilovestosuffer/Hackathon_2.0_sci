@@ -1,5 +1,6 @@
-# 8 classes from BD-SkinNet training — Faridpur MCH + Rangpur MCH + SkinDisNet
-# Class index order matches CLASS_TO_IDX from notebook (alphabetical)
+# Every label the app knows (UI, knowledge graph, doctor override, demos).
+# The live model's own output order comes from its checkpoint (class_to_idx),
+# see model/bd_skinnet.load_model — never index logits with this list.
 
 CLASS_NAMES = [
     "Atopic_Dermatitis",       # 0

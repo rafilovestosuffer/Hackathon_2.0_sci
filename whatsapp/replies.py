@@ -64,6 +64,62 @@ UNKNOWN_ERROR = (
     "An error occurred. Type 'নতুন' or 'new' to restart."
 )
 
+ASK_SHARE_WITH_DOCTOR = (
+    "👩‍⚕️ একজন ডাক্তার কি আপনার ছবি ও ফলাফল দেখে মতামত দেবেন?\n"
+    "নাম বা ফোন নম্বর পাঠানো হবে না; ৭ দিন পর সব মুছে ফেলা হবে।\n"
+    "উত্তর দিন: হ্যাঁ / না\n\n"
+    "Share your photo and result (no name or phone) with a doctor for review? "
+    "Deleted after 7 days. Reply: yes / no"
+)
+
+SHARED_OK = (
+    "✅ পাঠানো হয়েছে। ডাক্তার দেখলে এখানেই জানানো হবে।\n"
+    "জরুরি লক্ষণ থাকলে অপেক্ষা করবেন না — উপরের পরামর্শ মেনে আজই যান।\n"
+    "Sent. You'll get the doctor's reply here. Don't wait if you have urgent signs."
+)
+
+NOT_SHARED = "ঠিক আছে, কিছু পাঠানো হয়নি। · OK, nothing was shared."
+
+SHARE_FAILED = (
+    "⚠ এখন পাঠানো যায়নি। উপরের পরামর্শ অনুযায়ী চলুন।\n"
+    "Could not share right now. Please follow the advice above."
+)
+
+
+def format_doctor_decision(*, status: str, disease_bn: str, disease_en: str,
+                           tier: int, bengali_action: str, english_action: str,
+                           note: str = "") -> str:
+    """Message sent to the patient after a doctor reviews their case."""
+    head = ("✅ ডাক্তার এআই-এর মূল্যায়ন নিশ্চিত করেছেন।\nA doctor confirmed the AI assessment."
+            if status == "confirmed" else
+            "✎ ডাক্তার মূল্যায়ন পরিবর্তন করেছেন।\nA doctor updated the assessment.")
+    lines = [
+        "👩‍⚕️ ডাক্তারের মতামত · Doctor review",
+        head,
+        "",
+        f"রোগ · Condition: {disease_bn} ({disease_en})",
+        f"{TIER_LABELS_BN[tier]}",
+        f"🇧🇩 {bengali_action}",
+        f"🇬🇧 {english_action}",
+    ]
+    if note:
+        lines.extend(["", f"📝 {note}"])
+    lines.append(
+        "\n\n⚠ এটি ছবির ভিত্তিতে দূর থেকে দেওয়া মতামত; সরাসরি পরীক্ষার বিকল্প নয়।\n"
+        "This is a remote review of a photo, not a substitute for an in-person examination."
+    )
+    return "\n".join(lines)
+
+
+MODEL_UNAVAILABLE = (
+    "⏳ এআই মডেল এই মুহূর্তে চালু নেই, তাই কোনো ফলাফল দেওয়া হলো না।\n"
+    "এক মিনিট পরে 'আবার' লিখে পাঠান — আপনার ছবি ও তথ্য রাখা আছে।\n"
+    "জ্বর, দ্রুত ছড়ানো, রক্তপাত বা তীব্র ব্যথা থাকলে অপেক্ষা না করে আজই নিকটস্থ স্বাস্থ্যকেন্দ্রে যান।\n\n"
+    "The AI model is not available right now, so no result was given.\n"
+    "Send 'retry' in a minute — your photo and details are kept.\n"
+    "If there is fever, fast spreading, bleeding or severe pain, go to the nearest health facility today."
+)
+
 RESET_OK = (
     "🔄 শুরু থেকে আবার করছি।\n"
     "Starting over.\n\n" + WELCOME
@@ -96,6 +152,7 @@ def format_triage_result(
     english_action: str,
     facility: str,
     nearest_hospital: dict | None,
+    reasons: list | None = None,
 ) -> str:
     """Build the main triage result message."""
     lines = [
@@ -109,6 +166,9 @@ def format_triage_result(
         f"🇧🇩 {bengali_action}",
         f"🇬🇧 {english_action}",
     ]
+    if reasons:
+        lines.extend(["", "❓ কেন এই স্তর? · Why this tier:"])
+        lines.extend(f"• {r['bn']}" for r in reasons)
     if nearest_hospital and tier >= 2:
         lines.extend([
             "",

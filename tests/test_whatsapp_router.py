@@ -46,6 +46,9 @@ def mock_pipeline_modules():
         "facility": "Upazila Health Complex",
         "bengali_text": "৪৮ ঘণ্টার মধ্যে যান",
     })
+    engine_mod.explain_tier = MagicMock(return_value=[
+        {"signal": "class", "en": "Tinea usually needs non-urgent care.", "bn": "দাদ সাধারণত জরুরি নয়।"},
+    ])
     severity_mod.engine = engine_mod
 
     # pdf_gen.referral
@@ -184,7 +187,8 @@ class TestVoiceAndPipeline:
         types_seen = [type(a).__name__ for a in out]
         assert "TextOut" in types_seen
         assert "PdfOut" in types_seen
-        assert store.get_or_create(USER).state == State.RAG_CHAT
+        assert out[-1].body == router.replies.ASK_SHARE_WITH_DOCTOR
+        assert store.get_or_create(USER).state == State.AWAITING_SHARE_CONSENT
         mock_pipeline_modules["compute_tier"].assert_called_once()
         mock_pipeline_modules["generate_pdf"].assert_called_once()
 
@@ -207,6 +211,41 @@ class TestVoiceAndPipeline:
         assert all(not isinstance(a, PdfOut) for a in out)
         assert any(isinstance(a, TextOut) and "ফলাফল" in a.body for a in out)
 
+    def test_pipeline_uses_real_model_service(self, mock_media_dl, mock_pipeline_modules,
+                                              stub_model_inference):
+        self._to_voice_stage(mock_media_dl)
+        handle_event(text_event("skip", "m4"), mock_media_dl)
+        stub_model_inference.assert_called_once()
+        assert stub_model_inference.call_args[0][0] == mock_media_dl.return_value
+
+    def test_model_unavailable_gives_no_result(self, mock_media_dl, mock_pipeline_modules,
+                                               stub_model_inference):
+        from model.service import unavailable
+        stub_model_inference.side_effect = lambda image: unavailable()
+        self._to_voice_stage(mock_media_dl)
+        out = handle_event(text_event("skip", "m4"), mock_media_dl)
+        assert [a.body for a in out] == [router.replies.MODEL_UNAVAILABLE]
+        mock_pipeline_modules["compute_tier"].assert_not_called()
+        mock_pipeline_modules["generate_pdf"].assert_not_called()
+        sess = store.get_or_create(USER)
+        assert sess.state == State.AWAITING_VOICE
+        assert sess.image_bytes is not None
+
+    def test_retry_after_unavailable_keeps_transcript(self, mock_media_dl, mock_pipeline_modules,
+                                                      stub_model_inference):
+        from model.service import unavailable
+        from tests.conftest import STUB_PREDICTION
+        stub_model_inference.side_effect = lambda image: unavailable()
+        self._to_voice_stage(mock_media_dl)
+        handle_event(audio_event("m4"), mock_media_dl)
+        transcript = store.get_or_create(USER).voice_transcript
+        assert transcript
+        stub_model_inference.side_effect = lambda image: dict(STUB_PREDICTION)
+        out = handle_event(text_event("retry", "m5"), mock_media_dl)
+        assert any(isinstance(a, PdfOut) for a in out)
+        assert store.get_or_create(USER).state == State.AWAITING_SHARE_CONSENT
+        assert mock_pipeline_modules["compute_tier"].call_args.kwargs["transcript"] == transcript
+
 
 class TestRagChatStage:
     def _to_rag(self, dl, mods):
@@ -214,6 +253,7 @@ class TestRagChatStage:
         handle_event(text_event("rangpur", "m2"), dl)
         handle_event(image_event("m3"), dl)
         handle_event(text_event("skip", "m4"), dl)
+        handle_event(text_event("না", "m4b"), dl)
 
     def test_text_after_result_goes_to_rag(self, mock_media_dl, mock_pipeline_modules):
         self._to_rag(mock_media_dl, mock_pipeline_modules)
@@ -221,6 +261,48 @@ class TestRagChatStage:
         assert isinstance(out[0], TextOut)
         assert "Keep the area dry" in out[0].body
         mock_pipeline_modules["rag_answer"].assert_called_once()
+
+
+class TestShareWithDoctor:
+    @pytest.fixture(autouse=True)
+    def tmp_cases_db(self, tmp_path, monkeypatch):
+        from cases import store as case_store
+        monkeypatch.setattr(case_store, "_DB_PATH", str(tmp_path / "cases.db"))
+        yield case_store
+
+    def _to_consent(self, dl):
+        handle_event(text_event("hi", "m1"), dl)
+        handle_event(text_event("rangpur", "m2"), dl)
+        handle_event(image_event("m3"), dl)
+        handle_event(text_event("skip", "m4"), dl)
+        assert store.get_or_create(USER).state == State.AWAITING_SHARE_CONSENT
+
+    def test_yes_stores_case_with_chat_id(self, mock_media_dl, mock_pipeline_modules,
+                                          tmp_cases_db):
+        self._to_consent(mock_media_dl)
+        out = handle_event(text_event("হ্যাঁ", "m5"), mock_media_dl)
+        assert out[0].body == router.replies.SHARED_OK
+        assert store.get_or_create(USER).state == State.RAG_CHAT
+        cases = tmp_cases_db.list_cases()
+        assert len(cases) == 1
+        assert cases[0]["source"] == "telegram"
+        assert cases[0]["notify_chat_id"] == USER
+        assert cases[0]["ai_disease"] == "Tinea" and cases[0]["ai_tier"] == 2
+        assert cases[0]["district"] == "rangpur"
+
+    def test_no_stores_nothing(self, mock_media_dl, mock_pipeline_modules, tmp_cases_db):
+        self._to_consent(mock_media_dl)
+        out = handle_event(text_event("no", "m5"), mock_media_dl)
+        assert out[0].body == router.replies.NOT_SHARED
+        assert tmp_cases_db.list_cases() == []
+        assert store.get_or_create(USER).state == State.RAG_CHAT
+
+    def test_other_reply_reasks(self, mock_media_dl, mock_pipeline_modules, tmp_cases_db):
+        self._to_consent(mock_media_dl)
+        out = handle_event(text_event("maybe", "m5"), mock_media_dl)
+        assert out[0].body == router.replies.ASK_SHARE_WITH_DOCTOR
+        assert store.get_or_create(USER).state == State.AWAITING_SHARE_CONSENT
+        assert tmp_cases_db.list_cases() == []
 
 
 # --- Global commands ---

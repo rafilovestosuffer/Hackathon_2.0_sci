@@ -122,6 +122,11 @@ def test_full_telegram_conversation(live_server):
         assert any("ফলাফল" in m[1] for m in new_msgs)
         assert len(sent_documents) == 1
         assert sent_documents[0][2] > 0  # PDF has bytes
+        assert "হ্যাঁ / না" in sent_messages[-1][1]  # asks to share with a doctor
+
+        # Step 4b: decline sharing → nothing stored, chat opens
+        assert _send(live_server, _tg(text="না", message_id=41)) == 200
+        assert "কিছু পাঠানো হয়নি" in sent_messages[-2][1]
 
         # Step 5: RAG chat
         with patch("rag.retriever.load_index", return_value=True), \

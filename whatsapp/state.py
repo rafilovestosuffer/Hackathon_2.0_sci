@@ -24,6 +24,7 @@ class State(Enum):
     AWAITING_VOICE = "awaiting_voice"
     PROCESSING = "processing"
     RESULT_SENT = "result_sent"
+    AWAITING_SHARE_CONSENT = "awaiting_share_consent"
     RAG_CHAT = "rag_chat"
 
 

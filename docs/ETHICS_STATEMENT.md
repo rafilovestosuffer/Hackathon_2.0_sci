@@ -20,7 +20,7 @@ Encoded as Constraint 3 in `CLAUDE.md`. The RAG knowledge base (`rag/knowledge/`
 
 ## 3. Bias and fairness disclosure inside the product
 
-The training data is predominantly Fitzpatrick IV–VI South Asian skin tones, adults ≥18, and seven specific disease classes. The product surfaces this scope in three places:
+The training data is predominantly Fitzpatrick IV–VI South Asian skin tones, adults ≥18, and six specific disease classes (the live model). The product surfaces this scope in three places:
 
 1. **In-flow disclosure.** A bilingual fairness banner renders directly under every AI diagnosis result, before the user makes any downstream decision.
 2. **Model card tab.** A dedicated "Impact &amp; Ethics" tab inside the app summarises training data, demographic coverage, known limitations, and "when NOT to use."

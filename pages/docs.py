@@ -243,7 +243,7 @@ st.markdown("""
         "সঠিক রোগী → সঠিক ডাক্তার → সঠিক সময়"
     </div>
     <div class="badge-row">
-        <span class="badge">F1 = 92.46%</span>
+        <span class="badge">Val F1 0.816 (live)</span>
         <span class="badge">AUC = 0.9937</span>
         <span class="badge">310+ Tests</span>
         <span class="badge">Live on HF Spaces</span>
@@ -276,13 +276,13 @@ section("🚨 The Problem", "problem")
 c1, c2, c3 = st.columns(3)
 with c1:
     st.markdown("""<div class="card">
-    <h3>1 per 250,000</h3>
-    <p>Bangladesh has approximately <strong style="color:#f87171">1 dermatologist per 250,000 people</strong> — one of the lowest ratios in Asia.</p>
+    <h3>Too few dermatologists</h3>
+    <p>Low-income countries average <strong style="color:#f87171">0.37 dermatologists per 100,000 people</strong>, against a sufficiency benchmark of 5.63 (158-country study, JAMA Dermatology 2026). Bangladesh has 7.9 doctors of any kind per 10,000 people (Lancet Public Health, 2023).</p>
     </div>""", unsafe_allow_html=True)
 with c2:
     st.markdown("""<div class="card">
-    <h3>80% Untreated</h3>
-    <p>80% of skin conditions in rural Bangladesh go <strong style="color:#f87171">untreated or misdiagnosed</strong> by unlicensed practitioners (quacks).</p>
+    <h3>Care is far away</h3>
+    <p>About <strong style="color:#f87171">6 in 10 Bangladeshis live in rural areas</strong> (World Bank, 2024), while specialist skin care sits in teaching and district hospitals and private clinics.</p>
     </div>""", unsafe_allow_html=True)
 with c3:
     st.markdown("""<div class="card">
@@ -333,7 +333,7 @@ st.markdown('<hr class="divider">', unsafe_allow_html=True)
 section("📊 Traction & Metrics", "traction")
 cols = st.columns(5)
 metrics = [
-    ("92.46%", "Model F1 Score"),
+    ("0.816", "Validation F1 (live model)"),
     ("0.9937", "AUC-ROC"),
     ("7", "Disease Classes"),
     ("310+", "Tests Passing"),
@@ -443,8 +443,8 @@ with c1:
     4-stage attention (channel + spatial)<br/>
     INT8 dynamic quantization<br/>
     224×224 RGB input<br/>
-    7 Bangladesh clinical classes<br/>
-    F1=92.46% · AUC=0.9937</p>
+    6 Bangladesh clinical classes (live model)<br/>
+    Live checkpoint: validation F1 0.816</p>
     </div>""", unsafe_allow_html=True)
 with c2:
     st.markdown("""<div class="card">
@@ -570,7 +570,7 @@ with c1:
 with c2:
     st.markdown("""<div class="card" style="border-top:3px solid #fb923c">
     <h3 style="color:#fb923c">Tier 2 — ROUTINE</h3>
-    <p>Atopic Dermatitis · Eczema · Scabies · Vitiligo<br/><br/>
+    <p>Atopic Dermatitis · Eczema · Scabies<br/><br/>
     <strong style="color:#fb923c">Action:</strong> Visit Upazila Health Complex within 48h<br/>
     <strong style="color:#fb923c">Cost:</strong> ৳0–100 (subsidised)<br/>
     <strong style="color:#fb923c">Facility:</strong> Upazila Health Complex</p>
@@ -605,7 +605,7 @@ with c2:
 with c3:
     st.markdown("""<div class="card">
     <h3>🌐 Market Size</h3>
-    <p>170M population · 80% rural (136M) · Growing smartphone penetration ·
+    <p>170M+ population · ~59% rural (World Bank 2024) · Growing smartphone penetration ·
     DGHS telemedicine push post-COVID. TAM: rural primary health market.</p>
     </div>""", unsafe_allow_html=True)
 

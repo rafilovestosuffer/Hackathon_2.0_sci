@@ -3,6 +3,7 @@ ui/components.py — reusable Streamlit widgets for SkinAI Bangladesh.
 All functions are standalone; call from app.py after inject_css().
 """
 
+import html
 import re
 import streamlit as st
 
@@ -229,6 +230,24 @@ def render_patient_history_table(history: dict) -> None:
         return
 
     st.markdown(chips_html, unsafe_allow_html=True)
+
+
+def render_tier_reasons(reasons: list) -> None:
+    """'Why this tier' — one line per triage signal from severity.engine.explain_tier."""
+    if not reasons:
+        return
+    items = "".join(
+        f'<li><span style="font-family:\'Noto Sans Bengali\',sans-serif;">{html.escape(r["bn"])}</span>'
+        f'<br><span style="opacity:0.75;font-size:0.8rem;">{html.escape(r["en"])}</span></li>'
+        for r in reasons
+    )
+    st.markdown(
+        '<div class="sk-card" style="margin-top:0.5rem;">'
+        '  <div class="sk-card-title">কেন এই স্তর? · Why this tier</div>'
+        f'  <ul style="margin:0.25rem 0 0 1.1rem;padding:0;line-height:1.5;">{items}</ul>'
+        '</div>',
+        unsafe_allow_html=True,
+    )
 
 
 def render_disease_card(disease: str, confidence: float, top2: list) -> None:
@@ -885,11 +904,12 @@ def render_ethics_card() -> None:
     sections = [
         ("📂", "Training data provenance",
          "Bangladeshi clinical photographs from Faridpur Medical College Hospital and "
-         "Rangpur Medical College Hospital. No DermNet, no scraped social-media images, "
-         "no AI-generated synthetic data. Patient consent and institutional review documented."),
+         "Rangpur Medical College Hospital. No DermNet, no scraped social-media images. "
+         "Three rare classes were augmented with Stable Diffusion images in the training split only; "
+         "the test set is real images only. Patient consent and institutional review documented at source."),
         ("👥", "Demographic coverage",
          "Predominantly Fitzpatrick IV–VI skin types (South Asian range). Adult cases (≥18). "
-         "Seven trained classes: Atopic Dermatitis, Eczema, Scabies, Vitiligo, Contact Dermatitis, "
+         "Six classes in the live model: Atopic Dermatitis, Eczema, Scabies, Contact Dermatitis, "
          "Seborrheic Dermatitis, Tinea."),
         ("⚠️", "Known limitations",
          "Lower expected performance on Fitzpatrick I–III, pediatric cases, hair-bearing scalp "
@@ -1170,13 +1190,15 @@ def render_privacy_badge() -> None:
         '<div class="sk-privacy-body">'
         '<div class="sk-privacy-title">Privacy by design — '
         '<span class="sk-privacy-chips">'
-        '<span class="sk-privacy-chip">No storage</span>'
+        '<span class="sk-privacy-chip">Not saved by default</span>'
         '<span class="sk-privacy-chip">No tracking</span>'
         '<span class="sk-privacy-chip">No account</span>'
         '</span></div>'
-        '<div class="sk-privacy-text">Your image stays in your browser session only — '
-        'never saved, logged, or sent to third parties.</div>'
-        '<div class="sk-privacy-bn">আপনার ছবি কেবল ব্রাউজার সেশনে থাকে — সংরক্ষণ বা লগ করা হয় না।</div>'
+        '<div class="sk-privacy-text">Your photo is analysed for this session and never saved — '
+        'unless you choose to share it with a doctor (a small copy, no name or phone, deleted after 7 days). '
+        'Never sold or sent to third parties.</div>'
+        '<div class="sk-privacy-bn">আপনার ছবি শুধু এই বিশ্লেষণের জন্য ব্যবহৃত হয়, সংরক্ষণ করা হয় না — '
+        'যদি না আপনি ডাক্তারকে দেখাতে সম্মতি দেন (নাম/ফোন ছাড়া ছোট কপি, ৭ দিন পর মুছে যায়)।</div>'
         '</div></div>',
         unsafe_allow_html=True,
     )
@@ -1191,7 +1213,7 @@ _TECH_DECISIONS = [
         "why":     "Hierarchical window attention handles variable-shape skin lesions better than "
                    "convolutional ResNet/EfficientNet baselines. CBAM (Channel + Spatial Attention) "
                    "adds explicit focus on lesion regions without changing the backbone.",
-        "metric":  "F1 = 92.46% on Bangladeshi clinical test set",
+        "metric":  "Live 6-class checkpoint: validation F1 0.816",
         "color":   "#1668A4",
     },
     {

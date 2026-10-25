@@ -77,7 +77,7 @@ def triage_skin_condition(
     Args
     ----
     disease_class : One of Atopic_Dermatitis, Contact_Dermatitis, Eczema, Scabies,
-                    Seborrheic_Dermatitis, Tinea, Vitiligo, Normal
+                    Seborrheic_Dermatitis, Tinea (the live model's 6 classes)
     confidence    : BD-SkinNet softmax confidence score  (0.0 – 1.0)
     transcript    : Optional Bengali voice transcript for keyword escalation
     """

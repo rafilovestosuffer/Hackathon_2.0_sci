@@ -32,7 +32,7 @@ That is the difference between an honest frame and an over-claim:
 | ❌ Do **not** say | ✅ Say instead |
 |---|---|
 | "AI that diagnoses skin disease for doctors" | "A decision-support second opinion the doctor confirms or overrides" |
-| "Replaces the dermatologist" | "Extends the one dermatologist per 250,000 people to more patients" |
+| "Replaces the dermatologist" | "Extends scarce dermatologist time to more patients" |
 | "Automated triage" | "Augmented triage — the doctor is always the final authority" |
 | "99% accurate diagnosis" | "A calibrated suggestion with confidence, differential, and the evidence behind it" |
 
@@ -146,7 +146,7 @@ recommendation, so they don't *rely primarily* on the AI. To sit on the safe
 side of that line, a tool should:
 
 1. **not omit material information** — you show the full history + image;
-2. **describe the quality/limits of the data** — you already ship a Model Card, Data Card, and an in-product bias banner (Fitzpatrick IV–VI, adults, 7 classes);
+2. **describe the quality/limits of the data** — you already ship a Model Card, Data Card, and an in-product bias banner (Fitzpatrick IV–VI, adults, 6 classes);
 3. **explain how it reached *this* patient's result** — you have confidence, top-2 differential, source provenance, *and* CBAM attention showing where the model looked.
 
 You are, almost uniquely for a hackathon project, **already compliant with the

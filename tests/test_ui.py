@@ -551,7 +551,7 @@ class TestPrivacyBadge:
             render_privacy_badge()
             html = _captured_html(mock_st.markdown)
             # Bengali text must be present
-            assert "ব্রাউজার সেশনে" in html
+            assert "সংরক্ষণ করা হয় না" in html
 
 
 class TestTechDecisions:
@@ -574,7 +574,8 @@ class TestTechDecisions:
             from ui.components import render_tech_decisions
             render_tech_decisions()
             html = _captured_html(mock_st.markdown)
-            assert "92.46%" in html
+            assert "validation F1 0.816" in html  # live 6-class checkpoint
+            assert "92.46%" not in html           # research-model number must not label the live model
             assert "1.8 s" in html
 
 

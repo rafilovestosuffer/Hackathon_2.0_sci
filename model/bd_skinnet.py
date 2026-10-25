@@ -115,17 +115,34 @@ class BDSkinNet(nn.Module):
 
 
 def load_model(checkpoint_path: str, device: str = "cpu") -> BDSkinNet:
-    """Loads FP32 or INT8 quantized checkpoint."""
+    """Loads FP32 or INT8 quantized checkpoint.
+
+    The output labels come from the checkpoint's own class_to_idx and are
+    attached as model.class_names, so predict() can never read the logits
+    with a different class list than the one the model was trained on.
+    """
     ckpt = torch.load(checkpoint_path, map_location=device, weights_only=False)
     is_quantized = ckpt.get("quantized", False)
 
-    model = BDSkinNet()
+    class_to_idx = ckpt.get("class_to_idx")
+    if class_to_idx:
+        class_names = [c for c, _ in sorted(class_to_idx.items(), key=lambda kv: kv[1])]
+    else:
+        class_names = list(CLASS_NAMES)
+    num_classes = int(ckpt.get("num_classes", len(class_names)))
+    if num_classes != len(class_names):
+        raise ValueError(f"checkpoint num_classes={num_classes} but "
+                         f"class_to_idx has {len(class_names)} labels")
+
+    model = BDSkinNet(num_classes=num_classes)
     if is_quantized:
         model = torch.quantization.quantize_dynamic(
             model, qconfig_spec={torch.nn.Linear}, dtype=torch.qint8
         )
     model.load_state_dict(ckpt.get("model_state", ckpt))
     model.eval()
+    model.class_names = class_names
+    model.checkpoint_meta = {k: ckpt[k] for k in ("val_f1", "epoch") if k in ckpt}
     return model
 
 
@@ -145,13 +162,16 @@ def predict(model: BDSkinNet, image, device: str = "cpu") -> dict:
     tensor = inference_transform(image=image)["image"].unsqueeze(0).to(device)
     logits = model(tensor)
     probs  = F.softmax(logits, dim=1).squeeze().cpu().numpy()
+    names  = getattr(model, "class_names", CLASS_NAMES)
+    if len(names) != len(probs):
+        raise ValueError(f"model has {len(probs)} outputs but {len(names)} class names")
 
     top2_idx = probs.argsort()[::-1][:2]
     return {
-        "disease_class": CLASS_NAMES[top2_idx[0]],
+        "disease_class": names[top2_idx[0]],
         "confidence":    float(probs[top2_idx[0]]),
         "top2": [
-            {"class": CLASS_NAMES[i], "confidence": float(probs[i])}
+            {"class": names[i], "confidence": float(probs[i])}
             for i in top2_idx
         ],
     }

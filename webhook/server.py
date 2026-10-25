@@ -16,6 +16,7 @@ from __future__ import annotations
 import logging
 import os
 import time
+from collections import defaultdict, deque
 from typing import Any
 
 # Load .env BEFORE importing whatsapp clients (they read env eagerly)
@@ -25,7 +26,7 @@ try:
 except ImportError:
     pass
 
-from fastapi import FastAPI, Header, HTTPException, Request, Response
+from fastapi import FastAPI, File, Form, Header, HTTPException, Request, Response, UploadFile
 from fastapi.responses import JSONResponse, PlainTextResponse
 
 from whatsapp import meta_client, telegram_client, router
@@ -39,6 +40,15 @@ logger = logging.getLogger("webhook")
 
 app = FastAPI(title="SkinAI Bangladesh — WhatsApp + Telegram Webhook")
 _BOOT_TS = time.time()
+
+
+@app.on_event("startup")
+def _warm_model() -> None:
+    """Start loading BD-SkinNet in the background so the first bot photo isn't slow."""
+    if os.environ.get("SKINAI_NO_WARMUP"):
+        return
+    from model import service as model_service
+    model_service.warm_up_async()
 
 
 # --- Outbound dispatch helpers ---
@@ -76,7 +86,13 @@ def health() -> JSONResponse:
         "meta_configured": bool(os.environ.get("META_ACCESS_TOKEN")),
         "telegram_configured": bool(os.environ.get("TELEGRAM_BOT_TOKEN")),
         "gemini_configured": bool(os.environ.get("GEMINI_API_KEY")),
+        "model_loaded": _model_loaded(),
     })
+
+
+def _model_loaded() -> bool:
+    from model import service as model_service
+    return model_service._model is not None
 
 
 @app.get("/debug/telegram-getme")
@@ -207,3 +223,132 @@ async def telegram_receive(request: Request):
         except Exception as e:
             logger.exception("Telegram event handling failed: %s", e)
     return Response(status_code=200)
+
+
+# --- Case API (offline /lite page: store-and-forward sync) ---
+
+MAX_IMAGE_BYTES = 2 * 1024 * 1024
+_API_RATE_MAX = 20          # requests per window per client IP
+_API_RATE_WINDOW_SEC = 60
+_api_hits: dict[str, deque] = defaultdict(lambda: deque(maxlen=_API_RATE_MAX))
+
+# /lite checklist ids → the Bengali words severity.engine.ESCALATION_KEYWORDS matches
+RED_FLAG_KEYWORDS = {
+    "fever":     "জ্বর",
+    "spreading": "ছড়িয়ে",
+    "pain":      "ব্যথা",
+    "bleeding":  "রক্ত",
+}
+
+
+def _api_rate_ok(client_ip: str) -> bool:
+    now = time.time()
+    hits = _api_hits[client_ip]
+    while hits and now - hits[0] > _API_RATE_WINDOW_SEC:
+        hits.popleft()
+    if len(hits) >= _API_RATE_MAX:
+        return False
+    hits.append(now)
+    return True
+
+
+def _client_ip(request: Request) -> str:
+    fwd = request.headers.get("x-forwarded-for", "")
+    return fwd.split(",")[0].strip() if fwd else (request.client.host if request.client else "?")
+
+
+@app.post("/api/cases")
+async def create_case(
+    request: Request,
+    image: UploadFile = File(...),
+    red_flags: list[str] = Form(default=[]),
+    district: str = Form(default=""),
+    consent: str = Form(default="false"),
+    client_ts: str = Form(default=""),
+) -> JSONResponse:
+    """Triage one synced /lite case. Stores it for doctor review only with consent."""
+    if not _api_rate_ok(_client_ip(request)):
+        return JSONResponse({"error": "rate_limited"}, status_code=429)
+
+    img_bytes = await image.read(MAX_IMAGE_BYTES + 1)
+    if not img_bytes:
+        return JSONResponse({"error": "empty_image"}, status_code=400)
+    if len(img_bytes) > MAX_IMAGE_BYTES:
+        return JSONResponse({"error": "image_too_large", "max_bytes": MAX_IMAGE_BYTES},
+                            status_code=413)
+
+    unknown = [f for f in red_flags if f not in RED_FLAG_KEYWORDS]
+    if unknown:
+        return JSONResponse({"error": "unknown_red_flag", "values": unknown}, status_code=400)
+
+    blur = router._laplacian_variance(img_bytes)
+    if blur < 0:
+        return JSONResponse({"error": "unreadable_image"}, status_code=400)
+    if blur < 50.0:
+        return JSONResponse({"error": "blurry_image", "blur": round(blur, 1)}, status_code=422)
+
+    from model import service as model_service
+    pred = model_service.run_inference(img_bytes)
+    if not pred.get("available"):
+        return JSONResponse({"error": "model_unavailable",
+                             "message_en": model_service.UNAVAILABLE_EN,
+                             "message_bn": model_service.UNAVAILABLE_BN}, status_code=503)
+
+    from severity.engine import compute_tier, explain_tier
+    from model.disease_labels import get_bengali
+    transcript = " ".join(RED_FLAG_KEYWORDS[f] for f in red_flags)
+    tier_result = compute_tier(pred["disease"], pred["confidence"], transcript)
+    reasons = explain_tier(pred["disease"], pred["confidence"], transcript)
+
+    case_id = None
+    if consent.strip().lower() in ("true", "1", "yes", "on"):
+        from cases.store import add_case
+        case_id = add_case(
+            consent=True, source="lite", image=img_bytes,
+            ai_disease=pred["disease"], ai_conf=pred["confidence"],
+            ai_tier=tier_result["tier"], reasons=reasons,
+            red_flags=list(red_flags), district=district,
+        )
+
+    try:
+        from analytics.db import log_event
+        conf = pred["confidence"]
+        log_event("triage_lite", disease_class=pred["disease"], tier=tier_result["tier"],
+                  conf_bucket="high" if conf >= 0.60 else ("medium" if conf >= 0.40 else "low"))
+    except Exception:
+        pass
+
+    return JSONResponse({
+        "case_id": case_id,
+        "disease": pred["disease"],
+        "disease_bn": get_bengali(pred["disease"]),
+        "confidence": round(pred["confidence"], 4),
+        "tier": tier_result["tier"],
+        "urgency_label": tier_result["urgency_label"],
+        "action_en": tier_result["action"],
+        "action_bn": tier_result["bengali_text"],
+        "facility": tier_result["facility"],
+        "reasons": reasons,
+        "bytes_received": len(img_bytes),
+    })
+
+
+@app.get("/api/cases/{case_id}")
+def get_case_status(case_id: str) -> JSONResponse:
+    """Status + doctor decision for a synced case (no photo, no notes about others)."""
+    from cases.store import get_case
+    from severity.engine import TIER_ACTIONS
+    case = get_case(case_id)
+    if case is None:
+        return JSONResponse({"error": "not_found"}, status_code=404)
+    out = {"case_id": case_id, "status": case["status"], "ai_tier": case["ai_tier"]}
+    if case["status"] != "pending":
+        act = TIER_ACTIONS[int(case["dr_tier"])]
+        out.update({
+            "dr_disease": case["dr_disease"],
+            "dr_tier": case["dr_tier"],
+            "dr_note": case["dr_note"] or "",
+            "dr_action_en": act["action"],
+            "dr_action_bn": act["bengali_text"],
+        })
+    return JSONResponse(out)

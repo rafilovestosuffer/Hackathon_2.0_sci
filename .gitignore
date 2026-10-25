@@ -81,3 +81,7 @@ scripts/generate_demo_script_pdf.py
 .codex/
 *.lnk
 .playwright-mcp/
+
+# Consented doctor-review cases (runtime only, auto-deleted after 7 days)
+cases/cases.db
+cases/cases.db-*

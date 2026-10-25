@@ -48,6 +48,33 @@ def _is_reset_command(text: str) -> bool:
     return t in {"নতুন", "new", "reset", "restart", "শুরু"}
 
 
+_YES = {"হ্যাঁ", "হ্যা", "হাঁ", "yes", "y", "1"}
+_NO = {"না", "no", "n", "2"}
+
+
+def _share_case_with_doctor(sess, user_id: str) -> Optional[str]:
+    """Store the consented case for the Doctor Queue. Returns the case id."""
+    try:
+        from cases.store import add_case
+        from severity.engine import explain_tier
+        pred, tier = sess.last_prediction or {}, sess.last_tier_result or {}
+        return add_case(
+            consent=True,
+            source="telegram",
+            image=sess.image_bytes,
+            ai_disease=pred["disease"],
+            ai_conf=pred["confidence"],
+            ai_tier=tier["tier"],
+            reasons=explain_tier(pred["disease"], pred["confidence"],
+                                 sess.voice_transcript or ""),
+            district=sess.district or "",
+            notify_chat_id=user_id,
+        )
+    except Exception as e:
+        logger.warning("Sharing case failed: %s", e)
+        return None
+
+
 def _is_help_command(text: str) -> bool:
     t = (text or "").strip().lower()
     return t in {"help", "?", "সাহায্য", "/start", "/help"}
@@ -95,17 +122,13 @@ def _laplacian_variance(img_bytes: bytes) -> float:
 # --- Model inference adapter ---
 
 def _run_model(image_bytes: bytes) -> dict:
-    """Return {disease, confidence, top2} from image bytes."""
-    # The bot returns a fixed demo prediction (same schema as app.py::_run_model);
-    # real BD-SkinNet inference runs in the web app.
-    return {
-        "disease": "Tinea",
-        "confidence": 0.82,
-        "top2": [
-            {"disease": "Tinea", "confidence": 0.82},
-            {"disease": "Contact_Dermatitis", "confidence": 0.11},
-        ],
-    }
+    """Real BD-SkinNet inference via the shared model service.
+
+    Returns {available, disease, confidence, top2}. available=False means the
+    model could not run — the caller must not produce any triage.
+    """
+    from model.service import run_inference
+    return run_inference(image_bytes or b"")
 
 
 # --- Pipeline runner — called when both image + (voice or skip) are in ---
@@ -113,7 +136,8 @@ def _run_model(image_bytes: bytes) -> dict:
 def _run_pipeline(sess) -> tuple[dict, dict, Optional[dict], bytes]:
     """
     Returns (prediction, tier_result, nearest_hospital, pdf_bytes).
-    Any stage failure is logged and a safe fallback is returned.
+    If the model is unavailable, returns (prediction, None, None, b"") and
+    no triage is produced. Later-stage failures are logged and skipped.
     """
     from severity.engine import compute_tier
     from pdf_gen.referral import generate_referral_pdf
@@ -122,6 +146,8 @@ def _run_pipeline(sess) -> tuple[dict, dict, Optional[dict], bytes]:
 
     # Inference
     prediction = _run_model(sess.image_bytes or b"")
+    if not prediction.get("available"):
+        return prediction, None, None, b""
 
     # Triage
     tier_result = compute_tier(
@@ -152,15 +178,19 @@ def _run_pipeline(sess) -> tuple[dict, dict, Optional[dict], bytes]:
         "progression": sess.patient_history.get("progression", ""),
         "previous_treatment": sess.patient_history.get("previous_treatment", ""),
         "associated_symptoms": sess.patient_history.get("associated_symptoms", []),
-        "disease": prediction["disease"],
-        "disease_bn": get_bengali(prediction["disease"]),
+        # Keys match pdf_gen/referral.py (same payload shape as app.py)
+        "disease_class": prediction["disease"],
+        "disease_bengali": get_bengali(prediction["disease"]),
         "confidence": prediction["confidence"],
         "top2": prediction.get("top2", []),
         "tier": tier_result["tier"],
-        "tier_label": tier_result.get("urgency_label", ""),
-        "tier_action": tier_result.get("action", ""),
+        "urgency_label": tier_result.get("urgency_label", ""),
+        "action": tier_result.get("action", ""),
         "facility": tier_result.get("facility", ""),
-        "nearest_hospital": nearest,
+        "bengali_text": tier_result.get("bengali_text", ""),
+        "transcript": sess.voice_transcript or "",
+        "hospital_name": (nearest or {}).get("name", ""),
+        "hospital_address": (nearest or {}).get("address", ""),
         "district": sess.district or "",
     }
     try:
@@ -172,8 +202,15 @@ def _run_pipeline(sess) -> tuple[dict, dict, Optional[dict], bytes]:
     return prediction, tier_result, nearest, pdf_bytes
 
 
-def _build_triage_text(prediction: dict, tier_result: dict, nearest: Optional[dict]) -> str:
+def _build_triage_text(prediction: dict, tier_result: dict, nearest: Optional[dict],
+                       transcript: str = "") -> str:
     from model.disease_labels import get_bengali
+    try:
+        from severity.engine import explain_tier
+        reasons = explain_tier(prediction["disease"], prediction["confidence"], transcript)
+    except Exception as e:
+        logger.warning("explain_tier failed: %s", e)
+        reasons = None
     return replies.format_triage_result(
         disease_bn=get_bengali(prediction["disease"]),
         disease_en=prediction["disease"].replace("_", " "),
@@ -183,6 +220,7 @@ def _build_triage_text(prediction: dict, tier_result: dict, nearest: Optional[di
         english_action=tier_result.get("action", ""),
         facility=tier_result.get("facility", ""),
         nearest_hospital=nearest,
+        reasons=reasons,
     )
 
 
@@ -260,7 +298,9 @@ def handle_event(
 
         if sess.state == State.AWAITING_VOICE:
             actions: list[Action] = []
-            if etype == "text" and text.lower() == "skip":
+            if etype == "text" and text.lower() in {"retry", "আবার"} and sess.image_bytes:
+                pass  # re-run the model with the photo and transcript already given
+            elif etype == "text" and text.lower() == "skip":
                 sess.voice_transcript = ""
             elif etype == "audio":
                 voice_bytes = media_downloader(event["media_id"])
@@ -281,6 +321,11 @@ def handle_event(
             # Run full pipeline
             sess.state = State.PROCESSING
             prediction, tier_result, nearest, pdf_bytes = _run_pipeline(sess)
+            if tier_result is None:
+                # Model unavailable — no result; keep photo + transcript for a retry
+                sess.state = State.AWAITING_VOICE
+                actions.append(TextOut(to=user_id, body=replies.MODEL_UNAVAILABLE))
+                return actions
             sess.last_prediction = prediction
             sess.last_tier_result = tier_result
             sess.nearest_hospital = nearest
@@ -288,7 +333,8 @@ def handle_event(
 
             actions.append(TextOut(
                 to=user_id,
-                body=_build_triage_text(prediction, tier_result, nearest),
+                body=_build_triage_text(prediction, tier_result, nearest,
+                                        sess.voice_transcript or ""),
             ))
             if pdf_bytes:
                 actions.append(PdfOut(
@@ -297,9 +343,22 @@ def handle_event(
                     filename=f"skinai_referral_{user_id[-4:]}.pdf",
                     caption="📄 আপনার রেফারেল পত্র · Your referral letter",
                 ))
-            actions.append(TextOut(to=user_id, body=replies.format_chat_followup()))
-            sess.state = State.RAG_CHAT
+            actions.append(TextOut(to=user_id, body=replies.ASK_SHARE_WITH_DOCTOR))
+            sess.state = State.AWAITING_SHARE_CONSENT
             return actions
+
+        if sess.state == State.AWAITING_SHARE_CONSENT:
+            answer = text.lower() if etype == "text" else ""
+            if answer in _YES:
+                case_id = _share_case_with_doctor(sess, user_id)
+                body = replies.SHARED_OK if case_id else replies.SHARE_FAILED
+            elif answer in _NO:
+                body = replies.NOT_SHARED
+            else:
+                return [TextOut(to=user_id, body=replies.ASK_SHARE_WITH_DOCTOR)]
+            sess.state = State.RAG_CHAT
+            return [TextOut(to=user_id, body=body),
+                    TextOut(to=user_id, body=replies.format_chat_followup())]
 
         if sess.state in (State.RESULT_SENT, State.RAG_CHAT):
             if etype != "text" or not text:

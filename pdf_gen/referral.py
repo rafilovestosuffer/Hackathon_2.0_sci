@@ -282,7 +282,7 @@ def generate_referral_pdf(session_data: dict) -> bytes:
     pdf.set_text_color(*_GREY)
     pdf.lat(8)
     pdf.multi_cell(0, 5,
-        "Model: BD-SkinNet (Swin-B + CBAM, INT8) | F1 = 92.46% | "
+        "Model: BD-SkinNet (Swin-B + CBAM, INT8, 6 classes) | validation F1 0.816 | "
         "Trained on Faridpur MCH + Rangpur MCH clinical data")
     pdf.set_text_color(*_RED)
     pdf.cell(0, 5, "This is an AI-assisted screening tool, not a medical diagnosis.",
@@ -311,6 +311,24 @@ def generate_referral_pdf(session_data: dict) -> bytes:
     if bengali_text:
         pdf.bn(10)
         pdf.multi_cell(0, 6, bengali_text, new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+
+    # Why this tier — the triage signals that fired (severity.engine.explain_tier)
+    _disease_for_reasons = session_data.get("disease_class")
+    if _disease_for_reasons and not session_data.get("clinician_reviewed"):
+        try:
+            from severity.engine import explain_tier
+            _reasons = explain_tier(_disease_for_reasons,
+                                    float(session_data.get("confidence", 0.0)),
+                                    session_data.get("transcript") or "")
+        except Exception:
+            _reasons = []
+        if _reasons:
+            pdf.lat(9, bold=True)
+            pdf.cell(0, 5, "Why this tier:", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+            pdf.lat(9)
+            for _r in _reasons:
+                pdf.multi_cell(0, 4.5, "- " + _r["en"].replace("→", "->").replace("≥", ">="),
+                               new_x=XPos.LMARGIN, new_y=YPos.NEXT)
 
     if tier == 3 and hospital_name:
         pdf.lat(9)

@@ -40,11 +40,13 @@ SkinAI Bangladesh takes a patient's **spoken Bengali complaint** and **one skin 
 
 > It is **not** a classifier in a web page. It is an **end-to-end clinical triage system** — engineered to always fail *toward* a doctor, never away from one.
 
+> **Origin.** Version 1 was built for the SciBlitz AI Challenge 2026 (July 2026; frozen at tag [`v1-sciblitz`](https://github.com/rafilovestosuffer/Hackathon_2.0_sci/tree/v1-sciblitz)). The International AI Builders Congress 2026 work (HealthSphere AI → CareAnywhere) adds: one shared model service for every channel, a clinician review queue, an offline store-and-forward page, and "why this tier" explanations.
+
 ---
 
 ## 🔴 The problem
 
-Bangladesh has roughly **one dermatologist per 250,000 people**. In rural areas, an estimated **80% of skin conditions are untreated or mistreated** by unlicensed practitioners.
+Low-income countries average **0.37 dermatologists per 100,000 people**, far below the 5.63 per 100,000 that a 158-country study found to be sufficient (JAMA Dermatology, 2026). Bangladesh has **7.9 doctors of any kind per 10,000 people** (Lancet Public Health, 2023), and about **6 in 10 people live in rural areas** (World Bank, 2024) — while specialist skin care sits in teaching and district hospitals.
 
 <div align="center">
 
@@ -62,7 +64,7 @@ Bangladesh has roughly **one dermatologist per 250,000 people**. In rural areas,
 
 **Live app (no login):** **[huggingface.co/spaces/rafilovestosuffer/skinai-bd](https://huggingface.co/spaces/rafilovestosuffer/skinai-bd)**
 
-Open **Tab 1 → "⚡ Quick Start"** and click a pre-filled case — each runs the **full pipeline** (inference → triage → hospital map → referral PDF) in one click:
+Open **Tab 1 → "⚡ Quick Start"** and click a scripted scenario — each walks the **full pipeline** (triage → hospital map → referral PDF) in one click. The class and confidence in these scenarios are preset so each button shows its tier; the page labels them as scripted and shows the live model's real output on the same photo next to them. **Upload your own photo for a live analysis.**
 
 | Click this | You'll see |
 |---|---|
@@ -72,6 +74,30 @@ Open **Tab 1 → "⚡ Quick Start"** and click a pre-filled case — each runs t
 | 💚 **Normal · Healthy** | Tier 0 → no referral needed |
 
 > 💾 **Tab 3** also has a one-click **"Download a sample referral letter"** — a fully-populated PDF, no pipeline run needed. Perfect for judges in a silent room.
+
+---
+
+## 🌐 CareAnywhere — offline triage with a doctor in the loop
+
+*International AI Builders Congress 2026 · HealthSphere AI → **CareAnywhere**: "safe, explainable triage with measurable access expansion", offline and low-bandwidth, human in the loop.*
+
+| Piece | Where | What it does |
+|---|---|---|
+| **Offline page** | **[/lite/](https://rafilovestosuffer-skinai-bd.hf.space/lite/)** | Opens with no network after the first visit. Photo + 4 warning signs (fever, spreading, pain, bleeding). Any warning sign → *"go to a health facility today"* shown **offline, at once**. The photo is shrunk on the phone (≤640 px JPEG, typically tens of KB) and queued; it syncs to the model when signal returns. |
+| **Doctor Queue** | **[/doctor](https://rafilovestosuffer-skinai-bd.hf.space/doctor)** (PIN) | A clinician confirms or overrides the AI's class and tier on consented cases from web, Telegram and /lite. Every decision is audit-logged; Telegram patients get the decision pushed to them; live KPIs: tier agreement, overrides, under-triage caught. |
+| **Why this tier** | every result (web, bot, PDF) | One plain-language line per triage signal that fired — class base tier, low confidence, reported warning signs. |
+| **One model service** | `model/service.py` | Web, Telegram and `/api` run the same checkpoint. If it can't run, the patient is told so — **no result is ever made up**. |
+
+```
+ offline phone                       server                                  clinician
+ ─────────────                       ──────                                  ─────────
+ photo + warning signs ──(queued)──▶ POST /api/cases ─▶ BD-SkinNet ─▶ 3-signal triage ─▶ result + reasons
+   │                                     │ (only with consent)                                    │
+   └─ red flag? "go today" (offline)     └──────────▶ Doctor Queue ──confirm / override──▶ audit log
+                                                                  └──▶ patient notified (Telegram) / polled (/lite)
+```
+
+**Safety rules:** urgency shown on /lite = the stricter of the offline warning-sign advice and the server tier — advice to go today is never downgraded by the model. Doctor review audits and corrects; it never delays an urgent referral. Shared cases hold no name, phone or transcript and are deleted after 7 days.
 
 ---
 
@@ -180,26 +206,26 @@ Input 224×224×3
    ├── Stage 2 → 512 ch  │  attention) → Global Average Pool
    └── Stage 3 → 1024 ch─┘
             concat → 1920-d → Dropout → Linear(512) → LayerNorm → GELU
-                            → Dropout → Linear(8 classes) → softmax
+                            → Dropout → Linear(6 classes) → softmax
 ```
 
 - **Swin Transformer Base** — hierarchical vision transformer with shifted-window attention; captures both fine texture (scale, burrows) and overall lesion shape.
 - **CBAM (Convolutional Block Attention Module)** on **all 4 stages** — *channel* attention learns *which* features matter (redness vs. scale), *spatial* attention learns *where* to look (the lesion, not the background). This is the model's built-in focus + interpretability mechanism, and the reason it generalizes well from a modest clinical dataset.
 - **Multi-scale fusion** — pooling + concatenating all four stages lets the head reason over coarse and fine evidence at once.
 
-**8 classes** (7 conditions + a `Normal` control): Atopic Dermatitis · Contact Dermatitis · Eczema · Normal · Scabies · Seborrheic Dermatitis · Tinea · Vitiligo — each with a Bengali name.
+**Live checkpoint: 6 classes** — Atopic Dermatitis · Contact Dermatitis · Eczema · Scabies · Seborrheic Dermatitis · Tinea — each with a Bengali name. The class list is read from the checkpoint itself (`class_to_idx`), so labels always match the model's outputs. Vitiligo and healthy skin are **not** predicted by the live model; the knowledge graph, doctor override list and scripted demo still know them.
 
 | Property | Value |
 |---|---|
-| Test F1 | **92.46%** (held-out Bangladeshi clinical set) |
-| Accuracy / AUC-ROC | 92.37% / 0.9937 (reported) |
-| Parameters | ~88M (FP32); **INT8** weights for serving |
-| Quantization | `torch.quantization.quantize_dynamic` → ~4× smaller, within ~1.5 F1 of FP32 |
+| Live checkpoint | 6 classes · INT8 · **validation F1 0.816** (epoch 34, stored in the checkpoint). Held-out test metrics for this checkpoint: [`results/`](results/) once `scripts/eval_triage_safety.py` has run. |
+| Research model (not deployed) | 7-class BD-SkinNet: macro-F1 **92.46%**, accuracy 92.37%, AUC 0.9937 on 499 real test images, image-level stratified 70/15/15 split, mean of 3 seeds ([BD_SkinNet results](https://github.com/rafilovestosuffer/BD_SkinNet/blob/main/results/RESULTS.md)). |
+| Parameters | ~88M; **INT8** checkpoint ≈ 89 MB |
+| Quantization | `torch.quantization.quantize_dynamic` on Linear layers (INT8) |
 | Latency | ~1.8 s/image on **free CPU** |
 | Checkpoint | Hugging Face Hub `rafilovestosuffer/bd-skinnet`, downloaded & cached at runtime |
-| Training data | **Faridpur, Rangpur & Kishoreganj Medical College Hospitals** — 3,322 real clinical images; no DermNet, no scraped, no web images (rare classes rebalanced with diffusion synthesis) |
+| Training data | **Faridpur, Rangpur & Kishoreganj Medical College Hospitals** — 3,322 real clinical images; no DermNet, no scraped or web images. Three rare classes were augmented with 1,039 Stable Diffusion images, **in the training split only** — the test set is real images only. Split is by image, not by patient. |
 
-> Full [Model Card](docs/MODEL_CARD.md) + [Data Card](docs/DATA_CARD.md) in the repo. If the checkpoint can't download (cold Space / offline), inference returns a deterministic demo result with the identical schema, so the demo always works.
+> Full [Model Card](docs/MODEL_CARD.md) + [Data Card](docs/DATA_CARD.md) in the repo. If the checkpoint can't load, every channel says the model is unavailable and gives **no result** — it never shows a placeholder diagnosis. The Quick Start buttons are scripted scenarios and are labelled as such; the live model's output on the same photo is shown next to them.
 
 </details>
 
@@ -387,7 +413,7 @@ A typed **provider abstraction** ([`telemedicine/providers.py`](telemedicine/pro
 
 <br>
 
-- **No patient data is ever persisted** — web app uses `session_state`; the bot uses in-memory sessions with TTL eviction. No images, transcripts, or names touch disk.
+- **Nothing is saved by default** — the web app uses `session_state`; the bot uses in-memory sessions with TTL eviction. A case is written to disk **only if the patient consents to doctor review** ([`cases/store.py`](cases/store.py)): a ≤256 px EXIF-stripped thumbnail, the AI output, warning signs and district — no name, phone or transcript — deleted automatically after 7 days. Telegram chat ids are kept only until the doctor's decision is sent.
 - **Anonymized aggregate telemetry only** ([`analytics/db.py`](analytics/db.py)): a local SQLite table of *counters* — event type, disease class, tier, language, confidence bucket. **No identifiers, no content.** Best-effort writes that can never crash the app.
 - **`/docs` dashboard** ([`pages/docs.py`](pages/docs.py)) shows knowledge-graph stats + the anonymized usage summary.
 
@@ -434,7 +460,7 @@ skinai-bangladesh/
 │
 ├── model/
 │   ├── bd_skinnet.py           # Swin-B + CBAM ×4 + INT8 loader + predict()
-│   └── disease_labels.py       # 8 classes · Bengali names · base tiers
+│   └── disease_labels.py       # label names · Bengali names · base tiers
 ├── severity/engine.py          # Tier 0 + 3-signal triage engine
 ├── voice/pipeline.py           # 3-pass Whisper ASR → Gemini 9-field history
 ├── rag/
@@ -520,7 +546,7 @@ pytest tests/ -v
 
 | If this fails… | …the system does this |
 |---|---|
-| Model checkpoint download | Deterministic demo prediction (same schema) |
+| Model checkpoint download | "Model unavailable" message, no result (bot keeps the photo for a retry) |
 | ChromaDB / FAISS | Falls back to BM25 keyword search |
 | Kuzu graph | Skips graph context; RAG still answers |
 | Overpass API | DGHS division-hospital fallback |
@@ -539,7 +565,7 @@ pytest tests/ -v
 - **Never a diagnosis** — every output is a *referral to a licensed clinician*; the PDF is addressed to a doctor.
 - **Never a medicine** — enforced in code (regex redaction over every LLM response).
 - **Uncertainty escalates** — confidence < 40% → Tier 3 by design.
-- **Bias disclosed in the product** — a bilingual fairness note renders under every prediction (training data is predominantly Fitzpatrick IV–VI, adults ≥18, 7 conditions; pediatric / melanoma / mucosal / Fitzpatrick I–III are out of scope).
+- **Bias disclosed in the product** — a bilingual fairness note renders under every prediction (training data is predominantly Fitzpatrick IV–VI, adults ≥18, 6 conditions; pediatric / melanoma / mucosal / Fitzpatrick I–III are out of scope).
 - **Data minimization** — no PII persisted; only anonymized aggregate counters.
 
 | # | Constraint | Status | Evidence |
@@ -547,7 +573,7 @@ pytest tests/ -v
 | 1 | No DermNet data | ✅ | Clinical training data + 104 chunks all CDC/NIH/WHO/DGHS |
 | 2 | No login / instant public URL | ✅ | Public HF Space, no auth |
 | 3 | No medicine recommendations | ✅ | `_redact_medicine_names()` on every RAG response |
-| 4 | No persistent patient database | ✅ | `session_state` + in-memory bot sessions; only anonymized non-PII counters on disk |
+| 4 | No persistent patient database | ✅ | `session_state` + in-memory bot sessions; consent-only review cases (no name/phone/transcript) auto-deleted after 7 days; anonymous counters |
 | 5 | Knowledge = CDC/NIH/WHO/DGHS only | ✅ | Every chunk has a `SOURCE:` header |
 | 6 | INT8 quantization on CPU | ✅ | `quantize_dynamic`; CPU-only torch wheel |
 | 7 | Live through the event window | ✅ | GitHub Actions keepalive every 20 min |
@@ -590,7 +616,7 @@ Three independent revenue streams (losing any one is survivable):
 | **2 — Regional** | 8 districts | ≈ $200 | HF → AWS `ap-south-1` is a Dockerfile swap |
 | **3 — National + South Asia** | + Hindi/Urdu RAG | ≈ $400 | **Offline ONNX/TFLite APK**, SMS triage, CHW mode |
 
-**Last-mile vision:** only ~40% of rural Bangladesh has reliable 4G. The INT8 model (< 50 MB) is already small enough to bundle in an offline APK — the hardest first step is **done**. ([`docs/SCALABILITY_ROADMAP.md`](docs/SCALABILITY_ROADMAP.md))
+**Last-mile vision:** rural connectivity is patchy, so the [`/lite`](https://rafilovestosuffer-skinai-bd.hf.space/lite/) page works offline first: it captures the photo and runs the red-flag check with no network, then syncs when signal returns. The INT8 checkpoint is ≈ 89 MB. ([`docs/SCALABILITY_ROADMAP.md`](docs/SCALABILITY_ROADMAP.md))
 
 </details>
 
